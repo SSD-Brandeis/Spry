@@ -1,1 +1,0 @@
-g++ -std=c++1y -O0 -ggdb -g3   -otest_compact  test_compact.cc  ../workload_executor.cc ../emu_environment.cc  ../tree_builder/page.cc ../tree_builder/memory_buffer.cc ../tree_builder/delete_tile.cc ../tree_builder/disk_meta_file.cc ../tree_builder/sst_file.cc ..\range_delete_filter\perlevel_range_delete_filter_by_vector.cc ..\range_delete_filter\skyline_range_delete_filter.cc
