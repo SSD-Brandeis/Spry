@@ -872,11 +872,11 @@ std::cout  << "FlushJob::WriteLevel0Table A1 " << __FILE__ << ":" << __LINE__ <<
       auto* range_del_iter = m->NewRangeTombstoneIterator(
           ro, kMaxSequenceNumber, true /* immutable_memtable */);
 // range_del_iter  //Self Added
-std::cout << "range_del_iter " << range_del_iter->start_key() << " " << range_del_iter->end_key() << __FILE__ << ":" << __LINE__ << std::endl;
-if(FileMetaData::per_level_range_delete_filter.size() == 0){
-  FileMetaData::per_level_range_delete_filter.push_back(PL_RDF());
-}
-        FileMetaData::per_level_range_delete_filter[0].addRangeDelete(stoll(range_del_iter->start_key().ToString()), stoll(range_del_iter->end_key().ToString()));
+// std::cout << "range_del_iter " << range_del_iter->start_key() << " " << range_del_iter->end_key() << __FILE__ << ":" << __LINE__ << std::endl;
+// if(FileMetaData::per_level_range_delete_filter.size() == 0){
+//   FileMetaData::per_level_range_delete_filter.push_back(PL_RDF());
+// }
+// FileMetaData::per_level_range_delete_filter[0].addRangeDelete(stoll(range_del_iter->start_key().ToString()), stoll(range_del_iter->end_key().ToString()));
 
 
 
