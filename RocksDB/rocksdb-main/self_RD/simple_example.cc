@@ -93,20 +93,24 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
 
     Iterator* it = db->NewIterator(read_op); // for range reads
     uint64_t counter = 0; // for progress bar
+    int KEY_SIZE = 12;
 
     while (!workload_file.eof()) {
         char instruction;
         long key, start_key, end_key;
         std::string type;
         std::string value;
+        std::stringstream ss_key, ss_start_key, ss_end_key;
         workload_file >> instruction;
         switch (instruction)
         {
         case 'I': // insert
             workload_file >> key >> value;
 // std::cout << "Insert " << key << std::endl;
+            ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
+// std::cout << "Insert " <<  ss_key.str() << std::endl;
             // Put key-value
-            s = db->Put(write_op, std::to_string(key), value);
+            s = db->Put(write_op, ss_key.str(), value);
             if (!s.ok()) std::cerr << s.ToString() << std::endl;
             assert(s.ok());
             counter++;
@@ -115,7 +119,8 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
         case 'Q': // probe: point query
             workload_file >> key;
 std::cout << "Query " << key << std::endl;
-            s = db->Get(read_op, std::to_string(key), &value);
+            ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
+            s = db->Get(read_op, ss_key.str(), &value);
             //if (!s.ok()) std::cerr << s.ToString() << "key = " << key << std::endl;
             // assert(s.ok());
             counter++;
@@ -125,9 +130,11 @@ std::cout << "Query " << key << std::endl;
             workload_file >> start_key >> end_key;
             it->Refresh();
             assert(it->status().ok());
-            for (it->Seek(std::to_string(start_key)); it->Valid(); it->Next()) {
+            ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
+            ss_end_key << std::setfill('0') << std::setw(KEY_SIZE) << end_key;
+            for (it->Seek(ss_start_key.str()); it->Valid(); it->Next()) {
                 //std::cout << "found key = " << it->key().ToString() << std    ::endl;
-                if (it->key().ToString() == std::to_string(end_key)) {
+                if (it->key().ToString() == ss_end_key.str()) {
                     break;
                 }
             }
@@ -140,7 +147,9 @@ std::cout << "Query " << key << std::endl;
         case 'D': // delete 
             workload_file >> type >> start_key >> end_key;
             if(type == "Range"){
-                s = db->DeleteRange(write_op, db->DefaultColumnFamily(), std::to_string(start_key), std::to_string(end_key));
+                ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
+                ss_end_key << std::setfill('0') << std::setw(KEY_SIZE) << end_key;
+                s = db->DeleteRange(write_op, db->DefaultColumnFamily(), ss_start_key.str(), ss_end_key.str());
                 if (!s.ok()) std::cerr << s.ToString() << std::endl;
                 assert(s.ok());
                 counter++;
