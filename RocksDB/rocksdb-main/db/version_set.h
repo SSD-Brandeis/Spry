@@ -124,6 +124,8 @@ enum EpochNumberRequirement {
   kMustPresent,
 };
 
+
+using PL_RDF = PerlevelRangeDeleteFilterByVector;
 // Information of the storage associated with each Version, including number of
 // levels of LSM tree, files information at each level, files marked for
 // compaction, blob files, etc.
@@ -604,6 +606,19 @@ class VersionStorageInfo {
                                      const Slice& largest_user_key,
                                      int last_level, int last_l0_idx);
 
+  //Self Added
+  void storeRange2RDFTest(RangeTombstone tombStone){
+    RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
+  }
+
+  void printRDFTest(){
+    std::cout << "@version_set.h" << std::endl;
+    for(auto x: RDF_test){
+      std::cout << x.first << " " << x.second << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+  }
+
  private:
   void ComputeCompensatedSizes();
   void UpdateNumNonEmptyLevels();
@@ -620,6 +635,11 @@ class VersionStorageInfo {
   void GenerateLevel0NonOverlapping();
   void GenerateBottommostFiles();
   void GenerateFileLocationIndex();
+
+  
+  std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
+  std::vector<std::pair<long long, long long>> RDF_test; //Self Added
+
 
   const InternalKeyComparator* internal_comparator_;
   const Comparator* user_comparator_;

@@ -287,6 +287,10 @@ std::cout  << "FlushJob::Run A2 " << __FILE__ << ":" << __LINE__ << " " << __FUN
 std::cout  << "FlushJob::Run A3 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // This will release and re-acquire the mutex.
     s = WriteLevel0Table();
+//Self Added
+std::cout << __FILE__ << ":" << __LINE__ << " printRDFTest "  << std::endl;
+edit_->printRDFTest();
+cfd_->current()->storage_info()->printRDFTest();
   }
 
   if (s.ok() && cfd_->IsDropped()) {
@@ -543,10 +547,24 @@ Status FlushJob::MemPurge() {
 
     // Range tombstone transfer.
     if (s.ok()) {
+// //Self Added
+// std::cout << __FILE__ << ":" << __LINE__ << " "  << __FUNCTION__ << std::endl;
+// auto range_del_iter2 = range_del_agg->NewIterator();
+// std::cout << "range_del_iter " <<  (range_del_iter2->key()).ToString() << " " << (range_del_iter2->key()).ToString(true) << " " <<  (range_del_iter2->key()).ToString(false) << " " << __FILE__ << ":" << __LINE__ << std::endl;
+// // std::cout << "number of deletes " << m->num_deletes()   << std::endl;
+// //Self Added
+// for (range_del_iter2->SeekToFirst(); range_del_iter2->Valid(); range_del_iter2->Next()) {
+//   auto tombstone = range_del_iter2->Tombstone();
+//   std::cout << "flush tombstone " << tombstone.start_key_.ToString() << " " << tombstone.end_key_.ToString() << std::endl;
+// }
+
       auto range_del_it = range_del_agg->NewIterator();
       for (range_del_it->SeekToFirst(); range_del_it->Valid();
            range_del_it->Next()) {
         auto tombstone = range_del_it->Tombstone();
+
+
+
         new_first_seqno =
             tombstone.seq_ < new_first_seqno ? tombstone.seq_ : new_first_seqno;
         s = new_mem->Add(
@@ -869,14 +887,29 @@ std::cout  << "FlushJob::WriteLevel0Table A1 " << __FILE__ << ":" << __LINE__ <<
           "[%s] [JOB %d] Flushing memtable with next log file: %" PRIu64 "\n",
           cfd_->GetName().c_str(), job_context_->job_id, m->GetNextLogNumber());
       memtables.push_back(m->NewIterator(ro, &arena));
+
+//Self added      
+auto* range_del_iter2 = m->NewRangeTombstoneIterator(
+          ro, kMaxSequenceNumber, true /* immutable_memtable */);
+if (range_del_iter2 != nullptr) {
+std::cout << "valid " << range_del_iter2->Valid() << " " << range_del_iter2 << __FILE__ << ":" << __LINE__ << std::endl;
+std::cout << "range_del_iter " <<  (range_del_iter2->key()).ToString() << " " << (range_del_iter2->key()).ToString(true) << " " <<  (range_del_iter2->key()).ToString(false) << " " << range_del_iter2 << __FILE__ << ":" << __LINE__ << std::endl;
+std::cout << "number of deletes " << m->num_deletes()   << std::endl;
+
+  for (range_del_iter2->SeekToFirst(); range_del_iter2->Valid(); range_del_iter2->Next()) {
+    auto tombstone = range_del_iter2->Tombstone();
+    std::cout << "flush tombstone " << tombstone.start_key_.ToString() << " " << tombstone.end_key_.ToString() << std::endl;
+  
+    edit_->storeRange2RDFTest(tombstone);
+    cfd_->current()->storage_info()->storeRange2RDFTest(tombstone);
+  }
+}
+
+
+
+
       auto* range_del_iter = m->NewRangeTombstoneIterator(
           ro, kMaxSequenceNumber, true /* immutable_memtable */);
-// range_del_iter  //Self Added
-// std::cout << "range_del_iter " << range_del_iter->start_key() << " " << range_del_iter->end_key() << __FILE__ << ":" << __LINE__ << std::endl;
-// if(FileMetaData::per_level_range_delete_filter.size() == 0){
-//   FileMetaData::per_level_range_delete_filter.push_back(PL_RDF());
-// }
-// FileMetaData::per_level_range_delete_filter[0].addRangeDelete(stoll(range_del_iter->start_key().ToString()), stoll(range_del_iter->end_key().ToString()));
 
 
 

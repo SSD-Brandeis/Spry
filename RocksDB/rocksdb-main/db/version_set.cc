@@ -2329,6 +2329,10 @@ std::cout  << "Version::Get A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNC
     pinned_iters_mgr->StartPinning();
   }
 
+//Self Added
+std::cout << "FilePicker " << __FILE__ << ":" << __LINE__ << std::endl;
+std::cout << storage_info_.level_files_brief_.size() << std::endl;
+
   FilePicker fp(user_key, ikey, &storage_info_.level_files_brief_,
                 storage_info_.num_non_empty_levels_,
                 &storage_info_.file_indexer_, user_comparator(),
@@ -5186,6 +5190,7 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
       }
     }
     for (int i = 0; i < static_cast<int>(versions.size()); ++i) {
+std::cout << "version(s) size : " << versions.size() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       assert(!builder_guards.empty() &&
              builder_guards.size() == versions.size());
       auto* builder = builder_guards[i]->version_builder();

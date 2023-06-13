@@ -2211,6 +2211,11 @@ std::cout  << "DBImpl::GetImpl A11 B2 C2 (sv->imm)" << __FILE__ << ":" << __LINE
   PinnedIteratorsManager pinned_iters_mgr;
   if (!done) {
 std::cout  << "DBImpl::GetImpl A12 @not done yet -> GET (PostMemTableGet / search in disk --) " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+//Self Added
+std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// sv->current()->storage_info()->printRDFTest();
+cfd ->current()->storage_info()->printRDFTest();
+// sv->printRDFTest(); 
     PERF_TIMER_GUARD(get_from_output_files_time);
     sv->current->Get(
         read_options, lkey, get_impl_options.value, get_impl_options.columns,

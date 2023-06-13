@@ -27,6 +27,7 @@
 #include "util/autovector.h"
 
 // #include "self_RD/range_delete_filter/range_delete_filter.h"
+#include <utility>
 
 
 namespace ROCKSDB_NAMESPACE {
@@ -192,9 +193,8 @@ struct FileSampledStats {
   mutable std::atomic<uint64_t> num_reads_sampled;
 };
 
-using PL_RDF = PerlevelRangeDeleteFilterByVector;
 struct FileMetaData {
-  static std::vector<PL_RDF> per_level_range_delete_filter; //Self Added, ranges don't split when inserts come//added by ychaung
+  // static std::vector<PL_RDF> per_level_range_delete_filter; //Self Added, ranges don't split when inserts come//added by ychaung
 
   FileDescriptor fd;
   InternalKey smallest;  // Smallest internal key served by table
@@ -391,6 +391,7 @@ struct LevelFilesBrief {
   }
 };
 
+using PL_RDF = PerlevelRangeDeleteFilterByVector;
 // The state of a DB at any given time is referred to as a Version.
 // Any modification to the Version is considered a Version Edit. A Version is
 // constructed by joining a sequence of Version Edits. Version Edits are written
@@ -661,6 +662,19 @@ class VersionEdit {
   std::string DebugString(bool hex_key = false) const;
   std::string DebugJSON(int edit_num, bool hex_key = false) const;
 
+  //Self Added
+  void storeRange2RDFTest(RangeTombstone tombStone){
+    RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
+  }
+
+  void printRDFTest(){
+    std::cout << "@version_edit.h" << std::endl;
+    for(auto x: RDF_test){
+      std::cout << x.first << " " << x.second << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+  }
+
  private:
   friend class ReactiveVersionSet;
   friend class VersionEditHandlerBase;
@@ -671,6 +685,9 @@ class VersionEdit {
   friend class VersionSet;
   friend class Version;
   friend class AtomicGroupReadBuffer;
+
+  std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
+  std::vector<std::pair<long long, long long>> RDF_test; //Self Added
 
   bool GetLevel(Slice* input, int* level, const char** msg);
 
