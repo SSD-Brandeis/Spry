@@ -22,7 +22,7 @@
 
 namespace ROCKSDB_NAMESPACE {
 
-std::vector<PL_RDF> FileMetaData::per_level_range_delete_filter; //Self Added, ranges don't split when inserts come//added by ychaung
+// std::vector<PL_RDF> FileMetaData::per_level_range_delete_filter; //Self Added, ranges don't split when inserts come//added by ychaung
 
 
 //Self Added
