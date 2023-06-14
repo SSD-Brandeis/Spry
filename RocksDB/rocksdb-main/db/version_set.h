@@ -125,6 +125,7 @@ enum EpochNumberRequirement {
 };
 
 
+//Self Added
 using PL_RDF = PerlevelRangeDeleteFilterByVector;
 // Information of the storage associated with each Version, including number of
 // levels of LSM tree, files information at each level, files marked for
@@ -612,7 +613,7 @@ class VersionStorageInfo {
   }
 
   void printRDFTest(){
-    std::cout << "@version_set.h" << std::endl;
+    std::cout << "VersionStorageInfo @version_set.h" << std::endl;
     for(auto x: RDF_test){
       std::cout << x.first << " " << x.second << std::endl;
     }
@@ -636,7 +637,7 @@ class VersionStorageInfo {
   void GenerateBottommostFiles();
   void GenerateFileLocationIndex();
 
-  
+  //Self Added
   std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
   std::vector<std::pair<long long, long long>> RDF_test; //Self Added
 
@@ -1026,7 +1027,36 @@ class Version {
       const ReadOptions& read_options, MergeIteratorBuilder* merge_iter_builder,
       int level, bool allow_unprepared_value);
 
+
+  //Self Added
+  void storeRange2RDFTest(RangeTombstone tombStone){
+    RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
+  }
+
+  void printRDFTest(){
+    std::cout << "Version --- RDF_test @version_set.h" << std::endl;
+    for(auto x: RDF_test){
+      std::cout << x.first << " " << x.second << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+  }
+
+  void printRDFTest2(){
+    std::cout << "Version --- RDF_test2 @version_set.h" << std::endl;
+    for(auto x: RDF_test2){
+      std::cout << x.first << " " << x.second << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+  }
+
+  void setRDFTest2(std::vector<std::pair<long long, long long>> RDF_test_in){this->RDF_test2 = RDF_test_in;}
+
+
  private:
+  //Self Added
+  std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
+  std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
+
   Env* env_;
   SystemClock* clock_;
 

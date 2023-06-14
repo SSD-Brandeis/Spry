@@ -2215,7 +2215,13 @@ std::cout  << "DBImpl::GetImpl A12 @not done yet -> GET (PostMemTableGet / searc
 std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 // sv->current()->storage_info()->printRDFTest();
 cfd ->current()->storage_info()->printRDFTest();
-// sv->printRDFTest(); 
+// SuperVersion *sv2 = cfd->GetThreadLocalSuperVersion(this);
+// sv2->printRDFTest2();
+cfd->current()->printRDFTest();
+cfd->current()->printRDFTest2();
+cfd->printRDFTest();
+//
+
     PERF_TIMER_GUARD(get_from_output_files_time);
     sv->current->Get(
         read_options, lkey, get_impl_options.value, get_impl_options.columns,

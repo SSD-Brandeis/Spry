@@ -291,6 +291,16 @@ std::cout  << "FlushJob::Run A3 " << __FILE__ << ":" << __LINE__ << " " << __FUN
 std::cout << __FILE__ << ":" << __LINE__ << " printRDFTest "  << std::endl;
 edit_->printRDFTest();
 cfd_->current()->storage_info()->printRDFTest();
+// SuperVersion *sv = cfd_->GetThreadLocalSuperVersion(this);
+// sv->printRDFTest();
+std::cout << "(flush job) cfd_->current()->printRDFTest() " << std::endl;
+cfd_->current()->printRDFTest();
+std::cout << "(flush job) cfd_->current()->printRDFTest2() " << std::endl;
+cfd_->current()->printRDFTest2();
+std::cout << "(flush job) cfd_->printRDFTest() " << std::endl;
+cfd_->printRDFTest();
+std::cout << "(flush job) cfd_->printRDFTest2() " << std::endl;
+cfd_->printRDFTest2();
   }
 
   if (s.ok() && cfd_->IsDropped()) {
@@ -902,6 +912,12 @@ std::cout << "number of deletes " << m->num_deletes()   << std::endl;
   
     edit_->storeRange2RDFTest(tombstone);
     cfd_->current()->storage_info()->storeRange2RDFTest(tombstone);
+    
+    // SuperVersion *sv = cfd_->GetThreadLocalSuperVersion(this);
+    // sv->printRDFTest();
+    cfd_->current()->storeRange2RDFTest(tombstone);
+    cfd_->storeRange2RDFTest(tombstone);
+    cfd_->storeRange2RDFTest2(tombstone);
   }
 }
 

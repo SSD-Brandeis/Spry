@@ -199,6 +199,8 @@ class ColumnFamilyHandleInternal : public ColumnFamilyHandleImpl {
   ColumnFamilyData* internal_cfd_;
 };
 
+//Self Added
+using PL_RDF = PerlevelRangeDeleteFilterByVector;
 // holds references to memtable, all immutable memtables and version
 struct SuperVersion {
   // Accessing members of this class is not thread-safe and requires external
@@ -237,7 +239,37 @@ struct SuperVersion {
   static void* const kSVInUse;
   static void* const kSVObsolete;
 
+  //Self Added
+  void storeRange2RDFTest(RangeTombstone tombStone){
+    RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
+  }
+
+  void printRDFTest(){
+    std::cout << "SuperVision @column_family.h" << std::endl;
+    for(auto x: RDF_test){
+      std::cout << x.first << " " << x.second << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+  }
+
+  void printRDFTest2(){
+    std::cout << "SuperVision @column_family.h" << std::endl;
+    for(auto x: RDF_test2){
+      std::cout << x.first << " " << x.second << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+  }
+
+  std::vector<std::pair<long long, long long>> getRDFTest(){return this->RDF_test;}
+
+  void setRDFTest(std::vector<std::pair<long long, long long>> RDF_test_in){this->RDF_test = RDF_test_in;}
+  void setRDFTest2(std::vector<std::pair<long long, long long>> RDF_test_in){this->RDF_test2 = RDF_test_in;}
+
  private:
+  //Self Added
+  std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
+  std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
+
   std::atomic<uint32_t> refs;
   // We need to_delete because during Cleanup(), imm->Unref() returns
   // all memtables that we need to free through this vector. We then
@@ -539,7 +571,38 @@ class ColumnFamilyData {
   // of its files (if missing)
   void RecoverEpochNumbers();
 
+
+  //Self Added
+  void storeRange2RDFTest(RangeTombstone tombStone){
+    RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
+  }
+  void storeRange2RDFTest2(RangeTombstone tombStone){
+    RDF_test2.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
+  }
+
+  void printRDFTest(){
+    std::cout << "ColumnFamilyData --- RDF_test1 @column_family.h" << std::endl;
+    for(auto x: RDF_test){
+      std::cout << x.first << " " << x.second << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+  }
+
+  void printRDFTest2(){
+    std::cout << "ColumnFamilyData --- RDF_test2 @column_family.h" << std::endl;
+    for(auto x: RDF_test2){
+      std::cout << x.first << " " << x.second << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+  }
+
+
  private:
+  //Self Added
+  std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
+  std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
+
+
   friend class ColumnFamilySet;
   ColumnFamilyData(uint32_t id, const std::string& name,
                    Version* dummy_versions, Cache* table_cache,
