@@ -295,7 +295,11 @@ cfd_->current()->storage_info()->printRDFTest();
 // sv->printRDFTest();
 std::cout << "(flush job) cfd_->current()->printRDFTest() " << std::endl;
 cfd_->current()->printRDFTest();
+std::cout << "(flush job) cfd_->current()->printRDFTest2() " << std::endl;
+cfd_->current()->printRDFTest2();
+std::cout << "(flush job) cfd_->printRDFTest() " << std::endl;
 cfd_->printRDFTest();
+std::cout << "(flush job) cfd_->printRDFTest2() " << std::endl;
 cfd_->printRDFTest2();
   }
 
