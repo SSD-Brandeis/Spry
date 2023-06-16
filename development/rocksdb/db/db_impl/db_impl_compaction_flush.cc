@@ -3668,6 +3668,9 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 std::cout << "(bg compact non-trivial) c->start_level() = " << c->start_level() << " c->output_level() = " << c->output_level() << std::endl;
 std::cout << "(bg compact non-trivial) num_input_levels = " << c->num_input_levels() << std::endl;
 std::cout << "(bg compact non-trivial) c->GetSmallestUserKey().ToString() = " << c->GetSmallestUserKey().ToString() << " c->GetLargestUserKey().ToString() = " << c->GetLargestUserKey().ToString() << std::endl;
+std::cout << "(bg compact non-trivial) c.get() " << c.get() << std::endl;
+std::cout << "(bg compact non-trivial) job_context->job_id " << job_context->job_id << std::endl;
+
 
 for (unsigned int l = 0; l < c->num_input_levels(); l++) {
 std::cout << "(bg compact non-trivial) c->level(l) = " << c->level(l) << " c->output_level() = " << c->output_level() << std::endl;

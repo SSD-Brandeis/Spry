@@ -37,6 +37,8 @@ inline void showProgress(const uint64_t& workload_size, const uint64_t& counter)
 void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
     DB* db;
 
+    op.level0_file_num_compaction_trigger = 1;
+
     op.create_if_missing = true;
     // op.write_buffer_size = 8 * 1024 * 1024;
     op.write_buffer_size = 8 * 4;
