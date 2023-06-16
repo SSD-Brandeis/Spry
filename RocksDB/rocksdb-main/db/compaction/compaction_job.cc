@@ -717,6 +717,10 @@ std::cout  << "CompactionJob::Run A1 " << __FILE__ << ":" << __LINE__ << " " << 
         if (file_idx >= files_output.size()) {
           break;
         }
+//Self Added
+std::cout << "(compaction job) output file files_output.size() = " << files_output.size() << " file_idx = " << file_idx << std::endl;
+std::cout << "(compaction job) output file files_output[file_idx]->meta.smallest.user_key().ToString() " << (files_output[file_idx]->meta).smallest.user_key().ToString() << std::endl;
+std::cout << "(compaction job) output file files_output[file_idx]->meta.largest.user_key().ToString() " << (files_output[file_idx]->meta).largest.user_key().ToString() << std::endl;
         // Verify that the table is usable
         // We set for_compaction to false and don't
         // OptimizeForCompactionTableRead here because this is a special case
