@@ -2214,12 +2214,19 @@ std::cout  << "DBImpl::GetImpl A12 @not done yet -> GET (PostMemTableGet / searc
 //Self Added
 std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 // sv->current()->storage_info()->printRDFTest();
-cfd ->current()->storage_info()->printRDFTest();
+
+// std::cout << "(GetImpl) cfd_->current()->storage_info()->printRDFTest() " << std::endl;
+// cfd ->current()->storage_info()->printRDFTest();
+
 // SuperVersion *sv2 = cfd->GetThreadLocalSuperVersion(this);
 // sv2->printRDFTest2();
+
+std::cout << "(GetImpl) cfd_->current()->printRDFTest() " << std::endl;
 cfd->current()->printRDFTest();
+std::cout << "(GetImpl) cfd_->current()->printRDFTest2() " << std::endl;
 cfd->current()->printRDFTest2();
-cfd->printRDFTest();
+// std::cout << "(GetImpl) cfd->printRDFTest " << std::endl;
+// cfd->printRDFTest();
 //
 
     PERF_TIMER_GUARD(get_from_output_files_time);
