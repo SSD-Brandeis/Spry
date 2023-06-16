@@ -289,18 +289,22 @@ std::cout  << "FlushJob::Run A3 " << __FILE__ << ":" << __LINE__ << " " << __FUN
     s = WriteLevel0Table();
 //Self Added
 std::cout << __FILE__ << ":" << __LINE__ << " printRDFTest "  << std::endl;
-edit_->printRDFTest();
-cfd_->current()->storage_info()->printRDFTest();
+// std::cout << "(flush job) edit_->printRDFTest() " << std::endl;
+// edit_->printRDFTest();
+// std::cout << "(flush job) cfd_->current()->storage_info()->printRDFTest() " << std::endl;
+// cfd_->current()->storage_info()->printRDFTest();
+
 // SuperVersion *sv = cfd_->GetThreadLocalSuperVersion(this);
 // sv->printRDFTest();
+
 std::cout << "(flush job) cfd_->current()->printRDFTest() " << std::endl;
 cfd_->current()->printRDFTest();
 std::cout << "(flush job) cfd_->current()->printRDFTest2() " << std::endl;
 cfd_->current()->printRDFTest2();
-std::cout << "(flush job) cfd_->printRDFTest() " << std::endl;
-cfd_->printRDFTest();
-std::cout << "(flush job) cfd_->printRDFTest2() " << std::endl;
-cfd_->printRDFTest2();
+// std::cout << "(flush job) cfd_->printRDFTest() " << std::endl;
+// cfd_->printRDFTest();
+// std::cout << "(flush job) cfd_->printRDFTest2() " << std::endl;
+// cfd_->printRDFTest2();
   }
 
   if (s.ok() && cfd_->IsDropped()) {
@@ -899,6 +903,9 @@ std::cout  << "FlushJob::WriteLevel0Table A1 " << __FILE__ << ":" << __LINE__ <<
       memtables.push_back(m->NewIterator(ro, &arena));
 
 //Self added      
+cfd_->current()->setRDFTest2(cfd_->current()->getRDFTest());
+
+std::vector<pll> range_delete_list_in;
 auto* range_del_iter2 = m->NewRangeTombstoneIterator(
           ro, kMaxSequenceNumber, true /* immutable_memtable */);
 if (range_del_iter2 != nullptr) {
@@ -910,15 +917,25 @@ std::cout << "number of deletes " << m->num_deletes()   << std::endl;
     auto tombstone = range_del_iter2->Tombstone();
     std::cout << "flush tombstone " << tombstone.start_key_.ToString() << " " << tombstone.end_key_.ToString() << std::endl;
   
-    edit_->storeRange2RDFTest(tombstone);
-    cfd_->current()->storage_info()->storeRange2RDFTest(tombstone);
+    // edit_->storeRange2RDFTest(tombstone);
+    // cfd_->current()->storage_info()->storeRange2RDFTest(tombstone);
     
     // SuperVersion *sv = cfd_->GetThreadLocalSuperVersion(this);
     // sv->printRDFTest();
-    cfd_->current()->storeRange2RDFTest(tombstone);
-    cfd_->storeRange2RDFTest(tombstone);
-    cfd_->storeRange2RDFTest2(tombstone);
+
+    // cfd_->current()->storeRange2RDFTest(tombstone);
+    assert( cfd_->current()->getIsRDFTest2Set() != false);
+    cfd_->current()->storeRange2RDFTest2(tombstone);
+    // cfd_->current()->storeRange2RDFilter(0, tombstone);
+    range_delete_list_in.push_back(std::make_pair( std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) ));
+    // cfd_->storeRange2RDFTest(tombstone);
+    // cfd_->storeRange2RDFTest2(tombstone);
   }
+
+
+  cfd_->current()->storeRanges2RDFilter(0, range_delete_list_in);
+  
+  cfd_->current()->printRDFilter();
 }
 
 

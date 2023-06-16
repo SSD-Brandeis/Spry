@@ -1413,6 +1413,8 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
   if (!s.ok()) {
     return s;
   }
+std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+std::cout << "input_files.size() = " << input_files.size() << std::endl;
 
   for (const auto& inputs : input_files) {
     if (cfd->compaction_picker()->AreFilesInCompaction(inputs.files)) {
@@ -3545,17 +3547,24 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
     NotifyOnCompactionBegin(c->column_family_data(), c.get(), status,
                             compaction_job_stats, job_context->job_id);
 
+std::cout << std::endl << std::endl;
 std::cout  << "DBImpl::BackgroundCompaction A5 @trivial compaction " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+std::cout << "Move files to next level" << std::endl;
+std::cout << "num_input_levels = " << c->num_input_levels() << std::endl;
+std::cout << "the output_level = " << c->output_level() << std::endl;
     // Move files to next level
     int32_t moved_files = 0;
     int64_t moved_bytes = 0;
     for (unsigned int l = 0; l < c->num_input_levels(); l++) {
+std::cout << "c->level(l) = " << c->level(l) << " c->output_level() = " << c->output_level() << std::endl;
       if (c->level(l) == c->output_level()) {
         continue;
       }
+std::cout << "@level = " << l << "  num_input_files(level) = " << c->num_input_files(l) << std::endl;
       for (size_t i = 0; i < c->num_input_files(l); i++) {
         FileMetaData* f = c->input(l, i);
+std::cout << "(bg Compaction) file smallest,largest = " << f->smallest.user_key().ToString() << " " << f->largest.user_key().ToString() << std::endl;
         c->edit()->DeleteFile(c->level(l), f->fd.GetNumber());
         c->edit()->AddFile(
             c->output_level(), f->fd.GetNumber(), f->fd.GetPathId(),
@@ -3653,8 +3662,32 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
                        &earliest_write_conflict_snapshot, &snapshot_checker);
     assert(is_snapshot_supported_ || snapshots_.empty());
 
-std::cout  << "DBImpl::BackgroundCompaction A6 @compaction_job (non trivial) " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+//Self Added
+std::cout << "DBImpl::BackgroundCompaction A6 @compaction_job (non trivial) " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+std::cout << "(bg compact non-trivial) c->start_level() = " << c->start_level() << " c->output_level() = " << c->output_level() << std::endl;
+std::cout << "(bg compact non-trivial) num_input_levels = " << c->num_input_levels() << std::endl;
+std::cout << "(bg compact non-trivial) c->GetSmallestUserKey().ToString() = " << c->GetSmallestUserKey().ToString() << " c->GetLargestUserKey().ToString() = " << c->GetLargestUserKey().ToString() << std::endl;
+std::cout << "(bg compact non-trivial) c.get() " << c.get() << std::endl;
+std::cout << "(bg compact non-trivial) job_context->job_id " << job_context->job_id << std::endl;
+
+
+for (unsigned int l = 0; l < c->num_input_levels(); l++) {
+std::cout << "(bg compact non-trivial) c->level(l) = " << c->level(l) << " c->output_level() = " << c->output_level() << std::endl;
+  if (c->level(l) == c->output_level()) {
+    continue;
+  }
+std::cout << "(bg compact non-trivial) @level = " << l << "  num_input_files(level) = " << c->num_input_files(l) << std::endl;
+  for (size_t i = 0; i < c->num_input_files(l); i++) {
+    FileMetaData* f = c->input(l, i);
+std::cout << "(bg compact non-trivial) file smallest,largest = " << f->smallest.user_key().ToString() << " " << f->largest.user_key().ToString() << std::endl; 
+std::cout << "(bg compact non-trivial) f->fd.GetPathId() " << f->fd.GetPathId() << std::endl;
+//  f->fd.GetFileSize();
+  }
+}
+ 
+ 
+ 
     CompactionJob compaction_job(
         job_context->job_id, c.get(), immutable_db_options_,
         mutable_db_options_, file_options_for_compaction_, versions_.get(),
