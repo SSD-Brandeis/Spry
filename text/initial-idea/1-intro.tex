@@ -1,0 +1,43 @@
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.20]{figures/graph_v1.png}
+    \caption{Many point-lookups on the same key increase I/Os linearly. PLACEHOLDER. ADD GRAPH WITH DELETES IMPACT INSTEAD. MAYBE KEEP THAT}
+    \label{fig:method}
+\end{figure}
+
+\Paragraph{LSM-based Key-Value Stores} 
+To store all information Key-Value stores use the log-structured merge (LSM) tree.
+LSM-trees store incoming data entries in main memory to facilitate writes, and periodically flush the entries as an immutable sorted run on durable storage.
+Runs store entries in a specific type of file called 'SST files'.
+During every compaction, the participating runs are sort-merged and invalidated entries are permanently deleted. Each compaction uses runs from consecutive levels.
+LSM-trees are adopted by several modern systems including LevelDB~\cite{} and BigTable~\cite{} at Google, RocksDB~\cite{} at Facebook, X-Engine~\cite{} at Alibaba, Voldemort~\cite{} at LinkedIn, Dynamo~\cite{} at Amazon, Cassandra~\cite{}, HBase~\cite{}, and Accumulo~\cite{} at Apache, and bLSM~\cite{} and cLSM~\cite{} at Yahoo. 
+MyRocks~\cite{} uses RocksDB as storage engine and SQLite4~\cite{} has experimented with LSM-trees in its storage layer, while columnar systems use LSM-style updates~\cite{}.
+
+\Paragraph{Deletes in RocksDB}
+It might not seem obvious at first but deletes are probably the most common operation in LSM trees and RocksDB. 
+Of course deletes are used to invalidate specific entries, but they are also used during updates.
+LSM trees use out-of-place updates which means that instead of updating the requested value, a new version is inserted in the higher levels. 
+To complete this operation and avoid keeping older versions of values, LSM trees have to invalidate the older versions with a  tombstone. 
+As a result, the delete operation accounts for almost half of every update operation. 
+This, combined with the fact that deletes happen very frequently in many workloads, suggest that both range and point deletes majorly affect the performance such systems.
+In this paper we will concentrate more on Range Deletes and ways to improve their performance.(MORE ON WHY RANGE DELETES IN SPECIFIC).
+When a range delete is issued, a range tombstone is generated and added to the database. 
+A point request initiates a process where all range tombstones are fetched from the disk and fragmented in memory. 
+This enables the system to respond whether the requested key is deleted by such a range tombstone.
+
+
+\Paragraph{The Problem} As previously mentioned, if a key is deleted by a range delete, we use one I/O to fetch the key and its sequence number and then ask the range delete aggregator to check if it is deleted. 
+Thus, even if the key is deleted, we waste one I/O. 
+If the key is requested for a second time, the same operation takes place, wasting more I/Os linearly.
+This behavior can be seen in Figure 1.
+
+\Paragraph{The Solution} 
+Our method reduces disk accesses when a key deleted by a range delete is accessed multiple times.
+It stores the deleted keys in a new key-value store which resides entirely in memory. 
+This store contains deleted keys and gives no false-negative responses.
+In this way, when a range deleted key is requested the first time, it is saved in this KV store. 
+All future requests will first ask this KV store before accessing the disk to obtain the sequence number, thus eliminating I/Os.
+In addition to that, we take advantage of the granularity that disk accesses happen.
+Instead of retrieving and storing information in our KV store for only the requested key, we store information about all the keys in the same page.
+In this way we can store more information and potentially avoid IOs on range deleted keys in the same page which may have not been requested yet.
+
