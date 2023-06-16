@@ -1,0 +1,93 @@
+
+\Paragraph{Basics}
+LSM-trees store data as key-value pairs. They have N levels and the first level, Level0, is stored in main memory and referred to as a buffer.
+The remaining N-1 levels are stored on external storage.
+RocksDB uses leveling instead of tiering which means that all levels consist of one run.(EXPLAIN MORE.)
+These N-1 levels store data in the SST files.
+SST stands for Sorted Sequence Table and they are persistent files storing data. 
+In the file, keys are usually organized in sorted order so that a key or iterating position can be identified through a binary search.
+All new entries are initially stored in the buffer and are later compacted to lower(HIGHER?) levels.
+Compaction pushes keys and values to lower levels to free up space in memory.
+There are many compaction policies, some more aggressive and others not so much.
+This approach enables the system to treat updates, deletes and inserts very quickly as only the main memory is used.
+If an update or delete on a key is requested, the system first searches in the main buffer by first consulting a dedicated bloom filter, and if the key exists, it is in-place updated or permanently deleted.
+Otherwise, if the key is not in the buffer, instead of scanning the disk the system will insert a new entry in the tree.
+This entry has absolutely no difference with a normal insert entry and will be eventually stored in an SST file. 
+In the case of deleted the new entry has the same key as the one that needs to be deleted and a flag which showcases that it is a tombstone.
+This is an out-of-place delete as the value is not immediately deleted.
+Updates, work the same way, by inserting the newer version in memory but before that, a delete has to be initiated as the older version needs to be invalidated and later be deleted during compactions. 
+The invalidated entries are eventually deleted when the file that contains the tombstone is compacted with the file that contains the value. 
+
+
+\Paragraph{Partial Compaction} 
+To amortize the latency spikes resulting from compactions in larger levels, state-of-the-art LSM based systems organize runs into smaller files, and perform compactions at the granularity of files instead of levels [22]. 
+If Level i grows beyond a threshold capacity, a compaction is triggered and one file from Level i is chosen to be compacted with files from Level i + 1 that have an overlapping key-range, performing a partial compaction. 
+Deciding which file to compact depends on the storage engine design. 
+For instance, to optimize for high write throughput, we select the file from Level i that has minimal overlapping files in Level i + 1, to minimize both write amplification and compaction time. 
+Partial compactions spread the total number of I/Os performed during compactions of an entire level over time to multiple smaller compactions.
+
+\Paragraph{Point deletes in RocksDB}
+Write something generic?? 
+
+\Paragraph{Point deletes read path implementation in RocksDB} 
+Deleting keys is a very common pattern in RocksDB.
+A point delete  does not delete the actual value, but inserts a new entry to the LSM tree that is called "tombstone".
+Every tombstone has its own sequence number.
+The sequence number is an auto-incremented ID number that is used to implement snapshot read, garbage collection in compactions, MVCC in transactions, and some other purposes such as determining the age of the entries. 
+The larger the sequence number, the newer the entry.
+When a point lookup is requested from the database, the newest entry is retrieved. If this entry is a tombstone it means that the key is deleted. 
+
+\Paragraph{Range deletes read path implementation in RocksDB} 
+Most systems built on top of RocksDB have multi-component key schemas, where keys sharing a common prefix are logically related. 
+The most common pattern is scan-and-delete, i.e., advance an iterator through the to-be-deleted range, and issue a delete for each key.
+This approach, even though functional majorly increases space amplification as it creates many tombstones, slows down iterators and doesn't offer a deadline for space reclamation and increases I/Os. 
+Not until recently, a dedicated mechanism for range deletes was implemented. 
+However, even though it offers greater speeds in inserting delete ranges, it decreases look up speeds for non deleted keys. 
+Also, the current system does not adapt and as a result executes `wasted' IOs in cases where a deleted key by a range delete is requested multiple times. 
+Our method uses tries~\cite{Zhang2018a} in order to efficiently store keys that led to wasted IOs and avoid making them in the future. 
+The more the system operates, the more useful our tries become, thus saving IOs which is the bound for most systems.
+
+When a range delete is issued, it is first written to a dedicated memtable for range tombstones.
+As memtable we refer to the in-memory data structure that stores the most recent updates of the database.
+
+\Paragraph{Range tombstones} 
+A range tombstone is composed of a start key, end key, and sequence number. 
+Any key that falls within the range is considered deleted if the key's sequence number is less than or equal to the range tombstone's sequence number. 
+Range tombstones are not fragmented in the memtable directly, but are instead fragmented each time a read occurs.
+Range tombstones are stored in the SST files themselves. Not in the data blocks, but in a separate meta block for range tombstones. 
+This resolves the problem of when to obsolete range tombstones, as it's simple: when they're compacted to the bottom level. 
+Each SST file contains all range tombstones at that level that cover user keys overlapping with the file's key range; this greatly simplifies iterator seeking and point lookups. 
+When a new range delete is requested from the system, a range delete tombstone is created which is later applied to a dedicated range tombstone memtable. 
+Later in the background the range tombstone memtable and its corresponding data memtable are flushed together into a single SST with a range tombstone meta-block. 
+As new data is inserted, new compactions are executed. 
+During these compactions, in the same way as with single key tombstones, obsolete range delete tombstones are permanently deleted, thus reducing storage occupancy. 
+
+\Paragraph{Range deletes read path Implementation in RocksDB} 
+In a point lookup, RocksDB first looks at the fence pointers table kept in memory. 
+This table keeps the page address and the first key of each page of the SST files. 
+Then, by using binary search, the corresponding page is found. 
+Afterwards, the bloom filter of each file probabilistically responds if the key is contained in the file. If not the key does not exist for sure. 
+If yes, we execute an I/O to fetch the key and its sequence number. The next step is to determine if this key is deleted. 
+If the key is deleted by a point delete it means that the most recent version of that key in the LSM-tree is a tombstone, which is practically an entry with a flag to indicate that it is a delete. 
+In a range delete however, when the requested key resides in a range deleted area, the fence pointer and bloom filter will bypass this range tombstone and lead to the SST file that the key is stored. 
+Thus, there is no immediate way to decide whether the key is deleted.
+
+\Paragraph{Skyline vs RDA} 
+In the the initial implementation of range deletes in RocksDB, each read operation  of built up a 'skyline' for the range tombstones visible at the read sequence number. 
+In point lookups, range tombstones were aggregated in an unordered vector, essentially the 'skyline' as they were search through live memtable, immutable memtables, and then SSTs. 
+This Skyline approach can very quickly determine whether a key is deleted but is expensive to construct and maintain. 
+The initial skyline range tombstone implementation has since been replaced with a more efficient lookup structure. 
+The key change in the new implementation is to fragment the range tombstones that are stored in an sstable. 
+The fragmented range tombstones provide the same benefit as the skyline representation: the ability to binary search the fragments in order to find the tombstone covering a key. 
+But unlike the skyline approach, the fragmented tombstones can be cached on a per-sstable basis. 
+In the v2 approach, a range delete aggregator (RDA) keeps track of the fragmented range tombstones for each sstable encountered during a read or iterator, and logically merges them together. 
+In summary, in RocksDB the range delete aggregator acts as an oracle for answering whether a key is deleted at a particular sequence number. 
+Due to caching of fragmented tombstones, the v2 implementation of RDA is significantly faster to populate than v1, yet the overall approach to processing range tombstones remains similar. 
+The entire path is visible in figure 2
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.3]{figures/read_path.png}
+    \caption{Read path.}
+    \label{fig:method}
+\end{figure}
