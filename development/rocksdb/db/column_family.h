@@ -14,6 +14,9 @@
 #include <unordered_map>
 #include <vector>
 
+#include <iostream>
+#include <iomanip>
+
 #include "cache/cache_reservation_manager.h"
 #include "db/memtable_list.h"
 #include "db/table_cache.h"
@@ -30,6 +33,31 @@
 #include "util/thread_local.h"
 
 namespace ROCKSDB_NAMESPACE {
+
+  //Self Added
+  using pll = std::pair<long long, long long>;
+  class PerlevelRangeDeleteFilterByVector {  
+    private:
+      std::vector<std::vector<pll>> rd_filter; //list of range delete (start, end), all entries are non-overlapping
+      
+      void addRangeDelete(std::vector<pll> &range_delete_list, long long start, long long end);
+      void addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll> &range_delete_list_in);
+
+    public:
+      // std::vector<pll> getRangeDeleteList();
+      void addRangeDelete(uint level, long long start, long long end);
+      void addRangeDelete(uint level, std::vector<pll> &range_delete_list_in);
+
+      void print();
+
+      bool isEntryAlive(uint level, long long key);
+
+      // int getRangeDeleteCount();
+
+  };
+
+
+
 
 class Version;
 class VersionSet;
@@ -240,8 +268,9 @@ struct SuperVersion {
   static void* const kSVObsolete;
 
   //Self Added
-  void storeRange2RDFTest(RangeTombstone tombStone){
-    RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
+
+  void storeRange2RDFTest(RangeTombstone tombstone){
+    RDF_test.push_back(std::make_pair( std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) ));
   }
 
   void printRDFTest(){
@@ -267,7 +296,7 @@ struct SuperVersion {
 
  private:
   //Self Added
-  std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
+  // PL_RDF per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
   std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
 
   std::atomic<uint32_t> refs;

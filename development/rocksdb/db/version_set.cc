@@ -92,6 +92,7 @@
 
 namespace ROCKSDB_NAMESPACE {
 
+
 namespace {
 
 // Find File in LevelFilesBrief data structure
