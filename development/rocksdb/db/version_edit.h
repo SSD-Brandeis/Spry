@@ -32,24 +32,6 @@
 
 namespace ROCKSDB_NAMESPACE {
 
-  //Self Added
-  using pll = std::pair<long long, long long>;
-  class PerlevelRangeDeleteFilterByVector {  
-    private:
-      std::vector<pll> range_delete_list; //list of range delete (start, end), all entries are non-overlapping
-      
-    public:
-      std::vector<pll> getRangeDeleteList();
-      void addRangeDelete(long long start, long long end);
-
-      void printRangeDeleteList();
-
-      bool isEntryAlive(long long start);
-
-      int getRangeDeleteCount();
-
-  };
-
 // Tag numbers for serialized VersionEdit.  These numbers are written to
 // disk and should not be changed. The number should be forward compatible so
 // users can down-grade RocksDB safely. A future Tag is ignored by doing '&'
@@ -391,7 +373,7 @@ struct LevelFilesBrief {
   }
 };
 
-using PL_RDF = PerlevelRangeDeleteFilterByVector;
+// using PL_RDF = PerlevelRangeDeleteFilterByVector;
 // The state of a DB at any given time is referred to as a Version.
 // Any modification to the Version is considered a Version Edit. A Version is
 // constructed by joining a sequence of Version Edits. Version Edits are written
@@ -663,17 +645,17 @@ class VersionEdit {
   std::string DebugJSON(int edit_num, bool hex_key = false) const;
 
   //Self Added
-  void storeRange2RDFTest(RangeTombstone tombStone){
-    RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
-  }
+  // void storeRange2RDFTest(RangeTombstone tombStone){
+  //   RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
+  // }
 
-  void printRDFTest(){
-    std::cout << "@version_edit.h" << std::endl;
-    for(auto x: RDF_test){
-      std::cout << x.first << " " << x.second << std::endl;
-    }
-    std::cout << std::endl << std::endl;
-  }
+  // void printRDFTest(){
+  //   std::cout << "@version_edit.h" << std::endl;
+  //   for(auto x: RDF_test){
+  //     std::cout << x.first << " " << x.second << std::endl;
+  //   }
+  //   std::cout << std::endl << std::endl;
+  // }
 
  private:
   friend class ReactiveVersionSet;
@@ -686,8 +668,8 @@ class VersionEdit {
   friend class Version;
   friend class AtomicGroupReadBuffer;
 
-  std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
-  std::vector<std::pair<long long, long long>> RDF_test; //Self Added
+  // std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
+  // std::vector<std::pair<long long, long long>> RDF_test; //Self Added
 
   bool GetLevel(Slice* input, int* level, const char** msg);
 
