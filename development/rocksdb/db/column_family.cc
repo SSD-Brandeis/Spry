@@ -209,6 +209,13 @@ void PerlevelRangeDeleteFilterByVector::addRangeDelete(std::vector<pll> &range_d
 }
 
 
+void PerlevelRangeDeleteFilterByVector::shiftRDFToOutputLevel(uint current_level, uint output_level, long long start, long long end)
+{
+  // shift RDF down to output level and remove from the current level
+  std::cout << "Shifting Start_Key : " << start << " to End_Key : " << end << std::endl;
+  std::cout << "From Level : " << current_level << " to Level : " << output_level << std::endl;
+}
+
 
 // std::vector<pll> PerlevelRangeDeleteFilterByVector::getRangeDeleteList(){
 //   return PerlevelRangeDeleteFilterByVector::range_delete_list;
