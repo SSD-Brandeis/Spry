@@ -1045,7 +1045,6 @@ class Version {
     per_level_RDF_updated.addRangeDelete(level, range_delete_list_in);
   }
 
-
   void printRDFilter(){
     per_level_RDF.print();
   }
@@ -1100,6 +1099,16 @@ class Version {
 
   std::vector<std::pair<long long, long long>> getRDFTest(){return this->RDF_test;}
   std::vector<std::pair<long long, long long>> getRDFTest2(){return this->RDF_test2;}
+
+  /*
+   * shift RDF for given range from current_level to output_level
+   * start_key, end_key are the smallest and largest key of the current_level file
+   * If any key exists between these keys (inclusive) than remove and shit downwards to output_level
+   */
+  void shiftRDFToOutputLevel(Slice start_key, Slice end_key, int current_level, int output_level)
+  {
+    per_level_RDF_updated.shiftRDFToOutputLevel(current_level, output_level, std::stoll(start_key.ToString()), std::stoll(end_key.ToString()));
+  }
 
  private:
   //Self Added

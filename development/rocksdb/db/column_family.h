@@ -47,6 +47,7 @@ namespace ROCKSDB_NAMESPACE {
       // std::vector<pll> getRangeDeleteList();
       void addRangeDelete(uint level, long long start, long long end);
       void addRangeDelete(uint level, std::vector<pll> &range_delete_list_in);
+      void shiftRDFToOutputLevel(uint current_level, uint output_level, long long start, long long end);
 
       void print();
 
