@@ -833,7 +833,7 @@ std::cout  << "CompactionJob::Install A1 " << __FILE__ << ":" << __LINE__ << " "
   assert(cfd);
 
 std::cout  << "CompactionJob::Install A2 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout  << "CompactionJob::Install A2 " << "(level, output_level = )" << compact_->compaction->level() << "," <<  compact_->compaction->output_level() << std::endl;
+std::cout  << "CompactionJob::Install A1 " << "(level, output_level = )" << compact_->compaction->level() << "," <<  compact_->compaction->output_level() << std::endl;
   int output_level = compact_->compaction->output_level();
   cfd->internal_stats()->AddCompactionStats(output_level, thread_pri_,
                                             compaction_stats_);
@@ -1727,6 +1727,21 @@ Status CompactionJob::InstallCompactionResults(
       edit->AddCompactCursor(start_level,
                              vstorage->GetNextCompactCursor(
                                  start_level, compaction->num_input_files(0)));
+    }
+  }
+
+  // Push RDF data down to `output_level`
+  for (size_t lvl = 0; lvl < compaction->num_input_levels(); lvl++)
+  {
+    const std::vector<FileMetaData*>* file_meta_data_vector = compaction->inputs(lvl);  // get the file meta data vector
+    int current_level = compaction->level(lvl);
+    if (current_level != compaction->output_level())
+    {
+      for (size_t index = 0; index < file_meta_data_vector->size(); index++){
+        auto file_meta_data = (*file_meta_data_vector)[index];
+        compaction->column_family_data()->current()->shiftRDFToOutputLevel(
+          file_meta_data->smallest.user_key(), file_meta_data->largest.user_key(), current_level, compaction->output_level());
+      }
     }
   }
 

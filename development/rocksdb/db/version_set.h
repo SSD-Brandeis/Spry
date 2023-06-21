@@ -1028,6 +1028,18 @@ class Version {
       const ReadOptions& read_options, MergeIteratorBuilder* merge_iter_builder,
       int level, bool allow_unprepared_value);
 
+  //Self Added
+  void printAllFileRanges(){
+    std::cout <<  std::setfill('-') << std::setw(60) << " START: Print All File Ranges " << std::setfill('-') << std::setw(60) << "" << std::endl;
+    int l = storage_info_.num_levels();
+    for(int i = 0; i < l; i++){
+      std::cout << "Level " << i << std::endl;
+      for(auto file : storage_info_.LevelFiles(i)){
+        std::cout << "File " << file->fd.GetNumber() << " : " << file->smallest.user_key().ToString() << " - " << file->largest.user_key().ToString() << std::endl;
+      }
+    }
+    std::cout <<  std::setfill('-') << std::setw(60) << " END: Print All File Ranges " << std::setfill('-') << std::setw(60) << "" << std::endl;
+  }
 
   //Self Added
   void storeRange2RDFilter(uint level, RangeTombstone tombstone){
@@ -1044,7 +1056,6 @@ class Version {
     std::sort(range_delete_list_in.begin(), range_delete_list_in.end());
     per_level_RDF_updated.addRangeDelete(level, range_delete_list_in);
   }
-
 
   void printRDFilter(){
     per_level_RDF.print();
@@ -1100,6 +1111,16 @@ class Version {
 
   std::vector<std::pair<long long, long long>> getRDFTest(){return this->RDF_test;}
   std::vector<std::pair<long long, long long>> getRDFTest2(){return this->RDF_test2;}
+
+  /*
+   * shift RDF for given range from current_level to output_level
+   * start_key, end_key are the smallest and largest key of the current_level file
+   * If any key exists between these keys (inclusive) than remove and shit downwards to output_level
+   */
+  void shiftRDFToOutputLevel(Slice start_key, Slice end_key, int current_level, int output_level)
+  {
+    per_level_RDF_updated.shiftRDFToOutputLevel(current_level, output_level, std::stoll(start_key.ToString()), std::stoll(end_key.ToString()));
+  }
 
  private:
   //Self Added

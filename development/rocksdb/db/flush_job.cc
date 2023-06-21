@@ -902,7 +902,9 @@ std::cout  << "FlushJob::WriteLevel0Table A1 " << __FILE__ << ":" << __LINE__ <<
           cfd_->GetName().c_str(), job_context_->job_id, m->GetNextLogNumber());
       memtables.push_back(m->NewIterator(ro, &arena));
 
-//Self added      
+//Self added
+cfd_->current()->printAllFileRanges();
+      
 cfd_->current()->setRDFTest2(cfd_->current()->getRDFTest());
 
 std::vector<pll> range_delete_list_in;
