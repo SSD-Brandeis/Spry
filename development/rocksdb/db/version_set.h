@@ -1028,6 +1028,18 @@ class Version {
       const ReadOptions& read_options, MergeIteratorBuilder* merge_iter_builder,
       int level, bool allow_unprepared_value);
 
+  //Self Added
+  void printAllFileRanges(){
+    std::cout <<  std::setfill('-') << std::setw(60) << " START: Print All File Ranges " << std::setfill('-') << std::setw(60) << "" << std::endl;
+    int l = storage_info_.num_levels();
+    for(int i = 0; i < l; i++){
+      std::cout << "Level " << i << std::endl;
+      for(auto file : storage_info_.LevelFiles(i)){
+        std::cout << "File " << file->fd.GetNumber() << " : " << file->smallest.user_key().ToString() << " - " << file->largest.user_key().ToString() << std::endl;
+      }
+    }
+    std::cout <<  std::setfill('-') << std::setw(60) << " END: Print All File Ranges " << std::setfill('-') << std::setw(60) << "" << std::endl;
+  }
 
   //Self Added
   void storeRange2RDFilter(uint level, RangeTombstone tombstone){
