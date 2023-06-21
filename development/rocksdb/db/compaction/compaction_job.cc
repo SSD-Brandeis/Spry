@@ -1296,6 +1296,14 @@ void CompactionJob::ProcessKeyValueCompaction(SubcompactionState* sub_compact) {
       "CompactionJob::ProcessKeyValueCompaction()::Processing",
       reinterpret_cast<void*>(
           const_cast<Compaction*>(sub_compact->compaction)));
+  
+
+  // Self Added Hint: Do Range Deletion Point Entries here
+  // ProcessKeyValueCompaction() is the main loop of the compaction process.
+  // It iterates through the compaction input, and add the key/value to the
+  // target compaction output.
+  // It will call the `open_file_func` and `close_file_func` to open/close the
+  // output file when needed.
   while (status.ok() && !cfd->IsDropped() && c_iter->Valid()) {
     // Invariant: c_iter.status() is guaranteed to be OK if c_iter->Valid()
     // returns true.

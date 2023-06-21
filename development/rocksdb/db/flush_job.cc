@@ -902,7 +902,9 @@ std::cout  << "FlushJob::WriteLevel0Table A1 " << __FILE__ << ":" << __LINE__ <<
           cfd_->GetName().c_str(), job_context_->job_id, m->GetNextLogNumber());
       memtables.push_back(m->NewIterator(ro, &arena));
 
-//Self added      
+//Self added
+cfd_->current()->printAllFileRanges();
+      
 cfd_->current()->setRDFTest2(cfd_->current()->getRDFTest());
 
 std::vector<pll> range_delete_list_in;
@@ -1086,7 +1088,7 @@ std::cout  << "FlushJob::WriteLevel0Table A2 @SSTFileCreated " << __FILE__ << ":
     // threads could be concurrently producing compacted files for
     // that key range.
     // Add file to L0
-std::cout  << "FlushJob::WriteLevel0Table A2 @SSTFileCreated " << "(meta_.smallest, meta_.largest) = " << meta_.smallest.user_key().ToString()  << "," <<  meta_.largest.user_key().ToString() << std::endl;
+std::cout  << "FlushJob::WriteLevel0Table A2 @AddingMetaDataFile " << "(meta_.smallest, meta_.largest) = " << meta_.smallest.user_key().ToString()  << "," <<  meta_.largest.user_key().ToString() << std::endl;
     edit_->AddFile(0 /* level */, meta_.fd.GetNumber(), meta_.fd.GetPathId(),
                    meta_.fd.GetFileSize(), meta_.smallest, meta_.largest,
                    meta_.fd.smallest_seqno, meta_.fd.largest_seqno,
@@ -1100,6 +1102,10 @@ std::cout  << "FlushJob::WriteLevel0Table A2 @SSTFileCreated " << "(meta_.smalle
   }
   // Piggyback FlushJobInfo on the first first flushed memtable.
   mems_[0]->SetFlushJobInfo(GetFlushJobInfo());
+
+  //Self Added
+  cfd_->current()->printAllFileRanges();
+
 
   // Note that here we treat flush as level 0 compaction in internal stats
   InternalStats::CompactionStats stats(CompactionReason::kFlush, 1);
