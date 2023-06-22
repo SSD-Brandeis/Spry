@@ -1030,11 +1030,12 @@ class Version {
 
   //Self Added
   void printAllFileRanges(){
-    std::cout <<  std::setfill('-') << std::setw(60) << " START: Print All File Ranges " << std::setfill('-') << std::setw(60) << "" << std::endl;
+    std::cout << std::endl << std::endl;
+    std::cout << std::setfill('-') << std::setw(60) << " START: Print All File Ranges " << std::setfill('-') << std::setw(60) << "" << std::endl;
     int l = storage_info_.num_levels();
     for(int i = 0; i < l; i++){
       std::cout << "Level " << i << std::endl;
-      for(auto file : storage_info_.LevelFiles(i)){
+      for(auto &file : storage_info_.LevelFiles(i)){
         std::cout << "File " << file->fd.GetNumber() << " : " << file->smallest.user_key().ToString() << " - " << file->largest.user_key().ToString() << std::endl;
       }
     }

@@ -2213,6 +2213,8 @@ std::cout  << "DBImpl::GetImpl A11 B2 C2 (sv->imm)" << __FILE__ << ":" << __LINE
 std::cout  << "DBImpl::GetImpl A12 @not done yet -> GET (PostMemTableGet / search in disk --) " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 //Self Added
 std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+// cfd->current()->printAllFileRanges();
 // sv->current()->storage_info()->printRDFTest();
 
 // std::cout << "(GetImpl) cfd_->current()->storage_info()->printRDFTest() " << std::endl;
