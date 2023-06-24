@@ -110,6 +110,9 @@
 #include "util/string_util.h"
 #include "utilities/trace/replayer_impl.h"
 
+// #include "include/rocksdb/system_verifier.h"
+#include "utilities/system_verifier.cc"
+
 namespace ROCKSDB_NAMESPACE {
 
 const std::string kDefaultColumnFamilyName("default");
