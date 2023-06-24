@@ -11,6 +11,8 @@
 #include "rocksdb/slice.h"
 #include "rocksdb/table.h"
 
+#include "rocksdb/system_verifier.h"
+
 using namespace rocksdb;
 std::string kDBPath = "/tmp/cs561_project1";
 
@@ -58,6 +60,11 @@ void printStats(DB* db, Options& options) {
     std::cout << std::endl;
     std::cout << "RocksDB Statistics : " << std::endl;
     std::cout << "----------------------------------------" << std::endl;
+}
+
+void init(){
+
+  checking::SystemVerifier::init();
 }
 
 
@@ -128,13 +135,15 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
     exit(0);
   }
 
+  checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
+
   Iterator* it = db->NewIterator(read_op);  // for range reads
   uint64_t counter = 0;                     // for progress bar
   int KEY_SIZE = 12;
 
   while (!workload_file.eof()) {
     char instruction;
-    long key, start_key, end_key;
+    long long key, start_key, end_key;
     std::string type;
     std::string value;
     std::stringstream ss_key, ss_start_key, ss_end_key;
@@ -142,6 +151,9 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
     switch (instruction) {
       case 'I':  // insert
         workload_file >> key >> value;
+
+        system_verifier->insert(key, value);
+
         // std::cout << "Insert " << key << std::endl;
         ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
         // std::cout << "Insert " <<  ss_key.str() << std::endl;
@@ -154,6 +166,10 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
 
       case 'Q':  // probe: point query
         workload_file >> key;
+
+        // bool gt_is_exist = system_verifier->isKeyExist(key);
+        // std::string gt_value = system_verifier->get(key);
+
         std::cout << "Query " << key << std::endl;
         ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
         s = db->Get(read_op, ss_key.str(), &value);
@@ -165,6 +181,8 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
 
       case 'S':  // scan: range query
         workload_file >> start_key >> end_key;
+
+
         it->Refresh();
         assert(it->status().ok());
         ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
@@ -184,6 +202,10 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
       case 'D':  // delete
         workload_file >> type >> start_key >> end_key;
         if (type == "Range") {
+
+          system_verifier->rangeDelete(start_key, end_key);
+
+
           ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
           ss_end_key << std::setfill('0') << std::setw(KEY_SIZE) << end_key;
           s = db->DeleteRange(write_op, db->DefaultColumnFamily(),
@@ -193,12 +215,17 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
           counter++;
         } else {
           std::cerr << "ERROR: Case match NOT found !!" << std::endl;
+        std::cerr << "instruction = " << instruction << std::endl;
+          std:cerr << "type = " << type << std::endl;
+          std::cerr << "start_key = " << start_key << std::endl;
+          std::cerr << "end_key = " << end_key << std::endl;
           break;
         }
         break;
 
       default:
         std::cerr << "ERROR: Case match NOT found !!" << std::endl;
+        std::cerr << "instruction = " << instruction << std::endl;
         break;
     }
 
@@ -207,6 +234,102 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
       showProgress(workload_size, counter);
     }
   }
+
+
+  std::vector<long long> testing_key_list({2500, 5000, 5001});
+
+  for(auto &x: testing_key_list){
+    bool gt_is_exist = system_verifier->isKeyExist(x);
+    std::string gt_value = system_verifier->get(x);
+
+    std::string value;
+    std::stringstream searching_key;
+    searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+    s = db->Get(read_op, searching_key.str(), &value);
+    std::cout << x << " " << s.ok() << " " << value << std::endl;
+    std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
+  
+    if(s.ok() != gt_is_exist){
+      std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
+    }
+    if(gt_is_exist == false){continue;}
+    if(value != gt_value){
+      std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
+    }
+  }
+
+  std::cout << std::endl << std::endl;
+  std::cout << "----------------------Testing On Existing Keys-----------------------" << std::endl; 
+  for(auto &x: system_verifier->getAllExistingKeys()){
+    bool gt_is_exist = system_verifier->isKeyExist(x);
+    std::string gt_value = system_verifier->get(x);
+
+    std::string value;
+    std::stringstream searching_key;
+    searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+    s = db->Get(read_op, searching_key.str(), &value);
+    // std::cout << x << " " << s.ok() << " " << value << std::endl;
+    // std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
+  
+    if(s.ok() != gt_is_exist){
+      std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
+    }
+    if(gt_is_exist == false){continue;}
+    if(value != gt_value){
+      std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
+    }
+  }
+
+  std::cout << std::endl << std::endl;
+  std::cout << "----------------------Testing On historic-existing Keys-----------------------" << std::endl;
+  for(auto &x: system_verifier->getHistoricExistingKeys()){
+    bool gt_is_exist = system_verifier->isKeyExist(x);
+    std::string gt_value = system_verifier->get(x);
+
+    std::string value;
+    std::stringstream searching_key;
+    searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+    s = db->Get(read_op, searching_key.str(), &value);
+    // std::cout << x << " " << s.ok() << " " << value << std::endl;
+    // std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
+  
+    if(s.ok() != gt_is_exist){
+      std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
+    }
+    if(gt_is_exist == false){continue;}
+    if(value != gt_value){
+      std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
+    }
+  }
+
+  std::cout << std::endl << std::endl;
+  std::cout << "----------------------Testing On Currently Deleted Keys-----------------------" << std::endl;
+  for(auto &x: system_verifier->getCurrentlyDeletedKeys()){
+    bool gt_is_exist = system_verifier->isKeyExist(x);
+    std::string gt_value = system_verifier->get(x);
+
+    std::string value;
+    std::stringstream searching_key;
+    searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+    s = db->Get(read_op, searching_key.str(), &value);
+    // std::cout << x << " " << s.ok() << " " << value << std::endl;
+    // std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
+  
+    if(s.ok() != gt_is_exist){
+      std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
+    }
+    if(gt_is_exist == false){continue;}
+    if(value != gt_value){
+      std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
+    }
+  }
+
+  std::cout << std::endl << std::endl;
+  std::cout << "----------------------End Testing-----------------------" << std::endl;
+
+
+
+
 
   workload_file.close();
   printStats(db, op);
@@ -221,6 +344,8 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
 }
 
 int main() {
+  init();
+
   Options options;
   WriteOptions write_op;
   ReadOptions read_op;
