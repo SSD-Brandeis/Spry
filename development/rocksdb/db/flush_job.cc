@@ -297,14 +297,14 @@ std::cout << __FILE__ << ":" << __LINE__ << " printRDFTest "  << std::endl;
 // SuperVersion *sv = cfd_->GetThreadLocalSuperVersion(this);
 // sv->printRDFTest();
 
-std::cout << "(flush job) cfd_->current()->printRDFTest() " << std::endl;
-cfd_->current()->printRDFTest();
-std::cout << "(flush job) cfd_->current()->printRDFTest2() " << std::endl;
-cfd_->current()->printRDFTest2();
-// std::cout << "(flush job) cfd_->printRDFTest() " << std::endl;
-// cfd_->printRDFTest();
-// std::cout << "(flush job) cfd_->printRDFTest2() " << std::endl;
-// cfd_->printRDFTest2();
+// std::cout << "(flush job) cfd_->current()->printRDFTest() " << std::endl;
+// cfd_->current()->printRDFTest();
+// std::cout << "(flush job) cfd_->current()->printRDFTest2() " << std::endl;
+// cfd_->current()->printRDFTest2();
+// // std::cout << "(flush job) cfd_->printRDFTest() " << std::endl;
+// // cfd_->printRDFTest();
+// // std::cout << "(flush job) cfd_->printRDFTest2() " << std::endl;
+// // cfd_->printRDFTest2();
   }
 
   if (s.ok() && cfd_->IsDropped()) {
@@ -905,7 +905,7 @@ std::cout  << "FlushJob::WriteLevel0Table A1 " << __FILE__ << ":" << __LINE__ <<
 //Self added
 cfd_->current()->printAllFileRanges();
       
-cfd_->current()->setRDFTest2(cfd_->current()->getRDFTest());
+// cfd_->current()->setRDFTest2(cfd_->current()->getRDFTest());
 
 std::vector<pll> range_delete_list_in;
 auto* range_del_iter2 = m->NewRangeTombstoneIterator(
@@ -926,8 +926,8 @@ std::cout << "number of deletes " << m->num_deletes()   << std::endl;
     // sv->printRDFTest();
 
     // cfd_->current()->storeRange2RDFTest(tombstone);
-    assert( cfd_->current()->getIsRDFTest2Set() != false);
-    cfd_->current()->storeRange2RDFTest2(tombstone);
+    // assert( cfd_->current()->getIsRDFTest2Set() != false);
+    // cfd_->current()->storeRange2RDFTest2(tombstone);
     // cfd_->current()->storeRange2RDFilter(0, tombstone);
     range_delete_list_in.push_back(std::make_pair( std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) ));
     // cfd_->storeRange2RDFTest(tombstone);
