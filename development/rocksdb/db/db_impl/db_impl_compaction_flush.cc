@@ -2841,8 +2841,6 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 }
 
 void DBImpl::SchedulePendingFlush(const FlushRequest& flush_req) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   mutex_.AssertHeld();
   if (flush_req.cfd_to_max_mem_id_to_persist.empty()) {
     return;

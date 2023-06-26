@@ -15,6 +15,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <tuple>
 
 #include "db/blob/blob_file_cache.h"
 #include "db/blob/blob_source.h"
@@ -209,19 +210,100 @@ void PerlevelRangeDeleteFilterByVector::addRangeDelete(std::vector<pll> &range_d
 }
 
 
-void PerlevelRangeDeleteFilterByVector::shiftRDFToOutputLevel(uint current_level, uint output_level, long long start, long long end)
+void PerlevelRangeDeleteFilterByVector::adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<long long, long long>> one_level_compaction_file_boundaries)
 {
-  // shift RDF down to output level and remove from the current level
-  std::cout << "Shifting Start_Key : " << start << " to End_Key : " << end << std::endl;
-  std::cout << "From Level : " << current_level << " to Level : " << output_level << std::endl;
+  std::vector<pll> new_current_level_rdf;
+  std::vector<pll> to_be_added_in_next_level_rdf;
+
+  if (rd_filter.size() <= clevel)
+  {
+    return;
+  }
+  
+  auto old_current_level_rdf = rd_filter[clevel];
+
+  if (one_level_compaction_file_boundaries.size() == 0)
+  {
+    return;
+  }
+
+  auto it = old_current_level_rdf.begin();
+  auto itf = one_level_compaction_file_boundaries.begin();
+
+  while (it != old_current_level_rdf.end())
+  {
+    pll val = *it;
+    auto file_boundries = *itf;
+    pll file_boundry = std::make_pair(file_boundries.first, file_boundries.second);
+
+    if (itf == one_level_compaction_file_boundaries.end() || (val.first < file_boundry.first && val.second < file_boundry.first))
+    {
+      new_current_level_rdf.push_back(val);
+      it++;
+    }
+    else if (val.first < file_boundry.first && val.second > file_boundry.first && val.second <= file_boundry.second)
+    {
+      new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
+      to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, val.second));
+      it++;
+    }
+    else if (val.first > file_boundry.first && val.second <= file_boundry.second)
+    {
+      to_be_added_in_next_level_rdf.push_back(val);
+      it++;
+    }
+    else if (val.first < file_boundry.first && val.second > file_boundry.second)
+    {
+      new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
+      // new_current_level_rdf.push_back(std::make_pair(file_boundry.second, val.second));
+      to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, file_boundry.second));
+      (*it).first = file_boundry.second;
+      itf++;
+    }
+    else if (val.first >= file_boundry.first && val.first < file_boundry.second && val.second > file_boundry.second)
+    {
+      // new_current_level_rdf.push_back(std::make_pair(file_boundry.second, val.second));
+      to_be_added_in_next_level_rdf.push_back(std::make_pair(val.first, file_boundry.second));
+      (*it).first = file_boundry.second;
+      itf++;
+    }
+    else if (val.first > file_boundry.second)
+    {
+      itf++;
+    }
+  }
+
+  rd_filter[clevel] = new_current_level_rdf;
+
+  addRangeDelete(olevel, to_be_added_in_next_level_rdf);
+
 }
 
+void PerlevelRangeDeleteFilterByVector::shiftRDFToOutputLevel(std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>>  *file_meta_data_vectors)
+{
+  // FIXME: FOR TESTING (next 2 lines)
+  std::cout << "Before Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  print();
 
-// std::vector<pll> PerlevelRangeDeleteFilterByVector::getRangeDeleteList(){
-//   return PerlevelRangeDeleteFilterByVector::range_delete_list;
-// }
+  for (auto file_meta_data : *file_meta_data_vectors)
+  {
+    // file ranges
+    std::vector<std::pair<long long, long long>> one_level_file_boundries;
+    auto meta_data = std::get<2>(file_meta_data);
 
+    for (auto meta : *meta_data)
+    {
+      one_level_file_boundries.push_back(std::make_pair(std::stoll(meta->smallest.user_key().ToString()), std::stoll(meta->largest.user_key().ToString())));
+    }
 
+    adjustRangeDeletes(std::get<0>(file_meta_data), std::get<1>(file_meta_data), one_level_file_boundries);
+
+  }
+
+  // FIXME: FOR TESTING (next 2 lines)
+  std::cout << "After Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  print();
+}
 
 void PerlevelRangeDeleteFilterByVector::print(){
   std::cout <<  std::setfill('-') << std::setw(60) << " START: Print PL RDF " << std::setfill('-') << "" << std::endl;
@@ -1605,6 +1687,26 @@ void ColumnFamilyData::InstallSuperVersion(
     current_->setPerLevelRDF(per_level_RDF_old);
   }
 
+  if(old_superversion != NULL){
+    for(auto &x: old_superversion->current->getRDFTestCompact()){
+        current_->storeRange2RDFTest(x.first, x.second);
+    }
+  }
+
+  if(old_superversion != NULL){
+    std::cout << "(cfd) old_superversion->current->printRDFTestCompact()  (version) " << std::endl;
+    // new_superversion->current->printRDFTest();
+    old_superversion->current->printRDFTestCompact();
+  }
+
+  std::cout << "(cfd) new_superversion->current->printRDFTestCompact()  (version) " << std::endl;
+  // new_superversion->current->printRDFTest();
+  current_->printRDFTestCompact();
+  if(current_->getRDFTestCompact().size() != 0){
+    for(auto &x: current_->getRDFTestCompact()){
+      current_->storeRange2RDFTest(x.first, x.second);
+    }
+  }
   // std::cout << "(cfd) old_superversion->current->printRDFTest2() (version) " << std::endl;
   // old_superversion->current->printRDFTest2();
 

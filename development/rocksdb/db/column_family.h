@@ -43,11 +43,16 @@ namespace ROCKSDB_NAMESPACE {
       void addRangeDelete(std::vector<pll> &range_delete_list, long long start, long long end);
       void addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll> &range_delete_list_in);
 
+      /*
+       * adjust range deletes as per the compaction
+       */
+      void adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<long long, long long>> one_level_compaction_file_boundaries);
+
     public:
       // std::vector<pll> getRangeDeleteList();
       void addRangeDelete(uint level, long long start, long long end);
       void addRangeDelete(uint level, std::vector<pll> &range_delete_list_in);
-      void shiftRDFToOutputLevel(uint current_level, uint output_level, long long start, long long end);
+      void shiftRDFToOutputLevel(std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>> *file_meta_data_vectors);
 
       void print();
 
