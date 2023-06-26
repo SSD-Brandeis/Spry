@@ -1687,26 +1687,26 @@ void ColumnFamilyData::InstallSuperVersion(
     current_->setPerLevelRDF(per_level_RDF_old);
   }
 
-  if(old_superversion != NULL){
-    for(auto &x: old_superversion->current->getRDFTestCompact()){
-        current_->storeRange2RDFTest(x.first, x.second);
-    }
-  }
+  // if(old_superversion != NULL){
+  //   for(auto &x: old_superversion->current->getRDFTestCompact()){
+  //       current_->storeRange2RDFTest(x.first, x.second);
+  //   }
+  // }
 
-  if(old_superversion != NULL){
-    std::cout << "(cfd) old_superversion->current->printRDFTestCompact()  (version) " << std::endl;
-    // new_superversion->current->printRDFTest();
-    old_superversion->current->printRDFTestCompact();
-  }
+  // if(old_superversion != NULL){
+  //   std::cout << "(cfd) old_superversion->current->printRDFTestCompact()  (version) " << std::endl;
+  //   // new_superversion->current->printRDFTest();
+  //   old_superversion->current->printRDFTestCompact();
+  // }
 
-  std::cout << "(cfd) new_superversion->current->printRDFTestCompact()  (version) " << std::endl;
-  // new_superversion->current->printRDFTest();
-  current_->printRDFTestCompact();
-  if(current_->getRDFTestCompact().size() != 0){
-    for(auto &x: current_->getRDFTestCompact()){
-      current_->storeRange2RDFTest(x.first, x.second);
-    }
-  }
+  // std::cout << "(cfd) new_superversion->current->printRDFTestCompact()  (version) " << std::endl;
+  // // new_superversion->current->printRDFTest();
+  // current_->printRDFTestCompact();
+  // if(current_->getRDFTestCompact().size() != 0){
+  //   for(auto &x: current_->getRDFTestCompact()){
+  //     current_->storeRange2RDFTest(x.first, x.second);
+  //   }
+  // }
   // std::cout << "(cfd) old_superversion->current->printRDFTest2() (version) " << std::endl;
   // old_superversion->current->printRDFTest2();
 
