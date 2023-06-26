@@ -5000,7 +5000,6 @@ I 4998 uzve
 I 4999 lfdd
 D Range 0 2500
 D Range 2500 5000
-I 5000 oyrv
 I 5001 zggn
 I 5002 eabu
 I 5003 bhnn
