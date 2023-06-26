@@ -23,7 +23,6 @@ namespace ROCKSDB_NAMESPACE {
 Status DBImpl::Put(const WriteOptions& o, ColumnFamilyHandle* column_family,
                    const Slice& key, const Slice& val) {
 
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   const Status s = FailIfCfHasTs(column_family);
   if (!s.ok()) {
     return s;
@@ -318,7 +317,6 @@ Status DBImpl::WriteImpl(const WriteOptions& write_options,
     // we are a non-leader in a parallel group
 
     if (w.ShouldWriteToMemtable()) {
-std::cout  << "A " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       PERF_TIMER_STOP(write_pre_and_post_process_time);
       PERF_TIMER_GUARD(write_memtable_time);
 
@@ -2095,6 +2093,7 @@ void DBImpl::NotifyOnMemTableSealed(ColumnFamilyData* /*cfd*/,
 // REQUIRES: this thread is currently at the front of the 2nd writer queue if
 // two_write_queues_ is true (This is to simplify the reasoning.)
 Status DBImpl::SwitchMemtable(ColumnFamilyData* cfd, WriteContext* context) {
+
   mutex_.AssertHeld();
   // TODO: plumb Env::IOActivity
   const ReadOptions read_options;
@@ -2151,6 +2150,7 @@ Status DBImpl::SwitchMemtable(ColumnFamilyData* cfd, WriteContext* context) {
     }
   }
   if (s.ok()) {
+
     SequenceNumber seq = versions_->LastSequence();
     new_mem = cfd->ConstructNewMemtable(mutable_cf_options, seq);
     context->superversion_context.NewSuperVersion();
@@ -2290,6 +2290,7 @@ Status DBImpl::SwitchMemtable(ColumnFamilyData* cfd, WriteContext* context) {
   cfd->imm()->Add(cfd->mem(), &context->memtables_to_free_);
   new_mem->Ref();
   cfd->SetMemtable(new_mem);
+  
   InstallSuperVersionAndScheduleWork(cfd, &context->superversion_context,
                                      mutable_cf_options);
 
@@ -2329,8 +2330,6 @@ size_t DBImpl::GetWalPreallocateBlockSize(uint64_t write_buffer_size) const {
 // can call if they wish
 Status DB::Put(const WriteOptions& opt, ColumnFamilyHandle* column_family,
                const Slice& key, const Slice& value) {
-
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   // Pre-allocate size of write batch conservatively.
   // 8 bytes are taken by header, 4 bytes for count, 1 byte for type,

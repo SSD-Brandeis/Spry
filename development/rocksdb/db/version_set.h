@@ -1044,6 +1044,7 @@ class Version {
 
   //Self Added
   void storeRange2RDFilter(uint level, RangeTombstone tombstone){
+    assert(is_RDF_updated == false);
     is_RDF_updated = true;
     per_level_RDF_updated = per_level_RDF;
     per_level_RDF_updated.addRangeDelete(level, std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) );
@@ -1052,6 +1053,7 @@ class Version {
   }
 
   void storeRanges2RDFilter(uint level, std::vector<pll> &range_delete_list_in){
+    assert(is_RDF_updated == false);
     is_RDF_updated = true;
     per_level_RDF_updated = per_level_RDF;
     std::sort(range_delete_list_in.begin(), range_delete_list_in.end());
@@ -1078,8 +1080,17 @@ class Version {
     RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
   }
 
+
   void storeRange2RDFTest2(RangeTombstone tombStone){
     RDF_test2.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
+  }
+
+  void storeRange2RDFTest(long long start_key_, long long end_key_){
+    RDF_test.push_back(std::make_pair( start_key_, end_key_ ));
+  }
+
+  void storeRange2RDFTestCompact(long long start_key_, long long end_key_){
+    RDF_test_compact.push_back(std::make_pair( start_key_, end_key_ ));
   }
 
   void printRDFTest(){
@@ -1102,6 +1113,14 @@ class Version {
     std::cout << std::endl << std::endl;
   }
 
+  void printRDFTestCompact(){
+    std::cout << "Version --- RDF_test_compact @version_set.h" << std::endl;
+    for(auto x: RDF_test_compact){
+      std::cout << x.first << " " << x.second << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+  }
+
   void setRDFTest(std::vector<std::pair<long long, long long>> RDF_test_in){this->RDF_test = RDF_test_in;}
   void setRDFTest2(std::vector<std::pair<long long, long long>> RDF_test_in){
     this->RDF_test2 = RDF_test_in; 
@@ -1112,15 +1131,20 @@ class Version {
 
   std::vector<std::pair<long long, long long>> getRDFTest(){return this->RDF_test;}
   std::vector<std::pair<long long, long long>> getRDFTest2(){return this->RDF_test2;}
+  std::vector<std::pair<long long, long long>> getRDFTestCompact(){return this->RDF_test_compact;}
 
   /*
    * shift RDF for given range from current_level to output_level
    * start_key, end_key are the smallest and largest key of the current_level file
    * If any key exists between these keys (inclusive) than remove and shit downwards to output_level
    */
-  void shiftRDFToOutputLevel(Slice start_key, Slice end_key, int current_level, int output_level)
+  void shiftRDFToOutputLevel(std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>>  *file_meta_data_vectors)
   {
-    per_level_RDF_updated.shiftRDFToOutputLevel(current_level, output_level, std::stoll(start_key.ToString()), std::stoll(end_key.ToString()));
+    if (file_meta_data_vectors->size() == 0) { return; }
+    assert(is_RDF_updated == false);
+    is_RDF_updated = true;
+    per_level_RDF_updated = per_level_RDF;
+    per_level_RDF_updated.shiftRDFToOutputLevel(file_meta_data_vectors);
   }
 
  private:
@@ -1128,7 +1152,7 @@ class Version {
   PL_RDF per_level_RDF, per_level_RDF_updated; //Self Added, ranges don't split when inserts come//added by ychaung
   bool is_RDF_updated = false;
   // std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
-  std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
+  std::vector<std::pair<long long, long long>> RDF_test, RDF_test2, RDF_test_compact; //Self Added
   bool Is_RDFTest2_set = false;
 
   Env* env_;
