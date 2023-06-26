@@ -1074,44 +1074,44 @@ class Version {
   void setPerLevelRDF(PL_RDF &per_level_RDF_in){this->per_level_RDF = per_level_RDF_in;}
 
 
-  void storeRange2RDFTest(RangeTombstone tombStone){
-    RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
-  }
+  // void storeRange2RDFTest(RangeTombstone tombStone){
+  //   RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
+  // }
 
-  void storeRange2RDFTest2(RangeTombstone tombStone){
-    RDF_test2.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
-  }
+  // void storeRange2RDFTest2(RangeTombstone tombStone){
+  //   RDF_test2.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
+  // }
 
-  void printRDFTest(){
-    std::cout << "Version --- RDF_test @version_set.h" << std::endl;
-    if(RDF_test.size() == 0){
-      std::cout << "Version --- RDF_test is empty" << std::endl;
-    }
+  // void printRDFTest(){
+  //   std::cout << "Version --- RDF_test @version_set.h" << std::endl;
+  //   if(RDF_test.size() == 0){
+  //     std::cout << "Version --- RDF_test is empty" << std::endl;
+  //   }
 
-    for(auto x: RDF_test){
-      std::cout << x.first << " " << x.second << std::endl;
-    }
-    std::cout << std::endl << std::endl;
-  }
+  //   for(auto x: RDF_test){
+  //     std::cout << x.first << " " << x.second << std::endl;
+  //   }
+  //   std::cout << std::endl << std::endl;
+  // }
 
-  void printRDFTest2(){
-    std::cout << "Version --- RDF_test2 @version_set.h" << std::endl;
-    for(auto x: RDF_test2){
-      std::cout << x.first << " " << x.second << std::endl;
-    }
-    std::cout << std::endl << std::endl;
-  }
+  // void printRDFTest2(){
+  //   std::cout << "Version --- RDF_test2 @version_set.h" << std::endl;
+  //   for(auto x: RDF_test2){
+  //     std::cout << x.first << " " << x.second << std::endl;
+  //   }
+  //   std::cout << std::endl << std::endl;
+  // }
 
-  void setRDFTest(std::vector<std::pair<long long, long long>> RDF_test_in){this->RDF_test = RDF_test_in;}
-  void setRDFTest2(std::vector<std::pair<long long, long long>> RDF_test_in){
-    this->RDF_test2 = RDF_test_in; 
-    Is_RDFTest2_set = true;
-  }
+  // void setRDFTest(std::vector<std::pair<long long, long long>> RDF_test_in){this->RDF_test = RDF_test_in;}
+  // void setRDFTest2(std::vector<std::pair<long long, long long>> RDF_test_in){
+  //   this->RDF_test2 = RDF_test_in; 
+  //   Is_RDFTest2_set = true;
+  // }
 
-  bool getIsRDFTest2Set(){return this->Is_RDFTest2_set;}
+  // bool getIsRDFTest2Set(){return this->Is_RDFTest2_set;}
 
-  std::vector<std::pair<long long, long long>> getRDFTest(){return this->RDF_test;}
-  std::vector<std::pair<long long, long long>> getRDFTest2(){return this->RDF_test2;}
+  // std::vector<std::pair<long long, long long>> getRDFTest(){return this->RDF_test;}
+  // std::vector<std::pair<long long, long long>> getRDFTest2(){return this->RDF_test2;}
 
   /*
    * shift RDF for given range from current_level to output_level
@@ -1128,8 +1128,8 @@ class Version {
   PL_RDF per_level_RDF, per_level_RDF_updated; //Self Added, ranges don't split when inserts come//added by ychaung
   bool is_RDF_updated = false;
   // std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
-  std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
-  bool Is_RDFTest2_set = false;
+  // std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
+  // bool Is_RDFTest2_set = false;
 
   Env* env_;
   SystemClock* clock_;

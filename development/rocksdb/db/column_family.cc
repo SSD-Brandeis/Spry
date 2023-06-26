@@ -1583,18 +1583,18 @@ void ColumnFamilyData::InstallSuperVersion(
   }else{
     std::cout << "(cfd) old_superversion != NULL" << std::endl;
     
-    std::cout << "(cfd) old_superversion->current->printRDFTest() (version) " << std::endl;
-    old_superversion->current->printRDFTest();
-    std::cout << "(cfd) old_superversion->current->printRDFTest2() (version) " << std::endl;
-    old_superversion->current->printRDFTest2();
+    // std::cout << "(cfd) old_superversion->current->printRDFTest() (version) " << std::endl;
+    // old_superversion->current->printRDFTest();
+    // std::cout << "(cfd) old_superversion->current->printRDFTest2() (version) " << std::endl;
+    // old_superversion->current->printRDFTest2();
 
-    if(old_superversion->current->getIsRDFTest2Set() == true){
-      RDF_test_old = old_superversion->current->getRDFTest2();
-    }else{
-      RDF_test_old = old_superversion->current->getRDFTest();
-    }
-    // (new_superversion->current)->setRDFTest(RDF_test_old);
-    current_->setRDFTest(RDF_test_old);    
+    // if(old_superversion->current->getIsRDFTest2Set() == true){
+    //   RDF_test_old = old_superversion->current->getRDFTest2();
+    // }else{
+    //   RDF_test_old = old_superversion->current->getRDFTest();
+    // }
+    // // (new_superversion->current)->setRDFTest(RDF_test_old);
+    // current_->setRDFTest(RDF_test_old);    
 
     PL_RDF per_level_RDF_old;
     if(old_superversion->current->getIsRDFUpdated() == true){
@@ -1612,12 +1612,12 @@ void ColumnFamilyData::InstallSuperVersion(
   // current_->printRDFTest2();
 
   
-  std::cout << "(cfd) new_superversion->current->printRDFTest()  (version) " << std::endl;
-  // new_superversion->current->printRDFTest();
-  current_->printRDFTest();
-  std::cout << "(cfd) new_superversion->current->printRDFTest2()  (version) " << std::endl;
-  // new_superversion->current->printRDFTest2();
-  current_->printRDFTest2();
+  // std::cout << "(cfd) new_superversion->current->printRDFTest()  (version) " << std::endl;
+  // // new_superversion->current->printRDFTest();
+  // current_->printRDFTest();
+  // std::cout << "(cfd) new_superversion->current->printRDFTest2()  (version) " << std::endl;
+  // // new_superversion->current->printRDFTest2();
+  // current_->printRDFTest2();
   
   
   // std::cout << "(cfd) this->printRDFTest " << std::endl;
