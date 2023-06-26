@@ -222,6 +222,7 @@ void PerlevelRangeDeleteFilterByVector::adjustRangeDeletes(uint clevel, uint ole
   
   auto old_current_level_rdf = rd_filter[clevel];
 
+  // FIXME: (Shubham) This might not be required
   if (one_level_compaction_file_boundaries.size() == 0)
   {
     return;
@@ -236,39 +237,73 @@ void PerlevelRangeDeleteFilterByVector::adjustRangeDeletes(uint clevel, uint ole
     auto file_boundries = *itf;
     pll file_boundry = std::make_pair(file_boundries.first, file_boundries.second);
 
-    if (itf == one_level_compaction_file_boundaries.end() || (val.first < file_boundry.first && val.second < file_boundry.first))
+    /*
+     *    |--|
+     *         -----
+     *         |   |
+     *         -----
+     */
+    if (itf == one_level_compaction_file_boundaries.end() || (val.second < file_boundry.first))
     {
       new_current_level_rdf.push_back(val);
       it++;
     }
+    /*
+     *             |--|
+     *     ------
+     *     |    |
+     *     ------
+     */
+    else if (val.first > file_boundry.second)
+    {
+      itf++;
+    }
+    /*
+     *    |------||||
+     *         ------
+     *         |    |
+     *         ------
+     */
     else if (val.first < file_boundry.first && val.second > file_boundry.first && val.second <= file_boundry.second)
     {
       new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
       to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, val.second));
       it++;
     }
-    else if (val.first > file_boundry.first && val.second <= file_boundry.second)
+    /*
+     *    |||--|||
+     *    --------
+     *    |      |
+     *    --------
+     */
+    else if (val.first >= file_boundry.first && val.second <= file_boundry.second)
     {
       to_be_added_in_next_level_rdf.push_back(val);
       it++;
     }
-    else if (val.first < file_boundry.first && val.second > file_boundry.second)
-    {
-      new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
-      // new_current_level_rdf.push_back(std::make_pair(file_boundry.second, val.second));
-      to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, file_boundry.second));
-      (*it).first = file_boundry.second;
-      itf++;
-    }
+    /*
+     *     ||||-------|
+     *     --------
+     *     |      |
+     *     --------
+     */
     else if (val.first >= file_boundry.first && val.first < file_boundry.second && val.second > file_boundry.second)
     {
-      // new_current_level_rdf.push_back(std::make_pair(file_boundry.second, val.second));
       to_be_added_in_next_level_rdf.push_back(std::make_pair(val.first, file_boundry.second));
       (*it).first = file_boundry.second;
       itf++;
     }
-    else if (val.first > file_boundry.second)
+    /*
+     *  |------------|
+     *     --------
+     *     |      |
+     *     --------
+     */
+    else if (val.first < file_boundry.first && val.second > file_boundry.second)
     {
+      new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
+      to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, file_boundry.second + 1));
+      (*it).first = file_boundry.second + 1;
       itf++;
     }
   }
