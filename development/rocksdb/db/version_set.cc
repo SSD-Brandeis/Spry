@@ -90,6 +90,10 @@
 #undef WITH_COROUTINES
 // clang-format on
 
+
+#include "utilities/system_verifier.cc"
+
+
 namespace ROCKSDB_NAMESPACE {
 
 
@@ -209,6 +213,8 @@ std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::
             cmp_largest = user_comparator_->CompareWithoutTimestamp(
                 user_key_, ExtractUserKey(f->largest_key));
           }
+std::cout << "GetNextFile @cmp_smallest " << cmp_smallest << " cmp_largest " << cmp_largest << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+std::cout << "GetNextFile @user_key_ " << user_key_.ToString() << " ExtractUserKey(f->smallest_key) " << ExtractUserKey(f->smallest_key).ToString() << " ExtractUserKey(f->largest_key) " << ExtractUserKey(f->largest_key).ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
           // Setup file search bound for the next level based on the
           // comparison results
@@ -234,7 +240,7 @@ std::cout  << "GetNextFile @Move on to the next level for searching key in the d
         if (curr_level_ > 0 && cmp_largest < 0) {
           // No more files to search in this level.
           search_ended_ = !PrepareNextLevel();
-        } else {
+        } else {          
           ++curr_index_in_curr_level_;
         }
         return f;
@@ -2340,6 +2346,11 @@ std::cout << storage_info_.level_files_brief_.size() << std::endl;
                 internal_comparator());
   FdWithKeyRange* f = fp.GetNextFile();
 
+  //Self added
+  int fp_cur_level = fp.GetCurrentLevel();
+  bool is_alive_after_cur_level = cfd_->GetSuperVersion()->current->isAliveAfterRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
+
+
 std::cout  << "A2 @Go through overlapped File loop " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   while (f != nullptr) {
     if (*max_covering_tombstone_seq > 0) {
@@ -2453,6 +2464,16 @@ std::cout  << "A2 @Go through overlapped File loop " << __FILE__ << ":" << __LIN
         return;
     }
     f = fp.GetNextFile();
+
+    //Self added
+    if(fp_cur_level != fp.GetCurrentLevel()){
+      if(is_alive_after_cur_level == false){
+        *status = Status::NotFound();
+        return;
+      }
+      fp_cur_level = fp.GetCurrentLevel();
+      is_alive_after_cur_level = cfd_->GetSuperVersion()->current->isAliveAfterRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
+    }
   }
   if (db_statistics_ != nullptr) {
     get_context.ReportCounters();
