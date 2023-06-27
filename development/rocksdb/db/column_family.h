@@ -53,6 +53,7 @@ namespace ROCKSDB_NAMESPACE {
       void addRangeDelete(uint level, long long start, long long end);
       void addRangeDelete(uint level, std::vector<pll> &range_delete_list_in);
       void shiftRDFToOutputLevel(std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>> *file_meta_data_vectors);
+      void deleteLastLevelIfEqualsBottomLevel(int bottom_level);
 
       void print();
 
@@ -275,35 +276,35 @@ struct SuperVersion {
 
   //Self Added
 
-  void storeRange2RDFTest(RangeTombstone tombstone){
-    RDF_test.push_back(std::make_pair( std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) ));
-  }
+  // void storeRange2RDFTest(RangeTombstone tombstone){
+  //   RDF_test.push_back(std::make_pair( std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) ));
+  // }
 
-  void printRDFTest(){
-    std::cout << "SuperVision @column_family.h" << std::endl;
-    for(auto x: RDF_test){
-      std::cout << x.first << " " << x.second << std::endl;
-    }
-    std::cout << std::endl << std::endl;
-  }
+  // void printRDFTest(){
+  //   std::cout << "SuperVision @column_family.h" << std::endl;
+  //   for(auto x: RDF_test){
+  //     std::cout << x.first << " " << x.second << std::endl;
+  //   }
+  //   std::cout << std::endl << std::endl;
+  // }
 
-  void printRDFTest2(){
-    std::cout << "SuperVision @column_family.h" << std::endl;
-    for(auto x: RDF_test2){
-      std::cout << x.first << " " << x.second << std::endl;
-    }
-    std::cout << std::endl << std::endl;
-  }
+  // void printRDFTest2(){
+  //   std::cout << "SuperVision @column_family.h" << std::endl;
+  //   for(auto x: RDF_test2){
+  //     std::cout << x.first << " " << x.second << std::endl;
+  //   }
+  //   std::cout << std::endl << std::endl;
+  // }
 
-  std::vector<std::pair<long long, long long>> getRDFTest(){return this->RDF_test;}
+  // std::vector<std::pair<long long, long long>> getRDFTest(){return this->RDF_test;}
 
-  void setRDFTest(std::vector<std::pair<long long, long long>> RDF_test_in){this->RDF_test = RDF_test_in;}
-  void setRDFTest2(std::vector<std::pair<long long, long long>> RDF_test_in){this->RDF_test2 = RDF_test_in;}
+  // void setRDFTest(std::vector<std::pair<long long, long long>> RDF_test_in){this->RDF_test = RDF_test_in;}
+  // void setRDFTest2(std::vector<std::pair<long long, long long>> RDF_test_in){this->RDF_test2 = RDF_test_in;}
 
  private:
   //Self Added
   // PL_RDF per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
-  std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
+  // std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
 
   std::atomic<uint32_t> refs;
   // We need to_delete because during Cleanup(), imm->Unref() returns
@@ -608,34 +609,34 @@ class ColumnFamilyData {
 
 
   //Self Added
-  void storeRange2RDFTest(RangeTombstone tombStone){
-    RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
-  }
-  void storeRange2RDFTest2(RangeTombstone tombStone){
-    RDF_test2.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
-  }
+  // void storeRange2RDFTest(RangeTombstone tombStone){
+  //   RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
+  // }
+  // void storeRange2RDFTest2(RangeTombstone tombStone){
+  //   RDF_test2.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
+  // }
 
-  void printRDFTest(){
-    std::cout << "ColumnFamilyData --- RDF_test1 @column_family.h" << std::endl;
-    for(auto x: RDF_test){
-      std::cout << x.first << " " << x.second << std::endl;
-    }
-    std::cout << std::endl << std::endl;
-  }
+  // void printRDFTest(){
+  //   std::cout << "ColumnFamilyData --- RDF_test1 @column_family.h" << std::endl;
+  //   for(auto x: RDF_test){
+  //     std::cout << x.first << " " << x.second << std::endl;
+  //   }
+  //   std::cout << std::endl << std::endl;
+  // }
 
-  void printRDFTest2(){
-    std::cout << "ColumnFamilyData --- RDF_test2 @column_family.h" << std::endl;
-    for(auto x: RDF_test2){
-      std::cout << x.first << " " << x.second << std::endl;
-    }
-    std::cout << std::endl << std::endl;
-  }
+  // void printRDFTest2(){
+  //   std::cout << "ColumnFamilyData --- RDF_test2 @column_family.h" << std::endl;
+  //   for(auto x: RDF_test2){
+  //     std::cout << x.first << " " << x.second << std::endl;
+  //   }
+  //   std::cout << std::endl << std::endl;
+  // }
 
 
  private:
   //Self Added
   std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
-  std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
+  // std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
 
 
   friend class ColumnFamilySet;
