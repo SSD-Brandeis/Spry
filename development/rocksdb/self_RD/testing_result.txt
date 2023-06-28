@@ -1,0 +1,31 @@
+
+
+----------------------Testing On Existing Keys-----------------------
+NONE Average Disk Access count = 76380.00
+NONE  elapsed time = 78175067.67 (ms) 
+PLRDF Average Disk Access count = 76380.00
+PLRDF  elapsed time = 40219355.00 (ms) 
+
+
+----------------------Testing On historic-existing Keys-----------------------
+NONE Average Disk Access count = 76380.00
+NONE  elapsed time = 44733165.00 (ms) 
+PLRDF Average Disk Access count = 76380.00
+PLRDF  elapsed time = 44701578.00 (ms) 
+
+
+----------------------Testing On Currently Deleted Keys-----------------------
+NONE Average Disk Access count = 0.00
+NONE  elapsed time = 3626487.00 (ms) 
+PLRDF Average Disk Access count = 0.00
+PLRDF  elapsed time = 3621939.67 (ms) 
+
+
+----------------------Testing On Currently Non-inserted Keys-----------------------
+NONE Average Disk Access count = 0.00
+NONE  elapsed time = 698744.00 (ms) 
+PLRDF Average Disk Access count = 0.00
+PLRDF  elapsed time = 720398.00 (ms) 
+
+
+----------------------End Testing-----------------------

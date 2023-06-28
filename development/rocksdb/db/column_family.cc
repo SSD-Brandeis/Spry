@@ -364,8 +364,24 @@ void PerlevelRangeDeleteFilterByVector::print(){
 bool PerlevelRangeDeleteFilterByVector::isEntryAlive(uint level, long long key){
   assert(rd_filter.size() > level);
 
+  if(level >= rd_filter.size()){
+    return true;
+  }
+
   auto& rdList = PerlevelRangeDeleteFilterByVector::rd_filter[level];
   if(rdList.size() == 0){return true;}
+
+  // std::cout << "rdList: " <<" Level: " << level << " ,filter_size = " <<  rd_filter.size() << std::endl;
+  // for(unsigned int i = 0 ; i < rd_filter.size(); i++){
+  //   std::cout << "rdList: list " << i << std::endl;
+  //   for(auto it = rd_filter[i].begin(); it != rd_filter[i].end(); it++){
+  //     std::cout << "(" << it->first << " " << it->second << ") ";
+  //   }
+  // }
+  // for(auto &x: rdList){
+  //   std::cout << " --**- " << x.first << " " << x.second  << std::endl;
+  // }
+  // if(rdList.size() == 0){return true;}
 
   auto it = upper_bound(rdList.begin(), rdList.end(), pll(key, key), [](const pll& a, const pll& b){return a.first < b.first;});
   if(it != rdList.begin()){it--;}

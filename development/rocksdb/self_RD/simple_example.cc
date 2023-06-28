@@ -2,6 +2,8 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <chrono>
+
 
 #include "rocksdb/statistics.h"
 #include "rocksdb/advanced_options.h"
@@ -258,77 +260,193 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
     }
   }
 
-  std::cout << std::endl << std::endl;
-  std::cout << "----------------------Testing On Existing Keys-----------------------" << std::endl; 
-  for(auto &x: system_verifier->getAllExistingKeys()){
-    bool gt_is_exist = system_verifier->isKeyExist(x);
-    std::string gt_value = system_verifier->get(x);
 
-    std::string value;
-    std::stringstream searching_key;
-    searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
-    s = db->Get(read_op, searching_key.str(), &value);
-    // std::cout << x << " " << s.ok() << " " << value << std::endl;
-    // std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
-  
-    if(s.ok() != gt_is_exist){
-      std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
+
+  {
+    std::ofstream testing_result_file;
+    testing_result_file.open("testing_result.txt");
+    const long long N_repetitions = 3;
+    // long long num_RDF_types = getNumberOfRDFTypes();
+    long long count = 0;
+
+    auto start_pq = std::chrono::high_resolution_clock::now();
+    auto stop_pq = std::chrono::high_resolution_clock::now();
+    auto duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+    unsigned long long point_query_time = duration_pq.count();
+
+
+
+    testing_result_file << std::endl << std::endl;
+    testing_result_file << "----------------------Testing On Existing Keys-----------------------" << std::endl; 
+    // system_verifier->resetDiskAccessCount();
+    for(uint t = 0; t < system_verifier->getNumberOfRDFTypes(); t++){
+      system_verifier->resetDiskAccessCount();
+      system_verifier->setRDFTypeChosed(t);
+      count = 0;
+      point_query_time = 0;
+      start_pq = std::chrono::high_resolution_clock::now();
+      for(auto i = 0; i < N_repetitions; i++){
+    // system_verifier->setRDFTypeChosed(1);
+        for(auto &x: system_verifier->getAllExistingKeys()){
+          bool gt_is_exist = system_verifier->isKeyExist(x);
+          std::string gt_value = system_verifier->get(x);
+
+          std::string value;
+          std::stringstream searching_key;
+          searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+          s = db->Get(read_op, searching_key.str(), &value);
+          // std::cout << x << " " << s.ok() << " " << value << std::endl;
+          // std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
+        
+          if(s.ok() != gt_is_exist){
+            std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
+          }
+          if(gt_is_exist == false){continue;}
+          if(value != gt_value){
+            std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
+          }
+        }
+        count += system_verifier->getDiskAccessCount();
+        stop_pq = std::chrono::high_resolution_clock::now();
+        duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+        point_query_time += duration_pq.count();
+
+    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
+      }  
+      testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
+      testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions << " (ms) " << std::endl;
     }
-    if(gt_is_exist == false){continue;}
-    if(value != gt_value){
-      std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
+
+    testing_result_file << std::endl << std::endl;
+    testing_result_file << "----------------------Testing On historic-existing Keys-----------------------" << std::endl;
+    // system_verifier->resetDiskAccessCount();
+    for(uint t = 0; t < system_verifier->getNumberOfRDFTypes(); t++){
+      system_verifier->resetDiskAccessCount();
+      system_verifier->setRDFTypeChosed(t);
+      count = 0;
+      point_query_time = 0;
+      start_pq = std::chrono::high_resolution_clock::now();
+      for(auto i = 0; i < N_repetitions; i++){
+    // system_verifier->setRDFTypeChosed(1);
+        for(auto &x: system_verifier->getHistoricExistingKeys()){
+          bool gt_is_exist = system_verifier->isKeyExist(x);
+          std::string gt_value = system_verifier->get(x);
+
+          std::string value;
+          std::stringstream searching_key;
+          searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+          s = db->Get(read_op, searching_key.str(), &value);
+          // std::cout << x << " " << s.ok() << " " << value << std::endl;
+          // std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
+        
+          if(s.ok() != gt_is_exist){
+            std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
+          }
+          if(gt_is_exist == false){continue;}
+          if(value != gt_value){
+            std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
+          }
+        }
+        count += system_verifier->getDiskAccessCount();
+        stop_pq = std::chrono::high_resolution_clock::now();
+        duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+        point_query_time += duration_pq.count();
+
+    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
+      }  
+      testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
+      testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions << " (ms) " << std::endl;
     }
+
+    testing_result_file << std::endl << std::endl;
+    testing_result_file << "----------------------Testing On Currently Deleted Keys-----------------------" << std::endl;
+    // system_verifier->resetDiskAccessCount();
+    for(uint t = 0; t < system_verifier->getNumberOfRDFTypes(); t++){
+      system_verifier->resetDiskAccessCount();
+      system_verifier->setRDFTypeChosed(t);
+      count = 0;
+      point_query_time = 0;
+      start_pq = std::chrono::high_resolution_clock::now();
+      for(auto i = 0; i < N_repetitions; i++){
+    // system_verifier->setRDFTypeChosed(1);
+        for(auto &x: system_verifier->getCurrentlyDeletedKeys()){
+          bool gt_is_exist = system_verifier->isKeyExist(x);
+          std::string gt_value = system_verifier->get(x);
+
+          std::string value;
+          std::stringstream searching_key;
+          searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+          s = db->Get(read_op, searching_key.str(), &value);
+          // std::cout << x << " " << s.ok() << " " << value << std::endl;
+          // std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
+        
+          if(s.ok() != gt_is_exist){
+            std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
+          }
+          if(gt_is_exist == false){continue;}
+          if(value != gt_value){
+            std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
+          }
+        }
+        count += system_verifier->getDiskAccessCount();
+        stop_pq = std::chrono::high_resolution_clock::now();
+        duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+        point_query_time += duration_pq.count();
+
+    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
+      }  
+      testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
+      testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions << " (ms) " << std::endl;
+    }
+
+    testing_result_file << std::endl << std::endl;
+    testing_result_file << "----------------------Testing On Currently Non-inserted Keys-----------------------" << std::endl;
+    // system_verifier->resetDiskAccessCount();
+    for(uint t = 0; t < system_verifier->getNumberOfRDFTypes(); t++){
+      system_verifier->resetDiskAccessCount();
+      system_verifier->setRDFTypeChosed(t);
+      count = 0;
+      point_query_time = 0;
+      start_pq = std::chrono::high_resolution_clock::now();
+      for(auto i = 0; i < N_repetitions; i++){
+    // system_verifier->setRDFTypeChosed(1);
+        for(auto &x: system_verifier->getCurrentlyNonInsertedKeys(1000)){ // test on 1000 keys
+          bool gt_is_exist = system_verifier->isKeyExist(x); // should be false
+          std::string gt_value = system_verifier->get(x); // should be ""
+
+          std::string value;
+          std::stringstream searching_key;
+          searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+          s = db->Get(read_op, searching_key.str(), &value);
+          // std::cout << x << " " << s.ok() << " " << value << std::endl;
+          // std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
+        
+          if(s.ok() != gt_is_exist){
+            std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
+          }
+          if(gt_is_exist == false){continue;}
+          if(value != gt_value){
+            std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
+          }
+        }
+        count += system_verifier->getDiskAccessCount();
+        stop_pq = std::chrono::high_resolution_clock::now();
+        duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+        point_query_time += duration_pq.count();
+
+    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
+      }  
+      testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
+      testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions << " (ms) " << std::endl;
+    }
+
+    testing_result_file << std::endl << std::endl;
+    testing_result_file << "----------------------End Testing-----------------------" << std::endl;
+
+    testing_result_file.close();
   }
 
-  std::cout << std::endl << std::endl;
-  std::cout << "----------------------Testing On historic-existing Keys-----------------------" << std::endl;
-  for(auto &x: system_verifier->getHistoricExistingKeys()){
-    bool gt_is_exist = system_verifier->isKeyExist(x);
-    std::string gt_value = system_verifier->get(x);
-
-    std::string value;
-    std::stringstream searching_key;
-    searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
-    s = db->Get(read_op, searching_key.str(), &value);
-    // std::cout << x << " " << s.ok() << " " << value << std::endl;
-    // std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
   
-    if(s.ok() != gt_is_exist){
-      std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
-    }
-    if(gt_is_exist == false){continue;}
-    if(value != gt_value){
-      std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
-    }
-  }
-
-  std::cout << std::endl << std::endl;
-  std::cout << "----------------------Testing On Currently Deleted Keys-----------------------" << std::endl;
-  for(auto &x: system_verifier->getCurrentlyDeletedKeys()){
-    bool gt_is_exist = system_verifier->isKeyExist(x);
-    std::string gt_value = system_verifier->get(x);
-
-    std::string value;
-    std::stringstream searching_key;
-    searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
-    s = db->Get(read_op, searching_key.str(), &value);
-    // std::cout << x << " " << s.ok() << " " << value << std::endl;
-    // std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
-  
-    if(s.ok() != gt_is_exist){
-      std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
-    }
-    if(gt_is_exist == false){continue;}
-    if(value != gt_value){
-      std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
-    }
-  }
-
-  std::cout << std::endl << std::endl;
-  std::cout << "----------------------End Testing-----------------------" << std::endl;
-
-
-
 
 
   workload_file.close();

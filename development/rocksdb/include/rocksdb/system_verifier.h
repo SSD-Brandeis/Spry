@@ -65,6 +65,43 @@ namespace checking {
       return system_verifier;
     }
 
+    int disk_access_count = 0;
+
+    void resetDiskAccessCount(){
+      disk_access_count = 0;
+    }
+
+    void increaseDiskAccessCount(){
+      disk_access_count++;
+    }
+
+    int getDiskAccessCount(){
+      return disk_access_count;
+    }
+
+
+    // std::unordered_map<int, std::string> RDFTypes({{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}});
+    std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}};
+    int RDFType_chosed = 0;
+        
+    uint getNumberOfRDFTypes(){
+      return RDFTypes.size();
+    }
+
+    //{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}
+    void setRDFTypeChosed(int id){
+      RDFType_chosed = id;
+    }
+
+    std::string getStringOfRDFTypeChosed(){
+      return RDFTypes[RDFType_chosed];
+    }
+
+
+
+
+
+
     map<long long, string> groundTruth;
     set<long long> historicExistingKeys;
 
@@ -116,7 +153,19 @@ namespace checking {
       }
       return result;
     }
-    
+
+    vector<long long> getCurrentlyNonInsertedKeys(int num){
+      vector<long long> result;
+      while(num){
+        long long key = rand() % 1000000000;
+        if(groundTruth.count(key) == 0){
+          result.push_back(key);
+          num--;
+        }
+      }
+      return result;
+    }
+
     vector<int> checkOnExistingKeys();
     vector<int> checkOnAllInsertedKeys();
     vector<int> checkOnAllCurrentlyDeletedKeys();
