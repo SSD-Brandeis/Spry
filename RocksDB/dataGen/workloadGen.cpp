@@ -20,7 +20,7 @@ int main(){
     workload_file << "D Range " << "0" << " " << "2500" << endl;
     workload_file << "D Range " << "2500" << " " << "5000" << endl;
 
-    for(; key < 13330; key++){	
+    for(; key < 43330; key++){	
 	string data;
 	for(int i = 0; i < 4; i++){
 		data.push_back('a' + rand()%26);
