@@ -393,6 +393,14 @@ bool PerlevelRangeDeleteFilterByVector::isEntryAlive(uint level, long long key){
   return true;
 }
 
+void PerlevelRangeDeleteFilterByVector::deleteLastLevelIfEqualsBottomLevel(int bottom_level)
+{
+  if (rd_filter.size()-1 == bottom_level)
+  {
+    rd_filter[bottom_level].clear();
+  }
+}
+
 // bool PerlevelRangeDeleteFilterByVector::isEntryAlive(long long start){
 //   auto& rdList = PerlevelRangeDeleteFilterByVector::range_delete_list;
 //   if(rdList.size() == 0){return true;}
@@ -1732,6 +1740,7 @@ void ColumnFamilyData::InstallSuperVersion(
     PL_RDF per_level_RDF_old;
     if(old_superversion->current->getIsRDFUpdated() == true){
       per_level_RDF_old = old_superversion->current->getPerLevelRDFUpdated();
+      per_level_RDF_old.deleteLastLevelIfEqualsBottomLevel(current_->storage_info()->num_levels());
     }else{
       per_level_RDF_old = old_superversion->current->getPerLevelRDF();
     }

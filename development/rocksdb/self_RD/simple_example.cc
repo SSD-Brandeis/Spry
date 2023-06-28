@@ -74,6 +74,7 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
   DB* db;
 
   op.write_buffer_size = 8 * 4;
+  op.max_background_jobs = 1;
   op.level0_file_num_compaction_trigger = 1;
   op.target_file_size_base = 8 * 4;
   op.target_file_size_multiplier = 1;  // Same files size across levels
