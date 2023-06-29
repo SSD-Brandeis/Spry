@@ -264,7 +264,8 @@ void PerlevelRangeDeleteFilterByVector::adjustRangeDeletes(uint clevel, uint ole
      *         |    |
      *         ------
      */
-    else if (val.first < file_boundry.first && val.second > file_boundry.first && val.second <= file_boundry.second)
+    // else if (val.first < file_boundry.first && val.second >= ????? file_boundry.first && val.second <= file_boundry.second)   >= ?????
+    else if (val.first < file_boundry.first && val.second >= file_boundry.first && val.second <= file_boundry.second)
     {
       new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
       to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, val.second));
@@ -287,7 +288,8 @@ void PerlevelRangeDeleteFilterByVector::adjustRangeDeletes(uint clevel, uint ole
      *     |      |
      *     --------
      */
-    else if (val.first >= file_boundry.first && val.first < file_boundry.second && val.second > file_boundry.second)
+    // else if (val.first >= file_boundry.first && val.first <= ????? file_boundry.second && val.second > file_boundry.second)    <= ?????
+    else if (val.first >= file_boundry.first && val.first <= file_boundry.second && val.second > file_boundry.second)
     {
       to_be_added_in_next_level_rdf.push_back(std::make_pair(val.first, file_boundry.second));
       (*it).first = file_boundry.second;
@@ -305,6 +307,11 @@ void PerlevelRangeDeleteFilterByVector::adjustRangeDeletes(uint clevel, uint ole
       to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, file_boundry.second + 1));
       (*it).first = file_boundry.second + 1;
       itf++;
+    }else{
+      std::cerr << "Condition Unchecked " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      std::cerr << "val.first: " << val.first << " val.second: " << val.second << " file_boundry.first: " << file_boundry.first << " file_boundry.second: " << file_boundry.second << std::endl;
+      assert(false);
+      exit(1);
     }
   }
 
@@ -393,7 +400,7 @@ bool PerlevelRangeDeleteFilterByVector::isEntryAlive(uint level, long long key){
   return true;
 }
 
-void PerlevelRangeDeleteFilterByVector::deleteLastLevelIfEqualsBottomLevel(int bottom_level)
+void PerlevelRangeDeleteFilterByVector::deleteLastLevelIfEqualsBottomLevel(uint bottom_level)
 {
   if (rd_filter.size()-1 == bottom_level)
   {
@@ -1740,7 +1747,7 @@ void ColumnFamilyData::InstallSuperVersion(
     PL_RDF per_level_RDF_old;
     if(old_superversion->current->getIsRDFUpdated() == true){
       per_level_RDF_old = old_superversion->current->getPerLevelRDFUpdated();
-      per_level_RDF_old.deleteLastLevelIfEqualsBottomLevel(current_->storage_info()->num_levels());
+      per_level_RDF_old.deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
     }else{
       per_level_RDF_old = old_superversion->current->getPerLevelRDF();
     }

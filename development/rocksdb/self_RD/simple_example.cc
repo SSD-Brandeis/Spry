@@ -15,6 +15,10 @@
 
 #include "rocksdb/system_verifier.h"
 
+#include "rocksdb/iostats_context.h"
+#include "rocksdb/perf_context.h"
+
+
 using namespace rocksdb;
 std::string kDBPath = "/tmp/cs561_project1";
 
@@ -44,6 +48,9 @@ inline void showProgress(const uint64_t& workload_size,
 void printStats(DB* db, Options& options) {
     std::string each_level_stats;
     std::string sst_file_size;
+    std::string all_stats = options.statistics->ToString();
+
+    std::cout << all_stats << std::endl;  // printing all stats
 
     bool result = db->GetProperty("rocksdb.levelstats", &each_level_stats);
     bool live_sst_file_size = db->GetProperty("rocksdb.live-sst-files-size", &sst_file_size);
@@ -62,10 +69,33 @@ void printStats(DB* db, Options& options) {
     std::cout << std::endl;
     std::cout << "RocksDB Statistics : " << std::endl;
     std::cout << "----------------------------------------" << std::endl;
+
+
+
+    std::cout << std::endl;
+    std::cout << "RocksDB perf_context : " << std::endl;
+    rocksdb::SetPerfLevel(rocksdb::PerfLevel::kDisable);
+    std::string perf_context = rocksdb::get_perf_context()->ToString();
+    std::cout << perf_context << std::endl;  
+    std::cout << "----------------------------------------" << std::endl;
+
+
+    std::cout << std::endl;
+    std::cout << "RocksDB iostats_context : " << std::endl;
+    rocksdb::SetPerfLevel(rocksdb::PerfLevel::kDisable);
+    std::string iostats_context = rocksdb::get_iostats_context()->ToString();
+    std::cout << iostats_context << std::endl;  
+    std::cout << "----------------------------------------" << std::endl;
+
+ 
 }
 
 void init(){
+  rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
 
+  rocksdb::get_perf_context()->Reset();
+  rocksdb::get_iostats_context()->Reset();
+  
   checking::SystemVerifier::init();
 }
 
@@ -73,10 +103,12 @@ void init(){
 void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
   DB* db;
 
-  op.write_buffer_size = 8 * 4;
+  // op.write_buffer_size = 1024 * 256; // -> 256 kB    
+  // op.write_buffer_size = 1024 * 8; // -> 256 kB    
+  op.write_buffer_size = 32; // -> 256 kB    
   op.max_background_jobs = 1;
   op.level0_file_num_compaction_trigger = 1;
-  op.target_file_size_base = 8 * 4;
+  op.target_file_size_base = op.write_buffer_size; // -> same as buffer size
   op.target_file_size_multiplier = 1;  // Same files size across levels
   op.max_write_buffer_number = 1;      // 1 buffer in-memory
   op.max_bytes_for_level_base =
@@ -237,6 +269,8 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
       showProgress(workload_size, counter);
     }
   }
+
+  
 
 
   std::vector<long long> testing_key_list({2500, 5000, 5001});
