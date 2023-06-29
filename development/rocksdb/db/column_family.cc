@@ -264,8 +264,7 @@ void PerlevelRangeDeleteFilterByVector::adjustRangeDeletes(uint clevel, uint ole
      *         |    |
      *         ------
      */
-    // else if (val.first < file_boundry.first && val.second >= ????? file_boundry.first && val.second <= file_boundry.second)   >= ?????
-    else if (val.first < file_boundry.first && val.second >= file_boundry.first && val.second <= file_boundry.second)
+    else if (val.first < file_boundry.first && val.second > file_boundry.first && val.second <= file_boundry.second)
     {
       new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
       to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, val.second));
@@ -288,7 +287,6 @@ void PerlevelRangeDeleteFilterByVector::adjustRangeDeletes(uint clevel, uint ole
      *     |      |
      *     --------
      */
-    // else if (val.first >= file_boundry.first && val.first <= ????? file_boundry.second && val.second > file_boundry.second)    <= ?????
     else if (val.first >= file_boundry.first && val.first <= file_boundry.second && val.second > file_boundry.second)
     {
       to_be_added_in_next_level_rdf.push_back(std::make_pair(val.first, file_boundry.second));
@@ -346,6 +344,101 @@ void PerlevelRangeDeleteFilterByVector::shiftRDFToOutputLevel(std::vector<std::t
   std::cout << "After Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   print();
 }
+
+void PerlevelRangeDeleteFilterByVector::deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data)
+{
+  std::cout << "Before Deletion Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  print();
+
+  std::vector<std::pair<long long, long long>> one_level_file_boundries;
+  auto level = std::get<0>(*file_meta_data);
+
+  if (rd_filter.size() <= (uint)level)
+  {
+    return;
+  }
+
+  auto meta_data = std::get<1>(*file_meta_data);
+
+  for (auto meta : *meta_data)
+  {
+      one_level_file_boundries.push_back(std::make_pair(std::stoll(meta->smallest.user_key().ToString()), std::stoll(meta->largest.user_key().ToString())));
+  }
+
+  std::vector<pll> new_current_level_rdf;
+  auto old_current_level_rdf = rd_filter[level];
+  auto it = old_current_level_rdf.begin();
+  auto itf = one_level_file_boundries.begin();
+
+  while (it != old_current_level_rdf.end())
+  {
+    pll val = *it;
+    auto file_boundries = *itf;
+    pll file_boundry = std::make_pair(file_boundries.first, file_boundries.second);
+
+    /*
+     *    |--|
+     *         -----
+     *         |   |
+     *         -----
+     */
+    if (itf == one_level_file_boundries.end() || (val.second < file_boundry.first))
+    {
+      new_current_level_rdf.push_back(val);
+      it++;
+    }
+    /*
+     *             |--|
+     *     ------
+     *     |    |
+     *     ------
+     */
+    else if (val.first > file_boundry.second)
+    {
+      itf++;
+    }
+    /*
+     *    |------||||
+     *         ------
+     *         |    |
+     *         ------
+     */
+    else if (val.first < file_boundry.first && val.second >= file_boundry.first && val.second <= file_boundry.second)
+    {
+      new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
+      it++;
+    }
+    /*
+     *     ||||-------|
+     *     --------
+     *     |      |
+     *     --------
+     */
+    else if (val.first >= file_boundry.first && val.first <= file_boundry.second && val.second > file_boundry.second)
+    {
+      (*it).first = file_boundry.second;
+      itf++;
+    }
+    /*
+     *  |------------|
+     *     --------
+     *     |      |
+     *     --------
+     */
+    else if (val.first < file_boundry.first && val.second > file_boundry.second)
+    {
+      new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
+      (*it).first = file_boundry.second + 1;
+      itf++;
+    }
+  }
+
+  rd_filter[level] = new_current_level_rdf;
+
+  std::cout << "After Deletion Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  print();
+}
+
 
 void PerlevelRangeDeleteFilterByVector::print(){
   std::cout <<  std::setfill('-') << std::setw(60) << " START: Print PL RDF " << std::setfill('-') << "" << std::endl;
