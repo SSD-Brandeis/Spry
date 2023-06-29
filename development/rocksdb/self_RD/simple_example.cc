@@ -103,6 +103,7 @@ void init(){
 void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
   DB* db;
 
+
   // op.write_buffer_size = 1024 * 256; // -> 256 kB    
   // op.write_buffer_size = 1024 * 8; // -> 256 kB    
   op.write_buffer_size = 32; // -> 256 kB    
