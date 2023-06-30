@@ -1,31 +1,439 @@
 
 
 ----------------------Testing On Existing Keys-----------------------
-NONE Average Disk Access count = 5014.00
-NONE  elapsed time = 6510739.67 (ms) 
-PLRDF Average Disk Access count = 5014.00
-PLRDF  elapsed time = 3787938.67 (ms) 
+NONE
+1 -----
+read_count_start = 9
+read_count_end = 9
+read_bytes_start = 3772
+read_bytes_end = 3772
+1 -----
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+NONE
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
 
 
 ----------------------Testing On historic-existing Keys-----------------------
-NONE Average Disk Access count = 5014.00
-NONE  elapsed time = 7914592.33 (ms) 
-PLRDF Average Disk Access count = 5014.00
-PLRDF  elapsed time = 7841146.67 (ms) 
+PLRDF
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+NONE
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
 
 
 ----------------------Testing On Currently Deleted Keys-----------------------
-NONE Average Disk Access count = 0.00
-NONE  elapsed time = 4274741.33 (ms) 
-PLRDF Average Disk Access count = 0.00
-PLRDF  elapsed time = 4219708.00 (ms) 
+PLRDF
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+NONE
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
 
 
 ----------------------Testing On Currently Non-inserted Keys-----------------------
-NONE Average Disk Access count = 0.00
-NONE  elapsed time = 811461.00 (ms) 
-PLRDF Average Disk Access count = 0.00
-PLRDF  elapsed time = 846612.67 (ms) 
+PLRDF
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+NONE
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
 
 
 ----------------------End Testing-----------------------

@@ -1065,7 +1065,13 @@ class Version {
   }
 
   void printRDFilter(){
+    std::cout << "RDF" << std::endl;
     per_level_RDF.print();
+  }
+
+  void printRDFilterUpdated(){
+    std::cout << "RDF Updated" << std::endl;
+    per_level_RDF_updated.print();
   }
 
   bool isAliveAfterRDFilter(uint level, long long key){
