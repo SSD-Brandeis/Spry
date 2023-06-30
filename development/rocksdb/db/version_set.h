@@ -1157,6 +1157,14 @@ class Version {
     per_level_RDF_updated.shiftRDFToOutputLevel(file_meta_data_vectors);
   }
 
+  void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data)
+  {
+    assert(is_RDF_updated == false);
+    is_RDF_updated = true;
+    per_level_RDF_updated = per_level_RDF;
+    per_level_RDF_updated.deleteRDFAssociatedWithFilesAtCurrentLevel(file_meta_data);
+  }
+
  private:
   //Self Added
   PL_RDF per_level_RDF, per_level_RDF_updated; //Self Added, ranges don't split when inserts come//added by ychaung
