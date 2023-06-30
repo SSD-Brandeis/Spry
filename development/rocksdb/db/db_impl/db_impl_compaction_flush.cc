@@ -3520,7 +3520,17 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
     for (const auto& f : *c->inputs(0)) {
       c->edit()->DeleteFile(c->level(), f->fd.GetNumber());
     }
+
+    // FIXME: ONLY FOR TESTING USE 
+    // for (auto file_meta : *(c->inputs(0)))
+    // {
+    //   std::cout << "Pushing file from Current Level: " << c->level(0) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(0) << std::endl << std::flush;
+    //   std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;  
+    // }
+
     std::tuple<int, const std::vector<FileMetaData*>*> file_meta_data_vectors = std::make_tuple(c->level(), c->inputs(c->level()));
+    // std::cout << "[Compaction]: Calling Direct Delete Compaction .. " << std::endl;
+
     c->column_family_data()->GetSuperVersion()->current->deleteRDFAssociatedWithFilesAtCurrentLevel(&file_meta_data_vectors);
 
     status = versions_->LogAndApply(
@@ -3541,7 +3551,6 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
     TEST_SYNC_POINT_CALLBACK("DBImpl::BackgroundCompaction:BeforeCompaction",
                              c->column_family_data());
     // Instrument for event update
-    // TODO(yhchiang): add op details for showing trivial-move.
     ThreadStatusUtil::SetColumnFamily(c->column_family_data());
     ThreadStatusUtil::SetThreadOperation(ThreadStatus::OP_COMPACTION);
 
@@ -3559,9 +3568,20 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
         continue;
       }
 
-      file_meta_data_vectors->push_back(std::make_tuple(l, c->output_level(), c->inputs(l)));
-
+      bool flag = false;
+      
       for (size_t i = 0; i < c->num_input_files(l); i++) {
+        if (!flag)
+        {
+          // FIXME: ONLY FOR TESTING USE 
+          // for (auto file_meta : *(c->inputs(l)))
+          // {
+          //   std::cout << "Pushing file from Current Level: " << c->level(l) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(l) << std::endl << std::flush;
+          //   std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;  
+          // }
+          file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), c->inputs(l)));
+          flag = true;
+        }
         FileMetaData* f = c->input(l, i);
         c->edit()->DeleteFile(c->level(l), f->fd.GetNumber());
         c->edit()->AddFile(
@@ -3592,6 +3612,8 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
             vstorage->GetNextCompactCursor(start_level, c->num_input_files(0)));
       }
     }
+    // std::cout << "[Compaction]: Calling Shift RDF To Output Level for Trivial Compaction .. " << std::endl;
+
     c->column_family_data()->GetSuperVersion()->current->shiftRDFToOutputLevel(file_meta_data_vectors);
     status = versions_->LogAndApply(
         c->column_family_data(), *c->mutable_cf_options(), read_options,
@@ -3645,6 +3667,8 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
     // Transfer requested token, so it doesn't need to do it again.
     ca->prepicked_compaction->task_token = std::move(task_token);
     ++bg_bottom_compaction_scheduled_;
+    // std::cout << "[Compaction]: Scheduling Bottom Level Compaction .. " << std::endl;
+
     env_->Schedule(&DBImpl::BGWorkBottomCompaction, ca, Env::Priority::BOTTOM,
                    this, &DBImpl::UnscheduleCompactionCallback);
   } else {
@@ -3688,6 +3712,8 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
     compaction_job.Run().PermitUncheckedError();
     TEST_SYNC_POINT("DBImpl::BackgroundCompaction:NonTrivial:AfterRun");
     mutex_.Lock();
+
+    // std::cout << "[Compaction]: Performing Scheduled Compaction .. " << std::endl;
 
     status = compaction_job.Install(*c->mutable_cf_options());
     io_s = compaction_job.io_status();
