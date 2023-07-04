@@ -8,6 +8,8 @@
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 #include <cinttypes>
 #include <deque>
+#include <tuple>
+#include <algorithm>
 
 #include <iostream>
 
@@ -3518,6 +3520,19 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
     for (const auto& f : *c->inputs(0)) {
       c->edit()->DeleteFile(c->level(), f->fd.GetNumber());
     }
+
+    // FIXME: ONLY FOR TESTING USE 
+    // for (auto file_meta : *(c->inputs(0)))
+    // {
+    //   std::cout << "Pushing file from Current Level: " << c->level(0) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(0) << std::endl << std::flush;
+    //   std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;  
+    // }
+
+    std::tuple<int, const std::vector<FileMetaData*>*> file_meta_data_vectors = std::make_tuple(c->level(), c->inputs(c->level()));
+    // std::cout << "[Compaction]: Calling Direct Delete Compaction .. " << std::endl;
+
+    c->column_family_data()->GetSuperVersion()->current->deleteRDFAssociatedWithFilesAtCurrentLevel(&file_meta_data_vectors);
+
     status = versions_->LogAndApply(
         c->column_family_data(), *c->mutable_cf_options(), read_options,
         c->edit(), &mutex_, directories_.GetDbDir());
@@ -3536,7 +3551,6 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
     TEST_SYNC_POINT_CALLBACK("DBImpl::BackgroundCompaction:BeforeCompaction",
                              c->column_family_data());
     // Instrument for event update
-    // TODO(yhchiang): add op details for showing trivial-move.
     ThreadStatusUtil::SetColumnFamily(c->column_family_data());
     ThreadStatusUtil::SetThreadOperation(ThreadStatus::OP_COMPACTION);
 
@@ -3545,24 +3559,30 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
     NotifyOnCompactionBegin(c->column_family_data(), c.get(), status,
                             compaction_job_stats, job_context->job_id);
 
-std::cout << std::endl << std::endl;
-std::cout  << "DBImpl::BackgroundCompaction A5 @trivial compaction " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
-std::cout << "Move files to next level" << std::endl;
-std::cout << "num_input_levels = " << c->num_input_levels() << std::endl;
-std::cout << "the output_level = " << c->output_level() << std::endl;
-    // Move files to next level
     int32_t moved_files = 0;
     int64_t moved_bytes = 0;
+    std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>>();
+
     for (unsigned int l = 0; l < c->num_input_levels(); l++) {
-std::cout << "c->level(l) = " << c->level(l) << " c->output_level() = " << c->output_level() << std::endl;
       if (c->level(l) == c->output_level()) {
         continue;
       }
-std::cout << "@level = " << l << "  num_input_files(level) = " << c->num_input_files(l) << std::endl;
+
+      bool flag = false;
+      
       for (size_t i = 0; i < c->num_input_files(l); i++) {
+        if (!flag)
+        {
+          // FIXME: ONLY FOR TESTING USE 
+          // for (auto file_meta : *(c->inputs(l)))
+          // {
+          //   std::cout << "Pushing file from Current Level: " << c->level(l) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(l) << std::endl << std::flush;
+          //   std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;  
+          // }
+          file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), c->inputs(l)));
+          flag = true;
+        }
         FileMetaData* f = c->input(l, i);
-std::cout << "(bg Compaction) file smallest,largest = " << f->smallest.user_key().ToString() << " " << f->largest.user_key().ToString() << std::endl;
         c->edit()->DeleteFile(c->level(l), f->fd.GetNumber());
         c->edit()->AddFile(
             c->output_level(), f->fd.GetNumber(), f->fd.GetPathId(),
@@ -3592,6 +3612,9 @@ std::cout << "(bg Compaction) file smallest,largest = " << f->smallest.user_key(
             vstorage->GetNextCompactCursor(start_level, c->num_input_files(0)));
       }
     }
+    // std::cout << "[Compaction]: Calling Shift RDF To Output Level for Trivial Compaction .. " << std::endl;
+
+    c->column_family_data()->GetSuperVersion()->current->shiftRDFToOutputLevel(file_meta_data_vectors);
     status = versions_->LogAndApply(
         c->column_family_data(), *c->mutable_cf_options(), read_options,
         c->edit(), &mutex_, directories_.GetDbDir());
@@ -3644,6 +3667,8 @@ std::cout << "(bg Compaction) file smallest,largest = " << f->smallest.user_key(
     // Transfer requested token, so it doesn't need to do it again.
     ca->prepicked_compaction->task_token = std::move(task_token);
     ++bg_bottom_compaction_scheduled_;
+    // std::cout << "[Compaction]: Scheduling Bottom Level Compaction .. " << std::endl;
+
     env_->Schedule(&DBImpl::BGWorkBottomCompaction, ca, Env::Priority::BOTTOM,
                    this, &DBImpl::UnscheduleCompactionCallback);
   } else {
@@ -3659,32 +3684,6 @@ std::cout << "(bg Compaction) file smallest,largest = " << f->smallest.user_key(
     GetSnapshotContext(job_context, &snapshot_seqs,
                        &earliest_write_conflict_snapshot, &snapshot_checker);
     assert(is_snapshot_supported_ || snapshots_.empty());
-
-//Self Added
-std::cout << "DBImpl::BackgroundCompaction A6 @compaction_job (non trivial) " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
-std::cout << "(bg compact non-trivial) c->start_level() = " << c->start_level() << " c->output_level() = " << c->output_level() << std::endl;
-std::cout << "(bg compact non-trivial) num_input_levels = " << c->num_input_levels() << std::endl;
-std::cout << "(bg compact non-trivial) c->GetSmallestUserKey().ToString() = " << c->GetSmallestUserKey().ToString() << " c->GetLargestUserKey().ToString() = " << c->GetLargestUserKey().ToString() << std::endl;
-std::cout << "(bg compact non-trivial) c.get() " << c.get() << std::endl;
-std::cout << "(bg compact non-trivial) job_context->job_id " << job_context->job_id << std::endl;
-
-
-for (unsigned int l = 0; l < c->num_input_levels(); l++) {
-std::cout << "(bg compact non-trivial) c->level(l) = " << c->level(l) << " c->output_level() = " << c->output_level() << std::endl;
-  if (c->level(l) == c->output_level()) {
-    continue;
-  }
-std::cout << "(bg compact non-trivial) @level = " << l << "  num_input_files(level) = " << c->num_input_files(l) << std::endl;
-  for (size_t i = 0; i < c->num_input_files(l); i++) {
-    FileMetaData* f = c->input(l, i);
-std::cout << "(bg compact non-trivial) file smallest,largest = " << f->smallest.user_key().ToString() << " " << f->largest.user_key().ToString() << std::endl; 
-std::cout << "(bg compact non-trivial) f->fd.GetPathId() " << f->fd.GetPathId() << std::endl;
-//  f->fd.GetFileSize();
-  }
-}
- 
- 
  
     CompactionJob compaction_job(
         job_context->job_id, c.get(), immutable_db_options_,
@@ -3713,6 +3712,8 @@ std::cout << "(bg compact non-trivial) f->fd.GetPathId() " << f->fd.GetPathId() 
     compaction_job.Run().PermitUncheckedError();
     TEST_SYNC_POINT("DBImpl::BackgroundCompaction:NonTrivial:AfterRun");
     mutex_.Lock();
+
+    // std::cout << "[Compaction]: Performing Scheduled Compaction .. " << std::endl;
 
     status = compaction_job.Install(*c->mutable_cf_options());
     io_s = compaction_job.io_status();
