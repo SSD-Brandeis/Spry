@@ -47,6 +47,7 @@ namespace checking {
 
   class SystemVerifier {
   private:
+    static const int KEY_SIZE = 12;
 
   public:
     static SystemVerifier* system_verifier;
@@ -63,6 +64,10 @@ namespace checking {
     static SystemVerifier* getSystemVerifier(){
       init();
       return system_verifier;
+    }
+
+    static int getKeySize(){
+      return KEY_SIZE;
     }
 
     int disk_access_count = 0;

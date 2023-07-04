@@ -109,18 +109,54 @@ long long parsing_value_from_string(std::string str, std::string pattern){
     std::exit(1);
 }
 
-void init(){
-  rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
+void setNewBlockCacheForReading(Options& op){
+  //Reference: options.cc
+  BlockBasedTableOptions table_options;
+  table_options.block_cache = NewLRUCache(32*1024*1024);
+  table_options.block_cache = NULL; //default block cache
+  // table_options.no_block_cache = true; //disable block cache completely
 
+  // table_options.block_cache =
+  //     (cache != nullptr) ? *cache : std::shared_ptr<Cache>();
+  // 16MB block cache
+  // std::shared_ptr<Cache> cache = NewLRUCache(16 << 20);
+  // table_options.block_cache = cache;
+  // table_options.cache_index_and_filter_blocks = true;
+  // std::cout << " table_options.cache_index_and_filter_blocks  = " <<  table_options.cache_index_and_filter_blocks  << std::endl;
+  // Two level iterator to avoid LRU cache imbalance
+  // table_options.index_type =
+  //     BlockBasedTableOptions::IndexType::kTwoLevelIndexSearch;
+  op.table_factory.reset(NewBlockBasedTableFactory(table_options));
+}
+
+void setNoBlockCacheForReading(Options& op){
+  //Reference: options.cc
+  BlockBasedTableOptions table_options;
+  table_options.block_cache = NewLRUCache(32*1024*1024);
+  // table_options.block_cache = NULL; //default block cache
+  table_options.no_block_cache = true; //disable block cache completely
+
+  op.table_factory.reset(NewBlockBasedTableFactory(table_options));
+}
+
+
+
+void clearCache(){
+  // Clearing the system cache
+  std::cout << "Clearing system cache ..." << std::endl;
+  int clean_flag = system("sudo sh -c 'echo 3 >/proc/sys/vm/drop_caches'");
+  if (clean_flag) {
+    std::cerr << "Cannot clean the system cache" << std::endl;
+    exit(0);
+  }
+}
+
+void init(Options& op, WriteOptions& write_op, ReadOptions& read_op){
+  rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
   // rocksdb::get_perf_context()->Reset();
   // rocksdb::get_iostats_context()->Reset();
   
   checking::SystemVerifier::init();
-}
-
-
-void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
-  DB* db;
 
 
   // op.write_buffer_size = 1024 * 256; // -> 256 kB    
@@ -161,13 +197,355 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
     // op.allow_concurrent_memtable_write = false;
   }
 
-  // BlockBasedTableOptions table_options;
-  // table_options.block_cache = NewLRUCache(8*1048576);
-  // op.table_factory.reset(NewBlockBasedTableFactory(table_options));
+
+  setNewBlockCacheForReading(op);
+
+  clearCache();
+}
+
+void reset_perf_iostats_context(){
+  rocksdb::get_perf_context()->Reset();
+  rocksdb::get_iostats_context()->Reset();
+}
+
+void print_perf_iostats_context(std::ostream& ofile, int N_repetitions = 1){
+  
+    rocksdb::SetPerfLevel(rocksdb::PerfLevel::kDisable);
+    std::string perf_context = rocksdb::get_perf_context()->ToString();
+    
+    // long long get_read_bytes = parsing_value_from_string(op.statistics->ToString(), "get_read_bytes[^:]*= ([0-9]+)");
+    long long get_from_memtable_time = parsing_value_from_string(perf_context, "get_from_memtable_time[^:]*= ([0-9]+)");
+    long long get_from_memtable_count = parsing_value_from_string(perf_context, "get_from_memtable_count[^:]*= ([0-9]+)");
+    long long get_post_process_time = parsing_value_from_string(perf_context, "get_post_process_time[^:]*= ([0-9]+)");
+
+    long long bloom_memtable_hit_count = parsing_value_from_string(perf_context, "bloom_memtable_hit_count[^:]*= ([0-9]+)");
+    long long bloom_memtable_miss_count = parsing_value_from_string(perf_context, "bloom_memtable_miss_count[^:]*= ([0-9]+)");
+    long long bloom_sst_hit_count = parsing_value_from_string(perf_context, "bloom_sst_hit_count[^:]*= ([0-9]+)");
+    long long bloom_sst_miss_count = parsing_value_from_string(perf_context, "bloom_sst_miss_count[^:]*= ([0-9]+)");
+
+
+
+    rocksdb::SetPerfLevel(rocksdb::PerfLevel::kDisable);
+    std::string iostats_context = rocksdb::get_iostats_context()->ToString();
+
+    long long bytes_read = parsing_value_from_string(iostats_context, "bytes_read[^:]*= ([0-9]+)");
+    long long bytes_written = parsing_value_from_string(iostats_context, "bytes_written[^:]*= ([0-9]+)");
+    long long read_nanos = parsing_value_from_string(iostats_context, "read_nanos[^:]*= ([0-9]+)");
+    long long write_nanos = parsing_value_from_string(iostats_context, "write_nanos[^:]*= ([0-9]+)");
+
+    //print out all the above variable
+    ofile << "get_from_memtable_time = " << std::fixed << std::setprecision(2) << get_from_memtable_time * 1.0 / N_repetitions << std::endl;
+    ofile << "get_from_memtable_count = " << std::fixed << std::setprecision(2) << get_from_memtable_count * 1.0 / N_repetitions << std::endl;
+    ofile << "get_post_process_time = " << std::fixed << std::setprecision(2) << get_post_process_time * 1.0 / N_repetitions << std::endl;
+    ofile << "bloom_memtable_hit_count = " << std::fixed << std::setprecision(2) << bloom_memtable_hit_count * 1.0 / N_repetitions << std::endl;
+    ofile << "bloom_memtable_miss_count = " << std::fixed << std::setprecision(2) << bloom_memtable_miss_count * 1.0 / N_repetitions << std::endl;
+    ofile << "bloom_sst_hit_count = " << std::fixed << std::setprecision(2) << bloom_sst_hit_count * 1.0 / N_repetitions << std::endl;
+    ofile << "bloom_sst_miss_count = " << std::fixed << std::setprecision(2) << bloom_sst_miss_count * 1.0 / N_repetitions << std::endl;
+    ofile << "bytes_read = " << std::fixed << std::setprecision(2) << bytes_read * 1.0 / N_repetitions << std::endl;
+    ofile << "bytes_written = " << std::fixed << std::setprecision(2) << bytes_written * 1.0 / N_repetitions << std::endl;
+    ofile << "read_nanos = " << std::fixed << std::setprecision(2) << read_nanos * 1.0 / N_repetitions << std::endl;
+    ofile << "write_nanos = " << std::fixed << std::setprecision(2) << write_nanos * 1.0 / N_repetitions << std::endl;
+    //print out a separation line
+    ofile << "--------------------------------------------------------------------" << std::endl;
+}
+
+
+
+
+void runPQVerification(DB* db, Options& op, ReadOptions& read_op){
+  checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
+  int KEY_SIZE = checking::SystemVerifier::getKeySize();
+
+  Status s;
+
+  std::ofstream testing_result_file;
+  testing_result_file.open("testing_result.txt");
+  const long long N_repetitions = 3;
+  // long long num_RDF_types = getNumberOfRDFTypes();
+  long long count = 0;
+
+  auto start_pq = std::chrono::high_resolution_clock::now();
+  auto stop_pq = std::chrono::high_resolution_clock::now();
+  auto duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+  unsigned long long point_query_time = duration_pq.count();
+
+  testing_result_file << std::endl << std::endl;
+  testing_result_file << "----------------------Testing On Existing Keys-----------------------" << std::endl; 
+  // system_verifier->resetDiskAccessCount();
+  for(uint t = 0; t < system_verifier->getNumberOfRDFTypes(); t++){
+    long long total_read_count_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
+          + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
+    long long total_read_bytes_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
+          + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.bytes[^:]*: ([0-9]+)");
+    reset_perf_iostats_context();
+
+
+    system_verifier->resetDiskAccessCount();
+    system_verifier->setRDFTypeChosed(t);
+    count = 0;
+    point_query_time = 0;
+    start_pq = std::chrono::high_resolution_clock::now();
+    for(auto i = 0; i < N_repetitions; i++){
+      clearCache();
+      // setNewBlockCacheForReading(op);
+      setNoBlockCacheForReading(op);
+  // system_verifier->setRDFTypeChosed(1);
+      for(auto &x: system_verifier->getAllExistingKeys()){
+        bool gt_is_exist = system_verifier->isKeyExist(x);
+        std::string gt_value = system_verifier->get(x);
+
+        std::string value;
+        std::stringstream searching_key;
+        searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+        s = db->Get(read_op, searching_key.str(), &value);
+        // std::cout << x << " " << s.ok() << " " << value << std::endl;
+        // std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
+      
+        if(s.ok() != gt_is_exist){
+          std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
+        }
+        if(gt_is_exist == false){continue;}
+        if(value != gt_value){
+          std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
+        }
+      }
+      count += system_verifier->getDiskAccessCount();
+      stop_pq = std::chrono::high_resolution_clock::now();
+      duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+      point_query_time += duration_pq.count();
+
+  // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
+    }  
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions << " (ms) " << std::endl;
+  
+    
+    long long total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
+          + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
+    long long total_read_bytes_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
+          + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.bytes[^:]*: ([0-9]+)");
+
+    testing_result_file << "total_read_count_start = " << std::fixed << std::setprecision(2) << total_read_count_start << std::endl;
+    testing_result_file << "total_read_count_end = " << std::fixed << std::setprecision(2) << total_read_count_end << std::endl;
+    testing_result_file << "total_read_bytes_start = " << std::fixed << std::setprecision(2) << total_read_bytes_start << std::endl;
+    testing_result_file << "total_read_bytes_end = " << std::fixed << std::setprecision(2) << total_read_bytes_end << std::endl;
+    testing_result_file << "total_read_count = " << std::fixed << std::setprecision(2) << (total_read_count_end - total_read_count_start) * 1.0 / N_repetitions << std::endl;
+    testing_result_file << "total_read_bytes = " << std::fixed << std::setprecision(2) << (total_read_bytes_end - total_read_bytes_start) * 1.0 / N_repetitions << std::endl;
+    print_perf_iostats_context(testing_result_file, N_repetitions);
+  }
+
+
+  testing_result_file << std::endl << std::endl;
+  testing_result_file << "----------------------Testing On historic-existing Keys-----------------------" << std::endl;
+  // system_verifier->resetDiskAccessCount();
+  for(uint t = 0; t < system_verifier->getNumberOfRDFTypes(); t++){
+    long long total_read_count_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
+          + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
+    long long total_read_bytes_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
+          + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.bytes[^:]*: ([0-9]+)");
+    reset_perf_iostats_context();
+
+
+    system_verifier->resetDiskAccessCount();
+    system_verifier->setRDFTypeChosed(t);
+    count = 0;
+    point_query_time = 0;
+    start_pq = std::chrono::high_resolution_clock::now();
+    for(auto i = 0; i < N_repetitions; i++){
+      clearCache();
+      // setNewBlockCacheForReading(op);
+      setNoBlockCacheForReading(op);
+  // system_verifier->setRDFTypeChosed(1);
+      for(auto &x: system_verifier->getHistoricExistingKeys()){
+        bool gt_is_exist = system_verifier->isKeyExist(x);
+        std::string gt_value = system_verifier->get(x);
+
+        std::string value;
+        std::stringstream searching_key;
+        searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+        s = db->Get(read_op, searching_key.str(), &value);
+        // testing_result_file << x << " " << s.ok() << " " << value << std::endl;
+        // testing_result_file << x << " " << gt_is_exist << " " << gt_value << std::endl;
+      
+        if(s.ok() != gt_is_exist){
+          testing_result_file << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
+        }
+        if(gt_is_exist == false){continue;}
+        if(value != gt_value){
+          testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
+        }
+      }
+      count += system_verifier->getDiskAccessCount();
+      stop_pq = std::chrono::high_resolution_clock::now();
+      duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+      point_query_time += duration_pq.count();
+
+  // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
+    }  
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions << " (ms) " << std::endl;
+  
+    
+    long long total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
+          + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
+    long long total_read_bytes_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
+          + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.bytes[^:]*: ([0-9]+)");
+
+    testing_result_file << "total_read_count_start = " << std::fixed << std::setprecision(2) << total_read_count_start << std::endl;
+    testing_result_file << "total_read_count_end = " << std::fixed << std::setprecision(2) << total_read_count_end << std::endl;
+    testing_result_file << "total_read_bytes_start = " << std::fixed << std::setprecision(2) << total_read_bytes_start << std::endl;
+    testing_result_file << "total_read_bytes_end = " << std::fixed << std::setprecision(2) << total_read_bytes_end << std::endl;
+    testing_result_file << "total_read_count = " << std::fixed << std::setprecision(2) << (total_read_count_end - total_read_count_start) * 1.0 / N_repetitions << std::endl;
+    testing_result_file << "total_read_bytes = " << std::fixed << std::setprecision(2) << (total_read_bytes_end - total_read_bytes_start) * 1.0 / N_repetitions << std::endl;
+    print_perf_iostats_context(testing_result_file, N_repetitions);
+  }
+
+  testing_result_file << std::endl << std::endl;
+  testing_result_file << "----------------------Testing On Currently Deleted Keys-----------------------" << std::endl;
+  // system_verifier->resetDiskAccessCount();
+  for(uint t = 0; t < system_verifier->getNumberOfRDFTypes(); t++){
+    long long total_read_count_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
+          + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
+    long long total_read_bytes_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
+          + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.bytes[^:]*: ([0-9]+)");
+    reset_perf_iostats_context();
+
+
+    system_verifier->resetDiskAccessCount();
+    system_verifier->setRDFTypeChosed(t);
+    count = 0;
+    point_query_time = 0;
+    start_pq = std::chrono::high_resolution_clock::now();
+    for(auto i = 0; i < N_repetitions; i++){
+      clearCache();
+      // setNewBlockCacheForReading(op);
+      setNoBlockCacheForReading(op);
+  // system_verifier->setRDFTypeChosed(1);
+      for(auto &x: system_verifier->getCurrentlyDeletedKeys()){
+        bool gt_is_exist = system_verifier->isKeyExist(x);
+        std::string gt_value = system_verifier->get(x);
+
+        std::string value;
+        std::stringstream searching_key;
+        searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+        s = db->Get(read_op, searching_key.str(), &value);
+        // testing_result_file << x << " " << s.ok() << " " << value << std::endl;
+        // testing_result_file << x << " " << gt_is_exist << " " << gt_value << std::endl;
+      
+        if(s.ok() != gt_is_exist){
+          testing_result_file << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
+        }
+        if(gt_is_exist == false){continue;}
+        if(value != gt_value){
+          testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
+        }
+      }
+      count += system_verifier->getDiskAccessCount();
+      stop_pq = std::chrono::high_resolution_clock::now();
+      duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+      point_query_time += duration_pq.count();
+
+  // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
+    }  
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions << " (ms) " << std::endl;
+    
+    
+    long long total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
+          + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
+    long long total_read_bytes_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
+          + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.bytes[^:]*: ([0-9]+)");
+
+    testing_result_file << "total_read_count_start = " << std::fixed << std::setprecision(2) << total_read_count_start << std::endl;
+    testing_result_file << "total_read_count_end = " << std::fixed << std::setprecision(2) << total_read_count_end << std::endl;
+    testing_result_file << "total_read_bytes_start = " << std::fixed << std::setprecision(2) << total_read_bytes_start << std::endl;
+    testing_result_file << "total_read_bytes_end = " << std::fixed << std::setprecision(2) << total_read_bytes_end << std::endl;
+    testing_result_file << "total_read_count = " << std::fixed << std::setprecision(2) << (total_read_count_end - total_read_count_start) * 1.0 / N_repetitions << std::endl;
+    testing_result_file << "total_read_bytes = " << std::fixed << std::setprecision(2) << (total_read_bytes_end - total_read_bytes_start) * 1.0 / N_repetitions << std::endl;
+    print_perf_iostats_context(testing_result_file, N_repetitions);
+  }
+
+  testing_result_file << std::endl << std::endl;
+  testing_result_file << "----------------------Testing On Currently Non-inserted Keys-----------------------" << std::endl;
+  // system_verifier->resetDiskAccessCount();
+  for(uint t = 0; t < system_verifier->getNumberOfRDFTypes(); t++){
+    long long total_read_count_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
+          + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
+    long long total_read_bytes_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
+          + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.bytes[^:]*: ([0-9]+)");
+    reset_perf_iostats_context();
+
+
+    system_verifier->resetDiskAccessCount();
+    system_verifier->setRDFTypeChosed(t);
+    count = 0;
+    point_query_time = 0;
+    start_pq = std::chrono::high_resolution_clock::now();
+    for(auto i = 0; i < N_repetitions; i++){
+      clearCache();
+      // setNewBlockCacheForReading(op);
+      setNoBlockCacheForReading(op);
+  // system_verifier->setRDFTypeChosed(1);
+      for(auto &x: system_verifier->getCurrentlyNonInsertedKeys(1000)){ // test on 1000 keys
+        bool gt_is_exist = system_verifier->isKeyExist(x); // should be false
+        std::string gt_value = system_verifier->get(x); // should be ""
+
+        std::string value;
+        std::stringstream searching_key;
+        searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+        s = db->Get(read_op, searching_key.str(), &value);
+        // testing_result_file << x << " " << s.ok() << " " << value << std::endl;
+        // testing_result_file << x << " " << gt_is_exist << " " << gt_value << std::endl;
+      
+        if(s.ok() != gt_is_exist){
+          testing_result_file << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
+        }
+        if(gt_is_exist == false){continue;}
+        if(value != gt_value){
+          testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
+        }
+      }
+      count += system_verifier->getDiskAccessCount();
+      stop_pq = std::chrono::high_resolution_clock::now();
+      duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+      point_query_time += duration_pq.count();
+
+  // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
+    }  
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions << " (ms) " << std::endl;
+  
+    
+    long long total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
+          + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
+    long long total_read_bytes_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
+          + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.bytes[^:]*: ([0-9]+)");
+
+    testing_result_file << "total_read_count_start = " << std::fixed << std::setprecision(2) << total_read_count_start << std::endl;
+    testing_result_file << "total_read_count_end = " << std::fixed << std::setprecision(2) << total_read_count_end << std::endl;
+    testing_result_file << "total_read_bytes_start = " << std::fixed << std::setprecision(2) << total_read_bytes_start << std::endl;
+    testing_result_file << "total_read_bytes_end = " << std::fixed << std::setprecision(2) << total_read_bytes_end << std::endl;
+    testing_result_file << "total_read_count = " << std::fixed << std::setprecision(2) << (total_read_count_end - total_read_count_start) * 1.0 / N_repetitions << std::endl;
+    testing_result_file << "total_read_bytes = " << std::fixed << std::setprecision(2) << (total_read_bytes_end - total_read_bytes_start) * 1.0 / N_repetitions << std::endl;
+    print_perf_iostats_context(testing_result_file, N_repetitions);
+  }
+
+  testing_result_file << std::endl << std::endl;
+  testing_result_file << "----------------------End Testing-----------------------" << std::endl;
+
+  testing_result_file.close();
+}
+
+
+void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
+  DB* db;
+
+
 
   Status s = DB::Open(op, kDBPath, &db);
   if (!s.ok()) std::cerr << s.ToString() << std::endl;
   assert(s.ok());
+
 
   // opening workload file for the first time
   std::ifstream workload_file;
@@ -182,19 +560,11 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
   workload_file.open("workload.txt");
   assert(workload_file);
 
-  // Clearing the system cache
-  std::cout << "Clearing system cache ..." << std::endl;
-  int clean_flag = system("sudo sh -c 'echo 3 >/proc/sys/vm/drop_caches'");
-  if (clean_flag) {
-    std::cerr << "Cannot clean the system cache" << std::endl;
-    exit(0);
-  }
-
   checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
 
   Iterator* it = db->NewIterator(read_op);  // for range reads
   uint64_t counter = 0;                     // for progress bar
-  int KEY_SIZE = 12;
+  int KEY_SIZE = checking::SystemVerifier::getKeySize();
 
   while (!workload_file.eof()) {
     char instruction;
@@ -298,8 +668,9 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
           + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
     long long total_read_bytes_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
           + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.bytes[^:]*: ([0-9]+)");
-    rocksdb::get_perf_context()->Reset();
-    rocksdb::get_iostats_context()->Reset();
+    // rocksdb::get_perf_context()->Reset();
+    // rocksdb::get_iostats_context()->Reset();
+    reset_perf_iostats_context();
 
 
     for(auto &x: testing_key_list){
@@ -323,6 +694,8 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
     }
 
     
+
+
     long long total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
           + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
     long long total_read_bytes_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
@@ -335,232 +708,56 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
     std::cout << "total_read_count = " << total_read_count_end - total_read_count_start << std::endl;
     std::cout << "total_read_bytes = " << total_read_bytes_end - total_read_bytes_start << std::endl;
 
-    rocksdb::SetPerfLevel(rocksdb::PerfLevel::kDisable);
-    // std::string perf_context = rocksdb::get_perf_context()->ToString();
+    // rocksdb::SetPerfLevel(rocksdb::PerfLevel::kDisable);
+    // // std::string perf_context = rocksdb::get_perf_context()->ToString();
     
-    // long long get_read_bytes = parsing_value_from_string(op.statistics->ToString(), "get_read_bytes[^:]*= ([0-9]+)");
-    long long get_from_memtable_time = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), "get_from_memtable_time[^:]*= ([0-9]+)");
-    long long get_from_memtable_count = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), "get_from_memtable_count[^:]*= ([0-9]+)");
-    long long get_post_process_time = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), "get_post_process_time[^:]*= ([0-9]+)");
+    // // long long get_read_bytes = parsing_value_from_string(op.statistics->ToString(), "get_read_bytes[^:]*= ([0-9]+)");
+    // long long get_from_memtable_time = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), "get_from_memtable_time[^:]*= ([0-9]+)");
+    // long long get_from_memtable_count = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), "get_from_memtable_count[^:]*= ([0-9]+)");
+    // long long get_post_process_time = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), "get_post_process_time[^:]*= ([0-9]+)");
 
-    long long bloom_memtable_hit_count = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), "bloom_memtable_hit_count[^:]*= ([0-9]+)");
-    long long bloom_memtable_miss_count = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), "bloom_memtable_miss_count[^:]*= ([0-9]+)");
-    long long bloom_sst_hit_count = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), "bloom_sst_hit_count[^:]*= ([0-9]+)");
-    long long bloom_sst_miss_count = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), "bloom_sst_miss_count[^:]*= ([0-9]+)");
+    // long long bloom_memtable_hit_count = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), "bloom_memtable_hit_count[^:]*= ([0-9]+)");
+    // long long bloom_memtable_miss_count = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), "bloom_memtable_miss_count[^:]*= ([0-9]+)");
+    // long long bloom_sst_hit_count = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), "bloom_sst_hit_count[^:]*= ([0-9]+)");
+    // long long bloom_sst_miss_count = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), "bloom_sst_miss_count[^:]*= ([0-9]+)");
 
 
 
-    rocksdb::SetPerfLevel(rocksdb::PerfLevel::kDisable);
-    std::string iostats_context = rocksdb::get_iostats_context()->ToString();
+    // rocksdb::SetPerfLevel(rocksdb::PerfLevel::kDisable);
+    // std::string iostats_context = rocksdb::get_iostats_context()->ToString();
 
-    long long bytes_read = parsing_value_from_string(iostats_context, "bytes_read[^:]*= ([0-9]+)");
-    long long bytes_written = parsing_value_from_string(iostats_context, "bytes_written[^:]*= ([0-9]+)");
-    long long read_nanos = parsing_value_from_string(iostats_context, "read_nanos[^:]*= ([0-9]+)");
-    long long write_nanos = parsing_value_from_string(iostats_context, "write_nanos[^:]*= ([0-9]+)");
+    // long long bytes_read = parsing_value_from_string(iostats_context, "bytes_read[^:]*= ([0-9]+)");
+    // long long bytes_written = parsing_value_from_string(iostats_context, "bytes_written[^:]*= ([0-9]+)");
+    // long long read_nanos = parsing_value_from_string(iostats_context, "read_nanos[^:]*= ([0-9]+)");
+    // long long write_nanos = parsing_value_from_string(iostats_context, "write_nanos[^:]*= ([0-9]+)");
 
-    //print out all the above variable
-    std::cout << "get_from_memtable_time = " << get_from_memtable_time << std::endl;
-    std::cout << "get_from_memtable_count = " << get_from_memtable_count << std::endl;
-    std::cout << "get_post_process_time = " << get_post_process_time << std::endl;
-    std::cout << "bloom_memtable_hit_count = " << bloom_memtable_hit_count << std::endl;
-    std::cout << "bloom_memtable_miss_count = " << bloom_memtable_miss_count << std::endl;
-    std::cout << "bloom_sst_hit_count = " << bloom_sst_hit_count << std::endl;
-    std::cout << "bloom_sst_miss_count = " << bloom_sst_miss_count << std::endl;
-    std::cout << "bytes_read = " << bytes_read << std::endl;
-    std::cout << "bytes_written = " << bytes_written << std::endl;
-    std::cout << "read_nanos = " << read_nanos << std::endl;
-    std::cout << "write_nanos = " << write_nanos << std::endl;
-    //print out a separation line
-    std::cout << "--------------------------------------------------------------------" << std::endl;
+    // //print out all the above variable
+    // std::cout << "get_from_memtable_time = " << get_from_memtable_time << std::endl;
+    // std::cout << "get_from_memtable_count = " << get_from_memtable_count << std::endl;
+    // std::cout << "get_post_process_time = " << get_post_process_time << std::endl;
+    // std::cout << "bloom_memtable_hit_count = " << bloom_memtable_hit_count << std::endl;
+    // std::cout << "bloom_memtable_miss_count = " << bloom_memtable_miss_count << std::endl;
+    // std::cout << "bloom_sst_hit_count = " << bloom_sst_hit_count << std::endl;
+    // std::cout << "bloom_sst_miss_count = " << bloom_sst_miss_count << std::endl;
+    // std::cout << "bytes_read = " << bytes_read << std::endl;
+    // std::cout << "bytes_written = " << bytes_written << std::endl;
+    // std::cout << "read_nanos = " << read_nanos << std::endl;
+    // std::cout << "write_nanos = " << write_nanos << std::endl;
+    // //print out a separation line
+    // std::cout << "--------------------------------------------------------------------" << std::endl;
+    print_perf_iostats_context(std::cout, 1);
   }
 
 
 
-  // {
-  //   std::ofstream testing_result_file;
-  //   testing_result_file.open("testing_result.txt");
-  //   const long long N_repetitions = 3;
-  //   // long long num_RDF_types = getNumberOfRDFTypes();
-  //   long long count = 0;
-
-  //   auto start_pq = std::chrono::high_resolution_clock::now();
-  //   auto stop_pq = std::chrono::high_resolution_clock::now();
-  //   auto duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
-  //   unsigned long long point_query_time = duration_pq.count();
+  std::this_thread::sleep_for(std::chrono::seconds(10));  // Sleep for 1 second
+  {
+    runPQVerification(db, op, read_op);
+  }
 
 
 
-  //   testing_result_file << std::endl << std::endl;
-  //   testing_result_file << "----------------------Testing On Existing Keys-----------------------" << std::endl; 
-  //   // system_verifier->resetDiskAccessCount();
-  //   for(uint t = 0; t < system_verifier->getNumberOfRDFTypes(); t++){
-  //     system_verifier->resetDiskAccessCount();
-  //     system_verifier->setRDFTypeChosed(t);
-  //     count = 0;
-  //     point_query_time = 0;
-  //     start_pq = std::chrono::high_resolution_clock::now();
-  //     for(auto i = 0; i < N_repetitions; i++){
-  //   // system_verifier->setRDFTypeChosed(1);
-  //       for(auto &x: system_verifier->getAllExistingKeys()){
-  //         bool gt_is_exist = system_verifier->isKeyExist(x);
-  //         std::string gt_value = system_verifier->get(x);
-
-  //         std::string value;
-  //         std::stringstream searching_key;
-  //         searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
-  //         s = db->Get(read_op, searching_key.str(), &value);
-  //         // std::cout << x << " " << s.ok() << " " << value << std::endl;
-  //         // std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
-        
-  //         if(s.ok() != gt_is_exist){
-  //           std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
-  //         }
-  //         if(gt_is_exist == false){continue;}
-  //         if(value != gt_value){
-  //           std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
-  //         }
-  //       }
-  //       count += system_verifier->getDiskAccessCount();
-  //       stop_pq = std::chrono::high_resolution_clock::now();
-  //       duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
-  //       point_query_time += duration_pq.count();
-
-  //   // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
-  //     }  
-  //     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
-  //     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions << " (ms) " << std::endl;
-  //   }
-
-  //   testing_result_file << std::endl << std::endl;
-  //   testing_result_file << "----------------------Testing On historic-existing Keys-----------------------" << std::endl;
-  //   // system_verifier->resetDiskAccessCount();
-  //   for(uint t = 0; t < system_verifier->getNumberOfRDFTypes(); t++){
-  //     system_verifier->resetDiskAccessCount();
-  //     system_verifier->setRDFTypeChosed(t);
-  //     count = 0;
-  //     point_query_time = 0;
-  //     start_pq = std::chrono::high_resolution_clock::now();
-  //     for(auto i = 0; i < N_repetitions; i++){
-  //   // system_verifier->setRDFTypeChosed(1);
-  //       for(auto &x: system_verifier->getHistoricExistingKeys()){
-  //         bool gt_is_exist = system_verifier->isKeyExist(x);
-  //         std::string gt_value = system_verifier->get(x);
-
-  //         std::string value;
-  //         std::stringstream searching_key;
-  //         searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
-  //         s = db->Get(read_op, searching_key.str(), &value);
-  //         // std::cout << x << " " << s.ok() << " " << value << std::endl;
-  //         // std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
-        
-  //         if(s.ok() != gt_is_exist){
-  //           std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
-  //         }
-  //         if(gt_is_exist == false){continue;}
-  //         if(value != gt_value){
-  //           std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
-  //         }
-  //       }
-  //       count += system_verifier->getDiskAccessCount();
-  //       stop_pq = std::chrono::high_resolution_clock::now();
-  //       duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
-  //       point_query_time += duration_pq.count();
-
-  //   // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
-  //     }  
-  //     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
-  //     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions << " (ms) " << std::endl;
-  //   }
-
-  //   testing_result_file << std::endl << std::endl;
-  //   testing_result_file << "----------------------Testing On Currently Deleted Keys-----------------------" << std::endl;
-  //   // system_verifier->resetDiskAccessCount();
-  //   for(uint t = 0; t < system_verifier->getNumberOfRDFTypes(); t++){
-  //     system_verifier->resetDiskAccessCount();
-  //     system_verifier->setRDFTypeChosed(t);
-  //     count = 0;
-  //     point_query_time = 0;
-  //     start_pq = std::chrono::high_resolution_clock::now();
-  //     for(auto i = 0; i < N_repetitions; i++){
-  //   // system_verifier->setRDFTypeChosed(1);
-  //       for(auto &x: system_verifier->getCurrentlyDeletedKeys()){
-  //         bool gt_is_exist = system_verifier->isKeyExist(x);
-  //         std::string gt_value = system_verifier->get(x);
-
-  //         std::string value;
-  //         std::stringstream searching_key;
-  //         searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
-  //         s = db->Get(read_op, searching_key.str(), &value);
-  //         // std::cout << x << " " << s.ok() << " " << value << std::endl;
-  //         // std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
-        
-  //         if(s.ok() != gt_is_exist){
-  //           std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
-  //         }
-  //         if(gt_is_exist == false){continue;}
-  //         if(value != gt_value){
-  //           std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
-  //         }
-  //       }
-  //       count += system_verifier->getDiskAccessCount();
-  //       stop_pq = std::chrono::high_resolution_clock::now();
-  //       duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
-  //       point_query_time += duration_pq.count();
-
-  //   // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
-  //     }  
-  //     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
-  //     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions << " (ms) " << std::endl;
-  //   }
-
-  //   testing_result_file << std::endl << std::endl;
-  //   testing_result_file << "----------------------Testing On Currently Non-inserted Keys-----------------------" << std::endl;
-  //   // system_verifier->resetDiskAccessCount();
-  //   for(uint t = 0; t < system_verifier->getNumberOfRDFTypes(); t++){
-  //     system_verifier->resetDiskAccessCount();
-  //     system_verifier->setRDFTypeChosed(t);
-  //     count = 0;
-  //     point_query_time = 0;
-  //     start_pq = std::chrono::high_resolution_clock::now();
-  //     for(auto i = 0; i < N_repetitions; i++){
-  //   // system_verifier->setRDFTypeChosed(1);
-  //       for(auto &x: system_verifier->getCurrentlyNonInsertedKeys(1000)){ // test on 1000 keys
-  //         bool gt_is_exist = system_verifier->isKeyExist(x); // should be false
-  //         std::string gt_value = system_verifier->get(x); // should be ""
-
-  //         std::string value;
-  //         std::stringstream searching_key;
-  //         searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
-  //         s = db->Get(read_op, searching_key.str(), &value);
-  //         // std::cout << x << " " << s.ok() << " " << value << std::endl;
-  //         // std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
-        
-  //         if(s.ok() != gt_is_exist){
-  //           std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
-  //         }
-  //         if(gt_is_exist == false){continue;}
-  //         if(value != gt_value){
-  //           std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
-  //         }
-  //       }
-  //       count += system_verifier->getDiskAccessCount();
-  //       stop_pq = std::chrono::high_resolution_clock::now();
-  //       duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
-  //       point_query_time += duration_pq.count();
-
-  //   // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
-  //     }  
-  //     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
-  //     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions << " (ms) " << std::endl;
-  //   }
-
-  //   testing_result_file << std::endl << std::endl;
-  //   testing_result_file << "----------------------End Testing-----------------------" << std::endl;
-
-  //   testing_result_file.close();
-  // }
-
-  
+ 
 
 
   workload_file.close();
@@ -576,10 +773,10 @@ void runWorkload(Options& op, WriteOptions& write_op, ReadOptions& read_op) {
 }
 
 int main() {
-  init();
-
   Options options;
   WriteOptions write_op;
   ReadOptions read_op;
+
+  init(options, write_op, read_op);
   runWorkload(options, write_op, read_op);
 }

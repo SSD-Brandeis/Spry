@@ -62,21 +62,13 @@ void PerlevelRangeDeleteFilterByVector::addRangeDelete(std::vector<pll> &range_d
     auto& rdList = range_delete_list;
     auto& rdList_in = range_delete_list_in;
 
-std::cout << "rdList" << std::endl << std::endl;
+std::cout << "rdList" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
 for(auto it = rdList.begin(); it != rdList.end(); it++){
   std::cout << it->first << " " << it->second << std::endl;
 }
 std::cout << std::endl << std::endl;
 
-    if(rdList_in.size() == 0){ return;}
-    if(rdList.size() == 0){
-      rdList.reserve(rdList_in.size());
-      for(auto &p : rdList_in){
-        rdList.push_back(p);
-      }
-      return;
-    }
-
+    if(rdList_in.size() == 0){return;}
 
     for(uint i = 1; i < rdList_in.size(); i++){
       if(rdList_in[i-1].first > rdList_in[i].first){
@@ -84,6 +76,34 @@ std::cout << std::endl << std::endl;
         exit(1);
       }
     }
+
+    if(rdList.size() == 0){
+      //do the merging first before adding to rdList
+      // std::vector<pll> rdList_new;
+      rdList.reserve(rdList_in.size());
+      auto itA = rdList_in.begin();
+      auto iteA = rdList_in.end();
+      pll tmp_range = *itA;
+      for(;itA != iteA; itA++){
+        if(tmp_range.second <= itA->first){
+          tmp_range.second = std::max(tmp_range.second, itA->second);
+        }else{
+          rdList.push_back(tmp_range);
+          tmp_range = *itA;
+        }
+      }
+      rdList.push_back(tmp_range);
+
+
+      // //adding to rdList
+      // rdList.reserve(rdList_new.size());
+      // for(auto &p : rdList_new){
+      //   rdList.push_back(p);
+      // }
+      return;
+    }
+
+
 
 
     std::vector<pll> rdList_new;
@@ -141,15 +161,15 @@ std::cout << std::endl << std::endl;
     rdList_new.push_back(tmp_range);
 
 
-std::cout << "rdList_new" << std::endl << std::endl;
-for(auto it = rdList_new.begin(); it != rdList_new.end(); it++){
-  std::cout << it->first << " " << it->second << std::endl;
-}
-std::cout << "rdList" << std::endl << std::endl;
-for(auto it = rdList.begin(); it != rdList.end(); it++){
-  std::cout << it->first << " " << it->second << std::endl;
-}
-std::cout << std::endl << std::endl;
+// std::cout << "rdList_new" << std::endl << std::endl;
+// for(auto it = rdList_new.begin(); it != rdList_new.end(); it++){
+//   std::cout << it->first << " " << it->second << std::endl;
+// }
+// std::cout << "rdList" << std::endl << std::endl;
+// for(auto it = rdList.begin(); it != rdList.end(); it++){
+//   std::cout << it->first << " " << it->second << std::endl;
+// }
+// std::cout << std::endl << std::endl;
 
 
     rdList.clear();
