@@ -51,7 +51,8 @@ namespace ROCKSDB_NAMESPACE {
 
 void PerlevelRangeDeleteFilterByVector::addRangeDelete(uint level, std::vector<pll> &range_delete_list_in){
   assert( rd_filter.size() >= level);
-  if(rd_filter.size() == level){
+  while (rd_filter.size() <= level)
+  {
     rd_filter.push_back(std::vector<pll>());
   }
 
@@ -209,7 +210,7 @@ void PerlevelRangeDeleteFilterByVector::addRangeDelete(std::vector<pll> &range_d
     }
 }
 
-
+// This would be used for trivial compaction and normal compaction
 void PerlevelRangeDeleteFilterByVector::adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<long long, long long>> one_level_compaction_file_boundaries)
 {
   std::vector<pll> new_current_level_rdf;
@@ -243,7 +244,7 @@ void PerlevelRangeDeleteFilterByVector::adjustRangeDeletes(uint clevel, uint ole
      *         |   |
      *         -----
      */
-    if (itf == one_level_compaction_file_boundaries.end() || (val.second < file_boundry.first))
+    if (itf == one_level_compaction_file_boundaries.end() || (val.second <= file_boundry.first))
     {
       new_current_level_rdf.push_back(val);
       it++;
@@ -287,10 +288,10 @@ void PerlevelRangeDeleteFilterByVector::adjustRangeDeletes(uint clevel, uint ole
      *     |      |
      *     --------
      */
-    else if (val.first >= file_boundry.first && val.first < file_boundry.second && val.second > file_boundry.second)
+    else if (val.first >= file_boundry.first && val.first <= file_boundry.second && val.second > file_boundry.second)
     {
-      to_be_added_in_next_level_rdf.push_back(std::make_pair(val.first, file_boundry.second));
-      (*it).first = file_boundry.second;
+      to_be_added_in_next_level_rdf.push_back(std::make_pair(val.first, file_boundry.second + 1));
+      (*it).first = file_boundry.second + 1;
       itf++;
     }
     /*
@@ -305,10 +306,17 @@ void PerlevelRangeDeleteFilterByVector::adjustRangeDeletes(uint clevel, uint ole
       to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, file_boundry.second + 1));
       (*it).first = file_boundry.second + 1;
       itf++;
+    }else{
+      std::cerr << "Condition Unchecked " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      std::cerr << "val.first: " << val.first << " val.second: " << val.second << " file_boundry.first: " << file_boundry.first << " file_boundry.second: " << file_boundry.second << std::endl;
+      assert(false);
+      exit(1);
     }
   }
 
   rd_filter[clevel] = new_current_level_rdf;
+  std::sort(to_be_added_in_next_level_rdf.begin(), to_be_added_in_next_level_rdf.end(), [](const pll a, const pll b)
+           { return a.first < b.first; });
 
   addRangeDelete(olevel, to_be_added_in_next_level_rdf);
 
@@ -340,6 +348,107 @@ void PerlevelRangeDeleteFilterByVector::shiftRDFToOutputLevel(std::vector<std::t
   print();
 }
 
+// this is only used for direct compaction //
+void PerlevelRangeDeleteFilterByVector::deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data)
+{
+  std::cout << "Before Deletion Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  print();
+
+  std::vector<std::pair<long long, long long>> one_level_file_boundries;
+  auto level = std::get<0>(*file_meta_data);
+
+  if (rd_filter.size() <= (uint)level)
+  {
+    return;
+  }
+
+  auto meta_data = std::get<1>(*file_meta_data);
+
+  for (auto meta : *meta_data)
+  {
+      one_level_file_boundries.push_back(std::make_pair(std::stoll(meta->smallest.user_key().ToString()), std::stoll(meta->largest.user_key().ToString())));
+  }
+
+  std::vector<pll> new_current_level_rdf;
+  auto old_current_level_rdf = rd_filter[level];
+  auto it = old_current_level_rdf.begin();
+  auto itf = one_level_file_boundries.begin();
+
+  while (it != old_current_level_rdf.end())
+  {
+    pll val = *it;
+    auto file_boundries = *itf;
+    pll file_boundry = std::make_pair(file_boundries.first, file_boundries.second);
+
+    /*
+     *    |--|
+     *         -----
+     *         |   |
+     *         -----
+     */
+    if (itf == one_level_file_boundries.end() || (val.second <= file_boundry.first))
+    {
+      new_current_level_rdf.push_back(val);
+      it++;
+    }
+    /*
+     *             |--|
+     *     ------
+     *     |    |
+     *     ------
+     */
+    else if (val.first > file_boundry.second)
+    {
+      itf++;
+    }
+    /*
+     *    |------||||
+     *         ------
+     *         |    |
+     *         ------
+     */
+    else if (val.first < file_boundry.first && val.second > file_boundry.first && val.second <= file_boundry.second)
+    {
+      new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
+      it++;
+    }
+    /*
+     *     ||||-------|
+     *     --------
+     *     |      |
+     *     --------
+     */
+    else if (val.first >= file_boundry.first && val.first <= file_boundry.second && val.second > file_boundry.second)
+    {
+      (*it).first = file_boundry.second + 1;
+      itf++;
+    }
+    /*
+     *  |------------|
+     *     --------
+     *     |      |
+     *     --------
+     */
+    else if (val.first < file_boundry.first && val.second > file_boundry.second)
+    {
+      new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
+      (*it).first = file_boundry.second + 1;
+      itf++;
+    }else{
+      std::cerr << "Condition Unchecked " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      std::cerr << "val.first: " << val.first << " val.second: " << val.second << " file_boundry.first: " << file_boundry.first << " file_boundry.second: " << file_boundry.second << std::endl;
+      assert(false);
+      exit(1);
+    }
+  }
+
+  rd_filter[level] = new_current_level_rdf;
+
+  std::cout << "After Deletion Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  print();
+}
+
+
 void PerlevelRangeDeleteFilterByVector::print(){
   std::cout <<  std::setfill('-') << std::setw(60) << " START: Print PL RDF " << std::setfill('-') << "" << std::endl;
   for(uint l = 0; l < rd_filter.size(); l++){
@@ -364,8 +473,24 @@ void PerlevelRangeDeleteFilterByVector::print(){
 bool PerlevelRangeDeleteFilterByVector::isEntryAlive(uint level, long long key){
   assert(rd_filter.size() > level);
 
+  if(level >= rd_filter.size()){
+    return true;
+  }
+
   auto& rdList = PerlevelRangeDeleteFilterByVector::rd_filter[level];
   if(rdList.size() == 0){return true;}
+
+  // std::cout << "rdList: " <<" Level: " << level << " ,filter_size = " <<  rd_filter.size() << std::endl;
+  // for(unsigned int i = 0 ; i < rd_filter.size(); i++){
+  //   std::cout << "rdList: list " << i << std::endl;
+  //   for(auto it = rd_filter[i].begin(); it != rd_filter[i].end(); it++){
+  //     std::cout << "(" << it->first << " " << it->second << ") ";
+  //   }
+  // }
+  // for(auto &x: rdList){
+  //   std::cout << " --**- " << x.first << " " << x.second  << std::endl;
+  // }
+  // if(rdList.size() == 0){return true;}
 
   auto it = upper_bound(rdList.begin(), rdList.end(), pll(key, key), [](const pll& a, const pll& b){return a.first < b.first;});
   if(it != rdList.begin()){it--;}
@@ -377,7 +502,7 @@ bool PerlevelRangeDeleteFilterByVector::isEntryAlive(uint level, long long key){
   return true;
 }
 
-void PerlevelRangeDeleteFilterByVector::deleteLastLevelIfEqualsBottomLevel(int bottom_level)
+void PerlevelRangeDeleteFilterByVector::deleteLastLevelIfEqualsBottomLevel(uint bottom_level)
 {
   if (rd_filter.size()-1 == bottom_level)
   {
@@ -1724,7 +1849,7 @@ void ColumnFamilyData::InstallSuperVersion(
     PL_RDF per_level_RDF_old;
     if(old_superversion->current->getIsRDFUpdated() == true){
       per_level_RDF_old = old_superversion->current->getPerLevelRDFUpdated();
-      per_level_RDF_old.deleteLastLevelIfEqualsBottomLevel(current_->storage_info()->num_levels());
+      per_level_RDF_old.deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
     }else{
       per_level_RDF_old = old_superversion->current->getPerLevelRDF();
     }

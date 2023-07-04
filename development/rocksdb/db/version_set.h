@@ -31,6 +31,9 @@
 #include <utility>
 #include <vector>
 
+//Self Added
+#include <unordered_map>
+
 #include "cache/cache_helpers.h"
 #include "db/blob/blob_file_meta.h"
 #include "db/blob/blob_index.h"
@@ -64,6 +67,7 @@
 #include "util/hash_containers.h"
 
 // #include "self_RD/range_delete_filter/range_delete_filter.h"
+#include "include/rocksdb/system_verifier.h"
 
 namespace ROCKSDB_NAMESPACE {
 
@@ -1065,7 +1069,15 @@ class Version {
   }
 
   bool isAliveAfterRDFilter(uint level, long long key){
-    return per_level_RDF.isEntryAlive(level, key);
+    std::string rdf_chosed_name = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
+    if(rdf_chosed_name == "NONE"){return true;}
+    else if(rdf_chosed_name == "PLRDF"){
+      return per_level_RDF.isEntryAlive(level, key);
+    }else{
+      std::cerr << "RDF Type Chosed (" << rdf_chosed_name << ") is not supported yet" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    // per_level_RDF.isEntryAlive(level, key);
+    return true;
   }
 
   bool getIsRDFUpdated(){return is_RDF_updated;}
@@ -1074,6 +1086,22 @@ class Version {
   PL_RDF getPerLevelRDFUpdated(){return per_level_RDF_updated;}
 
   void setPerLevelRDF(PL_RDF &per_level_RDF_in){this->per_level_RDF = per_level_RDF_in;}
+
+
+  // void getNumberOfRDFTypes(){
+  //   return RDFTypes.size();
+  // }
+
+  // //{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}
+  // void setRDFTypeChosed(int id){
+  //   RDFType_chosed = id;
+  // }
+
+  // void getStringOfRDFTypeChosed(){
+  //   return RDFTypes[RDFType_chosed];
+  // }
+
+
 
 
   // void storeRange2RDFTest(RangeTombstone tombStone){
@@ -1130,10 +1158,21 @@ class Version {
     per_level_RDF_updated.shiftRDFToOutputLevel(file_meta_data_vectors);
   }
 
+  void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data)
+  {
+    assert(is_RDF_updated == false);
+    is_RDF_updated = true;
+    per_level_RDF_updated = per_level_RDF;
+    per_level_RDF_updated.deleteRDFAssociatedWithFilesAtCurrentLevel(file_meta_data);
+  }
+
  private:
   //Self Added
   PL_RDF per_level_RDF, per_level_RDF_updated; //Self Added, ranges don't split when inserts come//added by ychaung
   bool is_RDF_updated = false;
+  // // std::unordered_map<int, std::string> RDFTypes({{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}});
+  // std::unordered_map<int, std::string> RDFTypes({{0, "NONE"}, {1, "PLRDF"}});
+  // int RDFType_chosed;
   // std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
   // std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
   // bool Is_RDFTest2_set = false;

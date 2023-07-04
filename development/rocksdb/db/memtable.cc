@@ -1264,7 +1264,7 @@ bool MemTable::Get(const LookupKey& key, std::string* value,
                    SequenceNumber* seq, const ReadOptions& read_opts,
                    bool immutable_memtable, ReadCallback* callback,
                    bool* is_blob_index, bool do_merge) {
-std::cout  << "MemTable::Get A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "MemTable::Get A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   // The sequence number is updated synchronously in version_set.h
   if (IsEmpty()) {
     // Avoiding recording stats for speed.
@@ -1315,7 +1315,7 @@ std::cout  << "MemTable::Get A2 B2 @prefix key filtering (partial key) " << __FI
     }
   }
 
-std::cout  << "MemTable::Get A3 @filtering by bloom filter " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "MemTable::Get A3 @filtering by bloom filter " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   if (bloom_filter_ && !may_contain) {
     // iter is null if prefix bloom says the key does not exist
     PERF_COUNTER_ADD(bloom_memtable_miss_count, 1);
@@ -1347,7 +1347,7 @@ void MemTable::GetFromTable(const LookupKey& key,
                             std::string* timestamp, Status* s,
                             MergeContext* merge_context, SequenceNumber* seq,
                             bool* found_final_value, bool* merge_in_progress) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   Saver saver;
   saver.status = s;
   saver.found_final_value = found_final_value;

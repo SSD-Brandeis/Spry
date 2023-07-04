@@ -53,7 +53,8 @@ namespace ROCKSDB_NAMESPACE {
       void addRangeDelete(uint level, long long start, long long end);
       void addRangeDelete(uint level, std::vector<pll> &range_delete_list_in);
       void shiftRDFToOutputLevel(std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>> *file_meta_data_vectors);
-      void deleteLastLevelIfEqualsBottomLevel(int bottom_level);
+      void deleteLastLevelIfEqualsBottomLevel(uint bottom_level);
+      void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data);
 
       void print();
 

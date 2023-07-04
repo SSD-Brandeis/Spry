@@ -1924,14 +1924,14 @@ ColumnFamilyHandle* DBImpl::PersistentStatsColumnFamily() const {
 Status DBImpl::Get(const ReadOptions& read_options,
                    ColumnFamilyHandle* column_family, const Slice& key,
                    PinnableSlice* value) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   return Get(read_options, column_family, key, value, /*timestamp=*/nullptr);
 }
 
 Status DBImpl::Get(const ReadOptions& read_options,
                    ColumnFamilyHandle* column_family, const Slice& key,
                    PinnableSlice* value, std::string* timestamp) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   assert(value != nullptr);
   value->Reset();
   GetImplOptions get_impl_options;
@@ -2001,7 +2001,7 @@ bool DBImpl::ShouldReferenceSuperVersion(const MergeContext& merge_context) {
 Status DBImpl::GetImpl(const ReadOptions& read_options, const Slice& key,
                        GetImplOptions& get_impl_options) {
 
-std::cout  << "DBImpl::GetImpl A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "DBImpl::GetImpl A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   assert(get_impl_options.value != nullptr ||
          get_impl_options.merge_operands != nullptr ||
@@ -2086,7 +2086,7 @@ std::cout  << "DBImpl::GetImpl A8 " << __FILE__ << ":" << __LINE__ << " " << __F
           reinterpret_cast<const SnapshotImpl*>(read_options.snapshot)->number_;
     }
   } else {
-std::cout  << "DBImpl::GetImpl A9 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "DBImpl::GetImpl A9 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // Note that the snapshot is assigned AFTER referencing the super
     // version because otherwise a flush happening in between may compact away
     // data for the snapshot, so the reader would see neither data that was be
@@ -2145,10 +2145,10 @@ std::cout  << "DBImpl::GetImpl A10 " << __FILE__ << ":" << __LINE__ << " " << __
   std::string* timestamp =
       ucmp->timestamp_size() > 0 ? get_impl_options.timestamp : nullptr;
   if (!skip_memtable) {
-std::cout  << "DBImpl::GetImpl A11 @not skip memtable (memtable)" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "DBImpl::GetImpl A11 @not skip memtable (memtable)" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // Get value associated with key
     if (get_impl_options.get_value) {
-std::cout  << "DBImpl::GetImpl A11 B1 @get value " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "DBImpl::GetImpl A11 B1 @get value " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       if (sv->mem->Get(
               lkey,
               get_impl_options.value ? get_impl_options.value->GetSelf()
@@ -2213,9 +2213,9 @@ std::cout  << "DBImpl::GetImpl A11 B2 C2 (sv->imm)" << __FILE__ << ":" << __LINE
   TEST_SYNC_POINT("DBImpl::GetImpl:PostMemTableGet:1");
   PinnedIteratorsManager pinned_iters_mgr;
   if (!done) {
-std::cout  << "DBImpl::GetImpl A12 @not done yet -> GET (PostMemTableGet / search in disk --) " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "DBImpl::GetImpl A12 @not done yet -> GET (PostMemTableGet / search in disk --) " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 //Self Added
-std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
 // cfd->current()->printAllFileRanges();
 // sv->current()->storage_info()->printRDFTest();

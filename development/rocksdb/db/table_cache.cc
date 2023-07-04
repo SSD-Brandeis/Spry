@@ -44,6 +44,11 @@
 #undef WITH_COROUTINES
 // clang-format on
 
+//Self Added
+#include "include/rocksdb/system_verifier.h"
+// #include "utilities/system_verifier.cc"
+
+
 namespace ROCKSDB_NAMESPACE {
 
 namespace {
@@ -467,6 +472,10 @@ std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::
       }
     }
     if (s.ok()) {
+//Self Added
+checking::SystemVerifier *system_verifier = checking::SystemVerifier::getSystemVerifier(); 
+system_verifier->increaseDiskAccessCount();
+
       get_context->SetReplayLog(row_cache_entry);  // nullptr if no cache.
       s = t->Get(options, k, get_context, prefix_extractor.get(), skip_filters);
       get_context->SetReplayLog(nullptr);
