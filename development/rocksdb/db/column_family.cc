@@ -65,9 +65,16 @@ void PerlevelRangeDeleteFilterByVector::addRangeDelete(std::vector<pll> &range_d
 
 std::cout << "rdList" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
 for(auto it = rdList.begin(); it != rdList.end(); it++){
-  std::cout << it->first << " " << it->second << std::endl;
+  std::cout << "aaaa " << it->first << " " << it->second << std::endl;
 }
 std::cout << std::endl << std::endl;
+
+
+// std::cout << "rdList_in" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
+// for(auto it = rdList_in.begin(); it != rdList_in.end(); it++){
+//   std::cout << it->first << " " << it->second << std::endl;
+// }
+// std::cout << std::endl << std::endl;
 
     if(rdList_in.size() == 0){return;}
 
@@ -86,14 +93,20 @@ std::cout << std::endl << std::endl;
       auto iteA = rdList_in.end();
       pll tmp_range = *itA;
       for(;itA != iteA; itA++){
-        if(tmp_range.second <= itA->first){
+        if(tmp_range.second >= itA->first){
           tmp_range.second = std::max(tmp_range.second, itA->second);
         }else{
           rdList.push_back(tmp_range);
           tmp_range = *itA;
         }
       }
+
       rdList.push_back(tmp_range);
+
+      // std::cout << "after_direct insert to rdList: " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
+      // for(auto it = rdList.begin(); it != rdList.end(); it++){
+      //   std::cout << it->first << " " << it->second << std::endl;
+      // }
 
 
       // //adding to rdList

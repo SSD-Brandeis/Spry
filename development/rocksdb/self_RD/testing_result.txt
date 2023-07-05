@@ -1,14 +1,14 @@
 
 
 ----------------------Testing On Existing Keys-----------------------
-NONE Average Disk Access count = 5014.00
-NONE  elapsed time = 3096859.00 (ms) 
-total_read_count_start = 513
-total_read_count_end = 532
-total_read_bytes_start = 472340
-total_read_bytes_end = 511325
-total_read_count = 6.33
-total_read_bytes = 12995.00
+NONE Average Disk Access count = 0.00
+NONE  elapsed time = 112167.33 (ms) 
+total_read_count_start = 127
+total_read_count_end = 127
+total_read_bytes_start = 42229
+total_read_bytes_end = 42229
+total_read_count = 0.00
+total_read_bytes = 0.00
 get_from_memtable_time = 0.00
 get_from_memtable_count = 0.00
 get_post_process_time = 0.00
@@ -21,12 +21,12 @@ bytes_written = 0.00
 read_nanos = 0.00
 write_nanos = 0.00
 --------------------------------------------------------------------
-PLRDF Average Disk Access count = 5014.00
-PLRDF  elapsed time = 3027241.00 (ms) 
-total_read_count_start = 532
-total_read_count_end = 532
-total_read_bytes_start = 511325
-total_read_bytes_end = 511325
+PLRDF Average Disk Access count = 0.00
+PLRDF  elapsed time = 126699.33 (ms) 
+total_read_count_start = 127
+total_read_count_end = 127
+total_read_bytes_start = 42229
+total_read_bytes_end = 42229
 total_read_count = 0.00
 total_read_bytes = 0.00
 get_from_memtable_time = 0.00
@@ -44,12 +44,12 @@ write_nanos = 0.00
 
 
 ----------------------Testing On historic-existing Keys-----------------------
-NONE Average Disk Access count = 5014.00
-NONE  elapsed time = 6572643.00 (ms) 
-total_read_count_start = 532
-total_read_count_end = 532
-total_read_bytes_start = 511325
-total_read_bytes_end = 511325
+NONE Average Disk Access count = 0.00
+NONE  elapsed time = 5416489.67 (ms) 
+total_read_count_start = 127
+total_read_count_end = 127
+total_read_bytes_start = 42229
+total_read_bytes_end = 42229
 total_read_count = 0.00
 total_read_bytes = 0.00
 get_from_memtable_time = 0.00
@@ -64,12 +64,12 @@ bytes_written = 0.00
 read_nanos = 0.00
 write_nanos = 0.00
 --------------------------------------------------------------------
-PLRDF Average Disk Access count = 5014.00
-PLRDF  elapsed time = 6284216.33 (ms) 
-total_read_count_start = 532
-total_read_count_end = 532
-total_read_bytes_start = 511325
-total_read_bytes_end = 511325
+PLRDF Average Disk Access count = 0.00
+PLRDF  elapsed time = 5692678.33 (ms) 
+total_read_count_start = 127
+total_read_count_end = 127
+total_read_bytes_start = 42229
+total_read_bytes_end = 42229
 total_read_count = 0.00
 total_read_bytes = 0.00
 get_from_memtable_time = 0.00
@@ -88,11 +88,11 @@ write_nanos = 0.00
 
 ----------------------Testing On Currently Deleted Keys-----------------------
 NONE Average Disk Access count = 0.00
-NONE  elapsed time = 3677004.67 (ms) 
-total_read_count_start = 532
-total_read_count_end = 532
-total_read_bytes_start = 511325
-total_read_bytes_end = 511325
+NONE  elapsed time = 5557397.00 (ms) 
+total_read_count_start = 127
+total_read_count_end = 127
+total_read_bytes_start = 42229
+total_read_bytes_end = 42229
 total_read_count = 0.00
 total_read_bytes = 0.00
 get_from_memtable_time = 0.00
@@ -108,11 +108,11 @@ read_nanos = 0.00
 write_nanos = 0.00
 --------------------------------------------------------------------
 PLRDF Average Disk Access count = 0.00
-PLRDF  elapsed time = 3628773.67 (ms) 
-total_read_count_start = 532
-total_read_count_end = 532
-total_read_bytes_start = 511325
-total_read_bytes_end = 511325
+PLRDF  elapsed time = 5718526.33 (ms) 
+total_read_count_start = 127
+total_read_count_end = 127
+total_read_bytes_start = 42229
+total_read_bytes_end = 42229
 total_read_count = 0.00
 total_read_bytes = 0.00
 get_from_memtable_time = 0.00
@@ -131,11 +131,11 @@ write_nanos = 0.00
 
 ----------------------Testing On Currently Non-inserted Keys-----------------------
 NONE Average Disk Access count = 0.00
-NONE  elapsed time = 782879.67 (ms) 
-total_read_count_start = 532
-total_read_count_end = 532
-total_read_bytes_start = 511325
-total_read_bytes_end = 511325
+NONE  elapsed time = 1151112.67 (ms) 
+total_read_count_start = 127
+total_read_count_end = 127
+total_read_bytes_start = 42229
+total_read_bytes_end = 42229
 total_read_count = 0.00
 total_read_bytes = 0.00
 get_from_memtable_time = 0.00
@@ -151,11 +151,11 @@ read_nanos = 0.00
 write_nanos = 0.00
 --------------------------------------------------------------------
 PLRDF Average Disk Access count = 0.00
-PLRDF  elapsed time = 759971.00 (ms) 
-total_read_count_start = 532
-total_read_count_end = 532
-total_read_bytes_start = 511325
-total_read_bytes_end = 511325
+PLRDF  elapsed time = 1099778.67 (ms) 
+total_read_count_start = 127
+total_read_count_end = 127
+total_read_bytes_start = 42229
+total_read_bytes_end = 42229
 total_read_count = 0.00
 total_read_bytes = 0.00
 get_from_memtable_time = 0.00
