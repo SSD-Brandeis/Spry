@@ -132,7 +132,7 @@ enum EpochNumberRequirement {
 
 
 //Self Added
-using PL_RDF = PerlevelRangeDeleteFilterByVector;
+// using PL_RDF = PerlevelRangeDeleteFilterByVector;
 // Information of the storage associated with each Version, including number of
 // levels of LSM tree, files information at each level, files marked for
 // compaction, blob files, etc.
@@ -1048,39 +1048,39 @@ class Version {
     std::cout <<  std::setfill('-') << std::setw(60) << " END: Print All File Ranges " << std::setfill('-') << std::setw(60) << "" << std::endl;
   }
 
-  //Self Added
-  void storeRange2RDFilter(uint level, RangeTombstone tombstone){
-    assert(is_RDF_updated == false);
-    is_RDF_updated = true;
-    per_level_RDF_updated = per_level_RDF;
-    per_level_RDF_updated.addRangeDelete(level, std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) );
+  // //Self Added
+  // void storeRange2RDFilter(uint level, RangeTombstone tombstone){
+  //   assert(is_RDF_updated == false);
+  //   is_RDF_updated = true;
+  //   per_level_RDF_updated = per_level_RDF;
+  //   per_level_RDF_updated.addRangeDelete(level, std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) );
     
-    // RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
-  }
+  //   // RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
+  // }
 
-  void storeRanges2RDFilter(uint level, std::vector<pll> &range_delete_list_in){
-    assert(is_RDF_updated == false);
-    is_RDF_updated = true;
-    per_level_RDF_updated = per_level_RDF;
-    std::sort(range_delete_list_in.begin(), range_delete_list_in.end());
-    per_level_RDF_updated.addRangeDelete(level, range_delete_list_in);
-  }
+  // void storeRanges2RDFilter(uint level, std::vector<pll> &range_delete_list_in){
+  //   assert(is_RDF_updated == false);
+  //   is_RDF_updated = true;
+  //   per_level_RDF_updated = per_level_RDF;
+  //   std::sort(range_delete_list_in.begin(), range_delete_list_in.end());
+  //   per_level_RDF_updated.addRangeDelete(level, range_delete_list_in);
+  // }
 
-  void printRDFilter(){
-    std::cout << "RDF" << std::endl;
-    per_level_RDF.print();
-  }
+  // void printRDFilter(){
+  //   std::cout << "RDF" << std::endl;
+  //   per_level_RDF.print();
+  // }
 
-  void printRDFilterUpdated(){
-    std::cout << "RDF Updated" << std::endl;
-    per_level_RDF_updated.print();
-  }
+  // void printRDFilterUpdated(){
+  //   std::cout << "RDF Updated" << std::endl;
+  //   per_level_RDF_updated.print();
+  // }
 
   bool isAliveAfterRDFilter(uint level, long long key){
     std::string rdf_chosed_name = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
     if(rdf_chosed_name == "NONE"){return true;}
     else if(rdf_chosed_name == "PLRDF"){
-      return per_level_RDF.isEntryAlive(level, key);
+      return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
     }else{
       std::cerr << "RDF Type Chosed (" << rdf_chosed_name << ") is not supported yet" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     }
@@ -1088,12 +1088,12 @@ class Version {
     return true;
   }
 
-  bool getIsRDFUpdated(){return is_RDF_updated;}
+  // bool getIsRDFUpdated(){return is_RDF_updated;}
   
-  PL_RDF getPerLevelRDF(){return per_level_RDF;}
-  PL_RDF getPerLevelRDFUpdated(){return per_level_RDF_updated;}
+  // rdfilter::PLRDF getPerLevelRDF(){return per_level_RDF;}
+  // rdfilter::PLRDF getPerLevelRDFUpdated(){return per_level_RDF_updated;}
 
-  void setPerLevelRDF(PL_RDF &per_level_RDF_in){this->per_level_RDF = per_level_RDF_in;}
+  // void setPerLevelRDF(PL_RDF &per_level_RDF_in){this->per_level_RDF = per_level_RDF_in;}
 
 
   // void getNumberOfRDFTypes(){
@@ -1157,27 +1157,26 @@ class Version {
    * start_key, end_key are the smallest and largest key of the current_level file
    * If any key exists between these keys (inclusive) than remove and shit downwards to output_level
    */
-  void shiftRDFToOutputLevel(std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>>  *file_meta_data_vectors)
-  {
-    if (file_meta_data_vectors->size() == 0) { return; }
-    assert(is_RDF_updated == false);
-    is_RDF_updated = true;
-    per_level_RDF_updated = per_level_RDF;
-    per_level_RDF_updated.shiftRDFToOutputLevel(file_meta_data_vectors);
-  }
+  // void shiftRDFToOutputLevel(std::vector<std::tuple<int, int, std::vector<pll>>>  *file_meta_data_vectors)
+  // {
+  //   if (file_meta_data_vectors->size() == 0) { return; }
+  //   assert(is_RDF_updated == false);
+  //   is_RDF_updated = true;
+  //   per_level_RDF->shiftRDFToOutputLevel(file_meta_data_vectors);
+  // }
 
-  void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data)
-  {
-    assert(is_RDF_updated == false);
-    is_RDF_updated = true;
-    per_level_RDF_updated = per_level_RDF;
-    per_level_RDF_updated.deleteRDFAssociatedWithFilesAtCurrentLevel(file_meta_data);
-  }
+  // void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data)
+  // {
+  //   assert(is_RDF_updated == false);
+  //   is_RDF_updated = true;
+  //   per_level_RDF->deleteRDFAssociatedWithFilesAtCurrentLevel(file_meta_data);
+  // }
 
  private:
   //Self Added
-  PL_RDF per_level_RDF, per_level_RDF_updated; //Self Added, ranges don't split when inserts come//added by ychaung
-  bool is_RDF_updated = false;
+  // rdfilter::PLRDF *per_level_RDF = rdfilter::PLRDF::getRDFilter();
+
+  // bool is_RDF_updated = false;
   // // std::unordered_map<int, std::string> RDFTypes({{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}});
   // std::unordered_map<int, std::string> RDFTypes({{0, "NONE"}, {1, "PLRDF"}});
   // int RDFType_chosed;

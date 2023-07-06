@@ -31,7 +31,7 @@ namespace rdfilter {
 #include <thread>
 #include <mutex>
 
-#include "../db/version_edit.h"
+// #include "../db/version_edit.h"
 
 
 
@@ -90,9 +90,9 @@ namespace rdfilter {
       // std::vector<pll> getRangeDeleteList();
       void addRangeDelete(uint level, long long start, long long end);
       void addRangeDelete(uint level, std::vector<pll> &range_delete_list_in);
-      void shiftRDFToOutputLevel(std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>> *file_meta_data_vectors);
+      void shiftRDFToOutputLevel(std::vector<std::tuple<int, int, std::vector<pll>>> *file_meta_data_vectors);
       void deleteLastLevelIfEqualsBottomLevel(uint bottom_level);
-      void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data);
+      void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, std::vector<pll>> *file_meta_data);
 
       void print();
 
@@ -481,7 +481,7 @@ void PLRDF::adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<l
 
 }
 
-void PLRDF::shiftRDFToOutputLevel(std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>>  *file_meta_data_vectors){
+void PLRDF::shiftRDFToOutputLevel(std::vector<std::tuple<int, int, std::vector<pll>>>  *file_meta_data_vectors){
   init();
   std::lock_guard<std::mutex> guard(init_mutex);
 
@@ -495,9 +495,9 @@ void PLRDF::shiftRDFToOutputLevel(std::vector<std::tuple<int, int, const std::ve
     std::vector<std::pair<long long, long long>> one_level_file_boundries;
     auto meta_data = std::get<2>(file_meta_data);
 
-    for (auto meta : *meta_data)
+    for (auto meta : meta_data)
     {
-      one_level_file_boundries.push_back(std::make_pair(std::stoll(meta->smallest.user_key().ToString()), std::stoll(meta->largest.user_key().ToString())));
+      one_level_file_boundries.push_back(std::make_pair(meta.first, meta.second));
     }
 
     adjustRangeDeletes(std::get<0>(file_meta_data), std::get<1>(file_meta_data), one_level_file_boundries);
@@ -510,7 +510,7 @@ void PLRDF::shiftRDFToOutputLevel(std::vector<std::tuple<int, int, const std::ve
 }
 
 // this is only used for direct compaction //
-void PLRDF::deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data){
+void PLRDF::deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, std::vector<pll>> *file_meta_data){
   init();
   std::lock_guard<std::mutex> guard(init_mutex);
 
@@ -527,9 +527,9 @@ void PLRDF::deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std
 
   auto meta_data = std::get<1>(*file_meta_data);
 
-  for (auto meta : *meta_data)
+  for (auto meta : meta_data)
   {
-      one_level_file_boundries.push_back(std::make_pair(std::stoll(meta->smallest.user_key().ToString()), std::stoll(meta->largest.user_key().ToString())));
+      one_level_file_boundries.push_back(std::make_pair(meta.first, meta.second));
   }
 
   std::vector<pll> new_current_level_rdf;

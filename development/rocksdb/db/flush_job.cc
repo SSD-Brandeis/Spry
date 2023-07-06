@@ -938,13 +938,13 @@ std::cout << "number of deletes " << m->num_deletes()   << std::endl;
   }
 
 
-  for(auto &x: range_delete_list_in){
-    cout << "flush range_delete_list_in " << x.first << " " << x.second << endl;
-  }
-  cfd_->current()->storeRanges2RDFilter(0, range_delete_list_in);
+  // for(auto &x: range_delete_list_in){
+  //   cout << "flush range_delete_list_in " << x.first << " " << x.second << endl;
+  // }
+  // cfd_->current()->storeRanges2RDFilter(0, range_delete_list_in);
   
-  cfd_->current()->printRDFilter();
-  cfd_->current()->printRDFilterUpdated();
+  //cfd_->current()->printRDFilter();
+  //cfd_->current()->printRDFilterUpdated();
 
   rdfilter::PLRDF::getRDFilter->insertRangeDeleteToLevel0(meta_.fd.GetNumber(), range_delete_list_in);
 }

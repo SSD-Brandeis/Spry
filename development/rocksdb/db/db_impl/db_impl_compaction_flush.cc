@@ -3521,17 +3521,21 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
       c->edit()->DeleteFile(c->level(), f->fd.GetNumber());
     }
 
-    // FIXME: ONLY FOR TESTING USE 
-    // for (auto file_meta : *(c->inputs(0)))
-    // {
-    //   std::cout << "Pushing file from Current Level: " << c->level(0) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(0) << std::endl << std::flush;
-    //   std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;  
-    // }
 
-    std::tuple<int, const std::vector<FileMetaData*>*> file_meta_data_vectors = std::make_tuple(c->level(), c->inputs(c->level()));
+    std::vector<pll> smallest_largest_boundries{};
+    for (auto file_meta : *(c->inputs(0)))
+    {
+    // FIXME: ONLY FOR TESTING USE 
+      std::cout << "Pushing file from Current Level: " << c->level(0) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(0) << std::endl << std::flush;
+      std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;
+      smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+    }
+
+    std::tuple<int, std::vector<pll>> file_meta_data_vectors = std::make_tuple(c->level(), smallest_largest_boundries);
     // std::cout << "[Compaction]: Calling Direct Delete Compaction .. " << std::endl;
 
-    c->column_family_data()->GetSuperVersion()->current->deleteRDFAssociatedWithFilesAtCurrentLevel(&file_meta_data_vectors);
+    rdfilter::PLRDF::getRDFilter()->deleteRDFAssociatedWithFilesAtCurrentLevel(&file_meta_data_vectors);
+    // c->column_family_data()->GetSuperVersion()->current->deleteRDFAssociatedWithFilesAtCurrentLevel(&file_meta_data_vectors);
 
     status = versions_->LogAndApply(
         c->column_family_data(), *c->mutable_cf_options(), read_options,
@@ -3561,7 +3565,7 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 
     int32_t moved_files = 0;
     int64_t moved_bytes = 0;
-    std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>>();
+    std::vector<std::tuple<int, int, std::vector<pll>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>>>();
 
     for (unsigned int l = 0; l < c->num_input_levels(); l++) {
       if (c->level(l) == c->output_level()) {
@@ -3573,13 +3577,15 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
       for (size_t i = 0; i < c->num_input_files(l); i++) {
         if (!flag)
         {
-          // FIXME: ONLY FOR TESTING USE 
-          // for (auto file_meta : *(c->inputs(l)))
-          // {
-          //   std::cout << "Pushing file from Current Level: " << c->level(l) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(l) << std::endl << std::flush;
-          //   std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;  
-          // }
-          file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), c->inputs(l)));
+          std::vector<pll> smallest_largest_boundries{};
+          for (auto file_meta : *(c->inputs(l)))
+          {
+            // FIXME: ONLY FOR TESTING USE 
+            std::cout << "Pushing file from Current Level: " << c->level(l) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(l) << std::endl << std::flush;
+            std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;
+            smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+          }
+          file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries));
           flag = true;
         }
         FileMetaData* f = c->input(l, i);
@@ -3613,8 +3619,9 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
       }
     }
     // std::cout << "[Compaction]: Calling Shift RDF To Output Level for Trivial Compaction .. " << std::endl;
+    rdfilter::PLRDF::getRDFilter()->shiftRDFToOutputLevel(file_meta_data_vectors);
 
-    c->column_family_data()->GetSuperVersion()->current->shiftRDFToOutputLevel(file_meta_data_vectors);
+    // c->column_family_data()->GetSuperVersion()->current->shiftRDFToOutputLevel(file_meta_data_vectors);
     status = versions_->LogAndApply(
         c->column_family_data(), *c->mutable_cf_options(), read_options,
         c->edit(), &mutex_, directories_.GetDbDir());

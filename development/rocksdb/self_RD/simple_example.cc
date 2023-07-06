@@ -941,7 +941,7 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
 
   // opening workload file for the first time
   std::ifstream workload_file;
-  workload_file.open("workload.txt");
+  workload_file.open("workload2.txt");
   assert(workload_file);
   // doing a first pass to get the workload size
   uint64_t workload_size = 0;
@@ -949,7 +949,7 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
   while (std::getline(workload_file, line)) ++workload_size;
   workload_file.close();
 
-  workload_file.open("workload.txt");
+  workload_file.open("workload2.txt");
   assert(workload_file);
 
   checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
