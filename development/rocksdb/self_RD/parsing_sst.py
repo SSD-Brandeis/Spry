@@ -8,10 +8,10 @@ working_dir = Path("/tmp/cs561_project1")
 #use subprocess to run string to each file before retreiving 000* number from the files
 def get_file_number():
     files = []
-    # for file in working_dir.glob('**/*.sst'):
-    #     files.append(file)
-    for file in working_dir.glob('**/*.log'):
+    for file in working_dir.glob('**/*.sst'):
         files.append(file)
+    # for file in working_dir.glob('**/*.log'):
+    #     files.append(file)
 
     list_keys = []
     for file in files:

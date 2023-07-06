@@ -1883,6 +1883,22 @@ class DB {
   virtual Status TryCatchUpWithPrimary() {
     return Status::NotSupported("Supported only by secondary instance");
   }
+
+
+
+  
+
+  //Self Added
+  virtual Status CleanTableCache(
+      ColumnFamilyHandle* /*column_family*/, std::ostream& /*ofile*/) {
+    return Status::NotSupported("Not implemented");
+  }
+  // CleanTableCache
+  Status CleanTableCache(std::ostream& ofile) {
+    return CleanTableCache(DefaultColumnFamily(), ofile);
+  }
+
+
 };
 
 struct WriteStallStatsMapKeys {
@@ -1956,6 +1972,7 @@ Status RepairDB(const std::string& dbname, const DBOptions& db_options,
 // @param options These options will be used for the database and for ALL column
 //                families encountered during the repair
 Status RepairDB(const std::string& dbname, const Options& options);
+
 
 
 }  // namespace ROCKSDB_NAMESPACE
