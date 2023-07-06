@@ -42,6 +42,8 @@
 #include "util/cast_util.h"
 #include "util/compression.h"
 
+#include "include/rocksdb/sys_rdfilter.h"
+
 namespace ROCKSDB_NAMESPACE {
 
 
@@ -1879,14 +1881,15 @@ void ColumnFamilyData::InstallSuperVersion(
     // // (new_superversion->current)->setRDFTest(RDF_test_old);
     // current_->setRDFTest(RDF_test_old);    
 
-    PL_RDF per_level_RDF_old;
-    if(old_superversion->current->getIsRDFUpdated() == true){
-      per_level_RDF_old = old_superversion->current->getPerLevelRDFUpdated();
-      per_level_RDF_old.deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
-    }else{
-      per_level_RDF_old = old_superversion->current->getPerLevelRDF();
-    }
-    current_->setPerLevelRDF(per_level_RDF_old);
+    // PL_RDF per_level_RDF_old;
+    // if(old_superversion->current->getIsRDFUpdated() == true){
+      // per_level_RDF_old = old_superversion->current->getPerLevelRDFUpdated();
+      // per_level_RDF_old.deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
+    rdfilter::PLRDF::getRDFilter()->deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
+    // }else{
+    //   per_level_RDF_old = old_superversion->current->getPerLevelRDF();
+    // }
+    // current_->setPerLevelRDF(per_level_RDF_old);
   }
 
   // if(old_superversion != NULL){

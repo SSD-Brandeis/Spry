@@ -58,6 +58,8 @@
 #include "test_util/sync_point.h"
 #include "util/stop_watch.h"
 
+#include "include/rocksdb/sys_rdfilter.h"
+
 namespace ROCKSDB_NAMESPACE {
 
 const char* GetCompactionReasonString(CompactionReason compaction_reason) {
@@ -1740,7 +1742,8 @@ Status CompactionJob::InstallCompactionResults(
   }
 
   // Push RDF data down to `output_level`
-  std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>>();
+  // std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>>();
+  std::vector<std::tuple<int, int, std::vector<pll>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>>>();
   for (size_t lvl = 0; lvl < compaction->num_input_levels(); lvl++)
   {
     int current_level = compaction->level(lvl);
@@ -1748,15 +1751,20 @@ Status CompactionJob::InstallCompactionResults(
       
       // FIXME: FOR TESTING (remove the loop as well) 
       std::cout << "Pushing file from Current Level: " << current_level << " output Level: " << compaction->output_level() << " with CompactionInputFiles: " << compaction->inputs(lvl) << std::endl << std::flush;
+
+      std::vector<pll> smallest_largest_boundries{};
       for (auto file_meta : *(compaction->inputs(lvl)))
       {
+        smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
         std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;  
       }
 
-      file_meta_data_vectors->push_back(std::make_tuple(current_level, compaction->output_level(), compaction->inputs(lvl)));
+      // file_meta_data_vectors->push_back(std::make_tuple(current_level, compaction->output_level(), compaction->inputs(lvl)));
+      file_meta_data_vectors->push_back(std::make_tuple(current_level, compaction->output_level(), smallest_largest_boundries));
     }
   }
-  compaction->column_family_data()->GetSuperVersion()->current->shiftRDFToOutputLevel(file_meta_data_vectors);
+  rdfilter::PLRDF::getRDFilter()->shiftRDFToOutputLevel(file_meta_data_vectors);
+  // compaction->column_family_data()->GetSuperVersion()->current->shiftRDFToOutputLevel(file_meta_data_vectors);
 
   return versions_->LogAndApply(compaction->column_family_data(),
                                 mutable_cf_options, read_options, edit,
