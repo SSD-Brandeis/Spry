@@ -50,10 +50,14 @@ namespace rdfilter {
     private:
       static const int KEY_SIZE = 12;
       std::mutex update_mutex, writeback_mutex;
+      std::mutex level0_mutex;
       static std::mutex init_mutex;
+      std::unordered_map<uint64_t, std::vector<pll>> rd_filter_level0; //FileMetaData* -> fd .GetNumber();
 
       std::vector<std::vector<pll>> rd_filter; //list of range delete (start, end), all entries are non-overlapping
   
+      std::vector<pll> sortAndMerge(std::vector<pll> &range_delete_list_in);
+
       void addRangeDelete(std::vector<pll> &range_delete_list, long long start, long long end);
       void addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll> &range_delete_list_in);
       /*
@@ -79,6 +83,9 @@ namespace rdfilter {
         return plrdf_ptr;
       }
 
+      void insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pll> &range_delete_list_in);
+      void printLevel0();
+
     
       // std::vector<pll> getRangeDeleteList();
       void addRangeDelete(uint level, long long start, long long end);
@@ -95,6 +102,58 @@ namespace rdfilter {
 
 
   std::mutex PLRDF::init_mutex;
+
+
+  std::vector<pll> PLRDF::sortAndMerge(std::vector<pll> &range_delete_list_in){
+    std::sort(range_delete_list_in.begin(), range_delete_list_in.end(), [](pll a, pll b){
+      return a.first < b.first;
+    });
+
+    std::vector<pll> range_delete_list;
+    range_delete_list.reserve(range_delete_list_in.size());
+    auto itA = range_delete_list_in.begin();
+    auto iteA = range_delete_list_in.end();
+    pll tmp_range = *itA;
+    for(;itA != iteA; itA++){
+      if(tmp_range.second >= itA->first){
+        tmp_range.second = std::max(tmp_range.second, itA->second);
+      }else{
+        range_delete_list.push_back(tmp_range);
+        tmp_range = *itA;
+      }
+    }
+
+    range_delete_list.push_back(tmp_range);
+    return range_delete_list;
+  }
+
+  void PLRDF::insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pll> &range_delete_list_in){
+    std::vector<pll> sorted_merged_rdlist = sortAndMerge(range_delete_list_in);
+
+    init();
+    std::lock_guard<std::mutex> guard(level0_mutex);
+
+    if(rd_filter_level0.count(file_num) > 0){
+      std:cerr << "Error: file_num already exists in rd_filter_level0" << "\t" << __FILE__ << " " << __LINE__ << " " << __func__ << std::endl;
+    }
+    rd_filter_level0[file_num] = sorted_merged_rdlist;
+  }
+
+  void PLRDF::printLevel0(){
+    init();
+    std::lock_guard<std::mutex> guard(level0_mutex);
+
+    std::cout << "rd_filter_level0" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
+    for(auto it = rd_filter_level0.begin(); it != rd_filter_level0.end(); it++){
+      std::cout << it->first << " " << it->second.size() << std::endl;
+      //print all ranges
+      for(auto it2 = it->second.begin(); it2 != it->second.end(); it2++){
+        std::cout << it2->first << " " << it2->second << " ";
+      }
+      std::cout << std::endl;
+    }
+    std::cout << std::endl << std::endl;
+  }
 
 
 

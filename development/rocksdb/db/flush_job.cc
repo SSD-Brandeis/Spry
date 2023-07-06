@@ -49,6 +49,9 @@
 #include "util/mutexlock.h"
 #include "util/stop_watch.h"
 
+//Self Added
+#include "include/rocksdb/sys_rdfilter.h"
+
 namespace ROCKSDB_NAMESPACE {
 
 const char* GetFlushReasonString(FlushReason flush_reason) {
@@ -942,6 +945,8 @@ std::cout << "number of deletes " << m->num_deletes()   << std::endl;
   
   cfd_->current()->printRDFilter();
   cfd_->current()->printRDFilterUpdated();
+
+  rdfilter::PLRDF::getRDFilter->insertRangeDeleteToLevel0(meta_.fd.GetNumber(), range_delete_list_in);
 }
 
 
