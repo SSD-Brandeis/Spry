@@ -25,6 +25,8 @@
 // #include "rocksdb/column_family.h"
 
 // #include "rocksdb/util/cast_util.h"
+#include "rocksdb/sys_rdfilter.h"
+
 
 
 using namespace rocksdb;

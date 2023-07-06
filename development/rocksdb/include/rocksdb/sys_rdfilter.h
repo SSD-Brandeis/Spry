@@ -9,7 +9,8 @@
 
 
 namespace rdfilter {
-  class PerlevelRangeDeleteFilterByVector;
+  // class PerlevelRangeDeleteFilterByVector {
+  class PLRDF;
 } 
 
 
@@ -30,30 +31,35 @@ namespace rdfilter {
 #include <thread>
 #include <mutex>
 
+#include "../db/version_edit.h"
+
 
 
 using namespace std;
+using namespace ROCKSDB_NAMESPACE;
 // using namespace workload_exec;
 
 namespace rdfilter {
   using pll = std::pair<long long, long long>;
   
   // class PLRDF {
-  class PerlevelRangeDeleteFilterByVector {
-    using PLRDF = PerlevelRangeDeleteFilterByVector;
+  // class PerlevelRangeDeleteFilterByVector {
+  class PLRDF {
+    // using PLRDF = PerlevelRangeDeleteFilterByVector;
 
     private:
       static const int KEY_SIZE = 12;
-      std::mutex g_pages_mutex;
+      std::mutex update_mutex, writeback_mutex;
+      static std::mutex init_mutex;
 
-          std::vector<std::vector<pll>> rd_filter; //list of range delete (start, end), all entries are non-overlapping
-      
-          void addRangeDelete(std::vector<pll> &range_delete_list, long long start, long long end);
-          void addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll> &range_delete_list_in);
-          /*
-          * adjust range deletes as per the compaction
-          */
-          void adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<long long, long long>> one_level_compaction_file_boundaries);
+      std::vector<std::vector<pll>> rd_filter; //list of range delete (start, end), all entries are non-overlapping
+  
+      void addRangeDelete(std::vector<pll> &range_delete_list, long long start, long long end);
+      void addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll> &range_delete_list_in);
+      /*
+      * adjust range deletes as per the compaction
+      */
+      void adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<long long, long long>> one_level_compaction_file_boundaries);
 
 
     public:
@@ -61,12 +67,14 @@ namespace rdfilter {
 
       
       static void init(){
+        std::lock_guard<std::mutex> guard(init_mutex);
+
         if(plrdf_ptr == NULL){
           plrdf_ptr = new PLRDF();
         }
       }
 
-      static PLRDF* get_instance(){
+      static PLRDF* getRDFilter(){
         init();
         return plrdf_ptr;
       }
@@ -86,11 +94,15 @@ namespace rdfilter {
 
 
 
+  std::mutex PLRDF::init_mutex;
 
 
 
+void PLRDF::addRangeDelete(uint level, std::vector<pll> &range_delete_list_in){
+  init();
+  // update_mutex.lock();
+  std::lock_guard<std::mutex> guard(init_mutex);
 
-void PerlevelRangeDeleteFilterByVector::addRangeDelete(uint level, std::vector<pll> &range_delete_list_in){
   assert( rd_filter.size() >= level);
   while (rd_filter.size() <= level)
   {
@@ -98,9 +110,14 @@ void PerlevelRangeDeleteFilterByVector::addRangeDelete(uint level, std::vector<p
   }
 
   addRangeDelete(rd_filter[level], range_delete_list_in);
+
+  // update_mutex.unlock();
 }
 
-void PerlevelRangeDeleteFilterByVector::addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll> &range_delete_list_in){
+void PLRDF::addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll> &range_delete_list_in){
+  init();
+  std::lock_guard<std::mutex> guard(init_mutex);
+
     auto& rdList = range_delete_list;
     auto& rdList_in = range_delete_list_in;
 
@@ -155,6 +172,7 @@ std::cout << std::endl << std::endl;
       // for(auto &p : rdList_new){
       //   rdList.push_back(p);
       // }
+      
       return;
     }
 
@@ -236,7 +254,10 @@ std::cout << std::endl << std::endl;
 
 
 
-void PerlevelRangeDeleteFilterByVector::addRangeDelete(uint level, long long start, long long end){
+void PLRDF::addRangeDelete(uint level, long long start, long long end){
+  init();
+  std::lock_guard<std::mutex> guard(init_mutex);
+
   assert( rd_filter.size() >= level);
   if(rd_filter.size() == level){
     rd_filter.push_back(std::vector<pll>());
@@ -246,7 +267,10 @@ void PerlevelRangeDeleteFilterByVector::addRangeDelete(uint level, long long sta
 }
 
 
-void PerlevelRangeDeleteFilterByVector::addRangeDelete(std::vector<pll> &range_delete_list, long long start, long long end){
+void PLRDF::addRangeDelete(std::vector<pll> &range_delete_list, long long start, long long end){
+  init();
+  std::lock_guard<std::mutex> guard(init_mutex);
+
   auto& rdList = range_delete_list;
 #ifdef DEBUG
     cout << "Adding range delete: " << start << " " << end << endl;
@@ -285,8 +309,10 @@ void PerlevelRangeDeleteFilterByVector::addRangeDelete(std::vector<pll> &range_d
 }
 
 // This would be used for trivial compaction and normal compaction
-void PerlevelRangeDeleteFilterByVector::adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<long long, long long>> one_level_compaction_file_boundaries)
-{
+void PLRDF::adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<long long, long long>> one_level_compaction_file_boundaries){
+  init();
+  std::lock_guard<std::mutex> guard(init_mutex);
+  
   std::vector<pll> new_current_level_rdf;
   std::vector<pll> to_be_added_in_next_level_rdf;
 
@@ -396,8 +422,10 @@ void PerlevelRangeDeleteFilterByVector::adjustRangeDeletes(uint clevel, uint ole
 
 }
 
-void PerlevelRangeDeleteFilterByVector::shiftRDFToOutputLevel(std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>>  *file_meta_data_vectors)
-{
+void PLRDF::shiftRDFToOutputLevel(std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>>  *file_meta_data_vectors){
+  init();
+  std::lock_guard<std::mutex> guard(init_mutex);
+
   // FIXME: FOR TESTING (next 2 lines)
   std::cout << "Before Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   print();
@@ -423,8 +451,10 @@ void PerlevelRangeDeleteFilterByVector::shiftRDFToOutputLevel(std::vector<std::t
 }
 
 // this is only used for direct compaction //
-void PerlevelRangeDeleteFilterByVector::deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data)
-{
+void PLRDF::deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data){
+  init();
+  std::lock_guard<std::mutex> guard(init_mutex);
+
   std::cout << "Before Deletion Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   print();
 
@@ -523,11 +553,14 @@ void PerlevelRangeDeleteFilterByVector::deleteRDFAssociatedWithFilesAtCurrentLev
 }
 
 
-void PerlevelRangeDeleteFilterByVector::print(){
+void PLRDF::print(){
+  init();
+  std::lock_guard<std::mutex> guard(init_mutex);
+
   std::cout <<  std::setfill('-') << std::setw(60) << " START: Print PL RDF " << std::setfill('-') << "" << std::endl;
   for(uint l = 0; l < rd_filter.size(); l++){
     std::cout << "Level: " << l << std::endl;
-    auto& rdList = PerlevelRangeDeleteFilterByVector::rd_filter[l];
+    auto& rdList = PLRDF::rd_filter[l];
     for(auto it = rdList.begin(); it != rdList.end(); it++){
       std::cout << "(" << it->first << " " << it->second << ") ";
     }
@@ -535,7 +568,7 @@ void PerlevelRangeDeleteFilterByVector::print(){
   }
   std::cout <<  std::setfill('-') << std::setw(60) << " END: Print PL RDF " << std::setfill('-') << "" << std::endl;
 
-  // auto& rdList = PerlevelRangeDeleteFilterByVector::range_delete_list;
+  // auto& rdList = PLRDF::range_delete_list;
 
   // for(auto it = rdList.begin(); it != rdList.end(); it++){
   //   std::cout << "(" << it->first << " " << it->second << ") ";
@@ -544,14 +577,17 @@ void PerlevelRangeDeleteFilterByVector::print(){
 }
 
 
-bool PerlevelRangeDeleteFilterByVector::isEntryAlive(uint level, long long key){
+bool PLRDF::isEntryAlive(uint level, long long key){
+  init();
+  std::lock_guard<std::mutex> guard(init_mutex);
+
   assert(rd_filter.size() > level);
 
   if(level >= rd_filter.size()){
     return true;
   }
 
-  auto& rdList = PerlevelRangeDeleteFilterByVector::rd_filter[level];
+  auto& rdList = PLRDF::rd_filter[level];
   if(rdList.size() == 0){return true;}
 
   // std::cout << "rdList: " <<" Level: " << level << " ,filter_size = " <<  rd_filter.size() << std::endl;
@@ -576,16 +612,18 @@ bool PerlevelRangeDeleteFilterByVector::isEntryAlive(uint level, long long key){
   return true;
 }
 
-void PerlevelRangeDeleteFilterByVector::deleteLastLevelIfEqualsBottomLevel(uint bottom_level)
-{
+void PLRDF::deleteLastLevelIfEqualsBottomLevel(uint bottom_level){
+  init();
+  std::lock_guard<std::mutex> guard(init_mutex);
+
   if (rd_filter.size()-1 == bottom_level)
   {
     rd_filter[bottom_level].clear();
   }
 }
 
-// bool PerlevelRangeDeleteFilterByVector::isEntryAlive(long long start){
-//   auto& rdList = PerlevelRangeDeleteFilterByVector::range_delete_list;
+// bool PLRDF::isEntryAlive(long long start){
+//   auto& rdList = PLRDF::range_delete_list;
 //   if(rdList.size() == 0){return true;}
 
 //   auto it = upper_bound(rdList.begin(), rdList.end(), pll(start, start), [](const pll& a, const pll& b){return a.first < b.first;});
@@ -595,8 +633,8 @@ void PerlevelRangeDeleteFilterByVector::deleteLastLevelIfEqualsBottomLevel(uint 
 // }
 
 
-// int PerlevelRangeDeleteFilterByVector::getRangeDeleteCount(){
-//   return PerlevelRangeDeleteFilterByVector::range_delete_list.size();
+// int PLRDF::getRangeDeleteCount(){
+//   return PLRDF::range_delete_list.size();
 // }
 //Self Added --- END PL-RDF ---
 
