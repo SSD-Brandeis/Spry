@@ -13,28 +13,16 @@
       //   "program": "${workspaceFolder}/simple_example",
       // }
       {
-        "name": "(gdb) Launch",
+        "name": "simple_example",
         "type": "cppdbg",
         "request": "launch",
-        "program": "/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/development/rocksdb/self_RD/simple_example",
-        "args": [">", "simple_example.out"],
+        "program": "${fileDirname}/../development/rocksdb/self_RD/simple_example",
+        "args": [">", "log"],
         "stopAtEntry": false,
         "cwd": "${fileDirname}",
         "environment": [],
         "externalConsole": false,
         "MIMode": "gdb",
-        "setupCommands": [
-            {
-                "description": "Enable pretty-printing for gdb",
-                "text": "-enable-pretty-printing",
-                "ignoreFailures": true
-            },
-            {
-                "description": "Set Disassembly Flavor to Intel",
-                "text": "-gdb-set disassembly-flavor intel",
-                "ignoreFailures": true
-            }
-        ]
       }
     ]
 }

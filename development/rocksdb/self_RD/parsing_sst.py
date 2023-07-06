@@ -27,6 +27,7 @@ def get_file_number():
         print(keys)
 
         list_keys.sort()
+        print()
     return list_keys
 
 

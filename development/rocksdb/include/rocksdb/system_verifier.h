@@ -53,7 +53,7 @@ namespace checking {
     static SystemVerifier* system_verifier;
 
     // WorkloadRecorder();
-    const static int EXPERIMENT_REPETITION_TIMES = 3;
+    const static int EXPERIMENT_REPETITION_TIMES = 4;
 
     static void init(){
       if(system_verifier == NULL){
