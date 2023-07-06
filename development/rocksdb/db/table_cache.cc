@@ -101,7 +101,7 @@ Status TableCache::GetTableReader(
     const std::shared_ptr<const SliceTransform>& prefix_extractor,
     bool skip_filters, int level, bool prefetch_index_and_filter_in_cache,
     size_t max_file_size_for_l0_meta_pin, Temperature file_temperature) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   std::string fname = TableFileName(
       ioptions_.cf_paths, file_meta.fd.GetNumber(), file_meta.fd.GetPathId());
   std::unique_ptr<FSRandomAccessFile> file;
@@ -169,7 +169,7 @@ Status TableCache::FindTable(
     const bool no_io, bool record_read_stats, HistogramImpl* file_read_hist,
     bool skip_filters, int level, bool prefetch_index_and_filter_in_cache,
     size_t max_file_size_for_l0_meta_pin, Temperature file_temperature) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   PERF_TIMER_GUARD_WITH_CLOCK(find_table_nanos, ioptions_.clock);
   uint64_t number = file_meta.fd.GetNumber();
   Slice key = GetSliceForFileNumber(&number);
@@ -419,7 +419,7 @@ Status TableCache::Get(
     const std::shared_ptr<const SliceTransform>& prefix_extractor,
     HistogramImpl* file_read_hist, bool skip_filters, int level,
     size_t max_file_size_for_l0_meta_pin) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   auto& fd = file_meta.fd;
   std::string* row_cache_entry = nullptr;
   bool done = false;
@@ -433,6 +433,12 @@ std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::
     CreateRowCacheKeyPrefix(options, fd, k, get_context, row_cache_key);
     done = GetFromRowCache(user_key, row_cache_key, row_cache_key.Size(),
                            get_context);
+
+//Self Added
+// if(done == true){
+//   std::cout << " OK in Cache Get " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// }
+
     if (!done) {
       row_cache_entry = &row_cache_entry_buffer;
     }
@@ -451,6 +457,10 @@ std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::
                     max_file_size_for_l0_meta_pin, file_meta.temperature);
       if (s.ok()) {
         t = cache_.Value(handle);
+// //Self Added
+// if(s.ok() == true){
+//   std::cout << " OK in FindTable Get " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// }
       }
     }
     SequenceNumber* max_covering_tombstone_seq =
@@ -475,11 +485,13 @@ std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::
 //Self Added
 checking::SystemVerifier *system_verifier = checking::SystemVerifier::getSystemVerifier(); 
 system_verifier->increaseDiskAccessCount();
+// std::cout << " OK in disk Get " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
       get_context->SetReplayLog(row_cache_entry);  // nullptr if no cache.
       s = t->Get(options, k, get_context, prefix_extractor.get(), skip_filters);
       get_context->SetReplayLog(nullptr);
     } else if (options.read_tier == kBlockCacheTier && s.IsIncomplete()) {
+// std::cout << " MarkKeyMayExist in disk Get " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       // Couldn't find Table in cache but treat as kFound if no_io set
       get_context->MarkKeyMayExist();
       s = Status::OK();

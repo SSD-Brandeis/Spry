@@ -4746,6 +4746,17 @@ Status DB::DestroyColumnFamilyHandle(ColumnFamilyHandle* column_family) {
 DB::~DB() {}
 
 Status DBImpl::Close() {
+  //Self Added begin
+  // std::cout << "print ALL FILE RANGE @" << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  // auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  //     DefaultColumnFamily());
+  // auto cfd = cfh->cfd();
+  // // cfd->GetSuperVersion()->current->printAllFileRanges();
+  // cfd->current()->printAllFileRanges();  //this cause some threading issue 
+  // //Self Added end
+
+  
+  
   InstrumentedMutexLock closing_lock_guard(&closing_mutex_);
   if (closed_) {
     return closing_status_;
@@ -4762,6 +4773,34 @@ Status DBImpl::Close() {
   closed_ = true;
   return closing_status_;
 }
+
+//Self Added
+//Currently, cfd->GetSuperVersion()->current->printAllFileRanges() 
+// causes some threading issue, have to be synced with mutex_ lock
+Status DBImpl::printAllFileRanges() { 
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+      DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  sv->current->printAllFileRanges();
+  // cfd->GetSuperVersion()->current->printAllFileRanges();
+  // cfd->current()->printAllFileRanges();
+  return Status::OK();
+ }
+
+Status DBImpl::printPLRDF() {  
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  std::cout << "version --- PLRDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  // cfd->current()->printPLRDF();
+  sv->current->printPLRDF();
+
+  cfd->printPLRDF();
+  return Status::OK();
+}
+
 
 Status DB::ListColumnFamilies(const DBOptions& db_options,
                               const std::string& name,

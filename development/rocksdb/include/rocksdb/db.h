@@ -329,6 +329,11 @@ class DB {
   // implementation does cleanup in the destructor
   virtual Status Close() { return Status::NotSupported(); }
 
+  //self added
+  virtual Status printAllFileRanges() { return Status::NotSupported(); }
+  virtual Status printPLRDF() { return Status::NotSupported(); }
+
+
   // ListColumnFamilies will open the DB specified by argument name
   // and return the list of all column families in that DB
   // through column_families argument. The ordering of
