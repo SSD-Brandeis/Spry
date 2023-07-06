@@ -61,7 +61,6 @@ namespace ROCKSDB_NAMESPACE {
       bool isEntryAlive(uint level, long long key);
 
       // int getRangeDeleteCount();
-
   };
 
 
