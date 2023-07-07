@@ -4746,6 +4746,15 @@ Status DB::DestroyColumnFamilyHandle(ColumnFamilyHandle* column_family) {
 DB::~DB() {}
 
 Status DBImpl::Close() {
+  //Self Added begin
+  std::cout << "print ALL FILE RANGE @" << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+      DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  cfd->GetSuperVersion()->current->printAllFileRanges();
+  //Self Added end
+  
+  
   InstrumentedMutexLock closing_lock_guard(&closing_mutex_);
   if (closed_) {
     return closing_status_;

@@ -26,6 +26,8 @@
 
 // #include "rocksdb/util/cast_util.h"
 #include "rocksdb/sys_rdfilter.h"
+std::mutex rdfilter::PLRDF::init_mutex;
+rdfilter::PLRDF* rdfilter::PLRDF::plrdf_ptr; 
 
 
 
@@ -290,6 +292,8 @@ void init(DB **db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_o
   // rocksdb::get_iostats_context()->Reset();
   
   checking::SystemVerifier::init();
+  rdfilter::PLRDF::init();
+
 
 
   // op.write_buffer_size = 1024 * 256; // -> 256 kB    
@@ -390,7 +394,8 @@ void print_perf_iostats_context(std::ostream& ofile, int N_repetitions){
 
 
 
-void runPQVerification(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_op){
+void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_op){
+  DB* db = *db_ptr2;
   checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
   int KEY_SIZE = checking::SystemVerifier::getKeySize();
 
@@ -461,7 +466,8 @@ void runPQVerification(DB* db, Options& op, WriteOptions& write_op, ReadOptions&
       //   rocksdb::get_perf_context()->Reset();
       //   rocksdb::get_iostats_context()->Reset();
       // }
-      testing_logger.reopen_DB(&db, op, write_op, read_op);
+      testing_logger.reopen_DB(db_ptr2, op, write_op, read_op);
+      db = *db_ptr2;
       testing_logger.set_to_start(op);
 
   // system_verifier->setRDFTypeChosed(1);
@@ -589,7 +595,8 @@ void runPQVerification(DB* db, Options& op, WriteOptions& write_op, ReadOptions&
       //   rocksdb::get_perf_context()->Reset();
       //   rocksdb::get_iostats_context()->Reset();
       // }
-      testing_logger.reopen_DB(&db, op, write_op, read_op);
+      testing_logger.reopen_DB(db_ptr2, op, write_op, read_op);
+      db = *db_ptr2;
       testing_logger.set_to_start(op);
 
 
@@ -718,7 +725,8 @@ void runPQVerification(DB* db, Options& op, WriteOptions& write_op, ReadOptions&
       //   rocksdb::get_perf_context()->Reset();
       //   rocksdb::get_iostats_context()->Reset();
       // }
-      testing_logger.reopen_DB(&db, op, write_op, read_op);
+      testing_logger.reopen_DB(db_ptr2, op, write_op, read_op);
+      db = *db_ptr2;
       testing_logger.set_to_start(op);
 
 
@@ -847,7 +855,8 @@ void runPQVerification(DB* db, Options& op, WriteOptions& write_op, ReadOptions&
       //   rocksdb::get_perf_context()->Reset();
       //   rocksdb::get_iostats_context()->Reset();
       // }
-      testing_logger.reopen_DB(&db, op, write_op, read_op);
+      testing_logger.reopen_DB(db_ptr2, op, write_op, read_op);
+      db = *db_ptr2;
       testing_logger.set_to_start(op);
 
 
@@ -941,7 +950,7 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
 
   // opening workload file for the first time
   std::ifstream workload_file;
-  workload_file.open("workload2.txt");
+  workload_file.open("workload.txt");
   assert(workload_file);
   // doing a first pass to get the workload size
   uint64_t workload_size = 0;
@@ -949,7 +958,7 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
   while (std::getline(workload_file, line)) ++workload_size;
   workload_file.close();
 
-  workload_file.open("workload2.txt");
+  workload_file.open("workload.txt");
   assert(workload_file);
 
   checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
@@ -1052,6 +1061,18 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
     }
   }
 
+
+
+  
+  FlushOptions flush_opts;
+  s = db->Flush(flush_opts);
+  if (!s.ok()) std::cerr << s.ToString() << std::endl;
+  assert(s.ok());
+  // Status s = db->Flush(flush_opts, {db->DefaultColumnFamily()});
+
+
+
+
   
   std::this_thread::sleep_for(std::chrono::seconds(10));  // Sleep for 10 second
   {
@@ -1148,7 +1169,7 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
 
   std::this_thread::sleep_for(std::chrono::seconds(10));  // Sleep for 1 second
   {
-    runPQVerification(db, op, write_op, read_op);
+    runPQVerification(&db, op, write_op, read_op);
   }
 
 

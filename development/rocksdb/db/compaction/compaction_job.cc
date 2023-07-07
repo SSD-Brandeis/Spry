@@ -1741,9 +1741,10 @@ Status CompactionJob::InstallCompactionResults(
     }
   }
 
+  // Self Added
   // Push RDF data down to `output_level`
   // std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>>();
-  std::vector<std::tuple<int, int, std::vector<pll>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>>>();
+  std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>();
   for (size_t lvl = 0; lvl < compaction->num_input_levels(); lvl++)
   {
     int current_level = compaction->level(lvl);
@@ -1753,16 +1754,20 @@ Status CompactionJob::InstallCompactionResults(
       std::cout << "Pushing file from Current Level: " << current_level << " output Level: " << compaction->output_level() << " with CompactionInputFiles: " << compaction->inputs(lvl) << std::endl << std::flush;
 
       std::vector<pll> smallest_largest_boundries{};
+      std::vector<uint64_t> flie_numbers;
       for (auto file_meta : *(compaction->inputs(lvl)))
       {
         smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+        flie_numbers.push_back(file_meta->fd.GetNumber());
         std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;  
       }
 
       // file_meta_data_vectors->push_back(std::make_tuple(current_level, compaction->output_level(), compaction->inputs(lvl)));
-      file_meta_data_vectors->push_back(std::make_tuple(current_level, compaction->output_level(), smallest_largest_boundries));
+      file_meta_data_vectors->push_back(std::make_tuple(current_level, compaction->output_level(), smallest_largest_boundries, flie_numbers));
     }
   }
+  std::cout << "print ALL FILE RANGE @" << __FILE__ << ":" << __LINE__ << std::endl << std::flush;
+  compaction->column_family_data()->GetSuperVersion()->current->printAllFileRanges();
   rdfilter::PLRDF::getRDFilter()->shiftRDFToOutputLevel(file_meta_data_vectors);
   // compaction->column_family_data()->GetSuperVersion()->current->shiftRDFToOutputLevel(file_meta_data_vectors);
 

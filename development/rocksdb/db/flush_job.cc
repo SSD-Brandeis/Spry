@@ -905,8 +905,8 @@ std::cout  << "FlushJob::WriteLevel0Table A1 " << __FILE__ << ":" << __LINE__ <<
           cfd_->GetName().c_str(), job_context_->job_id, m->GetNextLogNumber());
       memtables.push_back(m->NewIterator(ro, &arena));
 
-//Self added
-cfd_->current()->printAllFileRanges();
+//Self added start
+// cfd_->current()->printAllFileRanges();
       
 // cfd_->current()->setRDFTest2(cfd_->current()->getRDFTest());
 
@@ -914,27 +914,27 @@ std::vector<pll> range_delete_list_in;
 auto* range_del_iter2 = m->NewRangeTombstoneIterator(
           ro, kMaxSequenceNumber, true /* immutable_memtable */);
 if (range_del_iter2 != nullptr) {
-std::cout << "valid " << range_del_iter2->Valid() << " " << range_del_iter2 << __FILE__ << ":" << __LINE__ << std::endl;
-std::cout << "range_del_iter " <<  (range_del_iter2->key()).ToString() << " " << (range_del_iter2->key()).ToString(true) << " " <<  (range_del_iter2->key()).ToString(false) << " " << range_del_iter2 << __FILE__ << ":" << __LINE__ << std::endl;
-std::cout << "number of deletes " << m->num_deletes()   << std::endl;
+// std::cout << "valid " << range_del_iter2->Valid() << " " << range_del_iter2 << __FILE__ << ":" << __LINE__ << std::endl;
+// std::cout << "range_del_iter " <<  (range_del_iter2->key()).ToString() << " " << (range_del_iter2->key()).ToString(true) << " " <<  (range_del_iter2->key()).ToString(false) << " " << range_del_iter2 << __FILE__ << ":" << __LINE__ << std::endl;
+// std::cout << "number of deletes " << m->num_deletes()   << std::endl;
 
   for (range_del_iter2->SeekToFirst(); range_del_iter2->Valid(); range_del_iter2->Next()) {
     auto tombstone = range_del_iter2->Tombstone();
-    std::cout << "flush tombstone " << tombstone.start_key_.ToString() << " " << tombstone.end_key_.ToString() << std::endl;
+    std::cout << "flush tombstone " << tombstone.start_key_.ToString() << " " << tombstone.end_key_.ToString() << " " << __FILE__ << ":" << __LINE__ << std::endl;
   
-    // edit_->storeRange2RDFTest(tombstone);
-    // cfd_->current()->storage_info()->storeRange2RDFTest(tombstone);
+    // // edit_->storeRange2RDFTest(tombstone);
+    // // cfd_->current()->storage_info()->storeRange2RDFTest(tombstone);
     
-    // SuperVersion *sv = cfd_->GetThreadLocalSuperVersion(this);
-    // sv->printRDFTest();
+    // // SuperVersion *sv = cfd_->GetThreadLocalSuperVersion(this);
+    // // sv->printRDFTest();
 
-    // cfd_->current()->storeRange2RDFTest(tombstone);
-    // assert( cfd_->current()->getIsRDFTest2Set() != false);
-    // cfd_->current()->storeRange2RDFTest2(tombstone);
-    // cfd_->current()->storeRange2RDFilter(0, tombstone);
+    // // cfd_->current()->storeRange2RDFTest(tombstone);
+    // // assert( cfd_->current()->getIsRDFTest2Set() != false);
+    // // cfd_->current()->storeRange2RDFTest2(tombstone);
+    // // cfd_->current()->storeRange2RDFilter(0, tombstone);
     range_delete_list_in.push_back(std::make_pair( std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) ));
-    // cfd_->storeRange2RDFTest(tombstone);
-    // cfd_->storeRange2RDFTest2(tombstone);
+    // // cfd_->storeRange2RDFTest(tombstone);
+    // // cfd_->storeRange2RDFTest2(tombstone);
   }
 
 
@@ -943,10 +943,12 @@ std::cout << "number of deletes " << m->num_deletes()   << std::endl;
   // }
   // cfd_->current()->storeRanges2RDFilter(0, range_delete_list_in);
   
-  //cfd_->current()->printRDFilter();
-  //cfd_->current()->printRDFilterUpdated();
+  // cfd_->current()->printRDFilter();
+  // cfd_->current()->printRDFilterUpdated();
 
-  rdfilter::PLRDF::getRDFilter->insertRangeDeleteToLevel0(meta_.fd.GetNumber(), range_delete_list_in);
+  rdfilter::PLRDF::getRDFilter()->insertRangeDeleteToLevel0(meta_.fd.GetNumber(), range_delete_list_in);
+  rdfilter::PLRDF::getRDFilter()->printLevel0();
+  rdfilter::PLRDF::getRDFilter()->print();
 }
 
 

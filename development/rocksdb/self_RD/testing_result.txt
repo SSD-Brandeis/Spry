@@ -3,31 +3,31 @@
 ----------------------Testing On Existing Keys-----------------------
 NONE
 1 -----
-read_count_start = 9
-read_count_end = 9
-read_bytes_start = 3772
-read_bytes_end = 3772
+read_count_start = 8
+read_count_end = 10
+read_bytes_start = 2017
+read_bytes_end = 2408
 1 -----
 1 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 10
+read_bytes_start = 2017
+read_bytes_end = 2408
 1 -----
 2 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 10
+read_bytes_start = 2017
+read_bytes_end = 2408
 2 -----
 3 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 10
+read_bytes_start = 2017
+read_bytes_end = 2408
 3 -----
-Avg_read_count = 0.00
-Avg_read_bytes = 0.00
+Avg_read_count = 2.00
+Avg_read_bytes = 391.00
 get_from_memtable_time = 0.00
 get_from_memtable_count = 0.00
 get_post_process_time = 0.00
@@ -56,31 +56,31 @@ write_nanos = 0.00
 --------------------------------------------------------------------
 NONE
 1 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 10
+read_bytes_start = 2017
+read_bytes_end = 2408
 1 -----
 1 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 10
+read_bytes_start = 2017
+read_bytes_end = 2408
 1 -----
 2 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 10
+read_bytes_start = 2017
+read_bytes_end = 2408
 2 -----
 3 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 10
+read_bytes_start = 2017
+read_bytes_end = 2408
 3 -----
-Avg_read_count = 0.00
-Avg_read_bytes = 0.00
+Avg_read_count = 2.00
+Avg_read_bytes = 391.00
 get_from_memtable_time = 0.00
 get_from_memtable_count = 0.00
 get_post_process_time = 0.00
@@ -112,31 +112,31 @@ write_nanos = 0.00
 ----------------------Testing On historic-existing Keys-----------------------
 PLRDF
 1 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 10
+read_bytes_start = 2017
+read_bytes_end = 2408
 1 -----
 1 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 10
+read_bytes_start = 2017
+read_bytes_end = 2408
 1 -----
 2 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 10
+read_bytes_start = 2017
+read_bytes_end = 2408
 2 -----
 3 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 10
+read_bytes_start = 2017
+read_bytes_end = 2408
 3 -----
-Avg_read_count = 0.00
-Avg_read_bytes = 0.00
+Avg_read_count = 2.00
+Avg_read_bytes = 391.00
 get_from_memtable_time = 0.00
 get_from_memtable_count = 0.00
 get_post_process_time = 0.00
@@ -165,31 +165,31 @@ write_nanos = 0.00
 --------------------------------------------------------------------
 NONE
 1 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 10
+read_bytes_start = 2017
+read_bytes_end = 2408
 1 -----
 1 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 10
+read_bytes_start = 2017
+read_bytes_end = 2408
 1 -----
 2 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 10
+read_bytes_start = 2017
+read_bytes_end = 2408
 2 -----
 3 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 10
+read_bytes_start = 2017
+read_bytes_end = 2408
 3 -----
-Avg_read_count = 0.00
-Avg_read_bytes = 0.00
+Avg_read_count = 2.00
+Avg_read_bytes = 391.00
 get_from_memtable_time = 0.00
 get_from_memtable_count = 0.00
 get_post_process_time = 0.00
@@ -221,28 +221,28 @@ write_nanos = 0.00
 ----------------------Testing On Currently Deleted Keys-----------------------
 PLRDF
 1 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 8
+read_bytes_start = 2017
+read_bytes_end = 2017
 1 -----
 1 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 8
+read_bytes_start = 2017
+read_bytes_end = 2017
 1 -----
 2 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 8
+read_bytes_start = 2017
+read_bytes_end = 2017
 2 -----
 3 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 8
+read_bytes_start = 2017
+read_bytes_end = 2017
 3 -----
 Avg_read_count = 0.00
 Avg_read_bytes = 0.00
@@ -274,28 +274,28 @@ write_nanos = 0.00
 --------------------------------------------------------------------
 NONE
 1 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 8
+read_bytes_start = 2017
+read_bytes_end = 2017
 1 -----
 1 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 8
+read_bytes_start = 2017
+read_bytes_end = 2017
 1 -----
 2 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 8
+read_bytes_start = 2017
+read_bytes_end = 2017
 2 -----
 3 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 8
+read_bytes_start = 2017
+read_bytes_end = 2017
 3 -----
 Avg_read_count = 0.00
 Avg_read_bytes = 0.00
@@ -330,28 +330,28 @@ write_nanos = 0.00
 ----------------------Testing On Currently Non-inserted Keys-----------------------
 PLRDF
 1 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 8
+read_bytes_start = 2017
+read_bytes_end = 2017
 1 -----
 1 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 8
+read_bytes_start = 2017
+read_bytes_end = 2017
 1 -----
 2 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 8
+read_bytes_start = 2017
+read_bytes_end = 2017
 2 -----
 3 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 8
+read_bytes_start = 2017
+read_bytes_end = 2017
 3 -----
 Avg_read_count = 0.00
 Avg_read_bytes = 0.00
@@ -383,28 +383,28 @@ write_nanos = 0.00
 --------------------------------------------------------------------
 NONE
 1 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 8
+read_bytes_start = 2017
+read_bytes_end = 2017
 1 -----
 1 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 8
+read_bytes_start = 2017
+read_bytes_end = 2017
 1 -----
 2 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 8
+read_bytes_start = 2017
+read_bytes_end = 2017
 2 -----
 3 -----
-read_count_start = 0
-read_count_end = 0
-read_bytes_start = 0
-read_bytes_end = 0
+read_count_start = 8
+read_count_end = 8
+read_bytes_start = 2017
+read_bytes_end = 2017
 3 -----
 Avg_read_count = 0.00
 Avg_read_bytes = 0.00

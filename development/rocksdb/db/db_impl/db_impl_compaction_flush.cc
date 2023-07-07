@@ -3521,17 +3521,19 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
       c->edit()->DeleteFile(c->level(), f->fd.GetNumber());
     }
 
-
+    //Self Added
     std::vector<pll> smallest_largest_boundries{};
+    std::vector<uint64_t> file_numbers;
     for (auto file_meta : *(c->inputs(0)))
     {
     // FIXME: ONLY FOR TESTING USE 
       std::cout << "Pushing file from Current Level: " << c->level(0) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(0) << std::endl << std::flush;
       std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;
       smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+      file_numbers.push_back(file_meta->fd.GetNumber());
     }
 
-    std::tuple<int, std::vector<pll>> file_meta_data_vectors = std::make_tuple(c->level(), smallest_largest_boundries);
+    std::tuple<int, std::vector<pll>, std::vector<uint64_t>> file_meta_data_vectors = std::make_tuple(c->level(), smallest_largest_boundries, file_numbers);
     // std::cout << "[Compaction]: Calling Direct Delete Compaction .. " << std::endl;
 
     rdfilter::PLRDF::getRDFilter()->deleteRDFAssociatedWithFilesAtCurrentLevel(&file_meta_data_vectors);
@@ -3565,7 +3567,9 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 
     int32_t moved_files = 0;
     int64_t moved_bytes = 0;
-    std::vector<std::tuple<int, int, std::vector<pll>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>>>();
+
+    //Self Added
+    std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>();
 
     for (unsigned int l = 0; l < c->num_input_levels(); l++) {
       if (c->level(l) == c->output_level()) {
@@ -3575,19 +3579,23 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
       bool flag = false;
       
       for (size_t i = 0; i < c->num_input_files(l); i++) {
+        //Self Added
         if (!flag)
         {
           std::vector<pll> smallest_largest_boundries{};
+          std::vector<uint64_t> file_numbers;
           for (auto file_meta : *(c->inputs(l)))
           {
             // FIXME: ONLY FOR TESTING USE 
             std::cout << "Pushing file from Current Level: " << c->level(l) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(l) << std::endl << std::flush;
             std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;
             smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+            file_numbers.push_back(file_meta->fd.GetNumber());
           }
-          file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries));
+          file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries, file_numbers));
           flag = true;
         }
+
         FileMetaData* f = c->input(l, i);
         c->edit()->DeleteFile(c->level(l), f->fd.GetNumber());
         c->edit()->AddFile(
@@ -3618,6 +3626,8 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
             vstorage->GetNextCompactCursor(start_level, c->num_input_files(0)));
       }
     }
+
+    //Self Added
     // std::cout << "[Compaction]: Calling Shift RDF To Output Level for Trivial Compaction .. " << std::endl;
     rdfilter::PLRDF::getRDFilter()->shiftRDFToOutputLevel(file_meta_data_vectors);
 

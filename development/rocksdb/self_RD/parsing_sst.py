@@ -23,7 +23,7 @@ def get_file_number():
         keys = re.findall(r'\d{12}', subprocess.run(["strings", file], stdout=subprocess.PIPE).stdout.decode('utf-8'))
 
         list_keys.extend(keys)
-        print(len(keys))
+        print('num=',len(keys))
         print(keys)
 
         list_keys.sort()
