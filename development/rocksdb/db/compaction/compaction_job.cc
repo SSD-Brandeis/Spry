@@ -617,7 +617,7 @@ void CompactionJob::GenSubcompactionBoundaries() {
 }
 
 Status CompactionJob::Run() {
-std::cout  << "CompactionJob::Run A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "CompactionJob::Run A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   AutoThreadOperationStageUpdater stage_updater(
       ThreadStatus::STAGE_COMPACTION_RUN);
@@ -823,7 +823,7 @@ std::cout << "(compaction job) output file files_output[file_idx]->meta.largest.
 }
 
 Status CompactionJob::Install(const MutableCFOptions& mutable_cf_options) {
-std::cout  << "CompactionJob::Install A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "CompactionJob::Install A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   assert(compact_);
 
@@ -835,7 +835,7 @@ std::cout  << "CompactionJob::Install A1 " << __FILE__ << ":" << __LINE__ << " "
   ColumnFamilyData* cfd = compact_->compaction->column_family_data();
   assert(cfd);
 
-std::cout  << "CompactionJob::Install A2 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "CompactionJob::Install A2 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 std::cout  << "CompactionJob::Install A1 " << "(level, output_level = )" << compact_->compaction->level() << "," <<  compact_->compaction->output_level() << std::endl;
   int output_level = compact_->compaction->output_level();
   cfd->internal_stats()->AddCompactionStats(output_level, thread_pri_,
@@ -1766,10 +1766,14 @@ Status CompactionJob::InstallCompactionResults(
       file_meta_data_vectors->push_back(std::make_tuple(current_level, compaction->output_level(), smallest_largest_boundries, flie_numbers));
     }
   }
-  std::cout << "print ALL FILE RANGE @" << __FILE__ << ":" << __LINE__ << std::endl << std::flush;
-  compaction->column_family_data()->GetSuperVersion()->current->printAllFileRanges();
-  rdfilter::PLRDF::getRDFilter()->shiftRDFToOutputLevel(file_meta_data_vectors);
-  // compaction->column_family_data()->GetSuperVersion()->current->shiftRDFToOutputLevel(file_meta_data_vectors);
+  // std::cout << "print ALL FILE RANGE @ " << __FILE__ << ":" << __LINE__ << std::endl << std::flush;
+  // compaction->column_family_data()->GetSuperVersion()->current->printAllFileRanges();
+  // // rdfilter::PLRDF::getRDFilter()->shiftRDFToOutputLevel(file_meta_data_vectors);
+  // // compaction->column_family_data()->GetSuperVersion()->current->shiftRDFToOutputLevel(file_meta_data_vectors);
+  // // compaction->column_family_data()->current()->set_compaction_moving_RD_vector(*file_meta_data_vectors);
+  compaction->column_family_data()->set_compaction_moving_RD_vector(*file_meta_data_vectors);
+
+
 
   return versions_->LogAndApply(compaction->column_family_data(),
                                 mutable_cf_options, read_options, edit,

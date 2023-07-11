@@ -3,6 +3,8 @@
  *  Author: yucheng
  */
 
+/*Notice: anytime only one lock is locked in this class*/
+
 
 #ifndef SYS_RDFILTER_H_
 #define SYS_RDFILTER_H_
@@ -25,10 +27,23 @@ namespace rdfilter {
 #include <algorithm>
 #include <iomanip>
 #include <chrono>
+#include <utility>
+
 
 #include <string>
 #include <chrono>
 #include <thread>
+#include <condition_variable>
+
+// #if __has_include("semaphore.h")
+// # include "semaphore.h"
+// #else
+// # include <ucontex.h>
+// # include <sys/sem.h>
+// #endif
+// #include <semaphore.h>
+// #include <ucontex.h>
+#include <pthread.h>
 #include <mutex>
 
 // #include "../db/version_edit.h"
@@ -49,10 +64,25 @@ namespace rdfilter {
 
     private:
       static const int KEY_SIZE = 12;
-      std::mutex update_mutex, writeback_mutex;
-      std::mutex level0_mutex;
-      static std::mutex init_mutex;
+      std::mutex update_mutex; // locks for level > 0
+      // std::mutex writeback_mutex; // locks for level > 0
+      static std::mutex init_mutex; // locks for initialization of the function
+
+      //semaphores below are implemented with condition variables
       std::unordered_map<uint64_t, std::vector<pll>> rd_filter_level0; //FileMetaData* -> fd .GetNumber();
+      // std::unordered_map<uint64_t, std::binary_semaphore> semaphores_level0; // locks for level 0 rd_filter
+      // std::unordered_map<uint64_t, std::pthread_cond_t> semaphores_level0; // locks for level 0 rd_filter
+      // using pmcv = std::pair<std::mutex, std::condition_variable>;
+
+      std::unordered_map<uint64_t, std::mutex> semaphores_m_level0; // locks for level 0 rd_filter
+      std::unordered_map<uint64_t, std::condition_variable> semaphores_cv_level0; // locks for level 0 rd_filter
+      //mutex is lvalue doesn't allow to be copied
+      // semaphores_m_level0.emplace(std::piecewise_construct,
+      //             std::forward_as_tuple(file_number),
+      //             std::forward_as_tuple());
+      std::mutex rd_filter_level0_mutex; // locks for rd_filter_level0 (level 0)
+      std::mutex semaphores_level0_mutex; // locks for semaphores_level0 (level 0)
+// pthread_cond_t cond1 = PTHREAD_COND_INITIALIZER;
 
       std::vector<std::vector<pll>> rd_filter; //list of range delete (start, end), all entries are non-overlapping
   
@@ -69,146 +99,8 @@ namespace rdfilter {
       
       static PLRDF* plrdf_ptr;
 
+      // -- no lock --
 
-      void adjustRangeDeletsForLevel0Input(uint olevel, std::vector<uint64_t> file_numbers){
-
-        std::vector<pll> to_be_added_in_next_level_rdf;
-
-        for(uint64_t &file_num: file_numbers){
-          auto it = rd_filter_level0.find(file_num);
-          if(it == rd_filter_level0.end()){
-            assert(it != rd_filter_level0.end());
-            std::cerr << "File number not found in level 0 " << "File number " << file_num << " " << __FILE__ << ":" << __LINE__ << std::endl; 
-            std::cerr << "Remindation: Do the manually flush after all the insert workload are done. So no entries lie inside memtable anymore. In case those entries will go through the track of bulk buiding from WAL and no going through the path of flushJob." << "File number " << file_num << " " << __FILE__ << ":" << __LINE__ << std::endl; 
-            exit(1);
-            // continue;
-          }
-          auto val = it->second;
-          to_be_added_in_next_level_rdf.insert(to_be_added_in_next_level_rdf.end(), val.begin(), val.end());
-          rd_filter_level0.erase(it);
-        }
-
-        std::sort(to_be_added_in_next_level_rdf.begin(), to_be_added_in_next_level_rdf.end(), [](const pll a, const pll b)
-                { return a.first < b.first; });
-
-        addRangeDelete_internal(olevel, to_be_added_in_next_level_rdf);
-      }
-
-
-
-      // This would be used for trivial compaction and normal compaction
-      // input_level, output_level, file_boundaries
-      void adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<long long, long long>> one_level_compaction_file_boundaries){
-        // init();
-        // std::lock_guard<std::mutex> guard(init_mutex);
-        
-        std::vector<pll> new_current_level_rdf;
-        std::vector<pll> to_be_added_in_next_level_rdf;
-
-        if (rd_filter.size() <= clevel)
-        {
-          return;
-        }
-        
-        auto old_current_level_rdf = rd_filter[clevel];
-
-        // FIXME: (Shubham) This might not be required
-        if (one_level_compaction_file_boundaries.size() == 0)
-        {
-          return;
-        }
-
-        auto it = old_current_level_rdf.begin();
-        auto itf = one_level_compaction_file_boundaries.begin();
-
-        while (it != old_current_level_rdf.end())
-        {
-          pll val = *it;
-          auto file_boundries = *itf;
-          pll file_boundry = std::make_pair(file_boundries.first, file_boundries.second);
-
-          /*
-          *    |--|
-          *         -----
-          *         |   |
-          *         -----
-          */
-          if (itf == one_level_compaction_file_boundaries.end() || (val.second <= file_boundry.first))
-          {
-            new_current_level_rdf.push_back(val);
-            it++;
-          }
-          /*
-          *             |--|
-          *     ------
-          *     |    |
-          *     ------
-          */
-          else if (val.first > file_boundry.second)
-          {
-            itf++;
-          }
-          /*
-          *    |------||||
-          *         ------
-          *         |    |
-          *         ------
-          */
-          else if (val.first < file_boundry.first && val.second > file_boundry.first && val.second <= file_boundry.second)
-          {
-            new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
-            to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, val.second));
-            it++;
-          }
-          /*
-          *    |||--|||
-          *    --------
-          *    |      |
-          *    --------
-          */
-          else if (val.first >= file_boundry.first && val.second <= file_boundry.second)
-          {
-            to_be_added_in_next_level_rdf.push_back(val);
-            it++;
-          }
-          /*
-          *     ||||-------|
-          *     --------
-          *     |      |
-          *     --------
-          */
-          else if (val.first >= file_boundry.first && val.first <= file_boundry.second && val.second > file_boundry.second)
-          {
-            to_be_added_in_next_level_rdf.push_back(std::make_pair(val.first, file_boundry.second + 1));
-            (*it).first = file_boundry.second + 1;
-            itf++;
-          }
-          /*
-          *  |------------|
-          *     --------
-          *     |      |
-          *     --------
-          */
-          else if (val.first < file_boundry.first && val.second > file_boundry.second)
-          {
-            new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
-            to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, file_boundry.second + 1));
-            (*it).first = file_boundry.second + 1;
-            itf++;
-          }else{
-            std::cerr << "Condition Unchecked " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-            std::cerr << "val.first: " << val.first << " val.second: " << val.second << " file_boundry.first: " << file_boundry.first << " file_boundry.second: " << file_boundry.second << std::endl;
-            assert(false);
-            exit(1);
-          }
-        }
-
-        rd_filter[clevel] = new_current_level_rdf;
-        std::sort(to_be_added_in_next_level_rdf.begin(), to_be_added_in_next_level_rdf.end(), [](const pll a, const pll b)
-                { return a.first < b.first; });
-
-        addRangeDelete_internal(olevel, to_be_added_in_next_level_rdf);
-      }
 
       void addRangeDelete_internal(uint level, std::vector<pll> &range_delete_list_in){
         // init();
@@ -229,6 +121,10 @@ namespace rdfilter {
 
 
       std::vector<pll> sortAndMerge(std::vector<pll> &range_delete_list_in){
+        if(range_delete_list_in.size() == 0){
+          return {};
+        }
+
         std::sort(range_delete_list_in.begin(), range_delete_list_in.end(), [](pll a, pll b){
           return a.first < b.first;
         });
@@ -457,6 +353,214 @@ namespace rdfilter {
       }
 
 
+      // -- with lock --
+
+      void adjustRangeDeletesForLevel0Input(uint olevel, std::vector<uint64_t> file_numbers){
+
+        std::vector<pll> to_be_added_in_next_level_rdf;
+
+
+        for(uint64_t &file_num: file_numbers){
+          {
+            // -- semaphores_level0 --
+            semaphores_level0_mutex.lock();
+            // if(semaphores_level0.count(file_num) == 0){
+              // semaphores_level0[file_num] = std::binary_semaphore{0};
+              // semaphores_level0[file_num] = make_pair(std::mutex(), std::condition_variable());
+std::cout << "Compact From Level0 " << "semaphores_m_level0.count(file_num) : " << semaphores_m_level0.count(file_num) << " file_num =  " << file_num << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+std::cout << "Compact From Level0 " << "semaphores_cv_level0.count(file_num) : " << semaphores_cv_level0.count(file_num) << " file_num =  " << file_num << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            if(semaphores_m_level0.count(file_num) == 0){
+              semaphores_m_level0.emplace(std::piecewise_construct,
+                      std::forward_as_tuple(file_num),
+                      std::forward_as_tuple());
+              semaphores_cv_level0.emplace(std::piecewise_construct,
+                      std::forward_as_tuple(file_num),
+                      std::forward_as_tuple());
+            }
+            semaphores_level0_mutex.unlock();
+            // -- semaphores_level0 --
+
+std::cout << "Compact From Level0 " << "file_num: " << file_num << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+            // -- wait on semaphores_level0 --
+            // waiting for the signal from flushJob that the RD of the file 
+            // is already added to the rd_filter_level0
+            // semaphores_level0[file_num].acquire();  
+            // std::unique_lock lk(semaphores_level0[file_num].first); 
+            // semaphores_level0[file_num].second.wait(lk, [&] {return rd_filter_level0.count(file_num) > 0;}); // waken when condition becomes true
+            std::unique_lock lk(semaphores_m_level0[file_num]); 
+            semaphores_cv_level0[file_num].wait(lk, [&] {return rd_filter_level0.count(file_num) > 0;}); // waken when condition becomes true
+            // semaphores_cv_level0[file_num].wait(lk);
+            lk.unlock();
+std::cout << "Compact From Level0 " << "UnLocked !!" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            // -- wait on semaphores_level0 --
+          }
+
+          {
+            // -- rd_filter_level0 --
+            rd_filter_level0_mutex.lock();
+
+            auto it = rd_filter_level0.find(file_num);
+            if(it == rd_filter_level0.end()){
+              assert(it != rd_filter_level0.end());
+              std::cerr << "File number not found in level 0 " << "File number " << file_num << " " << __FILE__ << ":" << __LINE__ << std::endl; 
+              std::cerr << "Remindation: Do the manually flush after all the insert workload are done. So no entries lie inside memtable anymore. In case those entries will go through the track of bulk buiding from WAL and no going through the path of flushJob." << "File number " << file_num << " " << __FILE__ << ":" << __LINE__ << std::endl; 
+              exit(1);
+              // continue;
+            }
+            auto val = it->second;
+            to_be_added_in_next_level_rdf.insert(to_be_added_in_next_level_rdf.end(), val.begin(), val.end());
+            rd_filter_level0.erase(it);
+            
+            rd_filter_level0_mutex.unlock();
+            // -- rd_filter_level0 -- 
+          }
+
+          {
+            // -- semaphores_level0 --
+            semaphores_level0_mutex.lock();
+
+            // semaphores_level0.erase(file_num);  // also remove the semaphore of the current file_num
+            semaphores_m_level0.erase(file_num);  // also remove the semaphore of the current file_num
+            semaphores_cv_level0.erase(file_num);  // also remove the semaphore of the current file_num
+
+            semaphores_level0_mutex.unlock();
+            // -- semaphores_level0 --
+          }
+        }
+
+        std::sort(to_be_added_in_next_level_rdf.begin(), to_be_added_in_next_level_rdf.end(), [](const pll a, const pll b)
+                { return a.first < b.first; });
+
+
+
+        // -- updating rd_filter_level0 --
+        std::lock_guard<std::mutex> guard(rd_filter_level0_mutex);
+
+        addRangeDelete_internal(olevel, to_be_added_in_next_level_rdf);
+      }
+
+
+
+      // This would be used for trivial compaction and normal compaction
+      // input_level, output_level, file_boundaries
+      void adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<long long, long long>> one_level_compaction_file_boundaries){
+        // init();
+        std::lock_guard<std::mutex> guard(update_mutex);
+
+        
+        std::vector<pll> new_current_level_rdf;
+        std::vector<pll> to_be_added_in_next_level_rdf;
+
+        if (rd_filter.size() <= clevel)
+        {
+          return;
+        }
+        
+        auto old_current_level_rdf = rd_filter[clevel];
+
+        // FIXME: (Shubham) This might not be required
+        if (one_level_compaction_file_boundaries.size() == 0)
+        {
+          return;
+        }
+
+        auto it = old_current_level_rdf.begin();
+        auto itf = one_level_compaction_file_boundaries.begin();
+
+        while (it != old_current_level_rdf.end())
+        {
+          pll val = *it;
+          auto file_boundries = *itf;
+          pll file_boundry = std::make_pair(file_boundries.first, file_boundries.second);
+
+          /*
+          *    |--|
+          *         -----
+          *         |   |
+          *         -----
+          */
+          if (itf == one_level_compaction_file_boundaries.end() || (val.second <= file_boundry.first))
+          {
+            new_current_level_rdf.push_back(val);
+            it++;
+          }
+          /*
+          *             |--|
+          *     ------
+          *     |    |
+          *     ------
+          */
+          else if (val.first > file_boundry.second)
+          {
+            itf++;
+          }
+          /*
+          *    |------||||
+          *         ------
+          *         |    |
+          *         ------
+          */
+          else if (val.first < file_boundry.first && val.second > file_boundry.first && val.second <= file_boundry.second)
+          {
+            new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
+            to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, val.second));
+            it++;
+          }
+          /*
+          *    |||--|||
+          *    --------
+          *    |      |
+          *    --------
+          */
+          else if (val.first >= file_boundry.first && val.second <= file_boundry.second)
+          {
+            to_be_added_in_next_level_rdf.push_back(val);
+            it++;
+          }
+          /*
+          *     ||||-------|
+          *     --------
+          *     |      |
+          *     --------
+          */
+          else if (val.first >= file_boundry.first && val.first <= file_boundry.second && val.second > file_boundry.second)
+          {
+            to_be_added_in_next_level_rdf.push_back(std::make_pair(val.first, file_boundry.second + 1));
+            (*it).first = file_boundry.second + 1;
+            itf++;
+          }
+          /*
+          *  |------------|
+          *     --------
+          *     |      |
+          *     --------
+          */
+          else if (val.first < file_boundry.first && val.second > file_boundry.second)
+          {
+            new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
+            to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, file_boundry.second + 1));
+            (*it).first = file_boundry.second + 1;
+            itf++;
+          }else{
+            std::cerr << "Condition Unchecked " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            std::cerr << "val.first: " << val.first << " val.second: " << val.second << " file_boundry.first: " << file_boundry.first << " file_boundry.second: " << file_boundry.second << std::endl;
+            assert(false);
+            exit(1);
+          }
+        }
+
+        rd_filter[clevel] = new_current_level_rdf;
+        std::sort(to_be_added_in_next_level_rdf.begin(), to_be_added_in_next_level_rdf.end(), [](const pll a, const pll b)
+                { return a.first < b.first; });
+
+        addRangeDelete_internal(olevel, to_be_added_in_next_level_rdf);
+      }
+
+
+
+
+
     public:
 
       
@@ -478,7 +582,7 @@ namespace rdfilter {
 
 
 
-      // void insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pll> &range_delete_list_in);
+      // void insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pll> &range_delete_list_in, std::vector<uint64_t> exist_level0_file_nums);
       // void printLevel0();
 
     
@@ -495,23 +599,58 @@ namespace rdfilter {
 
 
 
-      void insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pll> &range_delete_list_in){
+      void insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pll> &range_delete_list_in, std::vector<uint64_t> exist_level0_file_nums){
         std::vector<pll> sorted_merged_rdlist = sortAndMerge(range_delete_list_in);
-
         init();
-        std::lock_guard<std::mutex> guard(level0_mutex);
 
-        if(rd_filter_level0.count(file_num) > 0){
-          std::cerr << "Error: file_num already exists in rd_filter_level0" << "\t" << __FILE__ << " " << __LINE__ << " " << __func__ << std::endl;
+        // -- updating rd_filter_level0 --
+        // std::lock_guard<std::mutex> guard(rd_filter_level0_mutex);
+        rd_filter_level0_mutex.lock();
+
+        // if(rd_filter_level0.count(file_num) > 0){
+        if(std::binary_search(exist_level0_file_nums.begin(), exist_level0_file_nums.end(), file_num) == true){
+          std::cerr << "Error: file_num already exists in rd_filter_level0 " << "file_num = " << file_num << "\t" << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+          exit(1);
         }
         rd_filter_level0[file_num] = sorted_merged_rdlist;
 
         std::cout << "rd_filter_Level0 " << "file_num: " << file_num << " number of RD: " << sorted_merged_rdlist.size() << std::endl;
+      
+        rd_filter_level0_mutex.unlock();
+        // -- updating rd_filter_level0 --
+      
+
+        {
+          // -- semaphores_level0 --
+          semaphores_level0_mutex.lock();
+          // if(semaphores_level0.count(file_num) == 0){
+          //   semaphores_level0[file_num] = std::binary_semaphore{0};
+          // }
+          if(semaphores_m_level0.count(file_num) == 0){
+            // semaphores_level0[file_num] = std::binary_semaphore{0};
+            // semaphores_level0[file_num] = make_pair(std::mutex(), std::condition_variable());
+            semaphores_m_level0.emplace(std::piecewise_construct,
+                    std::forward_as_tuple(file_num),
+                    std::forward_as_tuple());
+            semaphores_cv_level0.emplace(std::piecewise_construct,
+                    std::forward_as_tuple(file_num),
+                    std::forward_as_tuple());
+          }
+
+std::cout << "Flush To Level0 " << "file_num: " << file_num << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          // signaling compaction thread (which uses adjustRangeDeletesForLevel0Input) 
+          // that RDs of the file_num has already been inserted
+          // semaphores_level0[file_num].release();
+          semaphores_cv_level0[file_num].notify_one();
+
+          semaphores_level0_mutex.unlock();
+          // -- semaphores_level0 --
+        }
       }
 
       void printLevel0(){
         init();
-        std::lock_guard<std::mutex> guard(level0_mutex);
+        std::lock_guard<std::mutex> guard(rd_filter_level0_mutex);
 
         std::cout << "rd_filter_level0" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
         for(auto it = rd_filter_level0.begin(); it != rd_filter_level0.end(); it++){
@@ -558,21 +697,25 @@ namespace rdfilter {
       }
 
 
-
+      /*
+      *Do insertion, even if the vector is empty, because we need to set condition_variable of mutex (semaphore) for compaction
+      */
       // input_level, output_level, file_boundries, file_numbers
       void shiftRDFToOutputLevel(std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  *file_meta_data_vectors){
         init();
-        std::lock_guard<std::mutex> guard(update_mutex);
+        // std::lock_guard<std::mutex> guard(update_mutex);
 
         // FIXME: FOR TESTING (next 2 lines)
         std::cout << "Before Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        update_mutex.lock();
         print_internal();
+        update_mutex.unlock();
 
         for (auto file_meta_data : *file_meta_data_vectors)
         {
           int clevel = std::get<0>(file_meta_data);
           if(clevel == 0){
-            adjustRangeDeletsForLevel0Input(std::get<1>(file_meta_data), std::get<3>(file_meta_data));
+            adjustRangeDeletesForLevel0Input(std::get<1>(file_meta_data), std::get<3>(file_meta_data));
           }else{
             // file ranges
             std::vector<std::pair<long long, long long>> one_level_file_boundries;
@@ -589,7 +732,9 @@ namespace rdfilter {
 
         // FIXME: FOR TESTING (next 2 lines)
         std::cout << "After Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        update_mutex.lock();
         print_internal();
+        update_mutex.unlock();
       }
 
       // this is only used for direct compaction //

@@ -15,6 +15,9 @@
 
 #include <iostream>
 
+//Self Added
+#include <tuple>
+
 #include "db/builder.h"
 #include "db/db_iter.h"
 #include "db/dbformat.h"
@@ -945,11 +948,30 @@ if (range_del_iter2 != nullptr) {
   
   // cfd_->current()->printRDFilter();
   // cfd_->current()->printRDFilterUpdated();
-
-  rdfilter::PLRDF::getRDFilter()->insertRangeDeleteToLevel0(meta_.fd.GetNumber(), range_delete_list_in);
-  rdfilter::PLRDF::getRDFilter()->printLevel0();
-  rdfilter::PLRDF::getRDFilter()->print();
 }
+vector<uint64_t> exist_level0_file_nums = cfd_->current()->getLevelFileNumbers(0);
+// // Do insertion, even if the vector is empty, because we need to set condition_variable of mutex (semaphore) for compaction
+// rdfilter::PLRDF::getRDFilter()->insertRangeDeleteToLevel0(meta_.fd.GetNumber(), range_delete_list_in, exist_level0_file_nums);
+// std::pair<uint64_t, std::vector<pll>>
+auto level0_RD_vector = std::make_tuple(meta_.fd.GetNumber(), range_delete_list_in, exist_level0_file_nums);
+cfd_->set_flush_to_level0_RD_vector(level0_RD_vector);
+
+// rdfilter::PLRDF::getRDFilter()->printLevel0();
+// rdfilter::PLRDF::getRDFilter()->print();
+// cfd_->current()->insertRangeDeleteToLevel0(meta_.fd.GetNumber(), range_delete_list_in);
+// cfd_->current()->printLevel0();
+// cfd_->current()->print();
+
+// if(cfd_->current()->get_flush_install_count() > 0){
+//       std::cerr << "flush write to version (current_) happens more than once. times = " 
+//             << cfd_->current()->get_flush_install_count() << __FILE__ << ":" << __LINE__ << std::endl
+//             << "flush = " << cfd_->current()->get_flush_install_count() << std::endl
+//             << "compact = " << cfd_->current()->get_compaction_install_count() << std::endl
+//             << "installSuperversion = " << cfd_->current()->get_installSuperversion_count() << std::endl;
+// }
+// cfd_->current()->inc_flush_install_count();
+// cfd_->inc_flush_install_count();
+
 
 
 

@@ -2479,6 +2479,7 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
     if(fp_cur_level != fp.GetCurrentLevel()){
       if(is_alive_after_cur_level == false){
         *status = Status::NotFound();
+std::cout << "### filtered by RDF, level = " << fp_cur_level  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         return;
       }
       fp_cur_level = fp.GetCurrentLevel();
@@ -5098,8 +5099,8 @@ Status VersionSet::ProcessManifestWrites(
     FSDirectory* dir_contains_current_file, bool new_descriptor_log,
     const ColumnFamilyOptions* new_cf_options,
     const ReadOptions& read_options) {
-std::cout  << "VersionSet::ProcessManifestWrites A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+// std::cout  << "VersionSet::ProcessManifestWrites A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   mu->AssertHeld();
   assert(!writers.empty());
   ManifestWriter& first_writer = writers.front();
@@ -5223,7 +5224,7 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
       }
     }
     for (int i = 0; i < static_cast<int>(versions.size()); ++i) {
-std::cout << "version(s) size : " << versions.size() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << "version(s) size : " << versions.size() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       assert(!builder_guards.empty() &&
              builder_guards.size() == versions.size());
       auto* builder = builder_guards[i]->version_builder();
@@ -5665,8 +5666,8 @@ Status VersionSet::LogAndApply(
     InstrumentedMutex* mu, FSDirectory* dir_contains_current_file,
     bool new_descriptor_log, const ColumnFamilyOptions* new_cf_options,
     const std::vector<std::function<void(const Status&)>>& manifest_wcbs) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   mu->AssertHeld();
   int num_edits = 0;
   for (const auto& elist : edit_lists) {

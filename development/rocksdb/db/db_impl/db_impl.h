@@ -533,6 +533,11 @@ class DBImpl : public DB {
 
   virtual Status Close() override;
 
+  //self implemented
+  virtual Status printAllFileRanges() override;
+  virtual Status printPLRDF() override;
+
+
   virtual Status DisableFileDeletions() override;
 
   virtual Status EnableFileDeletions(bool force) override;

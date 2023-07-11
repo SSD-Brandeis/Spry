@@ -17,6 +17,10 @@
 #include <iostream>
 #include <iomanip>
 
+//Self Added
+#include <tuple>
+
+
 #include "cache/cache_reservation_manager.h"
 #include "db/memtable_list.h"
 #include "db/table_cache.h"
@@ -36,26 +40,38 @@ namespace ROCKSDB_NAMESPACE {
 
   //Self Added
   using pll = std::pair<long long, long long>;
-  class PerlevelRangeDeleteFilterByVector {  
+  // class PerlevelRangeDeleteFilterByVector {  
+  class PLRDF {  
     private:
-      std::vector<std::vector<pll>> rd_filter; //list of range delete (start, end), all entries are non-overlapping
+      std::unordered_map<uint64_t, std::vector<pll>> rd_filter_level0; //for level 0, (file_num, RD_list), FileMetaData* -> fd .GetNumber();
+
+      std::vector<std::vector<pll>> rd_filter; //for level > 0, list of range delete (start, end), all entries are non-overlapping
       
-      void addRangeDelete(std::vector<pll> &range_delete_list, long long start, long long end);
+      void addRangeDelete_internal(uint level, std::vector<pll> &range_delete_list_in);
+      std::vector<pll> sortAndMerge(std::vector<pll> &range_delete_list_in);
       void addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll> &range_delete_list_in);
+      void addRangeDelete(std::vector<pll> &range_delete_list, long long start, long long end);
+      void print_internal();
+
 
       /*
        * adjust range deletes as per the compaction
        */
+      void adjustRangeDeletesForLevel0Input(uint olevel, std::vector<uint64_t> file_numbers);
       void adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<long long, long long>> one_level_compaction_file_boundaries);
 
     public:
       // std::vector<pll> getRangeDeleteList();
+      void insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pll> &range_delete_list_in, std::vector<uint64_t> exist_level0_file_nums);
+
       void addRangeDelete(uint level, long long start, long long end);
       void addRangeDelete(uint level, std::vector<pll> &range_delete_list_in);
-      void shiftRDFToOutputLevel(std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>> *file_meta_data_vectors);
+      void shiftRDFToOutputLevel(std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors);
       void deleteLastLevelIfEqualsBottomLevel(uint bottom_level);
-      void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data);
+      // void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data);
+      void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, std::vector<pll>, std::vector<uint64_t>> *file_meta_data);
 
+      void printLevel0();
       void print();
 
       bool isEntryAlive(uint level, long long key);
@@ -235,7 +251,7 @@ class ColumnFamilyHandleInternal : public ColumnFamilyHandleImpl {
 };
 
 //Self Added
-using PL_RDF = PerlevelRangeDeleteFilterByVector;
+// using PL_RDF = PLRDF;
 // holds references to memtable, all immutable memtables and version
 struct SuperVersion {
   // Accessing members of this class is not thread-safe and requires external
@@ -512,6 +528,12 @@ class ColumnFamilyData {
   uint64_t GetSuperVersionNumber() const {
     return super_version_number_.load();
   }
+
+  // Self Added Start
+  void updateRDF2NewVersion(int opt); // 1: flush, 2: compact, 3: for compaction direcly deleted flie
+  // Self Added End
+
+
   // will return a pointer to SuperVersion* if previous SuperVersion
   // if its reference count is zero and needs deletion or nullptr if not
   // As argument takes a pointer to allocated SuperVersion to enable
@@ -633,10 +655,100 @@ class ColumnFamilyData {
   // }
 
 
+  void inc_flush_install_count(){
+    flush_install_count_clr += 1;
+  }
+
+  int get_flush_install_count_clr(){
+    return flush_install_count_clr;
+  }
+
+  void inc_compaction_install_count(){
+    compaction_install_count_clr += 1;
+  }
+
+  int get_compaction_install_count_clr(){
+    return compaction_install_count_clr;
+  }
+
+  void clear_flush_install_count_clr(){
+    flush_install_count_clr = 0;
+  }
+
+  void clear_compaction_install_count_clr(){
+    compaction_install_count_clr = 0;
+  }
+
+  void inc_call_before_install_superversion_count(){
+    call_before_install_superversion_count += 1;
+  }
+  int get_call_before_install_superversion_count(){
+    return call_before_install_superversion_count;
+  }
+  void clear_call_before_install_superversion_count(){
+    call_before_install_superversion_count = 0;
+  }
+
+  void set_flush_to_level0_RD_vector(std::tuple<uint64_t, std::vector<pll>, std::vector<uint64_t>> &flush_to_level0_RD_vector_in){
+    auto file_num = std::get<0>(this->flush_to_level0_RD_vector);
+    if((int)file_num != -1){
+      std::cerr << "flush_to_level0_RD_vector is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+
+    flush_to_level0_RD_vector = flush_to_level0_RD_vector_in;
+  }
+
+  std::tuple<uint64_t, std::vector<pll>, std::vector<uint64_t>> get_flush_to_level0_RD_vector(){
+    return flush_to_level0_RD_vector;
+  }
+
+  void set_compaction_moving_RD_vector(std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  &compaction_moving_RD_vector_in){
+    auto len = compaction_moving_RD_vector.size();
+    if(len != 0){
+      std::cerr << "compaction_moving_RD_vector is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    compaction_moving_RD_vector = compaction_moving_RD_vector_in;
+  }
+
+  std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  get_compaction_moving_RD_vector(){
+    
+    return compaction_moving_RD_vector;
+  }
+
+  void set_compaction_direct_delete_RD_vector(std::tuple<int, std::vector<pll>, std::vector<uint64_t>> &compaction_direct_delete_RD_vector_in){
+    auto out_lvl = std::get<0>(this->compaction_direct_delete_RD_vector);
+    if((int)out_lvl != -1){
+      std::cerr << "compaction_direct_delete_RD_vector is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    compaction_direct_delete_RD_vector = compaction_direct_delete_RD_vector_in;
+  }
+
+  std::tuple<int, std::vector<pll>, std::vector<uint64_t>> get_compaction_direct_delete_RD_vector(){
+    return compaction_direct_delete_RD_vector;
+  }
+  
+  void printPLRDF(){
+    std::cout << "cfd --- PLRDF " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+    plrdf_prime.printLevel0();
+    plrdf_prime.print();
+  }
+
  private:
-  //Self Added
-  std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
-  // std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
+  // //Self Added Start
+  Version* update_RDF_version_pre = nullptr;
+  Version* install_version_pre = nullptr;
+  PLRDF plrdf_prime;
+  
+  std::tuple<uint64_t, std::vector<pll>, std::vector<uint64_t>> flush_to_level0_RD_vector = std::make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
+  std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  compaction_moving_RD_vector;
+  std::tuple<int, std::vector<pll>, std::vector<uint64_t>> compaction_direct_delete_RD_vector = std::make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
+  
+  int flush_install_count_clr = 0;
+  int compaction_install_count_clr = 0;
+  int call_before_install_superversion_count = 0;
+  // std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
+  // // std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
+  // //Self Added End
 
 
   friend class ColumnFamilySet;
