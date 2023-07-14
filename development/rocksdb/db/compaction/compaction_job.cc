@@ -1305,7 +1305,12 @@ void CompactionJob::ProcessKeyValueCompaction(SubcompactionState* sub_compact) {
       "CompactionJob::ProcessKeyValueCompaction()::Processing",
       reinterpret_cast<void*>(
           const_cast<Compaction*>(sub_compact->compaction)));
-  
+
+
+  // Self Added Start
+  int out_lvl = sub_compact->compaction->output_level();
+  sub_compact->compaction->column_family_data()->split_start(out_lvl);
+  // Self Added End
 
   // Self Added Hint: Do Range Deletion Point Entries here
   // ProcessKeyValueCompaction() is the main loop of the compaction process.
@@ -1318,6 +1323,19 @@ void CompactionJob::ProcessKeyValueCompaction(SubcompactionState* sub_compact) {
     // returns true.
     assert(!end.has_value() || cfd->user_comparator()->Compare(
                                    c_iter->user_key(), end.value()) < 0);
+
+
+// if( stoll(c_iter->user_key().ToString()) > 18000000){
+// std::cout << "start_level = " << sub_compact->compaction->start_level() <<  " output_level = " << sub_compact->compaction->output_level() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; // DEBUG
+// std::cout << "c_iter->user_key(): " << c_iter->user_key().ToString() 
+//           << " end.has_value()  = " << end.has_value()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; // DEBUG
+// }
+
+  //Self Added Start
+  long long key_in = std::stoll(c_iter->user_key().ToString());
+  sub_compact->compaction->column_family_data()->split_range(key_in);
+  //Sefl Added End
+
 
     if (c_iter_stats.num_input_records % kRecordStatsEvery ==
         kRecordStatsEvery - 1) {
@@ -1345,6 +1363,12 @@ void CompactionJob::ProcessKeyValueCompaction(SubcompactionState* sub_compact) {
       break;
     }
   }
+
+  
+  // Self Added Start
+  sub_compact->compaction->column_family_data()->split_end();
+  // Self Added End
+
 
   sub_compact->compaction_job_stats.num_blobs_read =
       c_iter_stats.num_blobs_read;
@@ -1747,7 +1771,7 @@ Status CompactionJob::InstallCompactionResults(
     }
   }
 
-  // Self Added
+  // Self Added Start
   // Push RDF data down to `output_level`
   // std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>>();
   std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>();
@@ -1765,7 +1789,7 @@ if( (current_level+1) !=  compaction->output_level()){
 }
 
       // FIXME: FOR TESTING (remove the loop as well) 
-      std::cout << "Pushing file from Current Level: " << current_level << " output Level: " << compaction->output_level() << " with CompactionInputFiles: " << compaction->inputs(lvl) << std::endl << std::flush;
+      // std::cout << "Pushing file from Current Level: " << current_level << " output Level: " << compaction->output_level() << " with CompactionInputFiles: " << compaction->inputs(lvl) << std::endl << std::flush;
 
       std::vector<pll> smallest_largest_boundries{};
       std::vector<uint64_t> flie_numbers;
@@ -1773,12 +1797,12 @@ if( (current_level+1) !=  compaction->output_level()){
       {
         smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
         flie_numbers.push_back(file_meta->fd.GetNumber());
-        std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;  
-if(file_meta->smallest.user_key().ToString() == file_meta->largest.user_key().ToString() ){
-  std::cout << "eeee (compaction job) @file_meta   smallest_key == largest_key " << " "  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  // std::cerr << "eeee (compaction job) @file_meta   smallest_key == largest_key " << " fd = " << file_meta->fd.GetNumber() << " "  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  // exit(1);
-}
+//         std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;  
+// if(file_meta->smallest.user_key().ToString() == file_meta->largest.user_key().ToString() ){
+//   std::cout << "eeee (compaction job) @file_meta   smallest_key == largest_key " << " "  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+//   // std::cerr << "eeee (compaction job) @file_meta   smallest_key == largest_key " << " fd = " << file_meta->fd.GetNumber() << " "  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+//   // exit(1);
+// }
       }
 
       // file_meta_data_vectors->push_back(std::make_tuple(current_level, compaction->output_level(), compaction->inputs(lvl)));
@@ -1791,6 +1815,8 @@ if(file_meta->smallest.user_key().ToString() == file_meta->largest.user_key().To
   // // compaction->column_family_data()->GetSuperVersion()->current->shiftRDFToOutputLevel(file_meta_data_vectors);
   // // compaction->column_family_data()->current()->set_compaction_moving_RD_vector(*file_meta_data_vectors);
   compaction->column_family_data()->set_compaction_moving_RD_vector(*file_meta_data_vectors);
+  compaction->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
+  // Self Added End
 
 
 

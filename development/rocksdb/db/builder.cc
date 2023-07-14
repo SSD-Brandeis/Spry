@@ -74,7 +74,7 @@ Status BuildTable(
     BlobFileCompletionCallback* blob_callback, Version* version,
     uint64_t* num_input_entries, uint64_t* memtable_payload_bytes,
     uint64_t* memtable_garbage_bytes) {
-std::cout  << "BuildTable A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "BuildTable A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   assert((tboptions.column_family_id ==
           TablePropertiesCollectorFactory::Context::kUnknownColumnFamily) ==
          tboptions.column_family_name.empty());

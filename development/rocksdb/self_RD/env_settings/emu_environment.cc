@@ -13,12 +13,12 @@ EmuEnv* EmuEnv::instance = 0;
 EmuEnv::EmuEnv() 
 {
 
-  delete_persistence_latency = 2250; // in secs
-  level_delete_persistence_latency = new double[20]; // in secs
-  RR_level_last_file_selected = new int[20]; // !YBS-sep06-XX!
+  // delete_persistence_latency = 2250; // in secs
+  // level_delete_persistence_latency = new double[20]; // in secs
+  // RR_level_last_file_selected = new int[20]; // !YBS-sep06-XX!
 
-  flag = 0;
-  oldest_delete_file_timestamp = std::chrono::system_clock::now();
+  // flag = 0;
+  // oldest_delete_file_timestamp = std::chrono::system_clock::now();
 
   // First-Entry Flags (FEFs) 
   version_set_FEF = false; // !YBS-sep06-XX!
@@ -46,7 +46,9 @@ EmuEnv::EmuEnv()
 // Options hardcoded in code
   // Memory allocation options
     max_write_buffer_number = 2;
+    // max_write_buffer_number = 1; // <------------------------------------------------------------------
     memtable_factory = 3; // 1 for skiplist, 2 for vector, 3 for hash skiplist, 4 for hash linklist
+    // memtable_factory = 1; // 1 for skiplist, 2 for vector, 3 for hash skiplist, 4 for hash linklist
     target_file_size_base = buffer_size;
     level_compaction_dynamic_level_bytes = false;
     compaction_style = 1; // 1 for kCompactionStyleLevel, 2 for kCompactionStyleUniversal, 3 for kCompactionStyleFIFO, 4 for kCompactionStyleNone 
@@ -66,6 +68,7 @@ EmuEnv::EmuEnv()
     use_direct_io_for_flush_and_compaction = true;
     live_levels = 0; //!YBS-sep07-XX!
     num_levels = 10; // Maximum number of levels that a tree may have [RDB_default: 7]
+    // num_levels = 11; // <--------------------------------------------------------------
 
   // TableOptions
     no_block_cache = false; // TBC
@@ -175,62 +178,62 @@ EmuEnv* EmuEnv::getInstance()
   return instance;
 }
 
-// !YBS-sep06-XX
-void EmuEnv::AddNewLevel(int _level_count, EmuEnv* _env) {
-  _env->live_levels = _level_count;
-  if (_env->compaction_pri == 5) {
-    EmuEnv::ReSetLevelDeletePersistenceLatency(_level_count, _env);
-  }
-  else  std::cout << "                                                                                               " << std::endl; 
-} 
-// !END
+// // !YBS-sep06-XX
+// void EmuEnv::AddNewLevel(int _level_count, EmuEnv* _env) {
+//   _env->live_levels = _level_count;
+//   if (_env->compaction_pri == 5) {
+//     EmuEnv::ReSetLevelDeletePersistenceLatency(_level_count, _env);
+//   }
+//   else  std::cout << "                                                                                               " << std::endl; 
+// } 
+// // !END
 
-void EmuEnv::ReSetLevelDeletePersistenceLatency(int _level_count, EmuEnv* _env) { // reset dpl-per-level when there in a new level added
-    // note: last level does not have a del_per_lat (therefore, level id replaced by level-1)
-    // !YBS-sep06-XX
-      double x = _env->delete_persistence_latency * (_env->size_ratio - 1) / ( pow( _env->size_ratio, (_level_count - 1 ) ) - 1 );
-      std::cout << " [ DPL(s) = " << _env->delete_persistence_latency << " = ";
-      for (int i = 0; i < _level_count - 1; ++i) { // i=0 corresponds to level-1
-        _env->level_delete_persistence_latency[i] = x * pow( _env->size_ratio, i );
-        std::cout << _env->level_delete_persistence_latency[i] << " (L" << i << ") + ";
-      }
-      std::cout << "\b\b]";
-      if (_env->show_progress) 
-        std::cout << "                                                           " << std::endl;
-    // !END
-  }
+// void EmuEnv::ReSetLevelDeletePersistenceLatency(int _level_count, EmuEnv* _env) { // reset dpl-per-level when there in a new level added
+//     // note: last level does not have a del_per_lat (therefore, level id replaced by level-1)
+//     // !YBS-sep06-XX
+//       double x = _env->delete_persistence_latency * (_env->size_ratio - 1) / ( pow( _env->size_ratio, (_level_count - 1 ) ) - 1 );
+//       std::cout << " [ DPL(s) = " << _env->delete_persistence_latency << " = ";
+//       for (int i = 0; i < _level_count - 1; ++i) { // i=0 corresponds to level-1
+//         _env->level_delete_persistence_latency[i] = x * pow( _env->size_ratio, i );
+//         std::cout << _env->level_delete_persistence_latency[i] << " (L" << i << ") + ";
+//       }
+//       std::cout << "\b\b]";
+//       if (_env->show_progress) 
+//         std::cout << "                                                           " << std::endl;
+//     // !END
+//   }
 
-double EmuEnv::GetLevelDeletePersistenceLatency(int _level, EmuEnv* _env){
-  return _env->level_delete_persistence_latency[_level]; // index:_level-1 corresponds to level:_level-1
-}
+// double EmuEnv::GetLevelDeletePersistenceLatency(int _level, EmuEnv* _env){
+//   return _env->level_delete_persistence_latency[_level]; // index:_level-1 corresponds to level:_level-1
+// }
 
-void EmuEnv::DumpDeleteFileTimestamp(std::chrono::time_point<std::chrono::system_clock> delete_file_timestamp, uint64_t delete_file_id, EmuEnv* _env){
-  std::chrono::time_point<std::chrono::system_clock> current_timestamp = std::chrono::system_clock::now();
-  auto current_age = (std::chrono::duration<double, std::milli>(current_timestamp - current_timestamp)).count();
-  auto delete_file_age = (std::chrono::duration<double, std::milli>(current_timestamp - delete_file_timestamp)).count();
-  if (_env->verbosity >= 3)
-    std::cout << "current_age = " << current_age
-            << " & delete_file_age = " << delete_file_age << " & delete_file_no = " << delete_file_id; // << std::endl;
-  if (delete_file_age > current_age) {
-    _env->oldest_delete_file_timestamp = delete_file_timestamp;
-  }
-  _env->flag+=2;
-  if (_env->verbosity >= 3)
-    std::cout << " & flag = " << _env->flag << std::endl;
-}
+// void EmuEnv::DumpDeleteFileTimestamp(std::chrono::time_point<std::chrono::system_clock> delete_file_timestamp, uint64_t delete_file_id, EmuEnv* _env){
+//   std::chrono::time_point<std::chrono::system_clock> current_timestamp = std::chrono::system_clock::now();
+//   auto current_age = (std::chrono::duration<double, std::milli>(current_timestamp - current_timestamp)).count();
+//   auto delete_file_age = (std::chrono::duration<double, std::milli>(current_timestamp - delete_file_timestamp)).count();
+//   if (_env->verbosity >= 3)
+//     std::cout << "current_age = " << current_age
+//             << " & delete_file_age = " << delete_file_age << " & delete_file_no = " << delete_file_id; // << std::endl;
+//   if (delete_file_age > current_age) {
+//     _env->oldest_delete_file_timestamp = delete_file_timestamp;
+//   }
+//   _env->flag+=2;
+//   if (_env->verbosity >= 3)
+//     std::cout << " & flag = " << _env->flag << std::endl;
+// }
 
-std::chrono::time_point<std::chrono::system_clock> EmuEnv::GetDumpedDeleteFileTimestamp(){
-  EmuEnv* _env = EmuEnv::getInstance();
-  // std::cout << "returning timestamp = " << std::chrono::system_clock::to_time_t(_env->oldest_delete_file_timestamp) << std::endl;
-  std::chrono::time_point<std::chrono::system_clock> temp = _env->oldest_delete_file_timestamp;
-  --_env->flag;
-  if (_env->flag == 0)
-    _env->oldest_delete_file_timestamp = std::chrono::system_clock::now();
-  if (_env->flag < 0)
-    _env->flag =0;
-  // std::cout << " reducing flag : flag = " << _env->flag << std::endl;
-  return temp;
-}
+// std::chrono::time_point<std::chrono::system_clock> EmuEnv::GetDumpedDeleteFileTimestamp(){
+//   EmuEnv* _env = EmuEnv::getInstance();
+//   // std::cout << "returning timestamp = " << std::chrono::system_clock::to_time_t(_env->oldest_delete_file_timestamp) << std::endl;
+//   std::chrono::time_point<std::chrono::system_clock> temp = _env->oldest_delete_file_timestamp;
+//   --_env->flag;
+//   if (_env->flag == 0)
+//     _env->oldest_delete_file_timestamp = std::chrono::system_clock::now();
+//   if (_env->flag < 0)
+//     _env->flag =0;
+//   // std::cout << " reducing flag : flag = " << _env->flag << std::endl;
+//   return temp;
+// }
 
 void EmuEnv::PopulatingVector(uint64_t _file_id){
   EmuEnv* _env = EmuEnv::getInstance();
@@ -270,15 +273,15 @@ int EmuEnv::CheckingVector(uint64_t _file_id){
 
 }
 
-// !YBS-sep06-XX
-void EmuEnv::PrintRRIndices(EmuEnv* _env) {
-  std::cout << "RRIndexArray = [ ";
-  for (int i=0; i<20; i++) {
-    std::cout << _env->RR_level_last_file_selected[i] << " ";
-  }
-  std::cout << " ]" << std::endl;
-}
-// !END
+// // !YBS-sep06-XX
+// void EmuEnv::PrintRRIndices(EmuEnv* _env) {
+//   std::cout << "RRIndexArray = [ ";
+//   for (int i=0; i<20; i++) {
+//     std::cout << _env->RR_level_last_file_selected[i] << " ";
+//   }
+//   std::cout << " ]" << std::endl;
+// }
+// // !END
 
 
 
@@ -380,3 +383,4 @@ void collect_existing_entries(ExpEnv* _env, vector<string>& existing_keys ) {
   delete db;
 }
 */
+

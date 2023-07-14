@@ -218,7 +218,7 @@ void FlushJob::PickMemTable() {
 
 Status FlushJob::Run(LogsWithPrepTracker* prep_tracker, FileMetaData* file_meta,
                      bool* switched_to_mempurge) {
-std::cout  << "FlushJob::Run A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "FlushJob::Run A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   TEST_SYNC_POINT("FlushJob::Start");
   db_mutex_->AssertHeld();
   assert(pick_memtable_called);
@@ -290,27 +290,27 @@ std::cout  << "FlushJob::Run A2 " << __FILE__ << ":" << __LINE__ << " " << __FUN
     base_->Unref();
     s = Status::OK();
   } else {
-std::cout  << "FlushJob::Run A3 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "FlushJob::Run A3 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // This will release and re-acquire the mutex.
     s = WriteLevel0Table();
 //Self Added
-std::cout << __FILE__ << ":" << __LINE__ << " printRDFTest "  << std::endl;
-// std::cout << "(flush job) edit_->printRDFTest() " << std::endl;
-// edit_->printRDFTest();
-// std::cout << "(flush job) cfd_->current()->storage_info()->printRDFTest() " << std::endl;
-// cfd_->current()->storage_info()->printRDFTest();
+// std::cout << __FILE__ << ":" << __LINE__ << " printRDFTest "  << std::endl;
+// // std::cout << "(flush job) edit_->printRDFTest() " << std::endl;
+// // edit_->printRDFTest();
+// // std::cout << "(flush job) cfd_->current()->storage_info()->printRDFTest() " << std::endl;
+// // cfd_->current()->storage_info()->printRDFTest();
 
-// SuperVersion *sv = cfd_->GetThreadLocalSuperVersion(this);
-// sv->printRDFTest();
+// // SuperVersion *sv = cfd_->GetThreadLocalSuperVersion(this);
+// // sv->printRDFTest();
 
-// std::cout << "(flush job) cfd_->current()->printRDFTest() " << std::endl;
-// cfd_->current()->printRDFTest();
-// std::cout << "(flush job) cfd_->current()->printRDFTest2() " << std::endl;
-// cfd_->current()->printRDFTest2();
-// // std::cout << "(flush job) cfd_->printRDFTest() " << std::endl;
-// // cfd_->printRDFTest();
-// // std::cout << "(flush job) cfd_->printRDFTest2() " << std::endl;
-// // cfd_->printRDFTest2();
+// // std::cout << "(flush job) cfd_->current()->printRDFTest() " << std::endl;
+// // cfd_->current()->printRDFTest();
+// // std::cout << "(flush job) cfd_->current()->printRDFTest2() " << std::endl;
+// // cfd_->current()->printRDFTest2();
+// // // std::cout << "(flush job) cfd_->printRDFTest() " << std::endl;
+// // // cfd_->printRDFTest();
+// // // std::cout << "(flush job) cfd_->printRDFTest2() " << std::endl;
+// // // cfd_->printRDFTest2();
   }
 
   if (s.ok() && cfd_->IsDropped()) {
@@ -324,7 +324,7 @@ std::cout << __FILE__ << ":" << __LINE__ << " printRDFTest "  << std::endl;
   if (!s.ok()) {
 std::cout  << "FlushJob::Run A4 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;    cfd_->imm()->RollbackMemtableFlush(mems_, meta_.fd.GetNumber());
   } else if (write_manifest_) {
-std::cout  << "FlushJob::Run A5 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "FlushJob::Run A5 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     TEST_SYNC_POINT("FlushJob::InstallResults");
     // Replace immutable memtable with the generated Table
     s = cfd_->imm()->TryInstallMemtableFlushResults(
@@ -857,7 +857,7 @@ bool FlushJob::MemPurgeDecider(double threshold) {
 }
 
 Status FlushJob::WriteLevel0Table() {
-std::cout  << "FlushJob::WriteLevel0Table A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "FlushJob::WriteLevel0Table A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   AutoThreadOperationStageUpdater stage_updater(
       ThreadStatus::STAGE_FLUSH_WRITE_L0);
   db_mutex_->AssertHeld();
@@ -908,7 +908,7 @@ std::cout  << "FlushJob::WriteLevel0Table A1 " << __FILE__ << ":" << __LINE__ <<
           cfd_->GetName().c_str(), job_context_->job_id, m->GetNextLogNumber());
       memtables.push_back(m->NewIterator(ro, &arena));
 
-//Self added start
+//Self Added Start
 // cfd_->current()->printAllFileRanges();
       
 // cfd_->current()->setRDFTest2(cfd_->current()->getRDFTest());
@@ -923,7 +923,7 @@ if (range_del_iter2 != nullptr) {
 
   for (range_del_iter2->SeekToFirst(); range_del_iter2->Valid(); range_del_iter2->Next()) {
     auto tombstone = range_del_iter2->Tombstone();
-    std::cout << "flush tombstone " << tombstone.start_key_.ToString() << " " << tombstone.end_key_.ToString() << " " << __FILE__ << ":" << __LINE__ << std::endl;
+    // std::cout << "flush tombstone " << tombstone.start_key_.ToString() << " " << tombstone.end_key_.ToString() << " " << __FILE__ << ":" << __LINE__ << std::endl;
   
     // // edit_->storeRange2RDFTest(tombstone);
     // // cfd_->current()->storage_info()->storeRange2RDFTest(tombstone);
@@ -955,6 +955,14 @@ vector<uint64_t> exist_level0_file_nums = cfd_->current()->getLevelFileNumbers(0
 // std::pair<uint64_t, std::vector<pll>>
 auto level0_RD_vector = std::make_tuple(meta_.fd.GetNumber(), range_delete_list_in, exist_level0_file_nums);
 cfd_->set_flush_to_level0_RD_vector(level0_RD_vector);
+cfd_->set_split__flush_to_level0_RD_vector(level0_RD_vector);
+
+if(cfd_->get_flush_in_file_num() >= meta_.fd.GetNumber()){
+  std::cerr << "flush in file num is not in increasing order" << std::endl
+            << " flush in file num = " << cfd_->get_flush_in_file_num()
+            << " meta_.fd.GetNumber() = " << meta_.fd.GetNumber() << std::endl;
+}
+cfd_->set_flush_in_file_num(meta_.fd.GetNumber());
 
 // rdfilter::PLRDF::getRDFilter()->printLevel0();
 // rdfilter::PLRDF::getRDFilter()->print();
@@ -971,6 +979,7 @@ cfd_->set_flush_to_level0_RD_vector(level0_RD_vector);
 // }
 // cfd_->current()->inc_flush_install_count();
 // cfd_->inc_flush_install_count();
+//Self Added End
 
 
 
@@ -1054,7 +1063,7 @@ cfd_->set_flush_to_level0_RD_vector(level0_RD_vector);
       const SequenceNumber job_snapshot_seq =
           job_context_->GetJobSnapshotSequence();
       const ReadOptions read_options(Env::IOActivity::kFlush);
-std::cout  << "FlushJob::WriteLevel0Table A2 @BuildTable " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "FlushJob::WriteLevel0Table A2 @BuildTable " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       s = BuildTable(dbname_, versions_, db_options_, tboptions, file_options_,
                      read_options, cfd_->table_cache(), iter.get(),
                      std::move(range_del_iters), &meta_, &blob_file_additions,
@@ -1115,13 +1124,13 @@ std::cout  << "FlushJob::WriteLevel0Table A2 @BuildTable " << __FILE__ << ":" <<
 
   if (s.ok() && has_output) {
     TEST_SYNC_POINT("DBImpl::FlushJob:SSTFileCreated");
-std::cout  << "FlushJob::WriteLevel0Table A2 @SSTFileCreated " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "FlushJob::WriteLevel0Table A2 @SSTFileCreated " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // if we have more than 1 background thread, then we cannot
     // insert files directly into higher levels because some other
     // threads could be concurrently producing compacted files for
     // that key range.
     // Add file to L0
-std::cout  << "FlushJob::WriteLevel0Table A2 @AddingMetaDataFile " << "(meta_.smallest, meta_.largest) = " << meta_.smallest.user_key().ToString()  << "," <<  meta_.largest.user_key().ToString() << std::endl;
+// std::cout  << "FlushJob::WriteLevel0Table A2 @AddingMetaDataFile " << "(meta_.smallest, meta_.largest) = " << meta_.smallest.user_key().ToString()  << "," <<  meta_.largest.user_key().ToString() << std::endl;
     edit_->AddFile(0 /* level */, meta_.fd.GetNumber(), meta_.fd.GetPathId(),
                    meta_.fd.GetFileSize(), meta_.smallest, meta_.largest,
                    meta_.fd.smallest_seqno, meta_.fd.largest_seqno,
@@ -1136,8 +1145,8 @@ std::cout  << "FlushJob::WriteLevel0Table A2 @AddingMetaDataFile " << "(meta_.sm
   // Piggyback FlushJobInfo on the first first flushed memtable.
   mems_[0]->SetFlushJobInfo(GetFlushJobInfo());
 
-  //Self Added
-  cfd_->current()->printAllFileRanges();
+  // //Self Added
+  // cfd_->current()->printAllFileRanges();
 
 
   // Note that here we treat flush as level 0 compaction in internal stats

@@ -1052,12 +1052,36 @@ class Version {
     std::cout <<  std::setfill('-') << std::setw(60) << " END: Print All File Ranges " << std::setfill('-') << std::setw(60) << "" << std::endl;
   }
 
+  void printAllLevelSize(){
+    std::cout << std::endl << std::endl;
+    std::cout << std::setfill('-') << std::setw(60) << " START: Print All Level Size " << std::setfill('-') << std::setw(60) << "" << std::endl;
+    int l = storage_info_.num_levels();
+    for(int i = 0; i < l; i++){
+      auto files = storage_info_.LevelFiles(i);
+      std::cout << "Level : " << i << " Size : " << files.size() << std::endl;
+    }
+    std::cout <<  std::setfill('-') << std::setw(60) << " END: Print All Level Size " << std::setfill('-') << std::setw(60) << "" << std::endl;
+  }
+
   std::vector<uint64_t> getLevelFileNumbers(int lvl){
     std::vector<uint64_t> file_numbers;
     for(auto &file : storage_info_.LevelFiles(lvl)){
       file_numbers.push_back(file->fd.GetNumber());
     }
     return file_numbers;
+  }
+
+  uint getLevelSize(int lvl){
+    if(lvl >= storage_info_.num_levels()){return 0;}
+    return storage_info_.LevelFiles(lvl).size();
+  }
+
+  uint getTotalNumberOfSSTFiles(){
+    uint total = 0;
+    for(int i = 0; i < storage_info_.num_levels(); i++){
+      total += storage_info_.LevelFiles(i).size();
+    }
+    return total;
   }
 
   // //Self Added
@@ -1092,26 +1116,95 @@ class Version {
     plrdf = plrdf_in;
   }
 
+  void setSplitPLRDF(PLRDF &split_plrdf_in){
+    split_plrdf = split_plrdf_in;
+  }
+  
+  void setTopLevelRDF(PLRDF &top_level_rdf_in){
+    top_level_rdf = top_level_rdf_in;
+  }
+
 
   bool isAliveAfterRDFilter(uint level, long long key){
-    std::string rdf_chosed_name = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
-    if(rdf_chosed_name == "NONE"){return true;}
-    else if(rdf_chosed_name == "PLRDF"){
-      // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
-      // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
-      return (this->plrdf).isEntryAlive(level, key);
-    }else{
-      std::cerr << "RDF Type Chosed (" << rdf_chosed_name << ") is not supported yet" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-      exit(1);
-    }
-    // per_level_RDF.isEntryAlive(level, key);
-    return true;
+    // std::string rdf_chosed_name = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
+    // if(rdf_chosed_name == "NONE"){return true;}
+    // else if(rdf_chosed_name == "PLRDF"){
+    //   // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
+    //   // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
+    //   return (this->plrdf).isEntryAlive(level, key);
+    // }else if(rdf_chosed_name == "SPLIT_PLRDF"){
+    //   // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
+    //   // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
+    //   return (this->split_plrdf).isEntryAlive(level, key);
+    // }else{
+    //   std::cerr << "RDF Type Chosed (" << rdf_chosed_name << ") is not supported yet" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    //   exit(1);
+    // }
+    return (this->plrdf).isEntryAlive(level, key);
+    // // per_level_RDF.isEntryAlive(level, key);
+    // return true;
+  }
+  
+  bool isAliveAfterSplitRDFilter(uint level, long long key){
+    // std::string rdf_chosed_name = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
+    // if(rdf_chosed_name == "NONE"){return true;}
+    // else if(rdf_chosed_name == "PLRDF"){
+    //   // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
+    //   // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
+    //   return (this->plrdf).isEntryAlive(level, key);
+    // }else if(rdf_chosed_name == "SPLIT_PLRDF"){
+    //   // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
+    //   // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
+    //   return (this->split_plrdf).isEntryAlive(level, key);
+    // }else{
+    //   std::cerr << "RDF Type Chosed (" << rdf_chosed_name << ") is not supported yet" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    //   exit(1);
+    // }
+    return (this->split_plrdf).isEntryAlive(level, key);
+    // // per_level_RDF.isEntryAlive(level, key);
+    // return true;
+  }
+  
+  bool isAliveAfterTopLevelRDFilter(long long key){
+    return (this->top_level_rdf).isEntryAlive(1, key);
   }
 
   void printPLRDF(){
     plrdf.printLevel0();
     plrdf.print();
   }
+
+  void printSplitPLRDF(){
+    split_plrdf.printLevel0();
+    split_plrdf.print();
+  }
+
+
+  void printTopLevelRDF(){
+    top_level_rdf.printLevel0();
+    top_level_rdf.print();
+  }
+
+  int getPLRDFNumberOfTotalRanges(){
+    return plrdf.getNumberOfTotalRanges();
+  }
+  int getSplitPLRDFNumberOfTotalRanges(){
+    return split_plrdf.getNumberOfTotalRanges();
+  }
+  int getTopLevelRDFNumberOfTotalRanges(){
+    return top_level_rdf.getNumberOfTotalRanges();
+  }
+
+  int getPLRDFNumberOfTotalLevels(){
+    return plrdf.getNumberOfTotalLevels();
+  }
+  int getSplitPLRDFNumberOfTotalLevels(){
+    return split_plrdf.getNumberOfTotalLevels();
+  }
+  int getTopLevelRDFNumberOfTotalLevels(){
+    return top_level_rdf.getNumberOfTotalLevels();
+  }
+
 
   // bool getIsRDFUpdated(){return is_RDF_updated;}
   
@@ -1273,7 +1366,8 @@ class Version {
  private:
   //Self Added start
   // rdfilter::PLRDF *per_level_RDF = rdfilter::PLRDF::getRDFilter();
-  PLRDF plrdf;
+  PLRDF plrdf, split_plrdf;
+  PLRDF top_level_rdf;
   // std::vector<uint64_t file_num, std::vector<pll> &range_delete_list_in, std::vector<uint64_t> exist_level0_file_nums>
   std::pair<uint64_t, std::vector<pll>> flush_to_level0_RD_vector;
   std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  compaction_moving_RD_vector;

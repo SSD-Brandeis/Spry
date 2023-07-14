@@ -58,7 +58,7 @@ namespace checking {
     static SystemVerifier* system_verifier;
 
     // WorkloadRecorder();
-    const static int EXPERIMENT_REPETITION_TIMES = 2;
+    const static int EXPERIMENT_REPETITION_TIMES = 3;
 
     static void init(){
       if(system_verifier == NULL){
@@ -100,8 +100,13 @@ namespace checking {
       return filteredByRDFCount;
     }
 
-    // std::unordered_map<int, std::string> RDFTypes({{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}});
-    std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}};
+    // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}};
+    // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}};
+    // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "NONE"}};
+    // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}, {3, "NONE"}};
+    std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}, {3, "TOP_LEVEL_RDF"}, {4, "NONE2"}};
+    // std::unordered_map<int, std::string> RDFTypes = {{0, "TOP_LEVEL_RDF"}};
+
     int RDFType_chosed = 0;
         
     uint getNumberOfRDFTypes(){
