@@ -1375,7 +1375,7 @@ Params parse_input(int argc, char *argvx[]){
   return params;
 }
 
-int gen_workload(Params &params){
+void gen_workload(Params &params){
 
 
   int entry_size = params.entry_size;
@@ -1403,7 +1403,9 @@ int gen_workload(Params &params){
 // cout << "rd_count*selectivity = " << rd_count*selectivity << endl; 
   assert(1.0*rd_count*selectivity <= 1.0);
   workload_generator.generateWorkload((long)num_inserts, (long)entry_size, (double) correlation, 
-          (long)rd_count, (double) selectivity, (long) number_Of_point_in_the_beginning, (string) workload_file_name);    
+          (long)rd_count, (double) selectivity, (long) number_Of_point_in_the_beginning, (string) workload_file_name,   
+          (int) checking::SystemVerifier::getKeySize()
+          );    
 
   std::cout << "Workload Generated!" << std::endl;
 }
