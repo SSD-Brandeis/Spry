@@ -433,6 +433,12 @@ Status TableCache::Get(
     CreateRowCacheKeyPrefix(options, fd, k, get_context, row_cache_key);
     done = GetFromRowCache(user_key, row_cache_key, row_cache_key.Size(),
                            get_context);
+
+//Self Added
+// if(done == true){
+//   std::cout << " OK in Cache Get " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// }
+
     if (!done) {
       row_cache_entry = &row_cache_entry_buffer;
     }
@@ -451,6 +457,10 @@ Status TableCache::Get(
                     max_file_size_for_l0_meta_pin, file_meta.temperature);
       if (s.ok()) {
         t = cache_.Value(handle);
+// //Self Added
+// if(s.ok() == true){
+//   std::cout << " OK in FindTable Get " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// }
       }
     }
     SequenceNumber* max_covering_tombstone_seq =
@@ -475,11 +485,13 @@ Status TableCache::Get(
 //Self Added
 checking::SystemVerifier *system_verifier = checking::SystemVerifier::getSystemVerifier(); 
 system_verifier->increaseDiskAccessCount();
+// std::cout << " OK in disk Get " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
       get_context->SetReplayLog(row_cache_entry);  // nullptr if no cache.
       s = t->Get(options, k, get_context, prefix_extractor.get(), skip_filters);
       get_context->SetReplayLog(nullptr);
     } else if (options.read_tier == kBlockCacheTier && s.IsIncomplete()) {
+// std::cout << " MarkKeyMayExist in disk Get " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       // Couldn't find Table in cache but treat as kFound if no_io set
       get_context->MarkKeyMayExist();
       s = Status::OK();

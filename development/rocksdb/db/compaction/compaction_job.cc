@@ -720,10 +720,13 @@ Status CompactionJob::Run() {
         if (file_idx >= files_output.size()) {
           break;
         }
-//Self Added
-std::cout << "(compaction job) output file files_output.size() = " << files_output.size() << " file_idx = " << file_idx << std::endl;
-std::cout << "(compaction job) output file files_output[file_idx]->meta.smallest.user_key().ToString() " << (files_output[file_idx]->meta).smallest.user_key().ToString() << std::endl;
-std::cout << "(compaction job) output file files_output[file_idx]->meta.largest.user_key().ToString() " << (files_output[file_idx]->meta).largest.user_key().ToString() << std::endl;
+// //Self Added
+// std::cout << "(compaction job) output file files_output.size() = " << files_output.size() << " file_idx = " << file_idx  << " "  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << "(compaction job) output file files_output[file_idx]->meta.smallest.user_key().ToString() " << (files_output[file_idx]->meta).smallest.user_key().ToString()  << " "  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << "(compaction job) output file files_output[file_idx]->meta.largest.user_key().ToString() " << (files_output[file_idx]->meta).largest.user_key().ToString()  << " "  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// if((files_output[file_idx]->meta).smallest.user_key().ToString() == (files_output[file_idx]->meta).largest.user_key().ToString() ){
+//   std::cout << "eeee (compaction job) @files_output[file_idx]->meta   smallest_key == largest_key " << " "  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// }
         // Verify that the table is usable
         // We set for_compaction to false and don't
         // OptimizeForCompactionTableRead here because this is a special case
@@ -836,7 +839,10 @@ Status CompactionJob::Install(const MutableCFOptions& mutable_cf_options) {
   assert(cfd);
 
 // std::cout  << "CompactionJob::Install A2 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout  << "CompactionJob::Install A1 " << "(level, output_level = )" << compact_->compaction->level() << "," <<  compact_->compaction->output_level() << std::endl;
+// std::cout  << "CompactionJob::Install A1 " << "(level, output_level = )" << compact_->compaction->level() << "," <<  compact_->compaction->output_level() << " "  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+
+
   int output_level = compact_->compaction->output_level();
   cfd->internal_stats()->AddCompactionStats(output_level, thread_pri_,
                                             compaction_stats_);
@@ -1748,8 +1754,16 @@ Status CompactionJob::InstallCompactionResults(
   for (size_t lvl = 0; lvl < compaction->num_input_levels(); lvl++)
   {
     int current_level = compaction->level(lvl);
+
     if (current_level != compaction->output_level()){
-      
+
+if(current_level ==  compaction->output_level()){
+  std::cerr << "Error: input level == output level (" << current_level << ")" << std::endl;
+}
+if( (current_level+1) !=  compaction->output_level()){
+  std::cerr << "Error: (input level + 1) != output level" << std::endl;
+}
+
       // FIXME: FOR TESTING (remove the loop as well) 
       std::cout << "Pushing file from Current Level: " << current_level << " output Level: " << compaction->output_level() << " with CompactionInputFiles: " << compaction->inputs(lvl) << std::endl << std::flush;
 
@@ -1760,6 +1774,11 @@ Status CompactionJob::InstallCompactionResults(
         smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
         flie_numbers.push_back(file_meta->fd.GetNumber());
         std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;  
+if(file_meta->smallest.user_key().ToString() == file_meta->largest.user_key().ToString() ){
+  std::cout << "eeee (compaction job) @file_meta   smallest_key == largest_key " << " "  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // std::cerr << "eeee (compaction job) @file_meta   smallest_key == largest_key " << " fd = " << file_meta->fd.GetNumber() << " "  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // exit(1);
+}
       }
 
       // file_meta_data_vectors->push_back(std::make_tuple(current_level, compaction->output_level(), compaction->inputs(lvl)));

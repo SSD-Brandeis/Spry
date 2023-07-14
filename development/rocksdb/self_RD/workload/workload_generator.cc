@@ -92,15 +92,17 @@ cout << "insertBeforeRangeDelete " << insertBeforeRangeDelete << endl;
             (long)_env->rd_count, (double) selectivity, (long) numberOfPointInTheBeginning, (string) workloadFilename);    
 */
 
+
+
 int WorkloadGenerator::generateWorkload(long long insert_count, long entry_size, int correlation, 
-         long range_delete_count, double selectivity, int numberOfInsertInTheBeginning, string workloadFilename) {
+         long range_delete_count, double selectivity, int numberOfInsertInTheBeginning, string workloadFilename, int key_size) {
   
   ofstream workload_file;
   workload_file.open(workloadFilename);
 
   set<long> existingKeys;
 
-  //srand(time(0));
+  //srand(time(0));[]
   string sortkey, deletekey;
   long i_insert = 0;
   long i_delete = 0;
@@ -122,6 +124,9 @@ int WorkloadGenerator::generateWorkload(long long insert_count, long entry_size,
       deletekey = std::to_string(i_insert + 1);
 
       long value_size = entry_size - 2*sizeof(long);
+      if(key_size == -1){
+        value_size = entry_size - key_size;
+      }
       string value = generateValue(value_size);
       // workload_file << "I " << sortkey << " " << deletekey << " " << value << std::endl;
       workload_file << "I " << sortkey << " " << value << std::endl;
@@ -176,6 +181,9 @@ int WorkloadGenerator::generateWorkload(long long insert_count, long entry_size,
 
       long value_size = entry_size - 2*sizeof(long);
       string value = generateValue(value_size);
+      if(key_size == -1){
+        value_size = entry_size - key_size;
+      }
       // workload_file << "I " << sortkey << " " << deletekey << " " << value << std::endl;
       workload_file << "I " << sortkey << " " << value << std::endl;
       existingKeys.insert(stol(sortkey));
@@ -195,8 +203,6 @@ int WorkloadGenerator::generateWorkload(long long insert_count, long entry_size,
 
 
 
-
-
 string WorkloadGenerator::generateKey() {
   unsigned long randomness = rand() %  KEY_DOMAIN_SIZE;
   WorkloadGenerator::inserted_keys.push_back(randomness);
@@ -208,4 +214,6 @@ string WorkloadGenerator::generateValue(long value_size) {
   string value = std::string(value_size, 'a' + (rand() % 26));
   return value;
 }
+
+
 

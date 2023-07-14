@@ -350,8 +350,7 @@ void init(DB **db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_o
   op.target_file_size_base = op.write_buffer_size; // -> same as buffer size
   op.target_file_size_multiplier = 1;  // Same files size across levels
   op.max_write_buffer_number = 1;      // 1 buffer in-memory
-  op.max_bytes_for_level_base =
-      op.write_buffer_size;               // same as write buffer size
+  op.max_bytes_for_level_base = op.write_buffer_size; // same as write buffer size
   op.max_bytes_for_level_multiplier = 2;  // T-ratio
   op.statistics = CreateDBStatistics();
   op.create_if_missing = true;
@@ -380,6 +379,10 @@ void init(DB **db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_o
     // op.allow_concurrent_memtable_write = false;
   }
 
+
+  write_op.low_pri = true;
+
+  
 
   setNewBlockCacheForReading(op);
   // setNoBlockCacheForReading(op);
@@ -480,6 +483,7 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 
 
     system_verifier->resetDiskAccessCount();
+    system_verifier->resetFilteredByRDFCount();
     system_verifier->setRDFTypeChosed(t);
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     count = 0;
@@ -577,7 +581,8 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
     }  
     // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e3 << " (ms) " << std::endl << std::endl;
-  
+    testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
+
     testing_logger.output_statistics(testing_result_file);
 
     // long long total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")  
@@ -612,8 +617,8 @@ std::cout << "!!! Testing On historic-existing Keys " << std::endl;
     testing_logger.reset();
 
 
-
     system_verifier->resetDiskAccessCount();
+    system_verifier->resetFilteredByRDFCount();
     system_verifier->setRDFTypeChosed(t);
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     count = 0;
@@ -712,6 +717,7 @@ std::cout << "!!! Testing On historic-existing Keys " << std::endl;
     }  
     // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e3 << " (ms) " << std::endl << std::endl;
+    testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
   
     testing_logger.output_statistics(testing_result_file);
     
@@ -755,6 +761,7 @@ std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
 
 
     system_verifier->resetDiskAccessCount();
+    system_verifier->resetFilteredByRDFCount();
     system_verifier->setRDFTypeChosed(t);
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     count = 0;
@@ -853,6 +860,7 @@ std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
     }  
     // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e3 << " (ms) " << std::endl << std::endl;
+    testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
   
     testing_logger.output_statistics(testing_result_file);
     
@@ -893,6 +901,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 
 
     system_verifier->resetDiskAccessCount();
+    system_verifier->resetFilteredByRDFCount();
     system_verifier->setRDFTypeChosed(t);
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     count = 0;
@@ -991,6 +1000,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
     }  
     // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e3 << " (ms) " << std::endl << std::endl;
+    testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
   
     testing_logger.output_statistics(testing_result_file);
     
@@ -1160,6 +1170,8 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
 
   std::cout << "!!! After sleep." << std::endl;
 
+
+  db->printAllFileRanges();
 
 
   printStats(db, op);

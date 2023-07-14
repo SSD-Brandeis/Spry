@@ -49,6 +49,11 @@ namespace checking {
   private:
     static const int KEY_SIZE = 12;
 
+
+
+    int disk_access_count = 0;
+    int filteredByRDFCount = 0;
+
   public:
     static SystemVerifier* system_verifier;
 
@@ -70,7 +75,6 @@ namespace checking {
       return KEY_SIZE;
     }
 
-    int disk_access_count = 0;
 
     void resetDiskAccessCount(){
       disk_access_count = 0;
@@ -84,6 +88,17 @@ namespace checking {
       return disk_access_count;
     }
 
+    void increaseFilteredByRDFCount(){
+      filteredByRDFCount++;
+    }
+
+    void resetFilteredByRDFCount(){
+      filteredByRDFCount = 0;
+    }
+
+    int getFilteredByRDFCount(){
+      return filteredByRDFCount;
+    }
 
     // std::unordered_map<int, std::string> RDFTypes({{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}});
     std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}};

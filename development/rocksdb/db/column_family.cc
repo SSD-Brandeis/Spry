@@ -104,9 +104,14 @@ void PLRDF::addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll>
   auto& rdList = range_delete_list;
   auto& rdList_in = range_delete_list_in;
 
-std::cout << "rdList" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
-for(auto it = rdList.begin(); it != rdList.end(); it++){
-std::cout << "aaaa " << it->first << " " << it->second << std::endl;
+// std::cout << "rdList" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
+// for(auto it = rdList.begin(); it != rdList.end(); it++){
+// std::cout << "aaaa " << it->first << " " << it->second << std::endl;
+// }
+// std::cout << std::endl << std::endl;
+std::cout << "rdList_in" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
+for(auto it = rdList_in.begin(); it != rdList_in.end(); it++){
+std::cout << "aaaa2 " << it->first << " " << it->second << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 }
 std::cout << std::endl << std::endl;
 

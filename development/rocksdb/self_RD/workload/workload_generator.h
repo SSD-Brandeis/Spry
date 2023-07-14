@@ -23,7 +23,7 @@ public:
 
   static int generateWorkload(long long insert_count, long entry_size, int correlation, long range_delete_count);
   static int generateWorkload(long long insert_count, long entry_size, int correlation, long range_delete_count,
-                               double selectivity, int numberOfInsertIntheBeginning, string workloadFilename);
+                               double selectivity, int numberOfInsertIntheBeginning, string workloadFilename, int key_size = -1);
   static string generateKey();
   static string generateValue(long value_size);
   

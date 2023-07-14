@@ -2347,7 +2347,10 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
                 internal_comparator());
   FdWithKeyRange* f = fp.GetNextFile();
 
+
   //Self added
+  // bool rdf_debug_flag = false;
+  auto f2 = f;
   int fp_cur_level = fp.GetCurrentLevel();
   // bool is_alive_after_cur_level = cfd_->GetSuperVersion()->current->isAliveAfterRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
   bool is_alive_after_cur_level = isAliveAfterRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
@@ -2383,6 +2386,7 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
                                 fp.GetHitFileLevel());
     }
     if (!status->ok()) {
+// std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       if (db_statistics_ != nullptr) {
         get_context.ReportCounters();
       }
@@ -2403,6 +2407,8 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
         // TODO: update per-level perfcontext user_key_return_count for kMerge
         break;
       case GetContext::kFound:
+// std::cout << "kFound !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
         if (fp.GetHitFileLevel() == 0) {
           RecordTick(db_statistics_, GET_HIT_L0);
         } else if (fp.GetHitFileLevel() == 1) {
@@ -2414,7 +2420,7 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
         PERF_COUNTER_BY_LEVEL_ADD(user_key_return_count, 1,
                                   fp.GetHitFileLevel());
 
-// std::cout << "@Get A Disk Access (ikey= " << ikey.ToString() << ", user_key = " << user_key.ToString()  << ")  " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << "@Get (ikey= " << ikey.ToString() << ", user_key = " << user_key.ToString()  << ")  " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 // std::cout << "@Get " << " is_blob_index " << is_blob_index << " do_merge " << do_merge << " value " << value << " columns " << columns  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         //is blob index is set to false in the beginning
         if (is_blob_index && do_merge && (value || columns)) {
@@ -2435,13 +2441,15 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
           constexpr uint64_t* bytes_read = nullptr;
 
           //Self Added
-// std::cout << "@Get A Disk Access (ikey= " << ikey.ToString() << ", user_key = " << user_key.ToString()  << ")  " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << "@Get (ikey= " << ikey.ToString() << ", user_key = " << user_key.ToString()  << ")  " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 // system_verifier->increaseDiskAccessCount();
-          //get blob file on disk (whete key-value are stored)
+          //get blob file  (whete key-value are stored)
           *status = GetBlob(read_options, get_context.ukey_to_get_blob_value(),
                             blob_index, prefetch_buffer, &result, bytes_read);
           if (!status->ok()) {
+// std::cout << "GetBlob !status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
             if (status->IsIncomplete()) {
+// std::cout << "GetBlob status->IsIncomplete()  MarkKeyMayExist !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
               get_context.MarkKeyMayExist();
             }
             return;
@@ -2457,45 +2465,79 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
 
         return;
       case GetContext::kDeleted:
+// std::cout << "kDeleted !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         // Use empty error message for speed
         *status = Status::NotFound();
         return;
       case GetContext::kCorrupt:
+// std::cout << "kCorrupt !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         *status = Status::Corruption("corrupted key for ", user_key);
         return;
       case GetContext::kUnexpectedBlobIndex:
+// std::cout << "kUnexpectedBlobIndex !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         ROCKS_LOG_ERROR(info_log_, "Encounter unexpected blob index.");
         *status = Status::NotSupported(
             "Encounter unexpected blob index. Please open DB with "
             "ROCKSDB_NAMESPACE::blob_db::BlobDB instead.");
         return;
       case GetContext::kMergeOperatorFailed:
+// std::cout << "kMergeOperatorFailed !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         *status = Status::Corruption(Status::SubCode::kMergeOperatorFailed);
         return;
     }
-    f = fp.GetNextFile();
 
-    //Self added
+
+
+    //Self added begin
+    if(fp.GetCurrentLevel() < fp_cur_level){
+std::cerr << "(pre) fp_cur_level = " << fp_cur_level << " (cur) fp.GetCurrentLevel() = " << fp.GetCurrentLevel() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString() <<   " (pre) f2->largest_key.ToString() = " << f2->largest_key.ToString() << std::endl
+          << "(cur) f->smallest_key.ToString() = " << f->smallest_key.ToString() << " (cur) f->largest_key.ToString() = " << f->largest_key.ToString() << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+
     if(fp_cur_level != fp.GetCurrentLevel()){
       if(is_alive_after_cur_level == false){
         *status = Status::NotFound();
-std::cout << "### filtered by RDF, level = " << fp_cur_level  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-        return;
+// rdf_debug_flag = true;
+// std::cout << "fp_cur_level = " << fp_cur_level << " fp.GetCurrentLevel() " << fp.GetCurrentLevel() << std::endl;
+// this->plrdf.print();
+// this->printAllFileRanges();
+// std::cout << "### filtered by RDF, level = " << fp_cur_level  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+
+        // return;
       }
-      fp_cur_level = fp.GetCurrentLevel();
       is_alive_after_cur_level = isAliveAfterRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
       // is_alive_after_cur_level = cfd_->GetSuperVersion()->current->isAliveAfterRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
     }
+    // if(rdf_debug_flag == true){
+    //   std::cout << "fp_cur_level = " << fp_cur_level << " fp.GetCurrentLevel() " << fp.GetCurrentLevel() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    //   std::cout << "(cur) f->smallest_key.ToString() = " << f->smallest_key.ToString() << " (cur) f->largest_key.ToString() = " << f->largest_key.ToString() << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    //   std::cout << "f->file_metadata->unique_id = " << f->file_metadata->unique_id[0] << " " << f->file_metadata->unique_id[1] << " "  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // }
+    f2 = f;
+    fp_cur_level = fp.GetCurrentLevel();
+    //Self added end
+
+
+
+    f = fp.GetNextFile();
   }
+  //Self added end
+
+
+
   if (db_statistics_ != nullptr) {
     get_context.ReportCounters();
   }
   if (GetContext::kMerge == get_context.State()) {
     if (!do_merge) {
+std::cout << "!do_merge Status::OK !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       *status = Status::OK();
       return;
     }
     if (!merge_operator_) {
+std::cout << "!merge_operator_ Status::InvalidArgument !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       *status = Status::InvalidArgument(
           "merge_operator is not properly initialized.");
       return;
@@ -2511,6 +2553,7 @@ std::cout << "### filtered by RDF, level = " << fp_cur_level  << " key = "  << u
           &result, info_log_, db_statistics_, clock_,
           /* result_operand */ nullptr, /* update_num_ops_stats */ true,
           /* op_failure_scope */ nullptr);
+std::cout << "MergeHelper::TimedFullMerge !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       if (status->ok()) {
         if (LIKELY(value != nullptr)) {
           *(value->GetSelf()) = std::move(result);
@@ -2525,6 +2568,7 @@ std::cout << "### filtered by RDF, level = " << fp_cur_level  << " key = "  << u
     if (key_exists != nullptr) {
       *key_exists = false;
     }
+std::cout << "NotFound !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     *status = Status::NotFound();  // Use an empty error message for speed
   }
 }
