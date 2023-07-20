@@ -908,7 +908,7 @@ std::cout  << "FlushJob::WriteLevel0Table A1 " << __FILE__ << ":" << __LINE__ <<
           cfd_->GetName().c_str(), job_context_->job_id, m->GetNextLogNumber());
       memtables.push_back(m->NewIterator(ro, &arena));
 
-//Self added start
+//Self Added Start
 // cfd_->current()->printAllFileRanges();
       
 // cfd_->current()->setRDFTest2(cfd_->current()->getRDFTest());
@@ -955,6 +955,14 @@ vector<uint64_t> exist_level0_file_nums = cfd_->current()->getLevelFileNumbers(0
 // std::pair<uint64_t, std::vector<pll>>
 auto level0_RD_vector = std::make_tuple(meta_.fd.GetNumber(), range_delete_list_in, exist_level0_file_nums);
 cfd_->set_flush_to_level0_RD_vector(level0_RD_vector);
+cfd_->set_split__flush_to_level0_RD_vector(level0_RD_vector);
+
+if(cfd_->get_flush_in_file_num() >= meta_.fd.GetNumber()){
+  std::cerr << "flush in file num is not in increasing order" << std::endl
+            << " flush in file num = " << cfd_->get_flush_in_file_num()
+            << " meta_.fd.GetNumber() = " << meta_.fd.GetNumber() << std::endl;
+}
+cfd_->set_flush_in_file_num(meta_.fd.GetNumber());
 
 // rdfilter::PLRDF::getRDFilter()->printLevel0();
 // rdfilter::PLRDF::getRDFilter()->print();
@@ -971,6 +979,7 @@ cfd_->set_flush_to_level0_RD_vector(level0_RD_vector);
 // }
 // cfd_->current()->inc_flush_install_count();
 // cfd_->inc_flush_install_count();
+//Self Added End
 
 
 

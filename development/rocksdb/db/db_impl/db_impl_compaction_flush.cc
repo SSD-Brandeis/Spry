@@ -13,6 +13,8 @@
 
 #include <iostream>
 
+#include <chrono>
+
 #include "db/builder.h"
 #include "db/db_impl/db_impl.h"
 #include "db/error_handler.h"
@@ -162,6 +164,8 @@ Status DBImpl::FlushMemTableToOutputFile(
 // std::cout  << "FlushMemTableToOutputFile A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 // std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
 
+
+
   mutex_.AssertHeld();
   assert(cfd);
   assert(cfd->imm());
@@ -169,6 +173,34 @@ Status DBImpl::FlushMemTableToOutputFile(
   assert(cfd->imm()->IsFlushPending());
   assert(versions_);
   assert(versions_->GetColumnFamilySet());
+
+
+
+  //Self Added Start
+  // mutex_.Lock();
+  // if(!compaction_queue_.empty()) {
+  //   break;
+  // }
+  SuperVersion* sv = cfd->GetSuperVersion();
+  uint level0_size = sv->current->getLevelSize(0);
+  // self_flush_mutex_.Lock();
+  // while(level0_size > 0) {
+  //   std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  //   sv = cfd->GetSuperVersion();
+  //   level0_size = sv->current->getLevelSize(0);
+  // }
+  // self_flush_mutex_.Unlock();
+
+  if(level0_size > 0) {
+    std::cerr << "Warning: level 0 size is not 0 when flushing, level0_size = " << level0_size << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  }
+  // mutex_.Unlock();
+  //Self Added End
+
+
+
+
+  
   // If there are more than one column families, we need to make sure that
   // all the log files except the most recent one are synced. Otherwise if
   // the host crashes after flushing and before WAL is persistent, the
@@ -306,9 +338,11 @@ if(cfd->current()->get_flush_install_count() > 0){
 }
 cfd->current()->inc_flush_install_count();
 cfd->inc_flush_install_count();
+cfd->inc_split__flush_install_count();
 
 //shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
-cfd->updateRDF2NewVersion(1); // 1 for flush, 2 for compaction
+bool split_flag = false;
+cfd->updateRDF2NewVersion(1, split_flag); // 1 for flush, 2 for compaction
 
     InstallSuperVersionAndScheduleWork(cfd, superversion_context,
                                        mutable_cf_options);
@@ -2920,8 +2954,9 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 }
 
 void DBImpl::BGWorkFlush(void* arg) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+
   FlushThreadArg fta = *(reinterpret_cast<FlushThreadArg*>(arg));
   delete reinterpret_cast<FlushThreadArg*>(arg);
 
@@ -3016,8 +3051,8 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 Status DBImpl::BackgroundFlush(bool* made_progress, JobContext* job_context,
                                LogBuffer* log_buffer, FlushReason* reason,
                                Env::Priority thread_pri) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   mutex_.AssertHeld();
 
   Status status;
@@ -3085,6 +3120,7 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
           bg_job_limits.max_compactions, bg_flush_scheduled_,
           bg_compaction_scheduled_);
     }
+
     status = FlushMemTablesToOutputFiles(bg_flush_args, made_progress,
                                          job_context, log_buffer, thread_pri);
     TEST_SYNC_POINT("DBImpl::BackgroundFlush:BeforeFlush");
@@ -3110,8 +3146,50 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 }
 
 void DBImpl::BackgroundCallFlush(Env::Priority thread_pri) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+
+
+  // //Self Added Start  
+  // auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  //     DefaultColumnFamily());
+  // auto cfd = cfh->cfd();
+  // SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  // // mutex_.Unlock();
+  // // mutex_.Lock();
+  // // if(!compaction_queue_.empty()) {
+  // if(sv->current->getLevelSize(0) > (uint)0) {
+  //   std::cerr << " Log: Flush Waiting. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  //   // mutex_.Unlock();
+  //   // See if there's more work to be done
+  //   // MaybeScheduleFlushOrCompaction();
+  //   // atomic_flush_install_cv_.SignalAll();
+  //   // bg_cv_.SignalAll();
+  //   std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  //   sv = GetAndRefSuperVersion(cfd);
+  //   // return;
+  // }
+  // // mutex_.Unlock();
+  // //Self Added End xxx
+
+   //Self Added Start
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+      DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  // uint level0_size = sv->current->getLevelSize(0);
+  self_single_flush_mutex_.lock();
+  // while(this->existFlushJob() == true) {
+  while(sv->current->getLevelSize(0) > (uint)0) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    sv = cfd->GetSuperVersion();
+    // level0_size = sv->current->getLevelSize(0);
+  }
+  // self_single_flush_mutex_.unlock();
+  //Self Added End
+
+
+
   bool made_progress = false;
   JobContext job_context(next_job_id_.fetch_add(1), true);
 
@@ -3126,13 +3204,49 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
     assert(bg_flush_scheduled_);
     num_running_flushes_++;
 
+
+  //Self Added Start
+  self_single_flush_mutex_.unlock();
+  //Self Added End
+
+
+
     std::unique_ptr<std::list<uint64_t>::iterator>
         pending_outputs_inserted_elem(new std::list<uint64_t>::iterator(
             CaptureCurrentFileNumberInPendingOutputs()));
     FlushReason reason;
 
+
+  //   //Self Added Start  
+  //   Status s;
+  //   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  //       DefaultColumnFamily());
+  //   auto cfd = cfh->cfd();
+  //   SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  //   // mutex_.Unlock();
+  //   // mutex_.Lock();
+  //   // if(!compaction_queue_.empty()) {
+  //   if(sv->current->getLevelSize(0) > (uint)0) {
+  //     // std::cerr << " Log: Jump out of Flush. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  //     // mutex_.Unlock();
+  //     // // See if there's more work to be done
+  //     // MaybeScheduleFlushOrCompaction();
+  //     // atomic_flush_install_cv_.SignalAll();
+  //     // bg_cv_.SignalAll();
+  //     // return;
+  //     s = Status::ShutdownInProgress();
+  //   }else{
+  //     s = BackgroundFlush(&made_progress, &job_context, &log_buffer,
+  //                                   &reason, thread_pri);
+  //   }
+  //   // mutex_.Unlock();
+  // //Self Added End xxx
+
+  
+
     Status s = BackgroundFlush(&made_progress, &job_context, &log_buffer,
                                &reason, thread_pri);
+
     if (!s.ok() && !s.IsShutdownInProgress() && !s.IsColumnFamilyDropped() &&
         reason != FlushReason::kErrorRecovery) {
       // Wait a little bit before retrying background flush in
@@ -3568,6 +3682,7 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
     // rdfilter::PLRDF::getRDFilter()->deleteRDFAssociatedWithFilesAtCurrentLevel(&file_meta_data_vectors);
     // c->column_family_data()->current()->set_compaction_direct_delete_RD_vector(file_meta_data_vectors);
     c->column_family_data()->set_compaction_direct_delete_RD_vector(file_meta_data_vectors);
+    c->column_family_data()->set_split__compaction_direct_delete_RD_vector(file_meta_data_vectors);
 
     // c->column_family_data()->GetSuperVersion()->current->deleteRDFAssociatedWithFilesAtCurrentLevel(&file_meta_data_vectors);
     //Self Added
@@ -3581,6 +3696,7 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
     c->column_family_data()->current()->inc_compaction_install_count();
     // c->column_family_data()->GetSuperVersion()->current->inc_compaction_install_count();
     c->column_family_data()->inc_compaction_install_count();
+    c->column_family_data()->inc_split__compaction_install_count();
 
 
 
@@ -3594,7 +3710,8 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 std::cout << "@@ BackgroundCompaction A @InstallSuperVersionAndScheduleWork " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 //Self Added
 //shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
-c->column_family_data()->updateRDF2NewVersion(3); // 1 for flush, 2 for compaction, 3 for compaction direcly deleted flie
+bool split_flag = false;
+c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 for compaction, 3 for compaction direcly deleted flie
     InstallSuperVersionAndScheduleWork(c->column_family_data(),
                                        &job_context->superversion_contexts[0],
                                        *c->mutable_cf_options());
@@ -3688,10 +3805,11 @@ c->column_family_data()->updateRDF2NewVersion(3); // 1 for flush, 2 for compacti
     
     //rdfilter::PLRDF::getRDFilter()->shiftRDFToOutputLevel(file_meta_data_vectors);
     c->column_family_data()->set_compaction_moving_RD_vector(*file_meta_data_vectors);
+    c->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
 
     // c->column_family_data()->GetSuperVersion()->current->shiftRDFToOutputLevel(file_meta_data_vectors);
     
-    //Self Added
+    //Self Added Start
     if(c->column_family_data()->current()->get_compaction_install_count() > 0){
       std::cout << "compaction write to version (current_) happens more than once. times = " 
                 << c->column_family_data()->current()->get_compaction_install_count() << __FILE__ << ":" << __LINE__ << std::endl;
@@ -3702,7 +3820,8 @@ c->column_family_data()->updateRDF2NewVersion(3); // 1 for flush, 2 for compacti
     c->column_family_data()->current()->inc_compaction_install_count();
     // c->column_family_data()->GetSuperVersion()->current->inc_compaction_install_count();
     c->column_family_data()->inc_compaction_install_count();
-
+    c->column_family_data()->inc_split__compaction_install_count();
+    //Self Added End
 
 
 
@@ -3713,9 +3832,11 @@ c->column_family_data()->updateRDF2NewVersion(3); // 1 for flush, 2 for compacti
     // Use latest MutableCFOptions
   
 std::cout << "@@ BackgroundCompaction A @InstallSuperVersionAndScheduleWork " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//Self Added
+//Self Added Start
 //shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
-c->column_family_data()->updateRDF2NewVersion(2); // 1 for flush, 2 for compaction, 3 for compaction direcly deleted flie
+bool split_flag = false;
+c->column_family_data()->updateRDF2NewVersion(2, split_flag); // 1 for flush, 2 for compaction, 3 for compaction direcly deleted flie
+//Self Added End
     InstallSuperVersionAndScheduleWork(c->column_family_data(),
                                        &job_context->superversion_contexts[0],
                                        *c->mutable_cf_options());
@@ -3808,12 +3929,13 @@ c->column_family_data()->updateRDF2NewVersion(2); // 1 for flush, 2 for compacti
     TEST_SYNC_POINT_CALLBACK(
         "DBImpl::BackgroundCompaction:NonTrivial:BeforeRun", nullptr);
     // Should handle error?
+    mutex_.Lock(); // Self Added: Move up to here ### <----------------
     compaction_job.Run().PermitUncheckedError();
     TEST_SYNC_POINT("DBImpl::BackgroundCompaction:NonTrivial:AfterRun");
-    mutex_.Lock();
+    // mutex_.Lock();
 
     // std::cout << "[Compaction]: Performing Scheduled Compaction .. " << std::endl;
-    //Self Added
+    //Self Added Start
     if(c->column_family_data()->current()->get_compaction_install_count() > 0){
       std::cout << "compaction write to version (current_) happens more than once. times = " 
                 << c->column_family_data()->current()->get_compaction_install_count() << __FILE__ << ":" << __LINE__ << std::endl;
@@ -3824,7 +3946,8 @@ c->column_family_data()->updateRDF2NewVersion(2); // 1 for flush, 2 for compacti
     c->column_family_data()->current()->inc_compaction_install_count();
     // c->column_family_data()->GetSuperVersion()->current->inc_compaction_install_count();
     c->column_family_data()->inc_compaction_install_count();
-
+    c->column_family_data()->inc_split__compaction_install_count();
+    //Self Added End
 
 
 
@@ -3832,9 +3955,11 @@ c->column_family_data()->updateRDF2NewVersion(2); // 1 for flush, 2 for compacti
     io_s = compaction_job.io_status();
     if (status.ok()) {
 std::cout << "@@ BackgroundCompaction A @InstallSuperVersionAndScheduleWork " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//Self Added
+//Self Added Start
 //shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
-c->column_family_data()->updateRDF2NewVersion(2); // 1 for flush, 2 for compaction
+bool split_flag = true;
+c->column_family_data()->updateRDF2NewVersion(2, split_flag); // 1 for flush, 2 for compaction
+//Self Added End
       InstallSuperVersionAndScheduleWork(c->column_family_data(),
                                          &job_context->superversion_contexts[0],
                                          *c->mutable_cf_options());

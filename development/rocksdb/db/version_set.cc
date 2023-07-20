@@ -2348,13 +2348,45 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
   FdWithKeyRange* f = fp.GetNextFile();
 
 
-  //Self added
+  //Self Added Start
   // bool rdf_debug_flag = false;
   auto f2 = f;
-  int fp_cur_level = fp.GetCurrentLevel();
+  int fp_cur_level = fp.GetCurrentLevel();       // next file's level
+  int fp_hit_file_level = fp.GetHitFileLevel();  // current file's level
   // bool is_alive_after_cur_level = cfd_->GetSuperVersion()->current->isAliveAfterRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
-  bool is_alive_after_cur_level = isAliveAfterRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
+  string rdf_type = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
+  //PLRDF
+  bool is_alive_after_cur_level = isAliveAfterRDFilter(fp.GetCurrentLevel(), std::stoll(user_key.ToString()));
+  // if(is_alive_after_cur_level == false){
+  //   std::cout << "$$$ (PLRDF) is_alive_after_cur_level = false " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // }
+  //Split PLRDF 
+  bool split__is_alive_after_cur_level = isAliveAfterSplitRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
+  bool split__is_alive_after_hit_file_level = isAliveAfterSplitRDFilter(fp_hit_file_level, std::stoll(user_key.ToString()));
+  // if(rdf_type == "SPLIT_PLRDF" && split__is_alive_after_cur_level == false){
+  if(rdf_type == "SPLIT_PLRDF" && split__is_alive_after_hit_file_level == false){
+    *status = Status::NotFound();
+    checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+// this->split_plrdf.print();
+// std::cout << "### filtered by SPLIT RDF, level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    return;
+  }
+  //TOP Level RDF
+  else if(rdf_type == "TOP_LEVEL_RDF"){
+    if(isAliveAfterTopLevelRDFilter(std::stoll(user_key.ToString())) == false){
+      *status = Status::NotFound();
+      checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+
+// this->top_level_rdf.print();
+// std::cout << "### filtered by TOP Level RDF, level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      return;
+    }
+  }else if(rdf_type != "NONE" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF"){
+        std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+                  << "rdf_type = " << rdf_type << std::endl;
+  }
   // checking::SystemVerifier *system_verifier = checking::SystemVerifier::getSystemVerifier(); 
+  //Self Added End
 
 // std::cout  << "A2 @Go through overlapped File loop " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   while (f != nullptr) {
@@ -2408,6 +2440,7 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
         break;
       case GetContext::kFound:
 // std::cout << "kFound !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << " level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString();
 
         if (fp.GetHitFileLevel() == 0) {
           RecordTick(db_statistics_, GET_HIT_L0);
@@ -2441,8 +2474,9 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
           constexpr uint64_t* bytes_read = nullptr;
 
           //Self Added
-// std::cout << "@Get (ikey= " << ikey.ToString() << ", user_key = " << user_key.ToString()  << ")  " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// system_verifier->increaseDiskAccessCount();
+// std::cout << "??? get blob file " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// // std::cout << "@Get (ikey= " << ikey.ToString() << ", user_key = " << user_key.ToString()  << ")  " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// // system_verifier->increaseDiskAccessCount();
           //get blob file  (whete key-value are stored)
           *status = GetBlob(read_options, get_context.ukey_to_get_blob_value(),
                             blob_index, prefetch_buffer, &result, bytes_read);
@@ -2466,6 +2500,7 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
         return;
       case GetContext::kDeleted:
 // std::cout << "kDeleted !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << " level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString();
         // Use empty error message for speed
         *status = Status::NotFound();
         return;
@@ -2488,7 +2523,7 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
 
 
 
-    //Self added begin
+    //Self Added Begin
     if(fp.GetCurrentLevel() < fp_cur_level){
 std::cerr << "(pre) fp_cur_level = " << fp_cur_level << " (cur) fp.GetCurrentLevel() = " << fp.GetCurrentLevel() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString() <<   " (pre) f2->largest_key.ToString() = " << f2->largest_key.ToString() << std::endl
@@ -2496,7 +2531,8 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
     }
 
     if(fp_cur_level != fp.GetCurrentLevel()){
-      if(is_alive_after_cur_level == false){
+      //PLRDF
+      if(rdf_type == "PLRDF" && is_alive_after_cur_level == false){
         *status = Status::NotFound();
 // rdf_debug_flag = true;
 // std::cout << "fp_cur_level = " << fp_cur_level << " fp.GetCurrentLevel() " << fp.GetCurrentLevel() << std::endl;
@@ -2505,10 +2541,32 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
 // std::cout << "### filtered by RDF, level = " << fp_cur_level  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
 
-        // return;
+        return;
+      }else if(rdf_type != "NONE" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF"){
+        std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+                  << "rdf_type = " << rdf_type << std::endl;
       }
       is_alive_after_cur_level = isAliveAfterRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
-      // is_alive_after_cur_level = cfd_->GetSuperVersion()->current->isAliveAfterRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
+      // // is_alive_after_cur_level = cfd_->GetSuperVersion()->current->isAliveAfterRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
+      // if(is_alive_after_cur_level == false){
+      //   std::cout << "$$$ (PLRDF) is_alive_after_cur_level = false " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      //   std::cout << " level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString();
+      // }
+
+
+      //Split PLRDF
+      split__is_alive_after_cur_level = isAliveAfterSplitRDFilter(fp.GetCurrentLevel(), std::stoll(user_key.ToString()));
+
+      if(rdf_type == "SPLIT_PLRDF" && split__is_alive_after_cur_level == false){
+        *status = Status::NotFound();
+        checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+// this->split_plrdf.print();
+// std::cout << "### filtered by SPLIT RDF, level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        return;
+      }else if(rdf_type != "NONE" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF"){
+        std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+                  << "rdf_type = " << rdf_type << std::endl;
+      }
     }
     // if(rdf_debug_flag == true){
     //   std::cout << "fp_cur_level = " << fp_cur_level << " fp.GetCurrentLevel() " << fp.GetCurrentLevel() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -2517,7 +2575,7 @@ checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount();
     // }
     f2 = f;
     fp_cur_level = fp.GetCurrentLevel();
-    //Self added end
+    //Self Added End
 
 
 
@@ -2532,12 +2590,12 @@ checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount();
   }
   if (GetContext::kMerge == get_context.State()) {
     if (!do_merge) {
-std::cout << "!do_merge Status::OK !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << "!do_merge Status::OK !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       *status = Status::OK();
       return;
     }
     if (!merge_operator_) {
-std::cout << "!merge_operator_ Status::InvalidArgument !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << "!merge_operator_ Status::InvalidArgument !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       *status = Status::InvalidArgument(
           "merge_operator is not properly initialized.");
       return;
@@ -2553,7 +2611,7 @@ std::cout << "!merge_operator_ Status::InvalidArgument !! " << " " << __FILE__ <
           &result, info_log_, db_statistics_, clock_,
           /* result_operand */ nullptr, /* update_num_ops_stats */ true,
           /* op_failure_scope */ nullptr);
-std::cout << "MergeHelper::TimedFullMerge !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << "MergeHelper::TimedFullMerge !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       if (status->ok()) {
         if (LIKELY(value != nullptr)) {
           *(value->GetSelf()) = std::move(result);
@@ -2568,7 +2626,8 @@ std::cout << "MergeHelper::TimedFullMerge !! " << " " << __FILE__ << ":" << __LI
     if (key_exists != nullptr) {
       *key_exists = false;
     }
-std::cout << "NotFound !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << "NotFound !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << " level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString() << std::endl;
     *status = Status::NotFound();  // Use an empty error message for speed
   }
 }

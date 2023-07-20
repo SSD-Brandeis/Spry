@@ -329,10 +329,14 @@ class DB {
   // implementation does cleanup in the destructor
   virtual Status Close() { return Status::NotSupported(); }
 
-  //self added
+  //self Added Start
   virtual Status printAllFileRanges() { return Status::NotSupported(); }
   virtual Status printPLRDF() { return Status::NotSupported(); }
-
+  virtual uint getFlushQueueSize() { return -1; }
+  virtual uint getCompactionQueueSize() { return -1; }
+  virtual bool existFlushJob() {return false;};
+  virtual bool existCompactionJob() {return false;};
+  //self Added End
 
   // ListColumnFamilies will open the DB specified by argument name
   // and return the list of all column families in that DB

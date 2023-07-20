@@ -343,7 +343,7 @@ void init(DB **db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_o
 
   // op.write_buffer_size = 1024 * 256; // -> 256 kB    
   // op.write_buffer_size = 1024 * 8; // -> 256 kB    
-  op.write_buffer_size = 32; // -> 256 kB    
+  op.write_buffer_size = 256 * 1024; // -> 256 kB    
   // op.max_background_jobs = 1;
   op.max_background_jobs = max_background_jobs; // -> no background jobs, really???
   op.level0_file_num_compaction_trigger = 1;
@@ -351,10 +351,13 @@ void init(DB **db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_o
   op.target_file_size_multiplier = 1;  // Same files size across levels
   op.max_write_buffer_number = 1;      // 1 buffer in-memory
   op.max_bytes_for_level_base = op.write_buffer_size; // same as write buffer size
-  op.max_bytes_for_level_multiplier = 2;  // T-ratio
+  op.max_bytes_for_level_multiplier = 5;  // T-ratio
+  op.num_levels = 11;
   op.statistics = CreateDBStatistics();
   op.create_if_missing = true;
   // op.write_buffer_size = 8 * 1024 * 1024;
+  op.soft_pending_compaction_bytes_limit = 0;
+  op.hard_pending_compaction_bytes_limit = 0;
 
   {
     op.memtable_factory =
@@ -384,8 +387,8 @@ void init(DB **db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_o
 
   
 
-  setNewBlockCacheForReading(op);
-  // setNoBlockCacheForReading(op);
+  // setNewBlockCacheForReading(op);
+  setNoBlockCacheForReading(op);
 
   clearCache(op);
 
@@ -458,7 +461,7 @@ void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOp
   const long long N_repetitions = checking::SystemVerifier::EXPERIMENT_REPETITION_TIMES;
   testing_result_file << "N_repetitions = " << N_repetitions << std::endl << std::endl;
   // long long num_RDF_types = getNumberOfRDFTypes();
-  long long count = 0;
+  long long disk_access_count = 0;
 
   auto start_pq = std::chrono::high_resolution_clock::now();
   auto stop_pq = std::chrono::high_resolution_clock::now();
@@ -482,11 +485,11 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 
 
 
-    system_verifier->resetDiskAccessCount();
+    // system_verifier->resetDiskAccessCount();
     system_verifier->resetFilteredByRDFCount();
     system_verifier->setRDFTypeChosed(t);
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
-    count = 0;
+    disk_access_count = 0;
     point_query_time = 0;
     start_pq = std::chrono::high_resolution_clock::now();
     rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
@@ -526,7 +529,8 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
       db = *db_ptr2;
       // db->SetOptions({{"disable_auto_compactions", "true"}});
       // db->printAllFileRanges();
-      db->printPLRDF();
+      // db->printPLRDF();    
+      system_verifier->resetDiskAccessCount();
       testing_logger.set_to_start(op);
 
   // system_verifier->setRDFTypeChosed(1);
@@ -549,7 +553,7 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
           testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
         }
       }
-      count += system_verifier->getDiskAccessCount();
+      disk_access_count += system_verifier->getDiskAccessCount();
       stop_pq = std::chrono::high_resolution_clock::now();
       duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
       point_query_time += duration_pq.count();
@@ -571,7 +575,7 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 //     testing_result_file << "read_bytes_start = " << std::fixed << std::setprecision(2) << read_bytes_start << std::endl;
 //     testing_result_file << "read_bytes_end = " << std::fixed << std::setprecision(2) << read_bytes_end << std::endl;
 // testing_result_file << i << " -----" << std::endl;    
-
+      testing_result_file << " Disk Access count = " << system_verifier->getDiskAccessCount() << std::endl;
       testing_logger.set_to_end(op, testing_result_file);
       // if(i == 0){
       //   testing_logger.reset();
@@ -579,9 +583,10 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 
   // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
     }  
-    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e3 << " (ms) " << std::endl << std::endl;
     testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
+    testing_result_file << "number of PQ = " << system_verifier->getAllExistingKeys().size() << std::endl;
 
     testing_logger.output_statistics(testing_result_file);
 
@@ -621,7 +626,7 @@ std::cout << "!!! Testing On historic-existing Keys " << std::endl;
     system_verifier->resetFilteredByRDFCount();
     system_verifier->setRDFTypeChosed(t);
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
-    count = 0;
+    disk_access_count = 0;
     point_query_time = 0;
     start_pq = std::chrono::high_resolution_clock::now();
     rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
@@ -661,6 +666,7 @@ std::cout << "!!! Testing On historic-existing Keys " << std::endl;
       db = *db_ptr2;
       // db->SetOptions({{"disable_auto_compactions", "true"}});
       // db->printAllFileRanges();
+      system_verifier->resetDiskAccessCount();
       testing_logger.set_to_start(op);
 
 
@@ -685,7 +691,7 @@ std::cout << "!!! Testing On historic-existing Keys " << std::endl;
           testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
         }
       }
-      count += system_verifier->getDiskAccessCount();
+      disk_access_count += system_verifier->getDiskAccessCount();
       stop_pq = std::chrono::high_resolution_clock::now();
       duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
       point_query_time += duration_pq.count();
@@ -708,6 +714,7 @@ std::cout << "!!! Testing On historic-existing Keys " << std::endl;
 //     testing_result_file << "read_bytes_end = " << std::fixed << std::setprecision(2) << read_bytes_end << std::endl;
 // testing_result_file << i << " -----" << std::endl;    
 
+      testing_result_file << " Disk Access count = " << system_verifier->getDiskAccessCount() << std::endl;
       testing_logger.set_to_end(op, testing_result_file);
       // if(i == 0){
       //   testing_logger.reset();
@@ -715,9 +722,10 @@ std::cout << "!!! Testing On historic-existing Keys " << std::endl;
 
   // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
     }  
-    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e3 << " (ms) " << std::endl << std::endl;
     testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
+    testing_result_file << "number of PQ = " << system_verifier->getHistoricExistingKeys().size() << std::endl;
   
     testing_logger.output_statistics(testing_result_file);
     
@@ -764,7 +772,7 @@ std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
     system_verifier->resetFilteredByRDFCount();
     system_verifier->setRDFTypeChosed(t);
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
-    count = 0;
+    disk_access_count = 0;
     point_query_time = 0;
     start_pq = std::chrono::high_resolution_clock::now();
     rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
@@ -804,6 +812,7 @@ std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
       db = *db_ptr2;
       // db->SetOptions({{"disable_auto_compactions", "true"}});
       // db->printAllFileRanges();
+      system_verifier->resetDiskAccessCount();
       testing_logger.set_to_start(op);
 
 
@@ -828,7 +837,7 @@ std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
           testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
         }
       }
-      count += system_verifier->getDiskAccessCount();
+      disk_access_count += system_verifier->getDiskAccessCount();
       stop_pq = std::chrono::high_resolution_clock::now();
       duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
       point_query_time += duration_pq.count();
@@ -851,6 +860,7 @@ std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
 //     testing_result_file << "read_bytes_end = " << std::fixed << std::setprecision(2) << read_bytes_end << std::endl;
 // testing_result_file << i << " -----" << std::endl;    
 
+      testing_result_file << " Disk Access count = " << system_verifier->getDiskAccessCount() << std::endl;
       testing_logger.set_to_end(op, testing_result_file);
       // if(i == 0){
       //   testing_logger.reset();
@@ -858,9 +868,10 @@ std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
 
   // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
     }  
-    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e3 << " (ms) " << std::endl << std::endl;
     testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
+    testing_result_file << "number of PQ = " << system_verifier->getCurrentlyDeletedKeys().size() << std::endl;
   
     testing_logger.output_statistics(testing_result_file);
     
@@ -904,7 +915,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
     system_verifier->resetFilteredByRDFCount();
     system_verifier->setRDFTypeChosed(t);
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
-    count = 0;
+    disk_access_count = 0;
     point_query_time = 0;
     start_pq = std::chrono::high_resolution_clock::now();
     rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
@@ -944,6 +955,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
       db = *db_ptr2;
       // db->SetOptions({{"disable_auto_compactions", "true"}});
       // db->printAllFileRanges();
+      system_verifier->resetDiskAccessCount();
       testing_logger.set_to_start(op);
 
 
@@ -968,7 +980,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
           testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
         }
       }
-      count += system_verifier->getDiskAccessCount();
+      disk_access_count += system_verifier->getDiskAccessCount();
       stop_pq = std::chrono::high_resolution_clock::now();
       duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
       point_query_time += duration_pq.count();
@@ -991,6 +1003,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 //     testing_result_file << "read_bytes_end = " << std::fixed << std::setprecision(2) << read_bytes_end << std::endl;
 // testing_result_file << i << " -----" << std::endl;    
 
+      testing_result_file << " Disk Access count = " << system_verifier->getDiskAccessCount() << std::endl;
       testing_logger.set_to_end(op, testing_result_file);
       // if(i == 0){
       //   testing_logger.reset();
@@ -998,9 +1011,10 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 
   // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
     }  
-    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/N_repetitions << std::endl;
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e3 << " (ms) " << std::endl << std::endl;
     testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
+    testing_result_file << "number of PQ = " << system_verifier->getCurrentlyNonInsertedKeys().size() << std::endl;
   
     testing_logger.output_statistics(testing_result_file);
     
@@ -1061,6 +1075,19 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
   int KEY_SIZE = checking::SystemVerifier::getKeySize();
 
   while (!workload_file.eof()) {
+
+    // while(db->getFlushQueueSize() > 0 || db->getCompactionQueueSize() > 0) {
+    //   std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    // }
+    // while(db->getFlushQueueSize() > 0) {
+    // while(db->existFlushJob() == true){
+    //   std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    // }
+    while(db->existFlushJob() == true || db->existCompactionJob() == true){
+      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+
     char instruction;
     long long key, start_key, end_key;
     std::string type;
@@ -1121,8 +1148,17 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
       case 'D':  // delete
         workload_file >> type >> start_key >> end_key;
         if (type == "Range") {
-
+          
+          FlushOptions flush_opts;
+          s = db->Flush(flush_opts);
+          while(db->existFlushJob() == true){
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+          }
           system_verifier->rangeDelete(start_key, end_key);
+          while(db->existFlushJob() == true){
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+          }
+          s = db->Flush(flush_opts);
 
 
           ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
@@ -1134,7 +1170,7 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
           counter++;
         } else {
           std::cerr << "ERROR: Case match NOT found !!" << std::endl;
-        std::cerr << "instruction = " << instruction << std::endl;
+          std::cerr << "instruction = " << instruction << std::endl;
           std:cerr << "type = " << type << std::endl;
           std::cerr << "start_key = " << start_key << std::endl;
           std::cerr << "end_key = " << end_key << std::endl;
@@ -1157,6 +1193,9 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
 
   std::cout << "!!! Final Flush. (Manually Flush) " << std::endl;
 
+  while(db->existFlushJob() == true){
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
   
   FlushOptions flush_opts;
   s = db->Flush(flush_opts);
@@ -1410,7 +1449,75 @@ void gen_workload(Params &params){
   std::cout << "Workload Generated!" << std::endl;
 }
 
+
+
+// void speed_test(){
+//   std::string speed_test_result_file_name = "speed_test.txt";
+//   std::string speed_test_result_file_name2 = "speed_test2.txt";
+//   std::ofstream speed_test_result_file;
+//   std::ofstream speed_test_result_file2;
+//   speed_test_result_file.open(speed_test_result_file_name);
+//   speed_test_result_file.open(speed_test_result_file_name2);
+//   for(int i = 0; i < 256 * 1000; i++){
+//     speed_test_result_file << i << " ";
+//   }
+//   speed_test_result_file << std::endl;
+//   speed_test_result_file2 << std::endl;
+//   speed_test_result_file.close();
+//   speed_test_result_file2.close();
+
+  
+
+//   std::ifstream speed_test_result_file1;
+//   std::ifstream speed_test_result_file12;
+//   // testing_result_file.open("testing_result.txt");
+
+//   std::string num = "-1";
+//   auto start_pq = std::chrono::high_resolution_clock::now();
+//   speed_test_result_file1.open(speed_test_result_file_name);
+//   // speed_test_result_file2.open(speed_test_result_file_name2);
+//   while(speed_test_result_file1 >> num){
+//     if(num == "1"){break;}
+//     continue;
+//   }
+
+
+
+//   auto stop_pq = std::chrono::high_resolution_clock::now();
+//   auto duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+//   unsigned long long point_query_time = duration_pq.count();
+//   std::cout << "done " << num << std::endl;
+//   std::cout << "time elapsed = " << point_query_time << std::endl;
+//   speed_test_result_file1.close();
+//   speed_test_result_file12.close();
+
+
+
+//   vector<int> v;
+//   for(int i = 0; i < 1000000; i++){
+//     v.push_back(i);
+//   }
+
+//   start_pq = std::chrono::high_resolution_clock::now();
+//   // for(int i = 0; i < 1000000; i++){
+//   //   std::binary_search(v.begin(), v.end(), i);
+//   // }    
+//   // for(int i = 0; i < 1000000; i++){
+//   //   std::lower_bound(v.begin(), v.end(), i);
+//   // }    
+//   // std::binary_search(v.begin(), v.end(), 100000);
+//   std::lower_bound(v.begin(), v.end(), 100000);
+//   stop_pq = std::chrono::high_resolution_clock::now();
+//   duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+//   point_query_time = duration_pq.count();
+//   std::cout << "done " << 1000000 << std::endl;
+//   std::cout << "time elapsed = " << point_query_time << std::endl;
+
+// }
+
+
 int main(int argc, char *argvx[]) {
+  // speed_test();
   Options options;
   WriteOptions write_op;
   ReadOptions read_op;

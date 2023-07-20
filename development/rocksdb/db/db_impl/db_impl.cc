@@ -4774,7 +4774,7 @@ Status DBImpl::Close() {
   return closing_status_;
 }
 
-//Self Added
+//Self Added Start
 //Currently, cfd->GetSuperVersion()->current->printAllFileRanges() 
 // causes some threading issue, have to be synced with mutex_ lock
 Status DBImpl::printAllFileRanges() { 
@@ -4797,9 +4797,48 @@ Status DBImpl::printPLRDF() {
   // cfd->current()->printPLRDF();
   sv->current->printPLRDF();
 
-  cfd->printPLRDF();
+  // cfd->printPLRDF();
+  std::cout << "version --- Split PLRDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  sv->current->printSplitPLRDF();
+
+  
+  std::cout << "version --- Top Level RDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  sv->current->printTopLevelRDF();
+
+
+
   return Status::OK();
 }
+
+uint DBImpl::getFlushQueueSize() { 
+  uint len = flush_queue_.size();
+  return len; 
+}
+uint DBImpl::getCompactionQueueSize() {
+  uint len = compaction_queue_.size();
+  return len; 
+}
+
+bool DBImpl::existFlushJob(){
+  mutex_.Lock();
+  bool flag1 = flush_queue_.size() > 0;
+  bool flag2 = unscheduled_flushes_ > 0;
+  bool flag3 = bg_flush_scheduled_ > 0;
+  bool flag4 = num_running_flushes_ > 0;
+  mutex_.Unlock();
+  return flag1 || flag2 || flag3 || flag4;; 
+}
+
+bool DBImpl::existCompactionJob(){
+  mutex_.Lock();
+  bool flag1 = compaction_queue_.size() > 0;
+  bool flag2 = unscheduled_compactions_ > 0;
+  bool flag3 = bg_compaction_scheduled_ > 0;
+  bool flag4 = num_running_compactions_ > 0;
+  mutex_.Unlock();
+  return flag1 || flag2 || flag3 || flag4;; 
+}
+//Self Added End
 
 
 Status DB::ListColumnFamilies(const DBOptions& db_options,

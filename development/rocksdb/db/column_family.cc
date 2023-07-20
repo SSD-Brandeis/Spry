@@ -55,7 +55,7 @@ void PLRDF::addRangeDelete_internal(uint level, std::vector<pll> &range_delete_l
   // update_mutex.lock();
   // std::lock_guard<std::mutex> guard(update_mutex);
 
-  assert( d_filter.size() >= level);
+  assert(rd_filter.size() >= level);
   while (rd_filter.size() <= level)
   {
     rd_filter.push_back(std::vector<pll>());
@@ -602,6 +602,7 @@ void PLRDF::adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<l
     {
       to_be_added_in_next_level_rdf.push_back(std::make_pair(val.first, file_boundry.second + 1));
       (*it).first = file_boundry.second + 1;
+      if((*it).first >= (*it).second){ it++; } // <------------------------
       itf++;
     }
     /*
@@ -615,6 +616,7 @@ void PLRDF::adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<l
       new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
       to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, file_boundry.second + 1));
       (*it).first = file_boundry.second + 1;
+      if((*it).first >= (*it).second){ it++; } // <------------------------
       itf++;
     }else{
       std::cerr << "Condition Unchecked " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -1026,6 +1028,43 @@ void PLRDF::deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, std::vect
 
 
 
+
+vector<pll> PLRDF::getLevelRanges(int outlevel){
+  // init();
+  // std::lock_guard<std::mutex> guard(update_mutex);
+  if((uint)outlevel >= rd_filter.size()){return {};}
+  return rd_filter[outlevel];
+}
+void PLRDF::setLevelRanges(vector<pll> level_ranges_in, int outlevel){
+  // init();
+  // std::lock_guard<std::mutex> guard(update_mutex);
+  while(rd_filter.size() <= (uint)outlevel){
+    rd_filter.push_back(vector<pll>());
+  }
+
+  
+  if(level_ranges_in != rd_filter[outlevel]){
+    std::cout << "^^^ outlevel: " << outlevel 
+              << " level_ranges_in.size(): " << level_ranges_in.size() 
+              << " rd_filter[outlevel].size() " << rd_filter[outlevel].size() << std::endl;
+    std::cout << "^^^ level_ranges_in: " << std::endl;
+    for(auto it = level_ranges_in.begin(); it != level_ranges_in.end(); it++){
+      std::cout << "(" << it->first << " " << it->second << ") ";
+    }
+    std::cout << std::endl;
+    std::cout << "^^^ rd_filter[outlevel]: " << std::endl;
+    for(auto it = rd_filter[outlevel].begin(); it != rd_filter[outlevel].end(); it++){
+      std::cout << "(" << it->first << " " << it->second << ") ";
+    }
+    std::cout << std::endl;
+  }
+
+  
+  rd_filter[outlevel] = level_ranges_in;
+
+}
+
+
 void PLRDF::print(){
   // init();
   // std::lock_guard<std::mutex> guard(update_mutex);
@@ -1093,6 +1132,79 @@ void PLRDF::deleteLastLevelIfEqualsBottomLevel(uint bottom_level){
 // int PerlevelRangeDeleteFilterByVector::getRangeDeleteCount(){
 //   return PerlevelRangeDeleteFilterByVector::range_delete_list.size();
 // }
+
+
+
+
+
+
+void PLRDF::splitRangesOnLevel(uint level, std::vector<long long> keys){
+  if(rd_filter.size() <= level){
+    std::cerr << "Error: splitRangesOnLevel: level: " << level << " is not present in PLRDF" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    exit(1);
+  }
+
+  auto rdList = rd_filter[level];
+  std::vector<pll> rdList_new;
+  
+  int idx = 0;
+  int len = rdList.size();
+
+  for(auto &key_in: keys){
+// std::cout << "key_in: " << key_in << std::endl;
+      while(idx < len && rdList[idx].second <= key_in){
+        rdList_new.push_back(rdList[idx]);
+        idx += 1;
+      }
+      if(idx < len && rdList[idx].first > key_in){
+        continue;
+      }
+
+
+      if(idx < len && rdList[idx].first == key_in){
+        if(key_in + 1 >= rdList[idx].second){
+          idx += 1;
+        }else{
+          rdList[idx].first = key_in + 1;
+        }
+        continue;
+      }
+
+      if(idx < len && rdList[idx].first < key_in && rdList[idx].second  >  key_in){
+        auto tmp = rdList[idx];
+        tmp.second = key_in;
+        rdList_new.push_back(tmp);
+        if(key_in + 1 >= rdList[idx].second){
+          idx += 1;
+        }else{
+          rdList[idx].first = key_in + 1;
+        }
+        continue;
+      }
+  }
+
+  while(idx < len){
+    rdList_new.push_back(rdList[idx]);
+    idx += 1;
+  }
+  
+  std::cout << std::endl;
+
+  rd_filter[level] = rdList_new;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 //Self Added --- END PL-RDF ---
 
 
@@ -2370,7 +2482,7 @@ bool ColumnFamilyData::ReturnThreadLocalSuperVersion(SuperVersion* sv) {
 //shall be called before InstallSuperVersion for flush and compaction
 //old version: old_superversion->current, new version: current_
 //opt: 1 for flush, 2 for compaction, 3: for compaction direcly deleted flie
-void ColumnFamilyData::updateRDF2NewVersion(int opt){
+void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
   SuperVersion* old_superversion = super_version_;
 
 
@@ -2545,11 +2657,22 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt){
   }
 
 
+  if(this->get_split__flush_install_count_clr() >= 2 || this->get_split__compaction_install_count_clr() >= 2){
+    std::cerr << "(split RDF) numbers of flush or compaction accumulated are more than 2" << std::endl;
+    std::cerr << "@@@@ (cfd): " << std::endl  
+          << "cfd->flush_clr = " << this->get_split__flush_install_count_clr() << std::endl
+          << "cfd->compact_clr = " << this->get_split__compaction_install_count_clr() << std::endl;
+  }
+
+
+// std::cout << "opt = " << opt << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << "split_flag = " << split_flag << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   if(opt == 1){
-    auto file_num = std::get<0>(this->flush_to_level0_RD_vector);
-    auto range_delete_list_in = std::get<1>(this->flush_to_level0_RD_vector);
-    auto exist_level0_file_nums = std::get<2>(this->flush_to_level0_RD_vector);
+    //PLRDF
+    auto &file_num = std::get<0>(this->flush_to_level0_RD_vector);
+    auto &range_delete_list_in = std::get<1>(this->flush_to_level0_RD_vector);
+    auto &exist_level0_file_nums = std::get<2>(this->flush_to_level0_RD_vector);
     (this->plrdf_prime).insertRangeDeleteToLevel0(file_num, 
                                                   range_delete_list_in, 
                                                   exist_level0_file_nums);
@@ -2557,19 +2680,126 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt){
     
     this->flush_to_level0_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
 
+
+
+    //Split PLRDF
+    auto &file_num2 = std::get<0>(this->split__flush_to_level0_RD_vector);
+    auto &range_delete_list_in2 = std::get<1>(this->split__flush_to_level0_RD_vector);
+    auto &exist_level0_file_nums2 = std::get<2>(this->split__flush_to_level0_RD_vector);
+    (this->split_plrdf_prime).insertRangeDeleteToLevel0(file_num2, 
+                                                  range_delete_list_in2, 
+                                                  exist_level0_file_nums2);
+
+    
+    //Top Level RDF
+    (this->top_level_rdf_prime).insertRangeDeleteToLevel0(file_num2, 
+                                                  range_delete_list_in2, 
+                                                  exist_level0_file_nums2);
+
+
+    //Split PLRDF
+    this->split__flush_to_level0_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
+
+
     // if(old_superversion != NULL){
     //   old_superversion->current->clear_flush_install_count_clr();
     // }
     current_->clear_flush_install_count_clr();
+
     this->clear_flush_install_count_clr();
-  }else if(opt == 2 || opt == 3){
+    this->clear_split__flush_install_count_clr();
+  }else if(opt == 2 || opt == 3){ //compaction
 
     if(opt == 2){
+      //PLRDF
       (this->plrdf_prime).shiftRDFToOutputLevel(&this->compaction_moving_RD_vector);
       this->compaction_moving_RD_vector.clear();
+      
+      //Split PLRDF
+      if(split_flag == true){
+        if(this->get_split__out_level() != std::get<1>(this->split__compaction_moving_RD_vector[0])){
+            std::cerr << "Error: split RDF out level is not consistent with the out level of the compaction moving RD vector" << std::endl
+                      << "split RDF out level = " << this->get_split__out_level() << std::endl
+                      << "compaction moving RD vector out level = " << std::get<1>(this->split__compaction_moving_RD_vector[0]) 
+                      << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        }
+
+
+        // (this->split_plrdf_prime).setLevelRanges(this->split__level_ranges_updated, this->get_split__out_level());
+        
+        // // this->split_end();
+        
+        if(this->get_split__count() > 1){
+          std::cerr << "Error: split RDF count is more than 1" << std::endl
+                    << "split RDF count = " << this->get_split__count() << std::endl
+                    << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        }
+      }
+
+      //Top Level RDF
+      int in_lvl = std::get<0>(this->split__compaction_moving_RD_vector[0]);
+      // if(in_lvl == 0 || in_lvl == 1){
+      if(in_lvl == 0){
+        (this->top_level_rdf_prime).shiftRDFToOutputLevel(&this->split__compaction_moving_RD_vector);
+        if(split_flag == true && in_lvl == 0){
+          (this->top_level_rdf_prime).splitRangesOnLevel((uint)1, this->top_level__level_points);
+        }
+      }
+
+
+      //Split PLRDF
+      (this->split_plrdf_prime).shiftRDFToOutputLevel(&this->split__compaction_moving_RD_vector);
+      this->split__compaction_moving_RD_vector.clear();
+
+      //Split PLRDF
+      if(split_flag == true){
+        // // std::cerr << "Logging: split RDF out level = " << this->get_split__out_level() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        (this->split_plrdf_prime).splitRangesOnLevel((uint)this->get_split__out_level(), this->split__level_points);
+        
+        this->split__level_points.clear();
+
+        this->clear_split__count();
+        this->clear_split__fin_flag();
+        this->clear_split__out_level();
+        this->clear_split__level_ranges_updated();
+      }
+
+
     }else if(opt == 3){
+      //PLRDF
       (this->plrdf_prime).deleteRDFAssociatedWithFilesAtCurrentLevel(&this->compaction_direct_delete_RD_vector);
       this->compaction_direct_delete_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
+      
+      //Split PLRDF
+      // if(this->get_split__out_level() != std::get<0>(this->split__compaction_direct_delete_RD_vector)){
+      //   std::cerr << "Error: split RDF out level is not consistent with the out level of the compaction moving RD vector" << std::endl
+      //             << "split RDF out level = " << this->get_split__out_level() << std::endl
+      //             << "compaction moving RD vector out level = " << std::get<0>(this->split__compaction_direct_delete_RD_vector) 
+      //             << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // }
+
+      // // (this->split_plrdf_prime).setLevelRanges(this->split__level_ranges_updated, this->get_split__out_level());
+
+      // if(this->get_split__count() > 1){
+      //   std::cerr << "Error: split RDF count is more than 1" << std::endl
+      //             << "split RDF count = " << this->get_split__count() << std::endl
+      //             << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // }
+      // this->clear_split__count();
+      // this->clear_split__fin_flag();
+      // this->clear_split__out_level();
+      // this->clear_split__level_ranges_updated();
+
+
+      //Top Level RDF
+      int in_lvl = std::get<0>(this->split__compaction_direct_delete_RD_vector);
+      if(in_lvl == 1){
+        (this->top_level_rdf_prime).deleteRDFAssociatedWithFilesAtCurrentLevel(&this->split__compaction_direct_delete_RD_vector);
+      }
+
+      //Split PLRDF
+      (this->split_plrdf_prime).deleteRDFAssociatedWithFilesAtCurrentLevel(&this->split__compaction_direct_delete_RD_vector);
+      this->split__compaction_direct_delete_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
     }
 
     
@@ -2578,6 +2808,7 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt){
     }
     // current_->clear_compaction_install_count_clr();
     this->clear_compaction_install_count_clr();
+    this->clear_split__compaction_install_count_clr();
   }else{
     std::cerr << "Error: option not implemented. opt is not 1 or 2, opt = " << opt << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   }
@@ -2588,11 +2819,19 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt){
   }
 
 
+  //PLRDF
   if(this->get_call_before_install_superversion_count() != 0){
     std::cerr << "Error: call_before_install_superversion_count is not 0 @updateRDF2NewVersion, call_before_install_superversion_count = " 
               << this->get_call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   }
   this->inc_call_before_install_superversion_count();
+
+  //Split PLRDF
+  if(this->get_split__call_before_install_superversion_count() != 0){
+    std::cerr << "Error: split__call_before_install_superversion_count is not 0 @updateRDF2NewVersion, split__call_before_install_superversion_count = " 
+              << this->get_split__call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  }
+  this->inc_split__call_before_install_superversion_count();
 
 }
 //Self Added End
@@ -2664,9 +2903,17 @@ void ColumnFamilyData::InstallSuperVersion(
     // current_->setPerLevelRDF(per_level_RDF_old);
   }
 
+  if(old_superversion != NULL){
+    std::cout << "old_superversion->current->printAllLevelSize()" << std::endl;
+    old_superversion->current->printAllLevelSize();
+    // std::cout << "old_superversion->current->printAllFileRanges()" << std::endl;
+    // old_superversion->current->printAllFileRanges();
+  }
+
 
   // if(old_superversion == NULL && old_superversion->current != current_){
   if(old_superversion == NULL){
+    //PLRDF
     current_->setPLRDF(this->plrdf_prime);
     if(this->get_call_before_install_superversion_count() > 1){
       // std::cerr << "Error: call_before_install_superversion_count is not 1 @installSuperversion, call_before_install_superversion_count = " 
@@ -2675,10 +2922,21 @@ void ColumnFamilyData::InstallSuperVersion(
                 << this->get_call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     }
     this->clear_call_before_install_superversion_count();
+
+    //Split PLRDF
+    current_->setSplitPLRDF(this->split_plrdf_prime);
+    if(this->get_split__call_before_install_superversion_count() > 1){
+      std::cerr << "Error: split__call_before_install_superversion_count > 1 @installSuperversion, split__call_before_install_superversion_count = " 
+                << this->get_split__call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    this->clear_split__call_before_install_superversion_count();
+
+    //Top Level RDF
+    current_->setTopLevelRDF(this->top_level_rdf_prime);
   }
 
   if(old_superversion != NULL && old_superversion->current != current_){
-
+    //PLRDF
     (this->plrdf_prime).deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
     current_->setPLRDF(this->plrdf_prime);
     // if(this->get_call_before_install_superversion_count() != 1){
@@ -2690,6 +2948,18 @@ void ColumnFamilyData::InstallSuperVersion(
     }
     this->clear_call_before_install_superversion_count();
     // old_superversion->current->setPLRDF(this->plrdf_prime);
+
+    //Split PLRDF
+    (this->split_plrdf_prime).deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
+    current_->setSplitPLRDF(this->split_plrdf_prime);
+    if(this->get_split__call_before_install_superversion_count() > 1){
+      std::cerr << "Error: split__call_before_install_superversion_count > 1 @installSuperversion, split__call_before_install_superversion_count = " 
+                << this->get_split__call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    this->clear_split__call_before_install_superversion_count();
+
+    //Top Level RDF
+    current_->setTopLevelRDF(this->top_level_rdf_prime);
 
 
 

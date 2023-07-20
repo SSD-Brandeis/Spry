@@ -71,11 +71,16 @@ namespace ROCKSDB_NAMESPACE {
       // void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data);
       void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, std::vector<pll>, std::vector<uint64_t>> *file_meta_data);
 
+      std::vector<pll> getLevelRanges(int outlevel);
+      void setLevelRanges(std::vector<pll> level_ranges_in, int outlevel);
+
       void printLevel0();
       void print();
 
       bool isEntryAlive(uint level, long long key);
 
+
+      void splitRangesOnLevel(uint level, std::vector<long long> keys);
       // int getRangeDeleteCount();
   };
 
@@ -530,7 +535,7 @@ class ColumnFamilyData {
   }
 
   // Self Added Start
-  void updateRDF2NewVersion(int opt); // 1: flush, 2: compact, 3: for compaction direcly deleted flie
+  void updateRDF2NewVersion(int opt, bool split_flag); // 1: flush, 2: compact, 3: for compaction direcly deleted flie
   // Self Added End
 
 
@@ -659,24 +664,48 @@ class ColumnFamilyData {
     flush_install_count_clr += 1;
   }
 
+  
+  void inc_split__flush_install_count(){
+    split__flush_install_count_clr += 1;
+  }
+
   int get_flush_install_count_clr(){
     return flush_install_count_clr;
   }
 
+  int get_split__flush_install_count_clr(){
+    return split__flush_install_count_clr;
+  }
+
   void inc_compaction_install_count(){
     compaction_install_count_clr += 1;
+  }
+  void inc_split__compaction_install_count(){
+    split__compaction_install_count_clr += 1;
   }
 
   int get_compaction_install_count_clr(){
     return compaction_install_count_clr;
   }
 
+  int get_split__compaction_install_count_clr(){
+    return split__compaction_install_count_clr;
+  }
+
   void clear_flush_install_count_clr(){
     flush_install_count_clr = 0;
   }
 
+  void clear_split__flush_install_count_clr(){
+    split__flush_install_count_clr = 0;
+  }
+
   void clear_compaction_install_count_clr(){
     compaction_install_count_clr = 0;
+  }
+  
+  void clear_split__compaction_install_count_clr(){
+    split__compaction_install_count_clr = 0;
   }
 
   void inc_call_before_install_superversion_count(){
@@ -688,6 +717,16 @@ class ColumnFamilyData {
   void clear_call_before_install_superversion_count(){
     call_before_install_superversion_count = 0;
   }
+  
+  void inc_split__call_before_install_superversion_count(){
+    split__call_before_install_superversion_count += 1;
+  }
+  int get_split__call_before_install_superversion_count(){
+    return split__call_before_install_superversion_count;
+  }
+  void clear_split__call_before_install_superversion_count(){
+    split__call_before_install_superversion_count = 0;
+  }
 
   void set_flush_to_level0_RD_vector(std::tuple<uint64_t, std::vector<pll>, std::vector<uint64_t>> &flush_to_level0_RD_vector_in){
     auto file_num = std::get<0>(this->flush_to_level0_RD_vector);
@@ -697,9 +736,22 @@ class ColumnFamilyData {
 
     flush_to_level0_RD_vector = flush_to_level0_RD_vector_in;
   }
+  
+  void set_split__flush_to_level0_RD_vector(std::tuple<uint64_t, std::vector<pll>, std::vector<uint64_t>> &flush_to_level0_RD_vector_in){
+    auto file_num = std::get<0>(this->split__flush_to_level0_RD_vector);
+    if((int)file_num != -1){
+      std::cerr << "split__flush_to_level0_RD_vector is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+
+    split__flush_to_level0_RD_vector = flush_to_level0_RD_vector_in;
+  }
 
   std::tuple<uint64_t, std::vector<pll>, std::vector<uint64_t>> get_flush_to_level0_RD_vector(){
     return flush_to_level0_RD_vector;
+  }
+
+  std::tuple<uint64_t, std::vector<pll>, std::vector<uint64_t>> get_split__flush_to_level0_RD_vector(){
+    return split__flush_to_level0_RD_vector;
   }
 
   void set_compaction_moving_RD_vector(std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  &compaction_moving_RD_vector_in){
@@ -710,9 +762,22 @@ class ColumnFamilyData {
     compaction_moving_RD_vector = compaction_moving_RD_vector_in;
   }
 
+  void set_split__compaction_moving_RD_vector(std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  &compaction_moving_RD_vector_in){
+    auto len = split__compaction_moving_RD_vector.size();
+    if(len != 0){
+      std::cerr << "split__compaction_moving_RD_vector is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    split__compaction_moving_RD_vector = compaction_moving_RD_vector_in;
+  }
+
   std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  get_compaction_moving_RD_vector(){
     
     return compaction_moving_RD_vector;
+  }
+
+  std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  get_split__compaction_moving_RD_vector(){
+    
+    return split__compaction_moving_RD_vector;
   }
 
   void set_compaction_direct_delete_RD_vector(std::tuple<int, std::vector<pll>, std::vector<uint64_t>> &compaction_direct_delete_RD_vector_in){
@@ -723,22 +788,211 @@ class ColumnFamilyData {
     compaction_direct_delete_RD_vector = compaction_direct_delete_RD_vector_in;
   }
 
+  void set_split__compaction_direct_delete_RD_vector(std::tuple<int, std::vector<pll>, std::vector<uint64_t>> &compaction_direct_delete_RD_vector_in){
+    auto out_lvl = std::get<0>(this->split__compaction_direct_delete_RD_vector);
+    if((int)out_lvl != -1){
+      std::cerr << "split__compaction_direct_delete_RD_vector is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    split__compaction_direct_delete_RD_vector = compaction_direct_delete_RD_vector_in;
+  }
+
   std::tuple<int, std::vector<pll>, std::vector<uint64_t>> get_compaction_direct_delete_RD_vector(){
     return compaction_direct_delete_RD_vector;
   }
   
+  std::tuple<int, std::vector<pll>, std::vector<uint64_t>> get_split__compaction_direct_delete_RD_vector(){
+    return split__compaction_direct_delete_RD_vector;
+  }
+  
+
   void printPLRDF(){
     std::cout << "cfd --- PLRDF " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
     plrdf_prime.printLevel0();
     plrdf_prime.print();
   }
 
+  void printSplitPLRDF(){
+    std::cout << "cfd --- split_PLRDF " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+    split_plrdf_prime.printLevel0();
+    split_plrdf_prime.print();
+  }
+  
+  void printTopLevelRDF(){
+    std::cout << "cfd --- top_level_RDF " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+    top_level_rdf_prime.printLevel0();
+    top_level_rdf_prime.print();
+  }
+
+  //split_start --- split_range --- split_end should be called in a sequence
+  void split_start(int out_lvl){
+    //Split RDF
+    split__level_update_mtx.lock();
+
+    auto len = split__level_ranges.size();
+    auto len2 = split__level_ranges_updated.size();
+    if((int)len != 0){
+      std::cerr << "split__level_ranges is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    if((int)len2 != 0){
+      std::cerr << "split__level_ranges_updated is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+                << "len2 = " << len2 << std::endl;
+    }
+    split__level_ranges = split_plrdf_prime.getLevelRanges(out_lvl);
+    split__count += 1;
+    split__out_level = out_lvl;
+    split__level_range_idx = 0;
+    split__level_points.clear();
+
+    if(split__fin_flag != 0){
+      std::cerr << "Error: split__fin_flag is not 0. Previous one haven't written into split_plrdf "
+                << "before this one yet at function installSuperversion!! " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+                << "split__fin_flag = " << split__fin_flag << std::endl;
+    }
+
+    //Top Level RDF
+    top_level__level_ranges = top_level_rdf_prime.getLevelRanges(1);
+    top_level__level_points.clear();
+    top_level__level_range_idx = 0;
+  }
+
+  void split_range(long long key_in){
+    //Top Level RDF
+    // level 0 -> entries are not ordered with time
+    top_level__level_points.push_back(key_in);
+
+    // int &idx2 = top_level__level_range_idx;
+    // int len2 = top_level__level_ranges.size();
+    // if(idx2 < len2){
+    //   while(idx2 < len2 && top_level__level_ranges[idx2].second <= key_in){
+    //     idx2 += 1;
+    //   }
+    //   if(idx2 < len2 && top_level__level_ranges[idx2].first <= key_in && top_level__level_ranges[idx2].second  >  key_in){
+    //     top_level__level_points.push_back(key_in);
+    //   }
+    // }
+
+    //Split RDF
+    split__level_points.push_back(key_in);
+    int &idx = split__level_range_idx;
+    int len = split__level_ranges.size();
+    if(idx >= len){return;}
+
+    while(idx < len && split__level_ranges[idx].second <= key_in){
+      split__level_ranges_updated.push_back(split__level_ranges[idx]);
+      idx += 1;
+    }
+    if(idx < len && split__level_ranges[idx].first > key_in){
+      return;
+    }
+
+
+    // if(idx < len && split__level_ranges[idx].first <= key_in && split__level_ranges[idx].second  >  key_in){
+    //   split__level_points.push_back(key_in);
+    // }
+
+
+    if(idx < len && split__level_ranges[idx].first == key_in){
+      if(key_in + 1 >= split__level_ranges[idx].second){
+        idx += 1;
+      }else{
+        split__level_ranges[idx].first = key_in + 1;
+      }
+      return;
+    }
+
+    if(idx < len && split__level_ranges[idx].first < key_in && split__level_ranges[idx].second  >  key_in){
+      auto tmp = split__level_ranges[idx];
+      tmp.second = key_in;
+      split__level_ranges_updated.push_back(tmp);
+      if(key_in + 1 >= split__level_ranges[idx].second){
+        idx += 1;
+      }else{
+        split__level_ranges[idx].first = key_in + 1;
+      }
+      return;
+    }
+    
+
+
+    if(idx >= len){return;}
+
+
+    std::cerr << "Error: condition not checked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+              << "split__level_ranges[idx].first: " << split__level_ranges[idx].first << std::endl
+              << "split__level_ranges[idx].second: " << split__level_ranges[idx].second << std::endl
+              << "key_in: " << key_in << std::endl;
+    exit(1);
+  }
+
+  //not called in: updateRDF2NewVersion()
+  void split_end(){
+    int &idx = split__level_range_idx;
+    int len = split__level_ranges.size();
+    while(idx < len){
+      split__level_ranges_updated.push_back(split__level_ranges[idx]);
+      idx += 1;
+    }
+
+    split__fin_flag = 1;
+    split__level_ranges.clear();
+    split__level_range_idx = 0;
+
+    split__level_update_mtx.unlock();
+  }
+
+  void clear_split__level_ranges_updated(){
+    std::lock_guard<std::mutex> guard(split__level_update_mtx);
+    split__level_ranges_updated.clear();
+  }
+
+
+  void clear_split__count(){
+      std::lock_guard<std::mutex> guard(split__level_update_mtx);
+      split__count = 0;
+  }
+
+  void clear_split__fin_flag(){
+      std::lock_guard<std::mutex> guard(split__level_update_mtx);
+      split__fin_flag = 0;
+  }
+
+  void clear_split__out_level(){
+      std::lock_guard<std::mutex> guard(split__level_update_mtx);
+      split__out_level = -1;
+  }
+
+  int get_split__count(){
+    std::lock_guard<std::mutex> guard(split__level_update_mtx);
+    return split__count;
+  }
+
+  int get_split__fin_flag(){
+    std::lock_guard<std::mutex> guard(split__level_update_mtx);
+    return split__fin_flag;
+  }
+
+  int get_split__out_level(){
+    std::lock_guard<std::mutex> guard(split__level_update_mtx);
+    return split__out_level;
+  }
+
+
+
+  void set_flush_in_file_num(uint64_t num){
+    flush_in_file_num = num;
+  }
+  uint64_t get_flush_in_file_num(){
+    return flush_in_file_num;
+  }
+
  private:
   // //Self Added Start
   Version* update_RDF_version_pre = nullptr;
   Version* install_version_pre = nullptr;
-  PLRDF plrdf_prime;
+  PLRDF plrdf_prime, split_plrdf_prime;
+  PLRDF top_level_rdf_prime;
   
+  // for plrdf_prime
   std::tuple<uint64_t, std::vector<pll>, std::vector<uint64_t>> flush_to_level0_RD_vector = std::make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
   std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  compaction_moving_RD_vector;
   std::tuple<int, std::vector<pll>, std::vector<uint64_t>> compaction_direct_delete_RD_vector = std::make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
@@ -746,6 +1000,28 @@ class ColumnFamilyData {
   int flush_install_count_clr = 0;
   int compaction_install_count_clr = 0;
   int call_before_install_superversion_count = 0;
+
+  //for split_plrdf_prime
+  std::tuple<uint64_t, std::vector<pll>, std::vector<uint64_t>> split__flush_to_level0_RD_vector = std::make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
+  std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  split__compaction_moving_RD_vector;
+  std::tuple<int, std::vector<pll>, std::vector<uint64_t>> split__compaction_direct_delete_RD_vector = std::make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
+  std::vector<pll> split__level_ranges;
+  std::vector<pll> split__level_ranges_updated;
+  std::vector<long long> split__level_points;
+  std::mutex split__level_update_mtx;
+
+  int split__flush_install_count_clr = 0;
+  int split__compaction_install_count_clr = 0;
+  int split__call_before_install_superversion_count = 0;
+  int split__count = 0;
+  int split__out_level = -1;
+  int split__fin_flag = 0;
+  int split__level_range_idx = 0;
+
+  uint64_t flush_in_file_num = 0;
+  std::vector<pll> top_level__level_ranges;
+  std::vector<long long> top_level__level_points;
+  int top_level__level_range_idx = 0;
   // std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
   // // std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
   // //Self Added End

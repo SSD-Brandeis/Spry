@@ -533,10 +533,15 @@ class DBImpl : public DB {
 
   virtual Status Close() override;
 
-  //self implemented
+  //Self Added Start
   virtual Status printAllFileRanges() override;
   virtual Status printPLRDF() override;
-
+  virtual uint getFlushQueueSize() override;
+  virtual uint getCompactionQueueSize() override;
+  virtual bool existFlushJob() override;
+  virtual bool existCompactionJob() override;
+  std::mutex self_single_flush_mutex_;
+  //Self Added End
 
   virtual Status DisableFileDeletions() override;
 
