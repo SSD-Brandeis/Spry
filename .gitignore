@@ -1,2 +1,14 @@
 *.o
 # *example*
+
+# .vscode
+.vscode/*
+
+# build
+**/build/**
+
+# log
+**/*.log
+
+# text
+*.txt

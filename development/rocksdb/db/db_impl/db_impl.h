@@ -66,6 +66,10 @@
 #include "util/stop_watch.h"
 #include "util/thread_local.h"
 
+//Self Added
+#include "cache/lru_cache.h"
+
+
 namespace ROCKSDB_NAMESPACE {
 
 class Arena;
@@ -173,6 +177,73 @@ class Directories {
 // divided in several db_impl_*.cc files, besides db_impl.cc.
 class DBImpl : public DB {
  public:
+
+
+
+
+
+    //Self Added start
+    Status CleanTableCache(ColumnFamilyHandle* column_family, std::ostream& ofile) override {
+      auto *cfd = static_cast_with_check<ColumnFamilyHandleImpl>(column_family)->cfd();
+      TableCache* table_cache = cfd->table_cache();
+      // CacheInterface& cache_ = table_cache->GetCache();
+      Cache* cache = table_cache->get_cache().get();
+      //only for LRUCache
+      //using LRUCache = lru_cache::LRUCache;
+      // std::shared_ptr<LRUCache> cache_lru = std::static_pointer_cast<LRUCache>(cache);
+      LRUCache* cache_lru = (LRUCache*) cache;
+      ofile << "LRU Name = " << string(cache_lru->Name()) << " " << __FILE__ << ":" << __LINE__ << std::endl;
+
+      ofile << "Before erasing table_cache " << __FILE__ << ":" << __LINE__ << std::endl;
+      // table_cache->EvictAll();
+      size_t capacity = cache->GetCapacity();
+      size_t usage = cache->GetUsage();
+      size_t occupancyCount = cache->GetOccupancyCount();
+      size_t GetTableAddressCount = cache->GetTableAddressCount();
+      size_t GetPinnedUsage = cache->GetPinnedUsage();
+      std::string printableOptions =  cache->GetPrintableOptions();
+
+      ofile << "capacity: " << capacity << " " << __FILE__ << ":" << __LINE__ << std::endl;
+      ofile << "usage: " << usage << " " << __FILE__ << ":" << __LINE__ << std::endl;
+      ofile << "occupancyCount: " << occupancyCount << " " << __FILE__ << ":" << __LINE__ << std::endl;
+      ofile << "GetTableAddressCount: " << GetTableAddressCount << " " << __FILE__ << ":" << __LINE__ << std::endl;
+      ofile << "GetPinnedUsage: " << GetPinnedUsage << " " << __FILE__ << ":" << __LINE__ << std::endl;
+      ofile << "printableOptions: " << printableOptions << " " << __FILE__ << ":" << __LINE__ << std::endl;
+
+      cache->EraseUnRefEntries();
+      // cache = NewLRUCache(32*1024*1024).get();
+
+      ofile << "After erasing table_cache " << __FILE__ << ":" << __LINE__ << std::endl;
+
+      capacity = cache->GetCapacity();
+      usage = cache->GetUsage();
+      occupancyCount = cache->GetOccupancyCount();
+      GetTableAddressCount = cache->GetTableAddressCount();
+      GetPinnedUsage = cache->GetPinnedUsage();
+      printableOptions =  cache->GetPrintableOptions();
+
+      ofile << "capacity: " << capacity << " " << __FILE__ << ":" << __LINE__ << std::endl;
+      ofile << "usage: " << usage << " " << __FILE__ << ":" << __LINE__ << std::endl;
+      ofile << "occupancyCount: " << occupancyCount << " " << __FILE__ << ":" << __LINE__ << std::endl;
+      ofile << "GetTableAddressCount: " << GetTableAddressCount << " " << __FILE__ << ":" << __LINE__ << std::endl;
+      ofile << "GetPinnedUsage: " << GetPinnedUsage << " " << __FILE__ << ":" << __LINE__ << std::endl;
+      ofile << "printableOptions: " << printableOptions << " " << __FILE__ << ":" << __LINE__ << std::endl;
+
+
+      return Status::OK();
+    }
+
+    //Self Added end
+
+
+
+
+
+
+
+
+
+
   DBImpl(const DBOptions& options, const std::string& dbname,
          const bool seq_per_batch = false, const bool batch_per_txn = true,
          bool read_only = false);
@@ -461,6 +532,16 @@ class DBImpl : public DB {
   ColumnFamilyHandle* PersistentStatsColumnFamily() const;
 
   virtual Status Close() override;
+
+  //Self Added Start
+  virtual Status printAllFileRanges() override;
+  virtual Status printPLRDF() override;
+  virtual uint getFlushQueueSize() override;
+  virtual uint getCompactionQueueSize() override;
+  virtual bool existFlushJob() override;
+  virtual bool existCompactionJob() override;
+  std::mutex self_single_flush_mutex_;
+  //Self Added End
 
   virtual Status DisableFileDeletions() override;
 
@@ -2828,5 +2909,7 @@ inline Status DBImpl::FailIfTsMismatchCf(ColumnFamilyHandle* column_family,
   }
   return Status::OK();
 }
+
+
 
 }  // namespace ROCKSDB_NAMESPACE

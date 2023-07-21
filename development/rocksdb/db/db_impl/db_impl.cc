@@ -4746,6 +4746,17 @@ Status DB::DestroyColumnFamilyHandle(ColumnFamilyHandle* column_family) {
 DB::~DB() {}
 
 Status DBImpl::Close() {
+  //Self Added begin
+  // std::cout << "print ALL FILE RANGE @" << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  // auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  //     DefaultColumnFamily());
+  // auto cfd = cfh->cfd();
+  // // cfd->GetSuperVersion()->current->printAllFileRanges();
+  // cfd->current()->printAllFileRanges();  //this cause some threading issue 
+  // //Self Added end
+
+  
+  
   InstrumentedMutexLock closing_lock_guard(&closing_mutex_);
   if (closed_) {
     return closing_status_;
@@ -4762,6 +4773,73 @@ Status DBImpl::Close() {
   closed_ = true;
   return closing_status_;
 }
+
+//Self Added Start
+//Currently, cfd->GetSuperVersion()->current->printAllFileRanges() 
+// causes some threading issue, have to be synced with mutex_ lock
+Status DBImpl::printAllFileRanges() { 
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+      DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  sv->current->printAllFileRanges();
+  // cfd->GetSuperVersion()->current->printAllFileRanges();
+  // cfd->current()->printAllFileRanges();
+  return Status::OK();
+ }
+
+Status DBImpl::printPLRDF() {  
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  std::cout << "version --- PLRDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  // cfd->current()->printPLRDF();
+  sv->current->printPLRDF();
+
+  // cfd->printPLRDF();
+  std::cout << "version --- Split PLRDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  sv->current->printSplitPLRDF();
+
+  
+  std::cout << "version --- Top Level RDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  sv->current->printTopLevelRDF();
+
+
+
+  return Status::OK();
+}
+
+uint DBImpl::getFlushQueueSize() { 
+  uint len = flush_queue_.size();
+  return len; 
+}
+uint DBImpl::getCompactionQueueSize() {
+  uint len = compaction_queue_.size();
+  return len; 
+}
+
+bool DBImpl::existFlushJob(){
+  mutex_.Lock();
+  bool flag1 = flush_queue_.size() > 0;
+  bool flag2 = unscheduled_flushes_ > 0;
+  bool flag3 = bg_flush_scheduled_ > 0;
+  bool flag4 = num_running_flushes_ > 0;
+  mutex_.Unlock();
+  return flag1 || flag2 || flag3 || flag4;; 
+}
+
+bool DBImpl::existCompactionJob(){
+  mutex_.Lock();
+  bool flag1 = compaction_queue_.size() > 0;
+  bool flag2 = unscheduled_compactions_ > 0;
+  bool flag3 = bg_compaction_scheduled_ > 0;
+  bool flag4 = num_running_compactions_ > 0;
+  mutex_.Unlock();
+  return flag1 || flag2 || flag3 || flag4;; 
+}
+//Self Added End
+
 
 Status DB::ListColumnFamilies(const DBOptions& db_options,
                               const std::string& name,

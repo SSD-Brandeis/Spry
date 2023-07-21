@@ -47,12 +47,18 @@ namespace checking {
 
   class SystemVerifier {
   private:
+    static const int KEY_SIZE = 12;
+
+
+
+    int disk_access_count = 0;
+    int filteredByRDFCount = 0;
 
   public:
     static SystemVerifier* system_verifier;
 
     // WorkloadRecorder();
-    const static int EXPERIMENT_REPETITION_TIMES = 3;
+    const static int EXPERIMENT_REPETITION_TIMES = 2;
 
     static void init(){
       if(system_verifier == NULL){
@@ -65,7 +71,10 @@ namespace checking {
       return system_verifier;
     }
 
-    int disk_access_count = 0;
+    static int getKeySize(){
+      return KEY_SIZE;
+    }
+
 
     void resetDiskAccessCount(){
       disk_access_count = 0;
@@ -79,9 +88,25 @@ namespace checking {
       return disk_access_count;
     }
 
+    void increaseFilteredByRDFCount(){
+      filteredByRDFCount++;
+    }
 
-    // std::unordered_map<int, std::string> RDFTypes({{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}});
-    std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}};
+    void resetFilteredByRDFCount(){
+      filteredByRDFCount = 0;
+    }
+
+    int getFilteredByRDFCount(){
+      return filteredByRDFCount;
+    }
+
+    // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}};
+    // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}};
+    // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "NONE"}};
+    // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}, {3, "NONE"}};
+    std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}, {3, "TOP_LEVEL_RDF"}, {4, "NONE"}};
+    // std::unordered_map<int, std::string> RDFTypes = {{0, "TOP_LEVEL_RDF"}};
+
     int RDFType_chosed = 0;
         
     uint getNumberOfRDFTypes(){
@@ -104,6 +129,11 @@ namespace checking {
 
     map<long long, string> groundTruth;
     set<long long> historicExistingKeys;
+    vector<long long> currentlyNonInsertedKeys;
+    using pll2 = pair<long long, long long>;
+    vector<pll2> RDs;
+    int deleted_key_count = 0;
+
 
     void insert(long long key, string value){
       groundTruth[key] = value;
@@ -114,7 +144,13 @@ namespace checking {
       auto it = groundTruth.lower_bound(start_key);
       for(;it != groundTruth.end() && it->first < end_key;){
         groundTruth.erase(it++); 
+        deleted_key_count++;
       }
+      RDs.push_back(make_pair(start_key, end_key));
+    }
+
+    int getDeletedKeyCount(){
+      return deleted_key_count;
     }
 
     bool isKeyExist(long long key){
@@ -154,16 +190,65 @@ namespace checking {
       return result;
     }
 
-    vector<long long> getCurrentlyNonInsertedKeys(int num){
-      vector<long long> result;
-      while(num){
-        long long key = rand() % 1000000000;
+    void genCurrentlyNonInsertedKeys(int num){
+      sort(RDs.begin(), RDs.end());
+      vector<pll2> RDS2;
+      if(RDs.size() > 0){
+        pll2 range = RDs[0];
+        auto it = RDs.begin();
+        auto ite = RDs.end();
+        for(; it != ite; it++){
+          if(it->first <= range.second){
+            range.second = max(range.second, it->second);
+          }else{
+            RDS2.push_back(range);
+            range = *it;
+          }
+        }
+        RDS2.push_back(range);
+      }
+      RDs = RDS2;
+
+      // long long tot_range = 0;
+      // for(auto &range: RDs){
+      //   tot_range += range.second - range.first;
+      // }
+      size_t len_RDs = RDs.size();
+
+      currentlyNonInsertedKeys.clear();
+      int max_trial = num * 3;
+      int i_trial = 0;
+      while(num ){
+        int i_RDs = rand() % len_RDs;
+        pll2 range = RDs[i_RDs];
+        int len_range = range.second - range.first;
+        long long diff = rand() % len_range;
+        long long key = range.first + diff;
         if(groundTruth.count(key) == 0){
-          result.push_back(key);
+          currentlyNonInsertedKeys.push_back(key);
+          num--;
+        }
+
+
+        i_trial ++;
+        if(i_trial >= max_trial){
+          break;
+        }
+      }
+
+      // currentlyNonInsertedKeys.clear();
+      while(num){
+        long long key = rand() % 100000000;
+        if(groundTruth.count(key) == 0){
+          currentlyNonInsertedKeys.push_back(key);
           num--;
         }
       }
-      return result;
+    }
+
+    // vector<long long> getCurrentlyNonInsertedKeys(int num){
+    vector<long long> getCurrentlyNonInsertedKeys(){
+      return currentlyNonInsertedKeys;
     }
 
     vector<int> checkOnExistingKeys();

@@ -176,6 +176,9 @@ struct FileSampledStats {
 };
 
 struct FileMetaData {
+  //Self Added
+  // long long rd_smallest = 0; // Smallest RD key
+  // long long rd_largest = 0; // Largest RD key
   // static std::vector<PL_RDF> per_level_range_delete_filter; //Self Added, ranges don't split when inserts come//added by ychaung
 
   FileDescriptor fd;

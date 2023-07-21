@@ -329,6 +329,15 @@ class DB {
   // implementation does cleanup in the destructor
   virtual Status Close() { return Status::NotSupported(); }
 
+  //self Added Start
+  virtual Status printAllFileRanges() { return Status::NotSupported(); }
+  virtual Status printPLRDF() { return Status::NotSupported(); }
+  virtual uint getFlushQueueSize() { return -1; }
+  virtual uint getCompactionQueueSize() { return -1; }
+  virtual bool existFlushJob() {return false;};
+  virtual bool existCompactionJob() {return false;};
+  //self Added End
+
   // ListColumnFamilies will open the DB specified by argument name
   // and return the list of all column families in that DB
   // through column_families argument. The ordering of
@@ -1883,6 +1892,22 @@ class DB {
   virtual Status TryCatchUpWithPrimary() {
     return Status::NotSupported("Supported only by secondary instance");
   }
+
+
+
+  
+
+  //Self Added
+  virtual Status CleanTableCache(
+      ColumnFamilyHandle* /*column_family*/, std::ostream& /*ofile*/) {
+    return Status::NotSupported("Not implemented");
+  }
+  // CleanTableCache
+  Status CleanTableCache(std::ostream& ofile) {
+    return CleanTableCache(DefaultColumnFamily(), ofile);
+  }
+
+
 };
 
 struct WriteStallStatsMapKeys {
@@ -1956,6 +1981,7 @@ Status RepairDB(const std::string& dbname, const DBOptions& db_options,
 // @param options These options will be used for the database and for ALL column
 //                families encountered during the repair
 Status RepairDB(const std::string& dbname, const Options& options);
+
 
 
 }  // namespace ROCKSDB_NAMESPACE

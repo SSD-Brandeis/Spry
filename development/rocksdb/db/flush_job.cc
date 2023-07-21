@@ -15,6 +15,9 @@
 
 #include <iostream>
 
+//Self Added
+#include <tuple>
+
 #include "db/builder.h"
 #include "db/db_iter.h"
 #include "db/dbformat.h"
@@ -48,6 +51,9 @@
 #include "util/coding.h"
 #include "util/mutexlock.h"
 #include "util/stop_watch.h"
+
+//Self Added
+#include "include/rocksdb/sys_rdfilter.h"
 
 namespace ROCKSDB_NAMESPACE {
 
@@ -902,8 +908,8 @@ std::cout  << "FlushJob::WriteLevel0Table A1 " << __FILE__ << ":" << __LINE__ <<
           cfd_->GetName().c_str(), job_context_->job_id, m->GetNextLogNumber());
       memtables.push_back(m->NewIterator(ro, &arena));
 
-//Self added
-cfd_->current()->printAllFileRanges();
+//Self Added Start
+// cfd_->current()->printAllFileRanges();
       
 // cfd_->current()->setRDFTest2(cfd_->current()->getRDFTest());
 
@@ -911,34 +917,70 @@ std::vector<pll> range_delete_list_in;
 auto* range_del_iter2 = m->NewRangeTombstoneIterator(
           ro, kMaxSequenceNumber, true /* immutable_memtable */);
 if (range_del_iter2 != nullptr) {
-std::cout << "valid " << range_del_iter2->Valid() << " " << range_del_iter2 << __FILE__ << ":" << __LINE__ << std::endl;
-std::cout << "range_del_iter " <<  (range_del_iter2->key()).ToString() << " " << (range_del_iter2->key()).ToString(true) << " " <<  (range_del_iter2->key()).ToString(false) << " " << range_del_iter2 << __FILE__ << ":" << __LINE__ << std::endl;
-std::cout << "number of deletes " << m->num_deletes()   << std::endl;
+// std::cout << "valid " << range_del_iter2->Valid() << " " << range_del_iter2 << __FILE__ << ":" << __LINE__ << std::endl;
+// std::cout << "range_del_iter " <<  (range_del_iter2->key()).ToString() << " " << (range_del_iter2->key()).ToString(true) << " " <<  (range_del_iter2->key()).ToString(false) << " " << range_del_iter2 << __FILE__ << ":" << __LINE__ << std::endl;
+// std::cout << "number of deletes " << m->num_deletes()   << std::endl;
 
   for (range_del_iter2->SeekToFirst(); range_del_iter2->Valid(); range_del_iter2->Next()) {
     auto tombstone = range_del_iter2->Tombstone();
-    std::cout << "flush tombstone " << tombstone.start_key_.ToString() << " " << tombstone.end_key_.ToString() << std::endl;
+    std::cout << "flush tombstone " << tombstone.start_key_.ToString() << " " << tombstone.end_key_.ToString() << " " << __FILE__ << ":" << __LINE__ << std::endl;
   
-    // edit_->storeRange2RDFTest(tombstone);
-    // cfd_->current()->storage_info()->storeRange2RDFTest(tombstone);
+    // // edit_->storeRange2RDFTest(tombstone);
+    // // cfd_->current()->storage_info()->storeRange2RDFTest(tombstone);
     
-    // SuperVersion *sv = cfd_->GetThreadLocalSuperVersion(this);
-    // sv->printRDFTest();
+    // // SuperVersion *sv = cfd_->GetThreadLocalSuperVersion(this);
+    // // sv->printRDFTest();
 
-    // cfd_->current()->storeRange2RDFTest(tombstone);
-    // assert( cfd_->current()->getIsRDFTest2Set() != false);
-    // cfd_->current()->storeRange2RDFTest2(tombstone);
-    // cfd_->current()->storeRange2RDFilter(0, tombstone);
+    // // cfd_->current()->storeRange2RDFTest(tombstone);
+    // // assert( cfd_->current()->getIsRDFTest2Set() != false);
+    // // cfd_->current()->storeRange2RDFTest2(tombstone);
+    // // cfd_->current()->storeRange2RDFilter(0, tombstone);
     range_delete_list_in.push_back(std::make_pair( std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) ));
-    // cfd_->storeRange2RDFTest(tombstone);
-    // cfd_->storeRange2RDFTest2(tombstone);
+    // // cfd_->storeRange2RDFTest(tombstone);
+    // // cfd_->storeRange2RDFTest2(tombstone);
   }
 
 
-  cfd_->current()->storeRanges2RDFilter(0, range_delete_list_in);
+  // for(auto &x: range_delete_list_in){
+  //   cout << "flush range_delete_list_in " << x.first << " " << x.second << endl;
+  // }
+  // cfd_->current()->storeRanges2RDFilter(0, range_delete_list_in);
   
-  cfd_->current()->printRDFilter();
+  // cfd_->current()->printRDFilter();
+  // cfd_->current()->printRDFilterUpdated();
 }
+vector<uint64_t> exist_level0_file_nums = cfd_->current()->getLevelFileNumbers(0);
+// // Do insertion, even if the vector is empty, because we need to set condition_variable of mutex (semaphore) for compaction
+// rdfilter::PLRDF::getRDFilter()->insertRangeDeleteToLevel0(meta_.fd.GetNumber(), range_delete_list_in, exist_level0_file_nums);
+// std::pair<uint64_t, std::vector<pll>>
+auto level0_RD_vector = std::make_tuple(meta_.fd.GetNumber(), range_delete_list_in, exist_level0_file_nums);
+cfd_->set_flush_to_level0_RD_vector(level0_RD_vector);
+cfd_->set_split__flush_to_level0_RD_vector(level0_RD_vector);
+
+if(cfd_->get_flush_in_file_num() >= meta_.fd.GetNumber()){
+  std::cerr << "flush in file num is not in increasing order" << std::endl
+            << " flush in file num = " << cfd_->get_flush_in_file_num()
+            << " meta_.fd.GetNumber() = " << meta_.fd.GetNumber() << std::endl;
+}
+cfd_->set_flush_in_file_num(meta_.fd.GetNumber());
+
+// rdfilter::PLRDF::getRDFilter()->printLevel0();
+// rdfilter::PLRDF::getRDFilter()->print();
+// cfd_->current()->insertRangeDeleteToLevel0(meta_.fd.GetNumber(), range_delete_list_in);
+// cfd_->current()->printLevel0();
+// cfd_->current()->print();
+
+// if(cfd_->current()->get_flush_install_count() > 0){
+//       std::cerr << "flush write to version (current_) happens more than once. times = " 
+//             << cfd_->current()->get_flush_install_count() << __FILE__ << ":" << __LINE__ << std::endl
+//             << "flush = " << cfd_->current()->get_flush_install_count() << std::endl
+//             << "compact = " << cfd_->current()->get_compaction_install_count() << std::endl
+//             << "installSuperversion = " << cfd_->current()->get_installSuperversion_count() << std::endl;
+// }
+// cfd_->current()->inc_flush_install_count();
+// cfd_->inc_flush_install_count();
+//Self Added End
+
 
 
 
