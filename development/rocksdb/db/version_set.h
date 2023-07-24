@@ -1078,6 +1078,14 @@ class Version {
     return storage_info_.LevelFiles(lvl).size();
   }
 
+  uint getTotalNumberOfSSTFiles(){
+    uint total = 0;
+    for(int i = 0; i < storage_info_.num_levels(); i++){
+      total += storage_info_.LevelFiles(i).size();
+    }
+    return total;
+  }
+
   // //Self Added
   // void storeRange2RDFilter(uint level, RangeTombstone tombstone){
   //   assert(is_RDF_updated == false);
@@ -1178,6 +1186,27 @@ class Version {
     top_level_rdf.printLevel0();
     top_level_rdf.print();
   }
+
+  int getPLRDFNumberOfTotalRanges(){
+    return plrdf.getNumberOfTotalRanges();
+  }
+  int getSplitPLRDFNumberOfTotalRanges(){
+    return split_plrdf.getNumberOfTotalRanges();
+  }
+  int getTopLevelRDFNumberOfTotalRanges(){
+    return top_level_rdf.getNumberOfTotalRanges();
+  }
+
+  int getPLRDFNumberOfTotalLevels(){
+    return plrdf.getNumberOfTotalLevels();
+  }
+  int getSplitPLRDFNumberOfTotalLevels(){
+    return split_plrdf.getNumberOfTotalLevels();
+  }
+  int getTopLevelRDFNumberOfTotalLevels(){
+    return top_level_rdf.getNumberOfTotalLevels();
+  }
+
 
   // bool getIsRDFUpdated(){return is_RDF_updated;}
   

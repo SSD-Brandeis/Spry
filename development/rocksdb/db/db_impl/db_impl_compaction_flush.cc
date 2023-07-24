@@ -3683,6 +3683,7 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
     // c->column_family_data()->current()->set_compaction_direct_delete_RD_vector(file_meta_data_vectors);
     c->column_family_data()->set_compaction_direct_delete_RD_vector(file_meta_data_vectors);
     c->column_family_data()->set_split__compaction_direct_delete_RD_vector(file_meta_data_vectors);
+    // c->column_family_data()->set_top_level__direct_delete__delete_RD_vector(file_meta_data_vectors);
 
     // c->column_family_data()->GetSuperVersion()->current->deleteRDFAssociatedWithFilesAtCurrentLevel(&file_meta_data_vectors);
     //Self Added
@@ -3725,7 +3726,8 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
     *made_progress = true;
     TEST_SYNC_POINT_CALLBACK("DBImpl::BackgroundCompaction:AfterCompaction",
                              c->column_family_data());
-  } else if (!trivial_move_disallowed && c->IsTrivialMove()) {
+  // } else if (!trivial_move_disallowed && c->IsTrivialMove()) {
+  } else if (!trivial_move_disallowed && c->IsTrivialMove() && false) { // <------------------- do this only for top-level RDF behavioral simulation
     TEST_SYNC_POINT("DBImpl::BackgroundCompaction:TrivialMove");
     TEST_SYNC_POINT_CALLBACK("DBImpl::BackgroundCompaction:BeforeCompaction",
                              c->column_family_data());
@@ -3743,6 +3745,7 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
 
     //Self Added
     std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>();
+    std::tuple<int, std::vector<pll>, std::vector<uint64_t>> delete_RD_vector; 
 
     for (unsigned int l = 0; l < c->num_input_levels(); l++) {
       if (c->level(l) == c->output_level()) {
@@ -3766,8 +3769,14 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
             file_numbers.push_back(file_meta->fd.GetNumber());
           }
           file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries, file_numbers));
-          flag = true;
+          
+          if(c->level(l) == 0){ // coming from level 0
+            delete_RD_vector = std::make_tuple(1, smallest_largest_boundries, file_numbers);
+          }
+
+          flag = true; //why flag?
         }
+
 
         FileMetaData* f = c->input(l, i);
         c->edit()->DeleteFile(c->level(l), f->fd.GetNumber());
@@ -3806,6 +3815,7 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
     //rdfilter::PLRDF::getRDFilter()->shiftRDFToOutputLevel(file_meta_data_vectors);
     c->column_family_data()->set_compaction_moving_RD_vector(*file_meta_data_vectors);
     c->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
+    c->column_family_data()->set_top_level__trivial_move__delete_RD_vector(delete_RD_vector); 
 
     // c->column_family_data()->GetSuperVersion()->current->shiftRDFToOutputLevel(file_meta_data_vectors);
     

@@ -991,6 +991,16 @@ void PLRDF::deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, std::vect
       it++;
     }
     /*
+    *    |||--|||
+    *    --------
+    *    |      |
+    *    --------
+    */
+    else if (val.first >= file_boundry.first && val.second <= file_boundry.second)
+    {
+      it++;
+    }
+    /*
     *     ||||-------|
     *     --------
     *     |      |
@@ -999,6 +1009,7 @@ void PLRDF::deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, std::vect
     else if (val.first >= file_boundry.first && val.first <= file_boundry.second && val.second > file_boundry.second)
     {
       (*it).first = file_boundry.second + 1;
+      if((*it).first >= (*it).second){ it++; } // <------------------------
       itf++;
     }
     /*
@@ -1011,6 +1022,7 @@ void PLRDF::deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, std::vect
     {
       new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
       (*it).first = file_boundry.second + 1;
+      if((*it).first >= (*it).second){ it++; } // <------------------------
       itf++;
     }else{
       std::cerr << "Condition Unchecked " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -1041,7 +1053,6 @@ void PLRDF::setLevelRanges(vector<pll> level_ranges_in, int outlevel){
   while(rd_filter.size() <= (uint)outlevel){
     rd_filter.push_back(vector<pll>());
   }
-
   
   if(level_ranges_in != rd_filter[outlevel]){
     std::cout << "^^^ outlevel: " << outlevel 
@@ -1064,6 +1075,25 @@ void PLRDF::setLevelRanges(vector<pll> level_ranges_in, int outlevel){
 
 }
 
+
+int PLRDF::getNumberOfTotalLevels(){
+  int num = 0;
+  int len = rd_filter.size();
+  for(int i = 1; i < len; i++){
+    if(rd_filter[i].size() > 0){
+      num = i+1;
+    }
+  }
+  return num;
+}
+
+int PLRDF::getNumberOfTotalRanges(){
+  int num = 0;
+  for(auto it = rd_filter.begin(); it != rd_filter.end(); it++){
+    num += it->size();
+  }
+  return num;
+}
 
 void PLRDF::print(){
   // init();
@@ -2737,13 +2767,23 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
       }
 
       //Top Level RDF
-      int in_lvl = std::get<0>(this->split__compaction_moving_RD_vector[0]);
-      // if(in_lvl == 0 || in_lvl == 1){
-      if(in_lvl == 0){
-        (this->top_level_rdf_prime).shiftRDFToOutputLevel(&this->split__compaction_moving_RD_vector);
-        if(split_flag == true && in_lvl == 0){
-          (this->top_level_rdf_prime).splitRangesOnLevel((uint)1, this->top_level__level_points);
+      if(split_flag == true){ //complex compaction
+        int in_lvl = std::get<0>(this->split__compaction_moving_RD_vector[0]);
+        // if(in_lvl == 0 || in_lvl == 1){
+        if(in_lvl == 0){
+          (this->top_level_rdf_prime).shiftRDFToOutputLevel(&this->split__compaction_moving_RD_vector);
+          if(split_flag == true && in_lvl == 0){
+            (this->top_level_rdf_prime).splitRangesOnLevel((uint)1, this->top_level__level_points);
+          }
         }
+      }else{ //trivial move
+        // not the way we want, so --> set trivial move to false --> never do trivial move only 
+        // for top level RDF (just for an easier way to simulate top level RDF's behavior)
+        // int in_lvl = std::get<0>(this->top_level__trivial_move__delete_RD_vector);
+        // if(in_lvl == 1){
+        //   (this->top_level_rdf_prime).deleteRDFAssociatedWithFilesAtCurrentLevel(&this->top_level__trivial_move__delete_RD_vector);
+        // }
+        this->top_level__trivial_move__delete_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
       }
 
 
@@ -2791,11 +2831,11 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
       // this->clear_split__level_ranges_updated();
 
 
-      //Top Level RDF
-      int in_lvl = std::get<0>(this->split__compaction_direct_delete_RD_vector);
-      if(in_lvl == 1){
-        (this->top_level_rdf_prime).deleteRDFAssociatedWithFilesAtCurrentLevel(&this->split__compaction_direct_delete_RD_vector);
-      }
+      // //Top Level RDF
+      // int in_lvl = std::get<0>(this->split__compaction_direct_delete_RD_vector);
+      // if(in_lvl == 1){
+      //   (this->top_level_rdf_prime).deleteRDFAssociatedWithFilesAtCurrentLevel(&this->split__compaction_direct_delete_RD_vector);
+      // }
 
       //Split PLRDF
       (this->split_plrdf_prime).deleteRDFAssociatedWithFilesAtCurrentLevel(&this->split__compaction_direct_delete_RD_vector);

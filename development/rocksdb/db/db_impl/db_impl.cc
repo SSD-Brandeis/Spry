@@ -4838,6 +4838,37 @@ bool DBImpl::existCompactionJob(){
   mutex_.Unlock();
   return flag1 || flag2 || flag3 || flag4;; 
 }
+
+uint DBImpl::getTotalNumberOfSSTFiles(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getTotalNumberOfSSTFiles();
+}
+
+
+int DBImpl::getPLRDFNumberOfTotalRanges(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getPLRDFNumberOfTotalRanges();
+}
+int DBImpl::getSplitPLRDFNumberOfTotalRanges(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getSplitPLRDFNumberOfTotalRanges();
+}
+int DBImpl::getTopLevelRDFNumberOfTotalRanges(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getTopLevelRDFNumberOfTotalRanges();
+}
 //Self Added End
 
 

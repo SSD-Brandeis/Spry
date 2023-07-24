@@ -2378,7 +2378,7 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
 
 // this->top_level_rdf.print();
-// std::cout << "### filtered by TOP Level RDF, level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << "### filtered by TOP Level RDF, hit_file_level = " << fp.GetHitFileLevel() << " current_level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       return;
     }
   }else if(rdf_type != "NONE" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF"){

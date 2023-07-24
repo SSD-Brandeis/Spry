@@ -74,6 +74,9 @@ namespace ROCKSDB_NAMESPACE {
       std::vector<pll> getLevelRanges(int outlevel);
       void setLevelRanges(std::vector<pll> level_ranges_in, int outlevel);
 
+      int getNumberOfTotalLevels();
+      int getNumberOfTotalRanges();
+
       void printLevel0();
       void print();
 
@@ -805,6 +808,37 @@ class ColumnFamilyData {
   }
   
 
+
+
+
+  void set_top_level__trivial_move__delete_RD_vector(std::tuple<int, std::vector<pll>, std::vector<uint64_t>> &compaction_direct_delete_RD_vector_in){
+    auto out_lvl = std::get<0>(this->top_level__trivial_move__delete_RD_vector);
+    if((int)out_lvl != -1){
+      std::cerr << "split__compaction_direct_delete_RD_vector is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    top_level__trivial_move__delete_RD_vector = compaction_direct_delete_RD_vector_in;
+  }
+  
+  // void set_top_level__direct_delete__delete_RD_vector(std::tuple<int, std::vector<pll>, std::vector<uint64_t>> &compaction_direct_delete_RD_vector_in){
+  //   auto out_lvl = std::get<0>(this->top_level__direct_delete__delete_RD_vector);
+  //   if((int)out_lvl != -1){
+  //     std::cerr << "split__compaction_direct_delete_RD_vector is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  //   }
+  //   top_level__direct_delete__delete_RD_vector = compaction_direct_delete_RD_vector_in;
+  // }
+
+  std::tuple<int, std::vector<pll>, std::vector<uint64_t>> get_top_level__trivial_move__delete_RD_vector(){
+    return top_level__trivial_move__delete_RD_vector;
+  }
+
+  // std::tuple<int, std::vector<pll>, std::vector<uint64_t>> get_top_level__direct_delete__delete_RD_vector(){
+  //   return top_level__direct_delete__delete_RD_vector;
+  // }
+
+
+
+
+
   void printPLRDF(){
     std::cout << "cfd --- PLRDF " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
     plrdf_prime.printLevel0();
@@ -1021,6 +1055,8 @@ class ColumnFamilyData {
   uint64_t flush_in_file_num = 0;
   std::vector<pll> top_level__level_ranges;
   std::vector<long long> top_level__level_points;
+  std::tuple<int, std::vector<pll>, std::vector<uint64_t>> top_level__trivial_move__delete_RD_vector = std::make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
+  // std::tuple<int, std::vector<pll>, std::vector<uint64_t>> top_level__direct_delete__delete_RD_vector = std::make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
   int top_level__level_range_idx = 0;
   // std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
   // // std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
