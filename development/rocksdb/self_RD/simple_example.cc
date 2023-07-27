@@ -1430,6 +1430,8 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
 
   std::this_thread::sleep_for(std::chrono::seconds(10));  // Sleep for 1 second
   {
+    std::cout << "Press Enter to continue...";
+    std::cin.ignore(); // Waits for user to press Enter key
     runPQVerification(&db, op, write_op, read_op, _env);
   }
 
