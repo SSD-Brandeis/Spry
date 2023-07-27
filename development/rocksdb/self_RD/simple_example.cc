@@ -44,6 +44,7 @@ rdfilter::PLRDF* rdfilter::PLRDF::plrdf_ptr;
 
 using namespace rocksdb;
 std::string kDBPath = "/tmp/cs561_project1";
+// std::string kDBPath = "/home/tan/cs561_project1";
 
 void printStats(DB* db, Options& options);
 void print_perf_iostats_context(std::ostream& ofile, int N_repetitions = 1);
@@ -397,8 +398,8 @@ void init(DB **db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_o
 
   
 
-  setNewBlockCacheForReading(op);
-  // setNoBlockCacheForReading(op);
+  // setNewBlockCacheForReading(op);
+  setNoBlockCacheForReading(op);
 
   clearCache(op);
 
@@ -591,7 +592,12 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
         std::string value;
         std::stringstream searching_key;
         searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
-        s = db->Get(read_op, searching_key.str(), &value);
+
+        start_pq = std::chrono::high_resolution_clock::now();
+        s = db->Get(read_op, searching_key.str(), &value);  
+        stop_pq = std::chrono::high_resolution_clock::now();
+        duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+        point_query_time += duration_pq.count();
         // std::cout << x << " " << s.ok() << " " << value << std::endl;
         // std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
       
@@ -604,9 +610,9 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
         }
       }
       disk_access_count += system_verifier->getDiskAccessCount();
-      stop_pq = std::chrono::high_resolution_clock::now();
-      duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
-      point_query_time += duration_pq.count();
+      // stop_pq = std::chrono::high_resolution_clock::now();
+      // duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+      // point_query_time += duration_pq.count();
 
 // testing_result_file << i << " -----" << std::endl;    
 // // long long total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
@@ -734,7 +740,12 @@ std::cout << "!!! Testing On historic-existing Keys " << std::endl;
         std::string value;
         std::stringstream searching_key;
         searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+
+        start_pq = std::chrono::high_resolution_clock::now();
         s = db->Get(read_op, searching_key.str(), &value);
+        stop_pq = std::chrono::high_resolution_clock::now();
+        duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+        point_query_time += duration_pq.count();
         // testing_result_file << x << " " << s.ok() << " " << value << std::endl;
         // testing_result_file << x << " " << gt_is_exist << " " << gt_value << std::endl;
       
@@ -747,9 +758,9 @@ std::cout << "!!! Testing On historic-existing Keys " << std::endl;
         }
       }
       disk_access_count += system_verifier->getDiskAccessCount();
-      stop_pq = std::chrono::high_resolution_clock::now();
-      duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
-      point_query_time += duration_pq.count();
+      // stop_pq = std::chrono::high_resolution_clock::now();
+      // duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+      // point_query_time += duration_pq.count();
 
 // testing_result_file << i << " -----" << std::endl;    
 // // long long total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
@@ -885,7 +896,12 @@ std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
         std::string value;
         std::stringstream searching_key;
         searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+
+        start_pq = std::chrono::high_resolution_clock::now();
         s = db->Get(read_op, searching_key.str(), &value);
+        stop_pq = std::chrono::high_resolution_clock::now();
+        duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+        point_query_time += duration_pq.count();
         // testing_result_file << x << " " << s.ok() << " " << value << std::endl;
         // testing_result_file << x << " " << gt_is_exist << " " << gt_value << std::endl;
       
@@ -898,9 +914,9 @@ std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
         }
       }
       disk_access_count += system_verifier->getDiskAccessCount();
-      stop_pq = std::chrono::high_resolution_clock::now();
-      duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
-      point_query_time += duration_pq.count();
+      // stop_pq = std::chrono::high_resolution_clock::now();
+      // duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+      // point_query_time += duration_pq.count();
 
 // testing_result_file << i << " -----" << std::endl;    
 // // long long total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
@@ -1033,7 +1049,12 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
         std::string value;
         std::stringstream searching_key;
         searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+
+        start_pq = std::chrono::high_resolution_clock::now();
         s = db->Get(read_op, searching_key.str(), &value);
+        stop_pq = std::chrono::high_resolution_clock::now();
+        duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+        point_query_time += duration_pq.count();
         // testing_result_file << x << " " << s.ok() << " " << value << std::endl;
         // testing_result_file << x << " " << gt_is_exist << " " << gt_value << std::endl;
       
@@ -1046,9 +1067,9 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
         }
       }
       disk_access_count += system_verifier->getDiskAccessCount();
-      stop_pq = std::chrono::high_resolution_clock::now();
-      duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
-      point_query_time += duration_pq.count();
+      // stop_pq = std::chrono::high_resolution_clock::now();
+      // duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+      // point_query_time += duration_pq.count();
 
 // testing_result_file << i << " -----" << std::endl;    
 // // long long total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")

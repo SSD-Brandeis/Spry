@@ -12,3 +12,4 @@ transaction_example
 log
 *.log
 *_log
+*_log2

@@ -104,16 +104,16 @@ void PLRDF::addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll>
   auto& rdList = range_delete_list;
   auto& rdList_in = range_delete_list_in;
 
-// std::cout << "rdList" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
-// for(auto it = rdList.begin(); it != rdList.end(); it++){
-// std::cout << "aaaa " << it->first << " " << it->second << std::endl;
+// // std::cout << "rdList" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
+// // for(auto it = rdList.begin(); it != rdList.end(); it++){
+// // std::cout << "aaaa " << it->first << " " << it->second << std::endl;
+// // }
+// // std::cout << std::endl << std::endl;
+// std::cout << "rdList_in" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
+// for(auto it = rdList_in.begin(); it != rdList_in.end(); it++){
+// std::cout << "aaaa2 " << it->first << " " << it->second << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 // }
 // std::cout << std::endl << std::endl;
-std::cout << "rdList_in" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
-for(auto it = rdList_in.begin(); it != rdList_in.end(); it++){
-std::cout << "aaaa2 " << it->first << " " << it->second << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-}
-std::cout << std::endl << std::endl;
 
 
 // std::cout << "rdList_in" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
@@ -435,40 +435,40 @@ void PLRDF::adjustRangeDeletesForLevel0Input(uint olevel, std::vector<uint64_t> 
 
 
   for(uint64_t &file_num: file_numbers){
-//     {
-//       // -- semaphores_level0 --
-//       semaphores_level0_mutex.lock();
-//       // if(semaphores_level0.count(file_num) == 0){
-//         // semaphores_level0[file_num] = std::binary_semaphore{0};
-//         // semaphores_level0[file_num] = make_pair(std::mutex(), std::condition_variable());
-// std::cout << "Compact From Level0 " << "semaphores_m_level0.count(file_num) : " << semaphores_m_level0.count(file_num) << " file_num =  " << file_num << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << "Compact From Level0 " << "semaphores_cv_level0.count(file_num) : " << semaphores_cv_level0.count(file_num) << " file_num =  " << file_num << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//       if(semaphores_m_level0.count(file_num) == 0){
-//         semaphores_m_level0.emplace(std::piecewise_construct,
-//                 std::forward_as_tuple(file_num),
-//                 std::forward_as_tuple());
-//         semaphores_cv_level0.emplace(std::piecewise_construct,
-//                 std::forward_as_tuple(file_num),
-//                 std::forward_as_tuple());
-//       }
-//       semaphores_level0_mutex.unlock();
-//       // -- semaphores_level0 --
+// //     {
+// //       // -- semaphores_level0 --
+// //       semaphores_level0_mutex.lock();
+// //       // if(semaphores_level0.count(file_num) == 0){
+// //         // semaphores_level0[file_num] = std::binary_semaphore{0};
+// //         // semaphores_level0[file_num] = make_pair(std::mutex(), std::condition_variable());
+// // std::cout << "Compact From Level0 " << "semaphores_m_level0.count(file_num) : " << semaphores_m_level0.count(file_num) << " file_num =  " << file_num << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// // std::cout << "Compact From Level0 " << "semaphores_cv_level0.count(file_num) : " << semaphores_cv_level0.count(file_num) << " file_num =  " << file_num << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// //       if(semaphores_m_level0.count(file_num) == 0){
+// //         semaphores_m_level0.emplace(std::piecewise_construct,
+// //                 std::forward_as_tuple(file_num),
+// //                 std::forward_as_tuple());
+// //         semaphores_cv_level0.emplace(std::piecewise_construct,
+// //                 std::forward_as_tuple(file_num),
+// //                 std::forward_as_tuple());
+// //       }
+// //       semaphores_level0_mutex.unlock();
+// //       // -- semaphores_level0 --
 
-std::cout << "Compact From Level0 " << "file_num: " << file_num << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << "Compact From Level0 " << "file_num: " << file_num << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
-//       // -- wait on semaphores_level0 --
-//       // waiting for the signal from flushJob that the RD of the file 
-//       // is already added to the rd_filter_level0
-//       // semaphores_level0[file_num].acquire();  
-//       // std::unique_lock lk(semaphores_level0[file_num].first); 
-//       // semaphores_level0[file_num].second.wait(lk, [&] {return rd_filter_level0.count(file_num) > 0;}); // waken when condition becomes true
-//       std::unique_lock lk(semaphores_m_level0[file_num]); 
-//       semaphores_cv_level0[file_num].wait(lk, [&] {return rd_filter_level0.count(file_num) > 0;}); // waken when condition becomes true
-//       // semaphores_cv_level0[file_num].wait(lk);
-//       lk.unlock();
-// std::cout << "Compact From Level0 " << "UnLocked !!" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//       // -- wait on semaphores_level0 --
-//     }
+// //       // -- wait on semaphores_level0 --
+// //       // waiting for the signal from flushJob that the RD of the file 
+// //       // is already added to the rd_filter_level0
+// //       // semaphores_level0[file_num].acquire();  
+// //       // std::unique_lock lk(semaphores_level0[file_num].first); 
+// //       // semaphores_level0[file_num].second.wait(lk, [&] {return rd_filter_level0.count(file_num) > 0;}); // waken when condition becomes true
+// //       std::unique_lock lk(semaphores_m_level0[file_num]); 
+// //       semaphores_cv_level0[file_num].wait(lk, [&] {return rd_filter_level0.count(file_num) > 0;}); // waken when condition becomes true
+// //       // semaphores_cv_level0[file_num].wait(lk);
+// //       lk.unlock();
+// // std::cout << "Compact From Level0 " << "UnLocked !!" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// //       // -- wait on semaphores_level0 --
+// //     }
 
     {
       // // -- rd_filter_level0 --
@@ -653,7 +653,7 @@ void PLRDF::insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pll> &range
   }
   rd_filter_level0[file_num] = sorted_merged_rdlist;
 
-  std::cout << "rd_filter_Level0 " << "file_num: " << file_num << " number of RD: " << sorted_merged_rdlist.size() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // std::cout << "rd_filter_Level0 " << "file_num: " << file_num << " number of RD: " << sorted_merged_rdlist.size() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   // rd_filter_level0_mutex.unlock();
   // -- updating rd_filter_level0 --
@@ -776,11 +776,11 @@ void PLRDF::shiftRDFToOutputLevel(std::vector<std::tuple<int, int, std::vector<p
     // init();
   // std::lock_guard<std::mutex> guard(update_mutex);
 
-  // FIXME: FOR TESTING (next 2 lines)
-  std::cout << "Before Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  // update_mutex.lock();
-  print_internal();
-  // update_mutex.unlock();
+  // // // FIXME: FOR TESTING (next 2 lines)
+  // // std::cout << "Before Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // // // update_mutex.lock();
+  // print_internal();
+  // // update_mutex.unlock();
 
   for (auto file_meta_data : *file_meta_data_vectors)
   {
@@ -801,11 +801,11 @@ void PLRDF::shiftRDFToOutputLevel(std::vector<std::tuple<int, int, std::vector<p
     }
   }
 
-  // FIXME: FOR TESTING (next 2 lines)
-  std::cout << "After Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  // update_mutex.lock();
-  print_internal();
-  // update_mutex.unlock();
+  // // // FIXME: FOR TESTING (next 2 lines)
+  // // std::cout << "After Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // // // update_mutex.lock();
+  // print_internal();
+  // // update_mutex.unlock();
 }
 
 
@@ -917,8 +917,8 @@ void PLRDF::deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, std::vect
   // init();
   // std::lock_guard<std::mutex> guard(update_mutex);
 
-  std::cout << "Before Deletion Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  print_internal();
+  // std::cout << "Before Deletion Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // print_internal();
 
   std::vector<std::pair<long long, long long>> one_level_file_boundries;
   auto level = std::get<0>(*file_meta_data);
@@ -1034,8 +1034,8 @@ void PLRDF::deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, std::vect
 
   rd_filter[level] = new_current_level_rdf;
 
-  std::cout << "After Deletion Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  print_internal();
+  // std::cout << "After Deletion Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // print_internal();
 }
 
 
@@ -2542,30 +2542,30 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
       + current_->get_flush_install_count()
       + current_->get_compaction_install_count() >= 0){
         
-      std::cout << "@@@ old version: " << std::endl  
-                << "flush = " << old_superversion->current->get_flush_install_count() << std::endl
-                << "compact = " << old_superversion->current->get_compaction_install_count() << std::endl
-                << "installSuperversion = " << old_superversion->current->get_installSuperversion_count() << std::endl
-                << "new version: " << std::endl
-                << "flush = " << current_->get_flush_install_count() << std::endl
-                << "compact = " << current_->get_compaction_install_count() << std::endl
-                << "installSuperversion = " << current_->get_installSuperversion_count() << std::endl;
+      // std::cout << "@@@ old version: " << std::endl  
+      //           << "flush = " << old_superversion->current->get_flush_install_count() << std::endl
+      //           << "compact = " << old_superversion->current->get_compaction_install_count() << std::endl
+      //           << "installSuperversion = " << old_superversion->current->get_installSuperversion_count() << std::endl
+      //           << "new version: " << std::endl
+      //           << "flush = " << current_->get_flush_install_count() << std::endl
+      //           << "compact = " << current_->get_compaction_install_count() << std::endl
+      //           << "installSuperversion = " << current_->get_installSuperversion_count() << std::endl;
 
-      std::cout << "@@@@ (clr) old version: " << std::endl  
-            << "flush_clr = " << old_superversion->current->get_flush_install_count_clr() << std::endl
-            << "compact_clr = " << old_superversion->current->get_compaction_install_count_clr() << std::endl
-            << "new version: " << std::endl
-            << "flush_clr = " << current_->get_flush_install_count_clr() << std::endl
-            << "compact_clr = " << current_->get_compaction_install_count_clr() << std::endl;
+      // std::cout << "@@@@ (clr) old version: " << std::endl  
+      //       << "flush_clr = " << old_superversion->current->get_flush_install_count_clr() << std::endl
+      //       << "compact_clr = " << old_superversion->current->get_compaction_install_count_clr() << std::endl
+      //       << "new version: " << std::endl
+      //       << "flush_clr = " << current_->get_flush_install_count_clr() << std::endl
+      //       << "compact_clr = " << current_->get_compaction_install_count_clr() << std::endl;
         
-      std::cout << "@@@@ opt = " << opt << std::endl;
+      // std::cout << "@@@@ opt = " << opt << std::endl;
 
       
-      std::cout << "@@@@ (cfd): " << std::endl  
-            << "cfd->flush_clr = " << this->get_flush_install_count_clr() << std::endl
-            << "cfd->compact_clr = " << this->get_compaction_install_count_clr() << std::endl;
+      // std::cout << "@@@@ (cfd): " << std::endl  
+      //       << "cfd->flush_clr = " << this->get_flush_install_count_clr() << std::endl
+      //       << "cfd->compact_clr = " << this->get_compaction_install_count_clr() << std::endl;
 
-      std::cout << "@@@@@@ (addr) old version: " << old_superversion->current << " , new version = " << current_ << std::endl; 
+      // std::cout << "@@@@@@ (addr) old version: " << old_superversion->current << " , new version = " << current_ << std::endl; 
     }
   }
   if(old_superversion != NULL && old_superversion->current != current_){
@@ -2904,7 +2904,7 @@ void ColumnFamilyData::InstallSuperVersion(
   
   
   //self added 
-  std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   // old_superversion->getRDFTest();
   std::vector<std::pair<long long, long long>> RDF_test_old;
   // std::vector<std::pair<long long, long long>> RDF_test_tmp = old_superversion->getRDFTest();
@@ -2913,41 +2913,41 @@ void ColumnFamilyData::InstallSuperVersion(
 
 
   if(old_superversion == NULL){
-    std::cout << "(cfd) old_superversion == NULL" << std::endl;
+    // std::cout << "(cfd) old_superversion == NULL" << std::endl;
   }else{
-    std::cout << "(cfd) old_superversion != NULL" << std::endl;
+    // std::cout << "(cfd) old_superversion != NULL" << std::endl;
     
-    // std::cout << "(cfd) old_superversion->current->printRDFTest() (version) " << std::endl;
-    // old_superversion->current->printRDFTest();
-    // std::cout << "(cfd) old_superversion->current->printRDFTest2() (version) " << std::endl;
-    // old_superversion->current->printRDFTest2();
+    // // std::cout << "(cfd) old_superversion->current->printRDFTest() (version) " << std::endl;
+    // // old_superversion->current->printRDFTest();
+    // // std::cout << "(cfd) old_superversion->current->printRDFTest2() (version) " << std::endl;
+    // // old_superversion->current->printRDFTest2();
 
-    // if(old_superversion->current->getIsRDFTest2Set() == true){
-    //   RDF_test_old = old_superversion->current->getRDFTest2();
-    // }else{
-    //   RDF_test_old = old_superversion->current->getRDFTest();
-    // }
-    // // (new_superversion->current)->setRDFTest(RDF_test_old);
-    // current_->setRDFTest(RDF_test_old);    
+    // // if(old_superversion->current->getIsRDFTest2Set() == true){
+    // //   RDF_test_old = old_superversion->current->getRDFTest2();
+    // // }else{
+    // //   RDF_test_old = old_superversion->current->getRDFTest();
+    // // }
+    // // // (new_superversion->current)->setRDFTest(RDF_test_old);
+    // // current_->setRDFTest(RDF_test_old);    
 
-    // PL_RDF per_level_RDF_old;
-    // if(old_superversion->current->getIsRDFUpdated() == true){
-      // per_level_RDF_old = old_superversion->current->getPerLevelRDFUpdated();
-      // per_level_RDF_old.deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
+    // // PL_RDF per_level_RDF_old;
+    // // if(old_superversion->current->getIsRDFUpdated() == true){
+    //   // per_level_RDF_old = old_superversion->current->getPerLevelRDFUpdated();
+    //   // per_level_RDF_old.deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
 
-    // rdfilter::PLRDF::getRDFilter()->deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
+    // // rdfilter::PLRDF::getRDFilter()->deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
 
-    // }else{
-    //   per_level_RDF_old = old_superversion->current->getPerLevelRDF();
-    // }
-    // current_->setPerLevelRDF(per_level_RDF_old);
+    // // }else{
+    // //   per_level_RDF_old = old_superversion->current->getPerLevelRDF();
+    // // }
+    // // current_->setPerLevelRDF(per_level_RDF_old);
   }
 
   if(old_superversion != NULL){
-    std::cout << "old_superversion->current->printAllLevelSize()" << std::endl;
-    old_superversion->current->printAllLevelSize();
-    // std::cout << "old_superversion->current->printAllFileRanges()" << std::endl;
-    // old_superversion->current->printAllFileRanges();
+    // std::cout << "old_superversion->current->printAllLevelSize()" << std::endl;
+    // old_superversion->current->printAllLevelSize();
+    // // std::cout << "old_superversion->current->printAllFileRanges()" << std::endl;
+    // // old_superversion->current->printAllFileRanges();
   }
 
 
@@ -3062,9 +3062,9 @@ void ColumnFamilyData::InstallSuperVersion(
   // std::cout << "(cfd) this->printRDFTest2 " << std::endl;
   // this->printRDFTest2();
 
-  std::cout << std::endl << std::endl;
-  // (new_superversion->current)->setRDFTest(RDF_test_tmp);
-  // (new_superversion->current)->setRDFTest2(RDF_test2);
+  // std::cout << std::endl << std::endl;
+  // // (new_superversion->current)->setRDFTest(RDF_test_tmp);
+  // // (new_superversion->current)->setRDFTest2(RDF_test2);
 
 
 

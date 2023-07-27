@@ -1789,7 +1789,7 @@ if( (current_level+1) !=  compaction->output_level()){
 }
 
       // FIXME: FOR TESTING (remove the loop as well) 
-      std::cout << "Pushing file from Current Level: " << current_level << " output Level: " << compaction->output_level() << " with CompactionInputFiles: " << compaction->inputs(lvl) << std::endl << std::flush;
+      // std::cout << "Pushing file from Current Level: " << current_level << " output Level: " << compaction->output_level() << " with CompactionInputFiles: " << compaction->inputs(lvl) << std::endl << std::flush;
 
       std::vector<pll> smallest_largest_boundries{};
       std::vector<uint64_t> flie_numbers;
@@ -1797,12 +1797,12 @@ if( (current_level+1) !=  compaction->output_level()){
       {
         smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
         flie_numbers.push_back(file_meta->fd.GetNumber());
-        std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;  
-if(file_meta->smallest.user_key().ToString() == file_meta->largest.user_key().ToString() ){
-  std::cout << "eeee (compaction job) @file_meta   smallest_key == largest_key " << " "  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  // std::cerr << "eeee (compaction job) @file_meta   smallest_key == largest_key " << " fd = " << file_meta->fd.GetNumber() << " "  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  // exit(1);
-}
+//         std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;  
+// if(file_meta->smallest.user_key().ToString() == file_meta->largest.user_key().ToString() ){
+//   std::cout << "eeee (compaction job) @file_meta   smallest_key == largest_key " << " "  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+//   // std::cerr << "eeee (compaction job) @file_meta   smallest_key == largest_key " << " fd = " << file_meta->fd.GetNumber() << " "  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+//   // exit(1);
+// }
       }
 
       // file_meta_data_vectors->push_back(std::make_tuple(current_level, compaction->output_level(), compaction->inputs(lvl)));

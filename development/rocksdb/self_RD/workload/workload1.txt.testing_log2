@@ -22,108 +22,108 @@
 ,"PLRDF Number Of Total Ranges" : 348
 ,"Split PLRDF Number Of Total Ranges" : 5088
 ,"TopLevel RDF Number Of Total Ranges" : 3506
-,"N_repetitions" : 2
+,"N_repetitions" : 3
 ,"Total number of SST Files" : 194
 
-," (Exist Keys) NONE  elapsed time" : 12286.6
+," (Exist Keys) NONE  elapsed time" : 2624.01
 ," (Exist Keys) NONE  filtered by RDF count" : 0.00
 ," (Exist Keys) NONE  number of PQ" : 9953
 ," (Exist Keys) NONE Avg_read_count" : 10266.00
 ," (Exist Keys) NONE Avg_read_bytes" : 41427382.00
-," (Exist Keys) PLRDF  elapsed time" : 12233.22
+," (Exist Keys) PLRDF  elapsed time" : 2630.56
 ," (Exist Keys) PLRDF  filtered by RDF count" : 0.00
 ," (Exist Keys) PLRDF  number of PQ" : 9953
 ," (Exist Keys) PLRDF Avg_read_count" : 10266.00
 ," (Exist Keys) PLRDF Avg_read_bytes" : 41427382.00
-," (Exist Keys) SPLIT_PLRDF  elapsed time" : 12279.54
+," (Exist Keys) SPLIT_PLRDF  elapsed time" : 2538.01
 ," (Exist Keys) SPLIT_PLRDF  filtered by RDF count" : 0.00
 ," (Exist Keys) SPLIT_PLRDF  number of PQ" : 9953
 ," (Exist Keys) SPLIT_PLRDF Avg_read_count" : 10266.00
 ," (Exist Keys) SPLIT_PLRDF Avg_read_bytes" : 41427382.00
-," (Exist Keys) TOP_LEVEL_RDF  elapsed time" : 12319.51
+," (Exist Keys) TOP_LEVEL_RDF  elapsed time" : 2599.45
 ," (Exist Keys) TOP_LEVEL_RDF  filtered by RDF count" : 0.00
 ," (Exist Keys) TOP_LEVEL_RDF  number of PQ" : 9953
 ," (Exist Keys) TOP_LEVEL_RDF Avg_read_count" : 10266.00
 ," (Exist Keys) TOP_LEVEL_RDF Avg_read_bytes" : 41427382.00
-," (Exist Keys) NONE  elapsed time" : 12242.62
-," (Exist Keys) NONE  filtered by RDF count" : 0.00
-," (Exist Keys) NONE  number of PQ" : 9953
-," (Exist Keys) NONE Avg_read_count" : 10266.00
-," (Exist Keys) NONE Avg_read_bytes" : 41427382.00
-," (Historcially Exist Keys) NONE  elapsed time" : 13666.23
+," (Exist Keys) NONE2  elapsed time" : 2606.28
+," (Exist Keys) NONE2  filtered by RDF count" : 0.00
+," (Exist Keys) NONE2  number of PQ" : 9953
+," (Exist Keys) NONE2 Avg_read_count" : 10266.00
+," (Exist Keys) NONE2 Avg_read_bytes" : 41427382.00
+," (Historcially Exist Keys) NONE  elapsed time" : 3344.14
 ," (Historcially Exist Keys) NONE  filtered by RDF count" : 0.00
 ," (Historcially Exist Keys) NONE  number of PQ" : 9953
 ," (Historcially Exist Keys) NONE Avg_read_count" : 11825.00
 ," (Historcially Exist Keys) NONE Avg_read_bytes" : 47836801.00
-," (Historcially Exist Keys) PLRDF  elapsed time" : 13606.41
+," (Historcially Exist Keys) PLRDF  elapsed time" : 3418.76
 ," (Historcially Exist Keys) PLRDF  filtered by RDF count" : 12224.00
 ," (Historcially Exist Keys) PLRDF  number of PQ" : 9953
 ," (Historcially Exist Keys) PLRDF Avg_read_count" : 11825.00
 ," (Historcially Exist Keys) PLRDF Avg_read_bytes" : 47836801.00
-," (Historcially Exist Keys) SPLIT_PLRDF  elapsed time" : 13369.58
+," (Historcially Exist Keys) SPLIT_PLRDF  elapsed time" : 3274.90
 ," (Historcially Exist Keys) SPLIT_PLRDF  filtered by RDF count" : 83044.00
 ," (Historcially Exist Keys) SPLIT_PLRDF  number of PQ" : 9953
 ," (Historcially Exist Keys) SPLIT_PLRDF Avg_read_count" : 11404.00
 ," (Historcially Exist Keys) SPLIT_PLRDF Avg_read_bytes" : 46109116.00
-," (Historcially Exist Keys) TOP_LEVEL_RDF  elapsed time" : 12710.46
+," (Historcially Exist Keys) TOP_LEVEL_RDF  elapsed time" : 2731.01
 ," (Historcially Exist Keys) TOP_LEVEL_RDF  filtered by RDF count" : 89808.00
 ," (Historcially Exist Keys) TOP_LEVEL_RDF  number of PQ" : 9953
 ," (Historcially Exist Keys) TOP_LEVEL_RDF Avg_read_count" : 10269.00
 ," (Historcially Exist Keys) TOP_LEVEL_RDF Avg_read_bytes" : 41439745.00
-," (Historcially Exist Keys) NONE  elapsed time" : 13641.58
-," (Historcially Exist Keys) NONE  filtered by RDF count" : 0.00
-," (Historcially Exist Keys) NONE  number of PQ" : 9953
-," (Historcially Exist Keys) NONE Avg_read_count" : 11825.00
-," (Historcially Exist Keys) NONE Avg_read_bytes" : 47836801.00
-," (Currently Deleted Keys) NONE  elapsed time" : 10217.01
+," (Historcially Exist Keys) NONE2  elapsed time" : 3476.30
+," (Historcially Exist Keys) NONE2  filtered by RDF count" : 0.00
+," (Historcially Exist Keys) NONE2  number of PQ" : 9953
+," (Historcially Exist Keys) NONE2 Avg_read_count" : 11825.00
+," (Historcially Exist Keys) NONE2 Avg_read_bytes" : 47836801.00
+," (Currently Deleted Keys) NONE  elapsed time" : 820.73
 ," (Currently Deleted Keys) NONE  filtered by RDF count" : 0.00
 ," (Currently Deleted Keys) NONE  number of PQ" : 9953
 ," (Currently Deleted Keys) NONE Avg_read_count" : 1559.00
 ," (Currently Deleted Keys) NONE Avg_read_bytes" : 6409419.00
-," (Currently Deleted Keys) PLRDF  elapsed time" : 10254.47
+," (Currently Deleted Keys) PLRDF  elapsed time" : 918.18
 ," (Currently Deleted Keys) PLRDF  filtered by RDF count" : 12224.00
 ," (Currently Deleted Keys) PLRDF  number of PQ" : 9953
 ," (Currently Deleted Keys) PLRDF Avg_read_count" : 1559.00
 ," (Currently Deleted Keys) PLRDF Avg_read_bytes" : 6409419.00
-," (Currently Deleted Keys) SPLIT_PLRDF  elapsed time" : 9956.62
+," (Currently Deleted Keys) SPLIT_PLRDF  elapsed time" : 751.23
 ," (Currently Deleted Keys) SPLIT_PLRDF  filtered by RDF count" : 83044.00
 ," (Currently Deleted Keys) SPLIT_PLRDF  number of PQ" : 9953
 ," (Currently Deleted Keys) SPLIT_PLRDF Avg_read_count" : 1138.00
 ," (Currently Deleted Keys) SPLIT_PLRDF Avg_read_bytes" : 4681734.00
-," (Currently Deleted Keys) TOP_LEVEL_RDF  elapsed time" : 9376.11
+," (Currently Deleted Keys) TOP_LEVEL_RDF  elapsed time" : 140.50
 ," (Currently Deleted Keys) TOP_LEVEL_RDF  filtered by RDF count" : 89808.00
 ," (Currently Deleted Keys) TOP_LEVEL_RDF  number of PQ" : 9953
 ," (Currently Deleted Keys) TOP_LEVEL_RDF Avg_read_count" : 3.00
 ," (Currently Deleted Keys) TOP_LEVEL_RDF Avg_read_bytes" : 12363.00
-," (Currently Deleted Keys) NONE  elapsed time" : 10201.17
-," (Currently Deleted Keys) NONE  filtered by RDF count" : 0.00
-," (Currently Deleted Keys) NONE  number of PQ" : 9953
-," (Currently Deleted Keys) NONE Avg_read_count" : 1559.00
-," (Currently Deleted Keys) NONE Avg_read_bytes" : 6409419.00
-," (Non-inserted Keys) NONE  elapsed time" : 9119.70
+," (Currently Deleted Keys) NONE2  elapsed time" : 1149.57
+," (Currently Deleted Keys) NONE2  filtered by RDF count" : 0.00
+," (Currently Deleted Keys) NONE2  number of PQ" : 9953
+," (Currently Deleted Keys) NONE2 Avg_read_count" : 1559.00
+," (Currently Deleted Keys) NONE2 Avg_read_bytes" : 6409419.00
+," (Non-inserted Keys) NONE  elapsed time" : 15.66
 ," (Non-inserted Keys) NONE  filtered by RDF count" : 0.00
 ," (Non-inserted Keys) NONE  number of PQ" : 9953
 ," (Non-inserted Keys) NONE Avg_read_count" : 11.00
 ," (Non-inserted Keys) NONE Avg_read_bytes" : 45340.00
-," (Non-inserted Keys) PLRDF  elapsed time" : 9117.93
+," (Non-inserted Keys) PLRDF  elapsed time" : 16.30
 ," (Non-inserted Keys) PLRDF  filtered by RDF count" : 63.00
 ," (Non-inserted Keys) PLRDF  number of PQ" : 9953
 ," (Non-inserted Keys) PLRDF Avg_read_count" : 11.00
 ," (Non-inserted Keys) PLRDF Avg_read_bytes" : 45340.00
-," (Non-inserted Keys) SPLIT_PLRDF  elapsed time" : 9114.88
+," (Non-inserted Keys) SPLIT_PLRDF  elapsed time" : 11.00
 ," (Non-inserted Keys) SPLIT_PLRDF  filtered by RDF count" : 945.00
 ," (Non-inserted Keys) SPLIT_PLRDF  number of PQ" : 9953
 ," (Non-inserted Keys) SPLIT_PLRDF Avg_read_count" : 7.00
 ," (Non-inserted Keys) SPLIT_PLRDF Avg_read_bytes" : 28861.00
-," (Non-inserted Keys) TOP_LEVEL_RDF  elapsed time" : 9104.38
+," (Non-inserted Keys) TOP_LEVEL_RDF  elapsed time" : 1.50
 ," (Non-inserted Keys) TOP_LEVEL_RDF  filtered by RDF count" : 1000.00
 ," (Non-inserted Keys) TOP_LEVEL_RDF  number of PQ" : 9953
 ," (Non-inserted Keys) TOP_LEVEL_RDF Avg_read_count" : 0.00
 ," (Non-inserted Keys) TOP_LEVEL_RDF Avg_read_bytes" : 0.00
-," (Non-inserted Keys) NONE  elapsed time" : 9117.07
-," (Non-inserted Keys) NONE  filtered by RDF count" : 0.00
-," (Non-inserted Keys) NONE  number of PQ" : 9953
-," (Non-inserted Keys) NONE Avg_read_count" : 11.00
-," (Non-inserted Keys) NONE Avg_read_bytes" : 45340.00
+," (Non-inserted Keys) NONE2  elapsed time" : 16.91
+," (Non-inserted Keys) NONE2  filtered by RDF count" : 0.00
+," (Non-inserted Keys) NONE2  number of PQ" : 9953
+," (Non-inserted Keys) NONE2 Avg_read_count" : 11.00
+," (Non-inserted Keys) NONE2 Avg_read_bytes" : 45340.00
 ,"End" : "End"
 }
