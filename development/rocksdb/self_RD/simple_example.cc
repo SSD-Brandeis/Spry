@@ -796,7 +796,7 @@ std::cout << "!!! Testing On historic-existing Keys " << std::endl;
     std::string prefix = " (Historcially Exist Keys) " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file2 << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e3 << std::endl;
     testing_result_file2 << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
-    testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getAllExistingKeys().size() << std::endl;
+    testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getHistoricExistingKeys().size() << std::endl;
 
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
     
@@ -952,7 +952,7 @@ std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
     std::string prefix = " (Currently Deleted Keys) " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file2 << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e3 << std::endl;
     testing_result_file2 << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
-    testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getAllExistingKeys().size() << std::endl;
+    testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getCurrentlyDeletedKeys().size() << std::endl;
 
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
     
@@ -1105,7 +1105,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
     std::string prefix = " (Non-inserted Keys) " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file2 << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e3 << std::endl;
     testing_result_file2 << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
-    testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getAllExistingKeys().size() << std::endl;
+    testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getCurrentlyNonInsertedKeys().size() << std::endl;
 
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
     
