@@ -507,6 +507,37 @@ void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOp
   testing_result_file2 << ",\"Split PLRDF Number Of Total Ranges\" : " << db->getSplitPLRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"TopLevel RDF Number Of Total Ranges\" : " << db->getTopLevelRDFNumberOfTotalRanges() << std::endl;
 
+  
+  
+  vector<int> ranges_log_PLRDF = db->getLogOfNumbersOfRangesInPLRDF();
+  vector<int> ranges_log_SplitPLRDF = db->getLogOfNumbersOfRangesInSplitPLRDF();
+  vector<int> ranges_log_TopLevelRDF = db->getLogOfNumbersOfRangesInTopLevelRDF();
+  testing_result_file2 << ",\"Log Of Numbers Of Ranges In PLRDF\" : [";
+  for(int i = 0; i < ranges_log_PLRDF.size(); i++){
+    testing_result_file2 << ranges_log_PLRDF[i];
+    if(i != ranges_log_PLRDF.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;
+  testing_result_file2 << ",\"Log Of Numbers Of Ranges In SplitPLRDF\" : [";
+  for(int i = 0; i < ranges_log_SplitPLRDF.size(); i++){
+    testing_result_file2 << ranges_log_SplitPLRDF[i];
+    if(i != ranges_log_SplitPLRDF.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;
+  testing_result_file2 << ",\"Log Of Numbers Of Ranges In TopLevelRDF\" : [";
+  for(int i = 0; i < ranges_log_TopLevelRDF.size(); i++){
+    testing_result_file2 << ranges_log_TopLevelRDF[i];
+    if(i != ranges_log_TopLevelRDF.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;
+
+
   const long long N_repetitions = checking::SystemVerifier::EXPERIMENT_REPETITION_TIMES;
   testing_result_file << "N_repetitions = " << N_repetitions << std::endl << std::endl;
   testing_result_file2 << ",\"N_repetitions\" : " << N_repetitions << std::endl;
@@ -1427,10 +1458,31 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
 
   std::cout << "!!! runQPVerification start " << std::endl;
 
+  
+  vector<int> ranges_log_PLRDF = db->getLogOfNumbersOfRangesInPLRDF();
+  vector<int> ranges_log_SplitPLRDF = db->getLogOfNumbersOfRangesInSplitPLRDF();
+  vector<int> ranges_log_TopLevelRDF = db->getLogOfNumbersOfRangesInTopLevelRDF();
+
+  std::cout << "Ranges Log Of PLRDF: " << std::endl;
+  for (int i = 0; i < ranges_log_PLRDF.size(); i++) {
+    std::cout << ranges_log_PLRDF[i] << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "Ranges Log Of SplitPLRDF: " << std::endl;
+  for (int i = 0; i < ranges_log_SplitPLRDF.size(); i++) {
+    std::cout << ranges_log_SplitPLRDF[i] << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "Ranges Log Of TopLevelRDF: " << std::endl;
+  for (int i = 0; i < ranges_log_TopLevelRDF.size(); i++) {
+    std::cout << ranges_log_TopLevelRDF[i] << " ";
+  }
+  std::cout << std::endl;
+
 
   std::this_thread::sleep_for(std::chrono::seconds(10));  // Sleep for 1 second
   {
-    std::cout << "Press Enter to continue...";
+    std::clog << "Press Enter to continue...";
     std::cin.ignore(); // Waits for user to press Enter key
     runPQVerification(&db, op, write_op, read_op, _env);
   }

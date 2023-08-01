@@ -46,6 +46,7 @@ namespace ROCKSDB_NAMESPACE {
       std::unordered_map<uint64_t, std::vector<pll>> rd_filter_level0; //for level 0, (file_num, RD_list), FileMetaData* -> fd .GetNumber();
 
       std::vector<std::vector<pll>> rd_filter; //for level > 0, list of range delete (start, end), all entries are non-overlapping
+      std::vector<int> numbers_of_ranges_in_RDF_log; //for level > 0, number of ranges in RDF
       
       void addRangeDelete_internal(uint level, std::vector<pll> &range_delete_list_in);
       std::vector<pll> sortAndMerge(std::vector<pll> &range_delete_list_in);
@@ -85,6 +86,9 @@ namespace ROCKSDB_NAMESPACE {
 
       void splitRangesOnLevel(uint level, std::vector<long long> keys);
       // int getRangeDeleteCount();
+
+      void logCurrentTotalNumbersOfRanges();
+      std::vector<int> getNumbersOfRangesInRDFLog();
   };
 
 
@@ -1017,6 +1021,22 @@ class ColumnFamilyData {
   }
   uint64_t get_flush_in_file_num(){
     return flush_in_file_num;
+  }
+
+
+  void logCurrentTotalNumbersOfRangesInEachRDF(){
+    plrdf_prime.logCurrentTotalNumbersOfRanges();
+    split_plrdf_prime.logCurrentTotalNumbersOfRanges();
+    top_level_rdf_prime.logCurrentTotalNumbersOfRanges();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInPLRDF(){
+    return plrdf_prime.getNumbersOfRangesInRDFLog();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF(){
+    return split_plrdf_prime.getNumbersOfRangesInRDFLog();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF(){
+    return top_level_rdf_prime.getNumbersOfRangesInRDFLog();
   }
 
  private:

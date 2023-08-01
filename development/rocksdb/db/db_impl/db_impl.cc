@@ -4869,7 +4869,38 @@ int DBImpl::getTopLevelRDFNumberOfTotalRanges(){
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getTopLevelRDFNumberOfTotalRanges();
 }
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInPLRDF(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfNumbersOfRangesInPLRDF();
+}
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInSplitPLRDF(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfNumbersOfRangesInSplitPLRDF();
+}
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInTopLevelRDF(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfNumbersOfRangesInTopLevelRDF();
+}
 //Self Added End
+
+
+
+
+
+
+
+
+
+
 
 
 Status DB::ListColumnFamilies(const DBOptions& db_options,

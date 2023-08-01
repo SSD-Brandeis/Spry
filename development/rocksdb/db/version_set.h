@@ -1365,6 +1365,17 @@ class Version {
   std::tuple<int, std::vector<pll>, std::vector<uint64_t>> get_compaction_direct_delete_RD_vector(){
     return compaction_direct_delete_RD_vector;
   }
+
+  std::vector<int> getLogOfNumbersOfRangesInPLRDF(){
+    return plrdf.getNumbersOfRangesInRDFLog();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF(){
+    return split_plrdf.getNumbersOfRangesInRDFLog();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF(){
+    return top_level_rdf.getNumbersOfRangesInRDFLog();
+  }
+
   
  private:
   //Self Added start

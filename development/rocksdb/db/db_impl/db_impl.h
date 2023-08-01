@@ -544,6 +544,9 @@ class DBImpl : public DB {
   virtual int getPLRDFNumberOfTotalRanges() override;
   virtual int getSplitPLRDFNumberOfTotalRanges() override;
   virtual int getTopLevelRDFNumberOfTotalRanges() override;
+  std::vector<int> getLogOfNumbersOfRangesInPLRDF() override;
+  std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() override;
+  std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() override;
   std::mutex self_single_flush_mutex_;
   //Self Added End
 
