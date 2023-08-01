@@ -15,12 +15,12 @@ path = '/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes
 
 
 # Open the JSON file for reading
-with open(path + 'workload1.txt.testing_log2', 'r') as file:
-# with open(path + 'output.json', 'r') as file:
+# with open(path + 'workload1.txt.testing_log2', 'r') as file:
+with open(path + 'output.json', 'r') as file:
     data = json.load(file)
 
 # Now 'data' contains the JSON data loaded as a Python dictionary
-print(data)
+print(data["A"])
 
 
 json_string = '[{"name": "Bob", "age": 35, "email": "bob@example.com"}]'

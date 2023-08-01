@@ -6,8 +6,8 @@
 ,"E" : 1024
 ,"write_buffer_size" : 262144
 ,"correlation" : 0
-,"num_inserts" : 100000
-,"rd_count" : 900
+,"num_inserts" : 10000
+,"rd_count" : 100
 ,"selectivity" : 0.001
 ,"workload_file_name" : "workload/workload1.txt"
 ,"insert_before_rangeDelete" : 0.8
@@ -19,111 +19,47 @@
 ,"num_levels" : 10
 ,"max_write_buffer_number" : 2
 ,"level0_file_num_compaction_trigger" : 1
-,"PLRDF Number Of Total Ranges" : 348
-,"Split PLRDF Number Of Total Ranges" : 5088
-,"TopLevel RDF Number Of Total Ranges" : 3506
+,"PLRDF Number Of Total Ranges" : 98
+,"Split PLRDF Number Of Total Ranges" : 172
+,"TopLevel RDF Number Of Total Ranges" : 214
+,"Log Of Numbers Of Ranges In PLRDF" : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 12, 12, 12, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 30, 30, 31, 31, 32, 32, 33, 33, 34, 34, 35, 35, 36, 36, 37, 37, 38, 38, 39, 39, 39, 39, 39, 40, 40, 41, 41, 42, 42, 43, 43, 44, 44, 45, 45, 46, 46, 47, 47, 48, 48, 48, 48, 49, 49, 50, 50, 51, 51, 52, 52, 53, 53, 54, 54, 55, 55, 56, 56, 57, 57, 57, 58, 58, 59, 59, 60, 60, 61, 61, 62, 62, 63, 63, 64, 64, 65, 65, 66, 66, 65, 65, 66, 66, 67, 67, 68, 68, 69, 69, 70, 70, 71, 71, 72, 72, 73, 73, 74, 74, 74, 75, 75, 76, 76, 77, 77, 78, 78, 79, 79, 80, 80, 81, 81, 82, 82, 83, 83, 83, 83, 84, 84, 85, 85, 86, 86, 87, 87, 88, 88, 89, 89, 90, 90, 91, 91, 92, 92, 92, 92, 92, 93, 93, 94, 94, 95, 95, 96, 96, 97, 97, 98]
+,"Log Of Numbers Of Ranges In SplitPLRDF" : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 13, 13, 14, 14, 14, 14, 14, 14, 15, 15, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31, 32, 32, 35, 35, 36, 36, 37, 42, 42, 42, 43, 43, 44, 44, 45, 45, 46, 46, 47, 47, 48, 48, 49, 49, 50, 50, 51, 60, 63, 63, 63, 64, 64, 65, 65, 66, 66, 67, 67, 68, 68, 70, 70, 71, 71, 72, 72, 73, 79, 79, 79, 80, 80, 81, 81, 83, 83, 85, 85, 86, 86, 87, 87, 89, 89, 90, 90, 91, 93, 93, 95, 95, 96, 96, 97, 97, 98, 98, 99, 99, 100, 100, 101, 101, 103, 103, 104, 111, 118, 118, 119, 119, 120, 120, 121, 121, 122, 122, 123, 123, 124, 124, 125, 125, 126, 126, 128, 131, 131, 132, 132, 133, 133, 134, 134, 135, 135, 136, 136, 137, 137, 138, 138, 139, 139, 140, 148, 150, 150, 151, 151, 152, 152, 154, 154, 155, 155, 157, 157, 158, 158, 159, 159, 160, 160, 161, 166, 166, 166, 166, 167, 167, 168, 168, 169, 169, 170, 170, 171, 171, 172]
+,"Log Of Numbers Of Ranges In TopLevelRDF" : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 13, 13, 13, 13, 13, 13, 13, 13, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20, 22, 22, 23, 23, 24, 24, 25, 25, 25, 27, 27, 31, 31, 33, 33, 34, 34, 36, 36, 37, 37, 40, 40, 41, 41, 42, 42, 42, 42, 43, 43, 44, 44, 47, 47, 49, 49, 52, 52, 53, 53, 56, 56, 58, 58, 61, 61, 61, 61, 61, 62, 62, 65, 65, 66, 66, 67, 67, 70, 70, 73, 73, 74, 74, 75, 75, 80, 80, 80, 80, 81, 81, 83, 83, 86, 86, 89, 89, 91, 91, 93, 93, 95, 95, 99, 99, 101, 101, 101, 104, 104, 105, 105, 109, 109, 112, 112, 113, 113, 116, 116, 119, 119, 122, 122, 125, 125, 125, 125, 128, 128, 132, 132, 136, 136, 138, 138, 142, 142, 139, 139, 143, 143, 144, 144, 147, 147, 147, 150, 150, 152, 152, 154, 154, 156, 156, 159, 159, 163, 163, 167, 167, 169, 169, 172, 172, 172, 172, 174, 174, 176, 176, 180, 180, 182, 182, 188, 188, 190, 190, 192, 192, 193, 193, 198, 198, 198, 198, 198, 201, 201, 202, 202, 204, 204, 208, 208, 209, 209, 214]
 ,"N_repetitions" : 3
-,"Total number of SST Files" : 194
+,"Total number of SST Files" : 45
 
-," (Exist Keys) NONE  elapsed time" : 2624.01
+," (Exist Keys) NONE  elapsed time" : 33829.7
 ," (Exist Keys) NONE  filtered by RDF count" : 0.00
-," (Exist Keys) NONE  number of PQ" : 9953
-," (Exist Keys) NONE Avg_read_count" : 10266.00
-," (Exist Keys) NONE Avg_read_bytes" : 41427382.00
-," (Exist Keys) PLRDF  elapsed time" : 2630.56
+," (Exist Keys) NONE  number of PQ" : 8998
+," (Exist Keys) NONE Avg_read_count" : 9077.00
+," (Exist Keys) NONE Avg_read_bytes" : 37590353.00
+," (Exist Keys) PLRDF  elapsed time" : 33179.97
 ," (Exist Keys) PLRDF  filtered by RDF count" : 0.00
-," (Exist Keys) PLRDF  number of PQ" : 9953
-," (Exist Keys) PLRDF Avg_read_count" : 10266.00
-," (Exist Keys) PLRDF Avg_read_bytes" : 41427382.00
-," (Exist Keys) SPLIT_PLRDF  elapsed time" : 2538.01
+," (Exist Keys) PLRDF  number of PQ" : 8998
+," (Exist Keys) PLRDF Avg_read_count" : 9077.00
+," (Exist Keys) PLRDF Avg_read_bytes" : 37590353.00
+," (Exist Keys) SPLIT_PLRDF  elapsed time" : 33406.41
 ," (Exist Keys) SPLIT_PLRDF  filtered by RDF count" : 0.00
-," (Exist Keys) SPLIT_PLRDF  number of PQ" : 9953
-," (Exist Keys) SPLIT_PLRDF Avg_read_count" : 10266.00
-," (Exist Keys) SPLIT_PLRDF Avg_read_bytes" : 41427382.00
-," (Exist Keys) TOP_LEVEL_RDF  elapsed time" : 2599.45
+," (Exist Keys) SPLIT_PLRDF  number of PQ" : 8998
+," (Exist Keys) SPLIT_PLRDF Avg_read_count" : 9077.00
+," (Exist Keys) SPLIT_PLRDF Avg_read_bytes" : 37590353.00
+," (Exist Keys) TOP_LEVEL_RDF  elapsed time" : 32240.60
 ," (Exist Keys) TOP_LEVEL_RDF  filtered by RDF count" : 0.00
-," (Exist Keys) TOP_LEVEL_RDF  number of PQ" : 9953
-," (Exist Keys) TOP_LEVEL_RDF Avg_read_count" : 10266.00
-," (Exist Keys) TOP_LEVEL_RDF Avg_read_bytes" : 41427382.00
-," (Exist Keys) NONE2  elapsed time" : 2606.28
+," (Exist Keys) TOP_LEVEL_RDF  number of PQ" : 8998
+," (Exist Keys) TOP_LEVEL_RDF Avg_read_count" : 9077.00
+," (Exist Keys) TOP_LEVEL_RDF Avg_read_bytes" : 37590353.00
+," (Exist Keys) NONE2  elapsed time" : 33619.57
 ," (Exist Keys) NONE2  filtered by RDF count" : 0.00
-," (Exist Keys) NONE2  number of PQ" : 9953
-," (Exist Keys) NONE2 Avg_read_count" : 10266.00
-," (Exist Keys) NONE2 Avg_read_bytes" : 41427382.00
-," (Historcially Exist Keys) NONE  elapsed time" : 3344.14
+," (Exist Keys) NONE2  number of PQ" : 8998
+," (Exist Keys) NONE2 Avg_read_count" : 9077.00
+," (Exist Keys) NONE2 Avg_read_bytes" : 37590353.00
+," (Historcially Exist Keys) NONE  elapsed time" : 37075.29
 ," (Historcially Exist Keys) NONE  filtered by RDF count" : 0.00
-," (Historcially Exist Keys) NONE  number of PQ" : 9953
-," (Historcially Exist Keys) NONE Avg_read_count" : 11825.00
-," (Historcially Exist Keys) NONE Avg_read_bytes" : 47836801.00
-," (Historcially Exist Keys) PLRDF  elapsed time" : 3418.76
-," (Historcially Exist Keys) PLRDF  filtered by RDF count" : 12224.00
-," (Historcially Exist Keys) PLRDF  number of PQ" : 9953
-," (Historcially Exist Keys) PLRDF Avg_read_count" : 11825.00
-," (Historcially Exist Keys) PLRDF Avg_read_bytes" : 47836801.00
-," (Historcially Exist Keys) SPLIT_PLRDF  elapsed time" : 3274.90
-," (Historcially Exist Keys) SPLIT_PLRDF  filtered by RDF count" : 83044.00
-," (Historcially Exist Keys) SPLIT_PLRDF  number of PQ" : 9953
-," (Historcially Exist Keys) SPLIT_PLRDF Avg_read_count" : 11404.00
-," (Historcially Exist Keys) SPLIT_PLRDF Avg_read_bytes" : 46109116.00
-," (Historcially Exist Keys) TOP_LEVEL_RDF  elapsed time" : 2731.01
-," (Historcially Exist Keys) TOP_LEVEL_RDF  filtered by RDF count" : 89808.00
-," (Historcially Exist Keys) TOP_LEVEL_RDF  number of PQ" : 9953
-," (Historcially Exist Keys) TOP_LEVEL_RDF Avg_read_count" : 10269.00
-," (Historcially Exist Keys) TOP_LEVEL_RDF Avg_read_bytes" : 41439745.00
-," (Historcially Exist Keys) NONE2  elapsed time" : 3476.30
-," (Historcially Exist Keys) NONE2  filtered by RDF count" : 0.00
-," (Historcially Exist Keys) NONE2  number of PQ" : 9953
-," (Historcially Exist Keys) NONE2 Avg_read_count" : 11825.00
-," (Historcially Exist Keys) NONE2 Avg_read_bytes" : 47836801.00
-," (Currently Deleted Keys) NONE  elapsed time" : 820.73
-," (Currently Deleted Keys) NONE  filtered by RDF count" : 0.00
-," (Currently Deleted Keys) NONE  number of PQ" : 9953
-," (Currently Deleted Keys) NONE Avg_read_count" : 1559.00
-," (Currently Deleted Keys) NONE Avg_read_bytes" : 6409419.00
-," (Currently Deleted Keys) PLRDF  elapsed time" : 918.18
-," (Currently Deleted Keys) PLRDF  filtered by RDF count" : 12224.00
-," (Currently Deleted Keys) PLRDF  number of PQ" : 9953
-," (Currently Deleted Keys) PLRDF Avg_read_count" : 1559.00
-," (Currently Deleted Keys) PLRDF Avg_read_bytes" : 6409419.00
-," (Currently Deleted Keys) SPLIT_PLRDF  elapsed time" : 751.23
-," (Currently Deleted Keys) SPLIT_PLRDF  filtered by RDF count" : 83044.00
-," (Currently Deleted Keys) SPLIT_PLRDF  number of PQ" : 9953
-," (Currently Deleted Keys) SPLIT_PLRDF Avg_read_count" : 1138.00
-," (Currently Deleted Keys) SPLIT_PLRDF Avg_read_bytes" : 4681734.00
-," (Currently Deleted Keys) TOP_LEVEL_RDF  elapsed time" : 140.50
-," (Currently Deleted Keys) TOP_LEVEL_RDF  filtered by RDF count" : 89808.00
-," (Currently Deleted Keys) TOP_LEVEL_RDF  number of PQ" : 9953
-," (Currently Deleted Keys) TOP_LEVEL_RDF Avg_read_count" : 3.00
-," (Currently Deleted Keys) TOP_LEVEL_RDF Avg_read_bytes" : 12363.00
-," (Currently Deleted Keys) NONE2  elapsed time" : 1149.57
-," (Currently Deleted Keys) NONE2  filtered by RDF count" : 0.00
-," (Currently Deleted Keys) NONE2  number of PQ" : 9953
-," (Currently Deleted Keys) NONE2 Avg_read_count" : 1559.00
-," (Currently Deleted Keys) NONE2 Avg_read_bytes" : 6409419.00
-," (Non-inserted Keys) NONE  elapsed time" : 15.66
-," (Non-inserted Keys) NONE  filtered by RDF count" : 0.00
-," (Non-inserted Keys) NONE  number of PQ" : 9953
-," (Non-inserted Keys) NONE Avg_read_count" : 11.00
-," (Non-inserted Keys) NONE Avg_read_bytes" : 45340.00
-," (Non-inserted Keys) PLRDF  elapsed time" : 16.30
-," (Non-inserted Keys) PLRDF  filtered by RDF count" : 63.00
-," (Non-inserted Keys) PLRDF  number of PQ" : 9953
-," (Non-inserted Keys) PLRDF Avg_read_count" : 11.00
-," (Non-inserted Keys) PLRDF Avg_read_bytes" : 45340.00
-," (Non-inserted Keys) SPLIT_PLRDF  elapsed time" : 11.00
-," (Non-inserted Keys) SPLIT_PLRDF  filtered by RDF count" : 945.00
-," (Non-inserted Keys) SPLIT_PLRDF  number of PQ" : 9953
-," (Non-inserted Keys) SPLIT_PLRDF Avg_read_count" : 7.00
-," (Non-inserted Keys) SPLIT_PLRDF Avg_read_bytes" : 28861.00
-," (Non-inserted Keys) TOP_LEVEL_RDF  elapsed time" : 1.50
-," (Non-inserted Keys) TOP_LEVEL_RDF  filtered by RDF count" : 1000.00
-," (Non-inserted Keys) TOP_LEVEL_RDF  number of PQ" : 9953
-," (Non-inserted Keys) TOP_LEVEL_RDF Avg_read_count" : 0.00
-," (Non-inserted Keys) TOP_LEVEL_RDF Avg_read_bytes" : 0.00
-," (Non-inserted Keys) NONE2  elapsed time" : 16.91
-," (Non-inserted Keys) NONE2  filtered by RDF count" : 0.00
-," (Non-inserted Keys) NONE2  number of PQ" : 9953
-," (Non-inserted Keys) NONE2 Avg_read_count" : 11.00
-," (Non-inserted Keys) NONE2 Avg_read_bytes" : 45340.00
-,"End" : "End"
-}
+," (Historcially Exist Keys) NONE  number of PQ" : 9998
+," (Historcially Exist Keys) NONE Avg_read_count" : 9090.00
+," (Historcially Exist Keys) NONE Avg_read_bytes" : 37644414.00
+," (Historcially Exist Keys) PLRDF  elapsed time" : 36598.97
+," (Historcially Exist Keys) PLRDF  filtered by RDF count" : 220.00
+," (Historcially Exist Keys) PLRDF  number of PQ" : 9998
+," (Historcially Exist Keys) PLRDF Avg_read_count" : 9521.00
+," (Historcially Exist Keys) PLRDF Avg_read_bytes" : 39425088.00

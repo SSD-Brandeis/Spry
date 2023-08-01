@@ -54,6 +54,11 @@ namespace checking {
     int disk_access_count = 0;
     int filteredByRDFCount = 0;
 
+
+    bool flag_log__deleted_keys__max_sequnce_number = false;
+    std::unordered_map<long long, uint64_t> deleted_keys__max_sequnce_number;
+    bool flag_is_PLRDF_filtered_entry = false;
+
   public:
     static SystemVerifier* system_verifier;
 
@@ -105,7 +110,8 @@ namespace checking {
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "NONE"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}, {3, "NONE"}};
     std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}, {3, "TOP_LEVEL_RDF"}, {4, "NONE2"}};
-    // std::unordered_map<int, std::string> RDFTypes = {{0, "TOP_LEVEL_RDF"}};
+    // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}, {3, "TOP_LEVEL_RDF"}, {4, "SKYLINE_RDF"}, {5, "NONE2"}};
+    // std::unordered_map<int, std::string> RDFTypes = {{0, "TOP_LEVEL_RDF"}}; 
 
     int RDFType_chosed = 0;
         
@@ -120,6 +126,45 @@ namespace checking {
 
     std::string getStringOfRDFTypeChosed(){
       return RDFTypes[RDFType_chosed];
+    }
+
+
+
+
+
+    void enable_log__deleted_keys__max_sequnce_number(){
+      flag_log__deleted_keys__max_sequnce_number = true;
+    }
+
+    void disable_log__deleted_keys__max_sequnce_number(){
+      flag_log__deleted_keys__max_sequnce_number = false;
+    }
+
+    bool is_enable_log__deleted_keys__max_sequnce_number(){
+      return flag_log__deleted_keys__max_sequnce_number;
+    }
+
+    void insert_deleted_keys__max_sequnce_number(long long key, uint64_t max_sequnce_number){
+      deleted_keys__max_sequnce_number[key] = max_sequnce_number;
+    }
+
+    uint64_t get_deleted_keys__max_sequnce_number(long long key){
+      if(deleted_keys__max_sequnce_number.find(key) == deleted_keys__max_sequnce_number.end()){
+        return 0;
+      }
+      return deleted_keys__max_sequnce_number[key];
+    }
+
+    void set_flag_is_PLRDF_filtered_entry(){
+      flag_is_PLRDF_filtered_entry = true;
+    }
+
+    void reset_flag_is_PLRDF_filtered_entry(){
+      flag_is_PLRDF_filtered_entry = false;
+    }
+
+    bool get_flag_is_PLRDF_filtered_entry(){
+      return flag_is_PLRDF_filtered_entry;
     }
 
 

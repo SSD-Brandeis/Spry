@@ -1224,6 +1224,13 @@ void PLRDF::splitRangesOnLevel(uint level, std::vector<long long> keys){
 }
 
 
+void PLRDF::logCurrentTotalNumbersOfRanges(){
+  numbers_of_ranges_in_RDF_log.push_back(getNumberOfTotalRanges());
+}
+
+std::vector<int> PLRDF::getNumbersOfRangesInRDFLog(){
+  return numbers_of_ranges_in_RDF_log;
+}
 
 
 
@@ -2873,6 +2880,8 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
   }
   this->inc_split__call_before_install_superversion_count();
 
+
+  this->logCurrentTotalNumbersOfRangesInEachRDF();
 }
 //Self Added End
 
