@@ -9,6 +9,11 @@
 #include <cstdlib>
 
 
+// #include "rocksdb/dbformat.h"
+// #include "file/writable_file_writer.h"
+// #include "options/cf_options.h"
+
+
 #include "rocksdb/statistics.h"
 #include "rocksdb/advanced_options.h"
 #include "rocksdb/cache.h"
@@ -37,6 +42,7 @@
 
 // #include "rocksdb/util/cast_util.h"
 #include "rocksdb/sys_rdfilter.h"
+#include "rocksdb/slice.h"
 std::mutex rdfilter::PLRDF::init_mutex;
 rdfilter::PLRDF* rdfilter::PLRDF::plrdf_ptr; 
 
@@ -482,10 +488,25 @@ void write_log2(std::ostream &outStream, EmuEnv* _env){
 
 void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_op, EmuEnv* _env){//Params &params){
   DB* db = *db_ptr2;
+  Status s;
+
   checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
   int KEY_SIZE = checking::SystemVerifier::getKeySize();
 
-  Status s;
+
+  system_verifier->enable_log__deleted_keys__max_sequnce_number();
+  system_verifier->setRDFTypeChosed(0); // 0: NONE
+  for(auto &x: system_verifier->getCurrentlyDeletedKeys()){
+    std::string value;
+    std::stringstream searching_key;
+    searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+
+    s = db->Get(read_op, searching_key.str(), &value);
+  }
+  system_verifier->disable_log__deleted_keys__max_sequnce_number();
+
+
+
 
   std::string testing_result_file_name = _env->workload_file_name + ".testing_log";
   std::string testing_result_file_name2 = _env->workload_file_name + ".testing_log2";
@@ -621,11 +642,15 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
         std::string gt_value = system_verifier->get(x);
 
         std::string value;
+        std::string time_stamp;
         std::stringstream searching_key;
         searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
 
         start_pq = std::chrono::high_resolution_clock::now();
         s = db->Get(read_op, searching_key.str(), &value);  
+        size_t separator_pos = value.find("|");
+        time_stamp = value.substr(separator_pos + 1);
+        value = value.substr(0, separator_pos);
         stop_pq = std::chrono::high_resolution_clock::now();
         duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
@@ -769,11 +794,15 @@ std::cout << "!!! Testing On historic-existing Keys " << std::endl;
         std::string gt_value = system_verifier->get(x);
 
         std::string value;
+        std::string time_stamp;
         std::stringstream searching_key;
         searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
 
         start_pq = std::chrono::high_resolution_clock::now();
         s = db->Get(read_op, searching_key.str(), &value);
+        size_t separator_pos = value.find("|");
+        time_stamp = value.substr(separator_pos + 1);
+        value = value.substr(0, separator_pos);
         stop_pq = std::chrono::high_resolution_clock::now();
         duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
@@ -925,11 +954,15 @@ std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
         std::string gt_value = system_verifier->get(x);
 
         std::string value;
+        std::string time_stamp;
         std::stringstream searching_key;
         searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
 
         start_pq = std::chrono::high_resolution_clock::now();
         s = db->Get(read_op, searching_key.str(), &value);
+        size_t separator_pos = value.find("|");
+        time_stamp = value.substr(separator_pos + 1);
+        value = value.substr(0, separator_pos);
         stop_pq = std::chrono::high_resolution_clock::now();
         duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
@@ -1078,11 +1111,15 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
         std::string gt_value = system_verifier->get(x); // should be ""
 
         std::string value;
+        std::string time_stamp;
         std::stringstream searching_key;
         searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
 
         start_pq = std::chrono::high_resolution_clock::now();
         s = db->Get(read_op, searching_key.str(), &value);
+        size_t separator_pos = value.find("|");
+        time_stamp = value.substr(separator_pos + 1);
+        value = value.substr(0, separator_pos);
         stop_pq = std::chrono::high_resolution_clock::now();
         duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
@@ -1199,9 +1236,12 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
   Iterator* it = db->NewIterator(read_op);  // for range reads
   uint64_t counter = 0;                     // for progress bar
   int KEY_SIZE = checking::SystemVerifier::getKeySize();
+  int TIME_STAMP_SIZE = 7;  // shall == rocksdb sequence num 
+  long long i_instruction = 0;
 
   while (!workload_file.eof()) {
-
+    i_instruction ++;
+    std::cout << " i_instruction = " << i_instruction << std::endl;
     // while(db->getFlushQueueSize() > 0 || db->getCompactionQueueSize() > 0) {
     //   std::this_thread::sleep_for(std::chrono::milliseconds(100));
     // }
@@ -1215,10 +1255,13 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
 
 
     char instruction;
+    std::string time_stamp;
+    std::stringstream ss_time_stamp;
     long long key, start_key, end_key;
     std::string type;
     std::string value;
     std::stringstream ss_key, ss_start_key, ss_end_key;
+    size_t separator_pos = 0;
     workload_file >> instruction;
     switch (instruction) {
       case 'I':  // insert
@@ -1228,9 +1271,13 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
 
         // std::cout << "Insert " << key << std::endl;
         ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
+        ss_time_stamp << std::setfill('0') << std::setw(TIME_STAMP_SIZE) << i_instruction;
+        std::cout << "Insert " << ss_key.str() << " time_stamp = " << ss_time_stamp.str() << endl;
         // std::cout << "Insert " <<  ss_key.str() << std::endl;
         // Put key-value
-        s = db->Put(write_op, ss_key.str(), value);
+        // s = db->Put(write_op, ss_key.str(), value);
+        s = db->Put(write_op, ss_key.str(), value + "|" + ss_time_stamp.str());
+        // s = db->Put(write_op, ss_key.str(), value, Slice(std::to_string(i_instruction)));
         if (!s.ok()) std::cerr << s.ToString() << std::endl;
         assert(s.ok());
         counter++;
@@ -1245,6 +1292,9 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
         std::cout << "Query " << key << std::endl;
         ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
         s = db->Get(read_op, ss_key.str(), &value);
+        separator_pos = value.find("|");
+        time_stamp = value.substr(separator_pos + 1);
+        value = value.substr(0, separator_pos);
         // if (!s.ok()) std::cerr << s.ToString() << "key = " << key <<
         // std::endl;
         //  assert(s.ok());
@@ -1291,6 +1341,9 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
           ss_end_key << std::setfill('0') << std::setw(KEY_SIZE) << end_key;
           s = db->DeleteRange(write_op, db->DefaultColumnFamily(),
                               ss_start_key.str(), ss_end_key.str());
+          // s = db->DeleteRange(write_op, db->DefaultColumnFamily(),
+          //                     ss_start_key.str(), ss_end_key.str(), 
+          //                     Slice(std::to_string(i_instruction)));
           if (!s.ok()) std::cerr << s.ToString() << std::endl;
           assert(s.ok());
           counter++;
@@ -1378,9 +1431,13 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
       std::string gt_value = system_verifier->get(x);
 
       std::string value;
+      std::string time_stamp;
       std::stringstream searching_key;
       searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
       s = db->Get(read_op, searching_key.str(), &value);
+      size_t separator_pos = value.find("|");
+      time_stamp = value.substr(separator_pos + 1);
+      value = value.substr(0, separator_pos);
       std::cout << x << " " << s.ok() << " " << value << std::endl;
       std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
     
@@ -2091,8 +2148,46 @@ void configOptions(EmuEnv* _env, Options *op, BlockBasedTableOptions *t_op, Writ
 // }
 
 
-int main(int argc, char *argv[]) {
+// void speed_test2(){
+//   std::unordered_map<long long, uint64_t> map;
+//   for(int i = 0; i < 1000000; i++){
+//     map[i] = i;
+//   }
+//   // testing_result_file.open("testing_result.txt");
 
+//   uint64_t num = -1;
+//   auto start_pq = std::chrono::high_resolution_clock::now();
+
+//   for(int i = 0; i < 1000000; i++){
+//     num = map[i];
+//   }
+
+//   auto stop_pq = std::chrono::high_resolution_clock::now();
+//   auto duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+//   unsigned long long point_query_time = duration_pq.count();
+//   std::cout << "done " << num << std::endl;
+//   std::cout << "time elapsed = " << point_query_time << std::endl;
+
+// }
+
+// Status DumpTable(const std::string& out_filename) {
+//   std::unique_ptr<WritableFile> out_file;
+//   Env* env = options_.env;
+//   Status s = env->NewWritableFile(out_filename, &out_file, soptions_);
+//   if (s.ok()) {
+//     s = table_reader_->DumpTable(out_file.get());
+//   }
+//   if (!s.ok()) {
+//     // close the file before return error, ignore the close error if there's any
+//     out_file->Close().PermitUncheckedError();
+//     return s;
+//   }
+//   return out_file->Close();
+// }
+
+
+
+int main(int argc, char *argv[]) {
   // check emu_environment.h for the contents of EmuEnv and also the definitions of the singleton experimental environment 
   EmuEnv* _env = EmuEnv::getInstance();
   //parse the command line arguments

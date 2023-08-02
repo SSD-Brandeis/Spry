@@ -923,7 +923,7 @@ if (range_del_iter2 != nullptr) {
 
   for (range_del_iter2->SeekToFirst(); range_del_iter2->Valid(); range_del_iter2->Next()) {
     auto tombstone = range_del_iter2->Tombstone();
-    // std::cout << "flush tombstone " << tombstone.start_key_.ToString() << " " << tombstone.end_key_.ToString() << " " << __FILE__ << ":" << __LINE__ << std::endl;
+    std::cout << "flush tombstone " << tombstone.start_key_.ToString() << " " << tombstone.end_key_.ToString() << " " << "(" << tombstone.seq_ << ")" << __FILE__ << ":" << __LINE__ << std::endl;
   
     // // edit_->storeRange2RDFTest(tombstone);
     // // cfd_->current()->storage_info()->storeRange2RDFTest(tombstone);

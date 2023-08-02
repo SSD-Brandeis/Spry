@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2023.8.1)  1 AUG 2023 06:35
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2023.8.1)  1 AUG 2023 22:28
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -738,14 +738,24 @@ Underfull \hbox (badness 10000) in paragraph at lines 2--6
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 23--25
+Underfull \hbox (badness 10000) in paragraph at lines 26--28
 
  []
 
 ) (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/2-background.tex) [1.1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}
 
-] (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/3-design_space.tex)
-Underfull \hbox (badness 10000) in paragraph at lines 1--187
+] (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/3-design_space.tex
+Underfull \hbox (badness 10000) in paragraph at lines 1--2
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 3--4
+
+ []
+
+)
+Underfull \hbox (badness 10000) in paragraph at lines 5--187
 
  []
 
@@ -753,6 +763,9 @@ Underfull \hbox (badness 10000) in paragraph at lines 1--187
 Underfull \hbox (badness 10000) in paragraph at lines 3--4
 
  []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
 )
 Underfull \hbox (badness 10000) in paragraph at lines 5--191
@@ -764,10 +777,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 5--191
 Package natbib Warning: Empty `thebibliography' environment on input line 3.
 
 ))
-Underfull \vbox (badness 10000) has occurred while \output is active []
+
+Package balance Warning: You have called \balance in second column
+(balance)                Columns might not be balanced.
 
 Package atenddvi Info: Last page = 2.
- [2.2]
+[2.2]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 214.
 Package atveryend Info: Executing hook `AfterLastShipout' on input line 214.
  (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/paper.aux)
@@ -777,15 +792,15 @@ Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: A0FFFB9FD152A2DA448F39218D79EA92;1574.
  ) 
 Here is how much of TeX's memory you used:
- 17567 strings out of 494847
- 262174 string characters out of 6179081
- 435808 words of memory out of 5000000
+ 17577 strings out of 494847
+ 262238 string characters out of 6179081
+ 433808 words of memory out of 5000000
  20236 multiletter control sequences out of 15000+600000
- 17840 words of font info for 102 fonts, out of 8000000 for 9000
+ 18095 words of font info for 107 fonts, out of 8000000 for 9000
  220 hyphenation exceptions out of 8191
- 60i,11n,94p,1087b,472s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 60i,11n,94p,1087b,464s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb>
-Output written on /mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/paper.pdf (2 pages, 197566 bytes).
+Output written on /mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/paper.pdf (2 pages, 199478 bytes).
 PDF statistics:
  150 PDF objects out of 1000 (max. 8388607)
  113 compressed objects within 2 object streams

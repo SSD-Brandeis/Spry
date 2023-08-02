@@ -38,8 +38,10 @@
 
 namespace ROCKSDB_NAMESPACE {
 
-  //Self Added
-  using pll = std::pair<long long, long long>;
+  //Self Added Start
+  using pll = std::pair<long long, long long>; //[start, end)
+  using t3ll = std::tuple<long long, long long, long long>; //([start, end), time)
+
   // class PerlevelRangeDeleteFilterByVector {  
   class PLRDF {  
     private:
@@ -91,6 +93,16 @@ namespace ROCKSDB_NAMESPACE {
       std::vector<int> getNumbersOfRangesInRDFLog();
   };
 
+  class SKyLineRDF {
+    private:
+      std::vector<t3ll> range_delete_list_in;
+
+    public:      
+      void addRangeDelete(std::vector<t3ll> &range_delete_list_in);
+      bool isEntryAlive(long long key);
+      void print();
+  };
+  //Self Added End
 
 
 
