@@ -340,9 +340,11 @@ class DB {
   virtual int getPLRDFNumberOfTotalRanges() {return -1;};
   virtual int getSplitPLRDFNumberOfTotalRanges() {return -1;};
   virtual int getTopLevelRDFNumberOfTotalRanges() {return -1;};
+  virtual int getSkylineRDFNumberOfTotalRanges() {return -1;};
   virtual std::vector<int> getLogOfNumbersOfRangesInPLRDF() {return {-1, -1, -1};};
   virtual std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() {return {-1, -1, -1};};
   virtual std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() {return {-1, -1, -1};};
+  virtual std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() {return {-1, -1, -1};};
   //self Added End
 
   // ListColumnFamilies will open the DB specified by argument name

@@ -19,6 +19,7 @@
 
 //Self Added
 #include <tuple>
+#include <queue>
 
 
 #include "cache/cache_reservation_manager.h"
@@ -39,6 +40,25 @@
 namespace ROCKSDB_NAMESPACE {
 
   //Self Added Start
+  struct FileInOut
+  {
+    std::vector<uint64_t> fd_in;
+    std::vector<std::tuple<uint64_t, long long, long long>> file_out;
+
+    void print(){
+      std::cout << "fd_in: ";
+      for (auto i : fd_in){
+        std::cout << i << " ";
+      }
+      std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      std::cout << "file_out: ";
+      for (auto i : file_out){
+        std::cout << std::get<0>(i) << " (" << std::get<1>(i) << ", " << std::get<2>(i) << ") ";
+      }
+      std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+  };
+
   using pll = std::pair<long long, long long>; //[start, end)
   using t3ll = std::tuple<long long, long long, long long>; //([start, end), time)
 
@@ -872,6 +892,16 @@ class ColumnFamilyData {
     top_level_rdf_prime.printLevel0();
     top_level_rdf_prime.print();
   }
+  void printSkylineRDF(){
+    std::cout << "cfd --- skyline_RDF " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+    for(auto &x: skyline_rdf_prime){
+      auto start = std::get<0>(x);
+      auto end = std::get<1>(x);
+      auto seq = std::get<2>(x);
+      std::cout << " [" << start << ", " << end << " ) --( " << seq << ") ";
+    }
+    std::cout << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  }
 
   //split_start --- split_range --- split_end should be called in a sequence
   void split_start(int out_lvl){
@@ -1036,10 +1066,15 @@ class ColumnFamilyData {
   }
 
 
+  void logCurrentTotalNumbersOfRangesInSkylineRDF(){
+    skyline__numbers_of_ranges_in_rdf_log.push_back(skyline_rdf_prime.size());
+  }
+
   void logCurrentTotalNumbersOfRangesInEachRDF(){
     plrdf_prime.logCurrentTotalNumbersOfRanges();
     split_plrdf_prime.logCurrentTotalNumbersOfRanges();
     top_level_rdf_prime.logCurrentTotalNumbersOfRanges();
+    logCurrentTotalNumbersOfRangesInSkylineRDF();
   }
   std::vector<int> getLogOfNumbersOfRangesInPLRDF(){
     return plrdf_prime.getNumbersOfRangesInRDFLog();
@@ -1051,12 +1086,125 @@ class ColumnFamilyData {
     return top_level_rdf_prime.getNumbersOfRangesInRDFLog();
   }
 
+
+  std::vector<t3ll> get_RDs_by_fd(u_int64_t fd){
+    if(fd_RDs_map.find(fd) == fd_RDs_map.end()){
+      std::cerr << "Error: fd_RDs_map[fd] doesn't exist, fd = " << fd << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      exit(1);
+    }
+    return fd_RDs_map[fd];
+  }
+
+  void set_fd_RD_in_ptr(std::pair<u_int64_t, std::vector<t3ll>>* ptr){
+    fd_RD_in_ptr = ptr;
+  }
+  void reset_fd_RD_in_ptr(){
+    fd_RD_in_ptr = nullptr;
+  }
+  std::pair<u_int64_t, std::vector<t3ll>>* get_fd_RD_in_ptr(){
+    return fd_RD_in_ptr;
+  }
+
+  void set_file_in_out_ptr(FileInOut* ptr){
+    file_in_out_ptr = ptr;
+  }
+  void reset_file_in_out_ptr(){
+    file_in_out_ptr = nullptr;
+  }
+  FileInOut* get_file_in_out_ptr(){
+    return file_in_out_ptr;
+  }
+
+  void addRangeToSkylineRDFPrime(std::vector<t3ll> range){
+    if(range.size() == 0){return;}
+
+    std::vector<t3ll> tmp_v; //start, end, seq
+    for(auto &r: range){
+      tmp_v.push_back(r);
+    }
+    for(auto &r: skyline_rdf_prime){
+      tmp_v.push_back(r);
+    }
+
+    std::sort(tmp_v.begin(), tmp_v.end());
+    std::priority_queue<pll> pq; // seq, end
+    std::vector<t3ll> out_v; // start, end, seq
+
+    auto t_cur = std::get<0>(tmp_v[0]);
+    for(auto &x: tmp_v){
+      auto start = std::get<0>(x);
+      auto end = std::get<1>(x);
+      auto seq = std::get<2>(x);
+      // if(!pq.empty() && +pq.top().second <= start){
+      while(!pq.empty() && +pq.top().second <= start){
+        pll p = pq.top();
+        pq.pop();
+        auto seq2 = +p.first;
+        auto end2 = +p.second;
+        if(end2 <= t_cur){continue;}
+// std::cout << " t_cur = " << t_cur << " end2 = " << end2 << " seq2 = " << seq2 << " start = " << start << " "
+//           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        out_v.push_back(std::make_tuple(t_cur, end2, seq2));
+        t_cur = end2;
+      }
+      // }
+
+      if(pq.empty()){t_cur = start;}
+      else{
+        auto seq2 = +pq.top().first;
+        out_v.push_back(std::make_tuple(t_cur, start, seq2));
+        t_cur = start;
+      }
+
+      pq.push(std::make_pair(+seq, +end));
+    }
+    while(!pq.empty()){
+      pll p = pq.top();
+      pq.pop();
+      auto seq2 = +p.first;
+      auto end2 = +p.second;
+      if(end2 <= t_cur){continue;}
+
+      out_v.push_back(std::make_tuple(t_cur, end2, seq2));
+      t_cur = end2;
+    }
+
+
+    std::vector<t3ll> out_v2;
+    int len_out_v = out_v.size();
+    auto start = std::get<0>(out_v[0]);
+    auto end = std::get<1>(out_v[0]);
+    auto seq = std::get<2>(out_v[0]);
+    for(int i = 1; i < len_out_v; i++){
+      if(std::get<1>(out_v[i-1]) == std::get<0>(out_v[i]) && 
+        std::get<2>(out_v[i-1]) == std::get<2>(out_v[i])){
+        end = std::get<1>(out_v[i]);
+      }else{
+        out_v2.push_back(std::make_tuple(start, end, seq));
+        start = std::get<0>(out_v[i]);
+        end = std::get<1>(out_v[i]);
+        seq = std::get<2>(out_v[i]);
+      }
+    }
+    out_v2.push_back(std::make_tuple(start, end, seq));
+
+    skyline_rdf_prime = out_v2;
+    // skyline__numbers_of_ranges_in_rdf_log.push_back(out_v2.size());
+  }
+
  private:
   // //Self Added Start
   Version* update_RDF_version_pre = nullptr;
   Version* install_version_pre = nullptr;
+
+  std::unordered_map<uint64_t, std::vector<t3ll>> fd_RDs_map;
+  std::pair<u_int64_t, std::vector<t3ll>>* fd_RD_in_ptr = nullptr; //flush
+  FileInOut* file_in_out_ptr = nullptr; //compaction
+  
   PLRDF plrdf_prime, split_plrdf_prime;
   PLRDF top_level_rdf_prime;
+  std::vector<t3ll> skyline_rdf_prime;
+  std::vector<int> skyline__numbers_of_ranges_in_rdf_log;
   
   // for plrdf_prime
   std::tuple<uint64_t, std::vector<pll>, std::vector<uint64_t>> flush_to_level0_RD_vector = std::make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());

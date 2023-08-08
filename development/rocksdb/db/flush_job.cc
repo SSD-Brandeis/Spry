@@ -912,6 +912,8 @@ Status FlushJob::WriteLevel0Table() {
 // cfd_->current()->printAllFileRanges();
       
 // cfd_->current()->setRDFTest2(cfd_->current()->getRDFTest());
+std::pair<u_int64_t, std::vector<t3ll>>* fd_RD_in_ptr = new std::pair<u_int64_t, std::vector<t3ll>>;
+std::vector<t3ll> RD_seq;
 
 std::vector<pll> range_delete_list_in;
 auto* range_del_iter2 = m->NewRangeTombstoneIterator(
@@ -923,7 +925,7 @@ if (range_del_iter2 != nullptr) {
 
   for (range_del_iter2->SeekToFirst(); range_del_iter2->Valid(); range_del_iter2->Next()) {
     auto tombstone = range_del_iter2->Tombstone();
-    std::cout << "flush tombstone " << tombstone.start_key_.ToString() << " " << tombstone.end_key_.ToString() << " " << "(" << tombstone.seq_ << ")" << __FILE__ << ":" << __LINE__ << std::endl;
+    // std::cout << "flush tombstone " << tombstone.start_key_.ToString() << " " << tombstone.end_key_.ToString() << " " << "(" << tombstone.seq_ << ")" << __FILE__ << ":" << __LINE__ << std::endl;
   
     // // edit_->storeRange2RDFTest(tombstone);
     // // cfd_->current()->storage_info()->storeRange2RDFTest(tombstone);
@@ -935,6 +937,7 @@ if (range_del_iter2 != nullptr) {
     // // assert( cfd_->current()->getIsRDFTest2Set() != false);
     // // cfd_->current()->storeRange2RDFTest2(tombstone);
     // // cfd_->current()->storeRange2RDFilter(0, tombstone);
+    RD_seq.push_back(std::make_tuple(std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()), tombstone.seq_));
     range_delete_list_in.push_back(std::make_pair( std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) ));
     // // cfd_->storeRange2RDFTest(tombstone);
     // // cfd_->storeRange2RDFTest2(tombstone);
@@ -949,6 +952,15 @@ if (range_del_iter2 != nullptr) {
   // cfd_->current()->printRDFilter();
   // cfd_->current()->printRDFilterUpdated();
 }
+
+fd_RD_in_ptr->first = meta_.fd.GetNumber();
+fd_RD_in_ptr->second = RD_seq;
+if(cfd_->get_fd_RD_in_ptr() != nullptr){
+  std::cerr << " flush job fd_RD_in_ptr is not nullptr " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  exit(1);
+}
+cfd_->set_fd_RD_in_ptr(fd_RD_in_ptr);
+
 vector<uint64_t> exist_level0_file_nums = cfd_->current()->getLevelFileNumbers(0);
 // // Do insertion, even if the vector is empty, because we need to set condition_variable of mutex (semaphore) for compaction
 // rdfilter::PLRDF::getRDFilter()->insertRangeDeleteToLevel0(meta_.fd.GetNumber(), range_delete_list_in, exist_level0_file_nums);

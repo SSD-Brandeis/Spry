@@ -136,6 +136,9 @@ To Run:
 
 
 
+./simple_example -i 100000 --RD 100 -P 32 -B 4 -E 1024 -T 2 --selectivity 0.001 --workload_filename "workload/workload71_1.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log71_1
+
+./simple_example -i 100000 --RD 100 -P 32 -B 4 -E 1024 -T 2 --selectivity 0.001 --workload_filename "workload/workload71_2.txt" --insert_before_range_delete 0.5 --gen_workload 0 > log71_2
 
 
 
