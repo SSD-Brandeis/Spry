@@ -3727,7 +3727,7 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
     TEST_SYNC_POINT_CALLBACK("DBImpl::BackgroundCompaction:AfterCompaction",
                              c->column_family_data());
   // } else if (!trivial_move_disallowed && c->IsTrivialMove()) {
-  } else if (!trivial_move_disallowed && c->IsTrivialMove() && false) { // <------------------- do this only for top-level RDF behavioral simulation
+  } else if (!trivial_move_disallowed && c->IsTrivialMove() && false) { // <------------------- && false: do this only for top-level RDF behavioral simulation
     TEST_SYNC_POINT("DBImpl::BackgroundCompaction:TrivialMove");
     TEST_SYNC_POINT_CALLBACK("DBImpl::BackgroundCompaction:BeforeCompaction",
                              c->column_family_data());

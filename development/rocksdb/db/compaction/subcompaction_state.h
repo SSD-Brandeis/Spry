@@ -208,6 +208,49 @@ class SubcompactionState {
     return s;
   }
 
+
+  //Self Added Start
+  // CompactionOutputs getCompactionOutputs(){
+  //   return compaction_outputs_;
+  // }
+  // CompactionOutputs getPenultimateLevelOutputs(){
+  //   return penultimate_level_outputs_;
+  // }
+  std::vector<FileMetaData> getCompactionOutputFileMetaData() const {
+    std::vector<FileMetaData> files;
+    for (const auto& file : compaction_outputs_.outputs_) {
+      files.push_back(file.meta);
+    }
+    return files;
+  }
+  std::vector<FileMetaData> getPenultimateLevelOutputFileMetaData() const {
+    std::vector<FileMetaData> files;
+    for (const auto& file : penultimate_level_outputs_.outputs_) {
+      files.push_back(file.meta);
+    }
+    return files;
+  }
+
+  std::vector<uint32_t> getCompactionOutputFileNumbers() const {
+    std::vector<uint32_t> file_numbers;
+    for (const auto& file : compaction_outputs_.outputs_) {
+      auto fd = file.meta.fd.GetNumber();
+      file_numbers.push_back(fd);
+    }
+    return file_numbers;
+  }
+
+  std::vector<uint32_t> getPenultimateLevelOutputFileNumbers() const {
+    std::vector<uint32_t> file_numbers;
+    for (const auto& file :  penultimate_level_outputs_.outputs_) {
+      auto fd = file.meta.fd.GetNumber();
+      file_numbers.push_back(fd);
+    }
+    return file_numbers;
+  }
+  //Self Added End
+
+
  private:
   // State kept for output being generated
   CompactionOutputs compaction_outputs_;

@@ -118,6 +118,7 @@ class TestingLogger{
           rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
           rocksdb::get_perf_context()->Reset();
           rocksdb::get_iostats_context()->Reset();
+          rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
         }
     }
 
@@ -206,21 +207,22 @@ void printStats(DB* db, Options& options) {
 
 
 
-    // std::cout << std::endl;
-    // std::cout << "RocksDB perf_context : " << std::endl;
-    // rocksdb::SetPerfLevel(rocksdb::PerfLevel::kDisable);
-    // std::string perf_context = rocksdb::get_perf_context()->ToString();
-    // std::cout << perf_context << std::endl;  
-    // std::cout << "----------------------------------------" << std::endl;
+    rocksdb::SetPerfLevel(rocksdb::PerfLevel::kDisable);
+
+    std::cout << std::endl;
+    std::cout << "RocksDB perf_context : " << std::endl;
+    std::string perf_context = rocksdb::get_perf_context()->ToString();
+    std::cout << perf_context << std::endl;  
+    std::cout << "----------------------------------------" << std::endl;
 
 
-    // std::cout << std::endl;
-    // std::cout << "RocksDB iostats_context : " << std::endl;
-    // rocksdb::SetPerfLevel(rocksdb::PerfLevel::kDisable);
-    // std::string iostats_context = rocksdb::get_iostats_context()->ToString();
-    // std::cout << iostats_context << std::endl;  
-    // std::cout << "----------------------------------------" << std::endl;
+    std::cout << std::endl;
+    std::cout << "RocksDB iostats_context : " << std::endl;
+    std::string iostats_context = rocksdb::get_iostats_context()->ToString();
+    std::cout << iostats_context << std::endl;  
+    std::cout << "----------------------------------------" << std::endl;
 
+    rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
  
 }
 
@@ -415,6 +417,7 @@ void init(DB **db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_o
 void reset_perf_iostats_context(){
   rocksdb::get_perf_context()->Reset();
   rocksdb::get_iostats_context()->Reset();
+  rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
 }
 
 void print_perf_iostats_context(std::ostream& ofile, int N_repetitions){
@@ -433,6 +436,21 @@ void print_perf_iostats_context(std::ostream& ofile, int N_repetitions){
     long long bloom_sst_miss_count = parsing_value_from_string(perf_context, "bloom_sst_miss_count[^:]*= ([0-9]+)");
 
 
+    long long block_read_count = parsing_value_from_string(perf_context, "block_read_count[^:]*= ([0-9]+)");
+    long long block_read_byte = parsing_value_from_string(perf_context, "block_read_byte[^:]*= ([0-9]+)");
+    long long block_read_time = parsing_value_from_string(perf_context, "block_read_time[^:]*= ([0-9]+)");
+    long long block_read_cpu_time = parsing_value_from_string(perf_context, "block_read_cpu_time[^:]*= ([0-9]+)");
+    long long index_block_read_count = parsing_value_from_string(perf_context, "index_block_read_count[^:]*= ([0-9]+)");
+    long long filter_block_read_count = parsing_value_from_string(perf_context, "filter_block_read_count[^:]*= ([0-9]+)");
+    long long compression_dict_block_read_count = parsing_value_from_string(perf_context, "compression_dict_block_read_count[^:]*= ([0-9]+)");
+    long long get_read_bytes = parsing_value_from_string(perf_context, "get_read_bytes[^:]*= ([0-9]+)");
+    long long read_index_block_nanos = parsing_value_from_string(perf_context, "read_index_block_nanos[^:]*= ([0-9]+)");
+    long long read_filter_block_nanos = parsing_value_from_string(perf_context, "read_filter_block_nanos[^:]*= ([0-9]+)");
+    long long internal_key_skipped_count = parsing_value_from_string(perf_context, "internal_key_skipped_count[^:]*= ([0-9]+)");
+    long long internal_delete_skipped_count = parsing_value_from_string(perf_context, "internal_delete_skipped_count[^:]*= ([0-9]+)");
+    long long internal_recent_skipped_count = parsing_value_from_string(perf_context, "internal_recent_skipped_count[^:]*= ([0-9]+)");
+    long long internal_range_del_reseek_count = parsing_value_from_string(perf_context, "internal_range_del_reseek_count[^:]*= ([0-9]+)");
+
 
     // rocksdb::SetPerfLevel(rocksdb::PerfLevel::kDisable);
     std::string iostats_context = rocksdb::get_iostats_context()->ToString();
@@ -450,6 +468,24 @@ void print_perf_iostats_context(std::ostream& ofile, int N_repetitions){
     ofile << "bloom_memtable_miss_count = " << std::fixed << std::setprecision(2) << bloom_memtable_miss_count * 1.0 / N_repetitions << std::endl;
     ofile << "bloom_sst_hit_count = " << std::fixed << std::setprecision(2) << bloom_sst_hit_count * 1.0 / N_repetitions << std::endl;
     ofile << "bloom_sst_miss_count = " << std::fixed << std::setprecision(2) << bloom_sst_miss_count * 1.0 / N_repetitions << std::endl;
+    
+
+    ofile << "block_read_count = " << std::fixed << std::setprecision(2) << block_read_count * 1.0 / N_repetitions << std::endl;
+    ofile << "block_read_byte = " << std::fixed << std::setprecision(2) << block_read_byte * 1.0 / N_repetitions << std::endl;
+    ofile << "block_read_time = " << std::fixed << std::setprecision(2) << block_read_time * 1.0 / N_repetitions << std::endl;
+    ofile << "block_read_cpu_time = " << std::fixed << std::setprecision(2) << block_read_cpu_time * 1.0 / N_repetitions << std::endl;
+    ofile << "index_block_read_count = " << std::fixed << std::setprecision(2) << index_block_read_count * 1.0 / N_repetitions << std::endl;
+    ofile << "filter_block_read_count = " << std::fixed << std::setprecision(2) << filter_block_read_count * 1.0 / N_repetitions << std::endl;
+    ofile << "compression_dict_block_read_count = " << std::fixed << std::setprecision(2) << compression_dict_block_read_count * 1.0 / N_repetitions << std::endl;
+    ofile << "get_read_bytes = " << std::fixed << std::setprecision(2) << get_read_bytes * 1.0 / N_repetitions << std::endl;
+    ofile << "read_index_block_nanos = " << std::fixed << std::setprecision(2) << read_index_block_nanos * 1.0 / N_repetitions << std::endl;
+    ofile << "read_filter_block_nanos = " << std::fixed << std::setprecision(2) << read_filter_block_nanos * 1.0 / N_repetitions << std::endl;
+    ofile << "internal_key_skipped_count = " << std::fixed << std::setprecision(2) << internal_key_skipped_count * 1.0 / N_repetitions << std::endl;
+    ofile << "internal_delete_skipped_count = " << std::fixed << std::setprecision(2) << internal_delete_skipped_count * 1.0 / N_repetitions << std::endl;
+    ofile << "internal_recent_skipped_count = " << std::fixed << std::setprecision(2) << internal_recent_skipped_count * 1.0 / N_repetitions << std::endl;
+    ofile << "internal_range_del_reseek_count = " << std::fixed << std::setprecision(2) << internal_range_del_reseek_count * 1.0 / N_repetitions << std::endl;
+
+
     ofile << "bytes_read = " << std::fixed << std::setprecision(2) << bytes_read * 1.0 / N_repetitions << std::endl;
     ofile << "bytes_written = " << std::fixed << std::setprecision(2) << bytes_written * 1.0 / N_repetitions << std::endl;
     ofile << "read_nanos = " << std::fixed << std::setprecision(2) << read_nanos * 1.0 / N_repetitions << std::endl;
@@ -522,17 +558,20 @@ void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOp
   testing_result_file << "PLRDF Number Of Total Ranges: " << db->getPLRDFNumberOfTotalRanges() << std::endl;
   testing_result_file << "Split PLRDF Number Of Total Ranges: " << db->getSplitPLRDFNumberOfTotalRanges() << std::endl;
   testing_result_file << "TopLevel RDF Number Of Total Ranges: " << db->getTopLevelRDFNumberOfTotalRanges() << std::endl;
+  testing_result_file << "Skyline RDF Number Of Total Ranges: " << db->getSkylineRDFNumberOfTotalRanges() << std::endl;
   testing_result_file << std::endl;
 
   testing_result_file2 << ",\"PLRDF Number Of Total Ranges\" : " << db->getPLRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"Split PLRDF Number Of Total Ranges\" : " << db->getSplitPLRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"TopLevel RDF Number Of Total Ranges\" : " << db->getTopLevelRDFNumberOfTotalRanges() << std::endl;
+  testing_result_file2 << ",\"Skyline RDF Number Of Total Ranges\" : " << db->getSkylineRDFNumberOfTotalRanges() << std::endl;
 
   
   
   vector<int> ranges_log_PLRDF = db->getLogOfNumbersOfRangesInPLRDF();
   vector<int> ranges_log_SplitPLRDF = db->getLogOfNumbersOfRangesInSplitPLRDF();
   vector<int> ranges_log_TopLevelRDF = db->getLogOfNumbersOfRangesInTopLevelRDF();
+  vector<int> ranges_log_SkylineRDF = db->getLogOfNumbersOfRangesInSkylineRDF();
   testing_result_file2 << ",\"Log Of Numbers Of Ranges In PLRDF\" : [";
   for(int i = 0; i < ranges_log_PLRDF.size(); i++){
     testing_result_file2 << ranges_log_PLRDF[i];
@@ -553,6 +592,14 @@ void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOp
   for(int i = 0; i < ranges_log_TopLevelRDF.size(); i++){
     testing_result_file2 << ranges_log_TopLevelRDF[i];
     if(i != ranges_log_TopLevelRDF.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;;
+  testing_result_file2 << ",\"Log Of Numbers Of Ranges In SkylineRDF\" : [";
+  for(int i = 0; i < ranges_log_SkylineRDF.size(); i++){
+    testing_result_file2 << ranges_log_SkylineRDF[i];
+    if(i != ranges_log_SkylineRDF.size() - 1){
       testing_result_file2 << ", ";
     }
   }
@@ -591,6 +638,10 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
     // system_verifier->resetDiskAccessCount();
     system_verifier->resetFilteredByRDFCount();
     system_verifier->setRDFTypeChosed(t);
+    system_verifier->resetAllCount();
+    system_verifier->reset_total_duration__get_rdf();
+    system_verifier->reset_total_duration__get_max_seq();
+    system_verifier->reset_total_duration__retrieve_block();
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
@@ -648,12 +699,12 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 
         start_pq = std::chrono::high_resolution_clock::now();
         s = db->Get(read_op, searching_key.str(), &value);  
-        size_t separator_pos = value.find("|");
-        time_stamp = value.substr(separator_pos + 1);
-        value = value.substr(0, separator_pos);
         stop_pq = std::chrono::high_resolution_clock::now();
         duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
+        size_t separator_pos = value.find("|");
+        time_stamp = value.substr(separator_pos + 1);
+        value = value.substr(0, separator_pos);
         // std::cout << x << " " << s.ok() << " " << value << std::endl;
         // std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
       
@@ -695,17 +746,24 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 
   // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
     }  
+    double block_read_cpu_time = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), ".*block_read_cpu_time = ([0-9.]+)");
+
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e3 << " (ms) " << std::endl << std::endl;
     testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
     testing_result_file << "number of PQ = " << system_verifier->getAllExistingKeys().size() << std::endl;
+    testing_result_file << system_verifier->getAllCount("", "", "", N_repetitions) << std::endl;
+    testing_result_file << "block_read_cpu_time = " << 1.0*block_read_cpu_time/N_repetitions/1e3  << "" << std::endl;
 
     std::string prefix = " (Exist Keys) " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file2 << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e3 << std::endl;
     testing_result_file2 << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
     testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getAllExistingKeys().size() << std::endl;
+    testing_result_file2 << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
+    testing_result_file2 << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
 
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
+
 
     // long long total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")  
     //       + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
@@ -724,6 +782,7 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
   }
 
 std::cout << "!!! Testing On historic-existing Keys " << std::endl;
+system_verifier->set_flag_testing_on_currently_deleted_keys();
 
   testing_result_file << std::endl << std::endl;
   testing_result_file << "----------------------Testing On historic-existing Keys-----------------------" << std::endl;
@@ -739,9 +798,14 @@ std::cout << "!!! Testing On historic-existing Keys " << std::endl;
     testing_logger.reset();
 
 
-    system_verifier->resetDiskAccessCount();
+
+    // system_verifier->resetDiskAccessCount();
     system_verifier->resetFilteredByRDFCount();
     system_verifier->setRDFTypeChosed(t);
+    system_verifier->resetAllCount();
+    system_verifier->reset_total_duration__get_rdf();
+    system_verifier->reset_total_duration__get_max_seq();
+    system_verifier->reset_total_duration__retrieve_block();
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
@@ -800,12 +864,12 @@ std::cout << "!!! Testing On historic-existing Keys " << std::endl;
 
         start_pq = std::chrono::high_resolution_clock::now();
         s = db->Get(read_op, searching_key.str(), &value);
-        size_t separator_pos = value.find("|");
-        time_stamp = value.substr(separator_pos + 1);
-        value = value.substr(0, separator_pos);
         stop_pq = std::chrono::high_resolution_clock::now();
         duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
+        size_t separator_pos = value.find("|");
+        time_stamp = value.substr(separator_pos + 1);
+        value = value.substr(0, separator_pos);
         // testing_result_file << x << " " << s.ok() << " " << value << std::endl;
         // testing_result_file << x << " " << gt_is_exist << " " << gt_value << std::endl;
       
@@ -848,17 +912,24 @@ std::cout << "!!! Testing On historic-existing Keys " << std::endl;
 
   // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
     }  
+    double block_read_cpu_time = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), ".*block_read_cpu_time = ([0-9.]+)");
+
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e3 << " (ms) " << std::endl << std::endl;
     testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
     testing_result_file << "number of PQ = " << system_verifier->getHistoricExistingKeys().size() << std::endl;
-  
+    testing_result_file << system_verifier->getAllCount("", "", "", N_repetitions) << std::endl;
+    testing_result_file << "block_read_cpu_time = " << 1.0*block_read_cpu_time/N_repetitions/1e3  << "" << std::endl;
+
     std::string prefix = " (Historcially Exist Keys) " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file2 << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e3 << std::endl;
     testing_result_file2 << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
     testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getHistoricExistingKeys().size() << std::endl;
+    testing_result_file2 << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
+    testing_result_file2 << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
 
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
+
     
     // long long total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
     //       + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
@@ -875,8 +946,10 @@ std::cout << "!!! Testing On historic-existing Keys " << std::endl;
     // testing_result_file << "Avg_read_bytes = " << std::fixed << std::setprecision(2) << (total_read_bytes) * 1.0 / N_repetitions << std::endl;
     // print_perf_iostats_context(testing_result_file, N_repetitions);
   }
+system_verifier->reset_flag_testing_on_currently_deleted_keys();
 
 std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
+system_verifier->set_flag_testing_on_currently_deleted_keys();
 
   testing_result_file << std::endl << std::endl;
   testing_result_file << "----------------------Testing On Currently Deleted Keys-----------------------" << std::endl;
@@ -899,9 +972,13 @@ std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
 
 
 
-    system_verifier->resetDiskAccessCount();
+    // system_verifier->resetDiskAccessCount();
     system_verifier->resetFilteredByRDFCount();
     system_verifier->setRDFTypeChosed(t);
+    system_verifier->resetAllCount();
+    system_verifier->reset_total_duration__get_rdf();
+    system_verifier->reset_total_duration__get_max_seq();
+    system_verifier->reset_total_duration__retrieve_block();
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
@@ -960,12 +1037,12 @@ std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
 
         start_pq = std::chrono::high_resolution_clock::now();
         s = db->Get(read_op, searching_key.str(), &value);
-        size_t separator_pos = value.find("|");
-        time_stamp = value.substr(separator_pos + 1);
-        value = value.substr(0, separator_pos);
         stop_pq = std::chrono::high_resolution_clock::now();
         duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
+        size_t separator_pos = value.find("|");
+        time_stamp = value.substr(separator_pos + 1);
+        value = value.substr(0, separator_pos);
         // testing_result_file << x << " " << s.ok() << " " << value << std::endl;
         // testing_result_file << x << " " << gt_is_exist << " " << gt_value << std::endl;
       
@@ -1008,17 +1085,24 @@ std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
 
   // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
     }  
+    double block_read_cpu_time = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), ".*block_read_cpu_time = ([0-9.]+)");
+
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e3 << " (ms) " << std::endl << std::endl;
     testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
     testing_result_file << "number of PQ = " << system_verifier->getCurrentlyDeletedKeys().size() << std::endl;
-  
+    testing_result_file << system_verifier->getAllCount("", "", "", N_repetitions) << std::endl;
+    testing_result_file << "block_read_cpu_time = " << 1.0*block_read_cpu_time/N_repetitions/1e3  << "" << std::endl;
+
     std::string prefix = " (Currently Deleted Keys) " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file2 << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e3 << std::endl;
     testing_result_file2 << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
     testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getCurrentlyDeletedKeys().size() << std::endl;
+    testing_result_file2 << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
+    testing_result_file2 << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
 
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
+
     
     // long long total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
     //       + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
@@ -1035,6 +1119,7 @@ std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
     // testing_result_file << "Avg_read_bytes = " << std::fixed << std::setprecision(2) << (total_read_bytes) * 1.0 / N_repetitions << std::endl;
     // print_perf_iostats_context(testing_result_file, N_repetitions);
   }
+system_verifier->reset_flag_testing_on_currently_deleted_keys();
 
 std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 
@@ -1056,9 +1141,13 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 
 
 
-    system_verifier->resetDiskAccessCount();
+    // system_verifier->resetDiskAccessCount();
     system_verifier->resetFilteredByRDFCount();
     system_verifier->setRDFTypeChosed(t);
+    system_verifier->resetAllCount();
+    system_verifier->reset_total_duration__get_rdf();
+    system_verifier->reset_total_duration__get_max_seq();
+    system_verifier->reset_total_duration__retrieve_block();
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
@@ -1117,12 +1206,12 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 
         start_pq = std::chrono::high_resolution_clock::now();
         s = db->Get(read_op, searching_key.str(), &value);
-        size_t separator_pos = value.find("|");
-        time_stamp = value.substr(separator_pos + 1);
-        value = value.substr(0, separator_pos);
         stop_pq = std::chrono::high_resolution_clock::now();
         duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
+        size_t separator_pos = value.find("|");
+        time_stamp = value.substr(separator_pos + 1);
+        value = value.substr(0, separator_pos);
         // testing_result_file << x << " " << s.ok() << " " << value << std::endl;
         // testing_result_file << x << " " << gt_is_exist << " " << gt_value << std::endl;
       
@@ -1165,17 +1254,24 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 
   // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
     }  
+    double block_read_cpu_time = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), ".*block_read_cpu_time = ([0-9.]+)");
+
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e3 << " (ms) " << std::endl << std::endl;
     testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
     testing_result_file << "number of PQ = " << system_verifier->getCurrentlyNonInsertedKeys().size() << std::endl;
-  
+    testing_result_file << system_verifier->getAllCount("", "", "", N_repetitions) << std::endl;
+    testing_result_file << "block_read_cpu_time = " << 1.0*block_read_cpu_time/N_repetitions/1e3  << "" << std::endl;
+
     std::string prefix = " (Non-inserted Keys) " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file2 << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e3 << std::endl;
     testing_result_file2 << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
     testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getCurrentlyNonInsertedKeys().size() << std::endl;
+    testing_result_file2 << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
+    testing_result_file2 << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
 
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
+
     
     // long long total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
     //       + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
@@ -1241,7 +1337,7 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
 
   while (!workload_file.eof()) {
     i_instruction ++;
-    std::cout << " i_instruction = " << i_instruction << std::endl;
+    // std::cout << " i_instruction = " << i_instruction << std::endl;
     // while(db->getFlushQueueSize() > 0 || db->getCompactionQueueSize() > 0) {
     //   std::this_thread::sleep_for(std::chrono::milliseconds(100));
     // }
@@ -1272,7 +1368,7 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
         // std::cout << "Insert " << key << std::endl;
         ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
         ss_time_stamp << std::setfill('0') << std::setw(TIME_STAMP_SIZE) << i_instruction;
-        std::cout << "Insert " << ss_key.str() << " time_stamp = " << ss_time_stamp.str() << endl;
+        // std::cout << "Insert " << ss_key.str() << " time_stamp = " << ss_time_stamp.str() << endl;
         // std::cout << "Insert " <<  ss_key.str() << std::endl;
         // Put key-value
         // s = db->Put(write_op, ss_key.str(), value);
@@ -1519,6 +1615,7 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
   vector<int> ranges_log_PLRDF = db->getLogOfNumbersOfRangesInPLRDF();
   vector<int> ranges_log_SplitPLRDF = db->getLogOfNumbersOfRangesInSplitPLRDF();
   vector<int> ranges_log_TopLevelRDF = db->getLogOfNumbersOfRangesInTopLevelRDF();
+  vector<int> ranges_log_SkylineRDF = db->getLogOfNumbersOfRangesInSkylineRDF();
 
   std::cout << "Ranges Log Of PLRDF: " << std::endl;
   for (int i = 0; i < ranges_log_PLRDF.size(); i++) {
@@ -1533,6 +1630,11 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
   std::cout << "Ranges Log Of TopLevelRDF: " << std::endl;
   for (int i = 0; i < ranges_log_TopLevelRDF.size(); i++) {
     std::cout << ranges_log_TopLevelRDF[i] << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "Ranges Log Of SkylineRDF: " << std::endl;
+  for (int i = 0; i < ranges_log_SkylineRDF.size(); i++) {
+    std::cout << ranges_log_SkylineRDF[i] << " ";
   }
   std::cout << std::endl;
 
