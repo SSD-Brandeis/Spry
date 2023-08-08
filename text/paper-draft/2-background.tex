@@ -1,0 +1,11 @@
+The LSM tree is a structure optimized for writes and consists primarily of two operations: Flush and Compaction. It consists of multiple levels with T-ratio up-growing capacity.
+\\
+\textbf{Leveling and Segmented LSM.} Data is stored in SSTable files on each level, with non-overlapping ranges between files. During compaction, only selected files are moved to the next level.
+\\
+\textbf{Flush.} When the buffer is full, data is sorted and written into an immutable sorted string table on disk.
+\\
+\textbf{Compaction.} Triggered when a level is full, several files will be picked out following some rules and sort-merged with the overlapping files on the next level.
+\\
+\textbf{Write Amplification and Space Amplification.} Space amplification occurs due to the presence of the same key on different levels. Write amplification happens when duplicate keys in the database result in additional writes when moving data to the next level.
+\\
+\textbf{Range Delete.} Range deletes are stored as range tombstones, represented by a triple of start value, end value, and sequence number in each SSTable file that contains their ranges.

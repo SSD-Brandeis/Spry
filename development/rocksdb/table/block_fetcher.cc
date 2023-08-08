@@ -27,6 +27,10 @@
 #include "util/compression.h"
 #include "util/stop_watch.h"
 
+//Self Added Start
+#include "include/rocksdb/system_verifier.h"
+//Self Added End
+
 namespace ROCKSDB_NAMESPACE {
 
 inline void BlockFetcher::ProcessTrailerIfPresent() {
@@ -284,20 +288,92 @@ IOStatus BlockFetcher::ReadBlockContents() {
       }
     }
 
+    
+
+    //Self Added Start xxx
+    checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumTotalBlockReadCount();
+  // std::cout << "block_type_ = "  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  switch (block_type_) {
+    case BlockType::kData:
+      // std::cout << "block_type_ = " << "kData" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumDataReadCount();
+
+      break;
+    case BlockType::kFilter:
+      // std::cout << "block_type_ = " << "kFilter" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumFilterReadCount();
+
+      break;
+    case BlockType::kFilterPartitionIndex:
+      std::cout << "block_type_ = " << "kFilterPartitionIndex" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumFilterReadCount();
+
+      break;
+    case BlockType::kProperties:
+      std::cout << "block_type_ = " << "kProperties" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      break;
+    case BlockType::kCompressionDictionary:
+      std::cout << "block_type_ = " << "kCompressionDictionary" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumCompressionDictBlockReadCount();
+
+      break;
+    case BlockType::kRangeDeletion:
+      std::cout << "block_type_ = " << "kRangeDeletion" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumRangeDelReadCount();
+      
+      break;
+    case BlockType::kHashIndexPrefixes:
+      std::cout << "block_type_ = " << "kHashIndexPrefixes" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      break;
+    case BlockType::kHashIndexMetadata:
+      std::cout << "block_type_ = " << "kHashIndexMetadata" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      break;
+    case BlockType::kMetaIndex:
+      std::cout << "block_type_ = " << "kMetaIndex" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      break;
+    case BlockType::kIndex:
+      // std::cout << "block_type_ = " << "kIndex" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumIndexReadCount();
+      
+      break;
+    default:
+      std::cout << "block_type_ = " << "kInvalid" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      break;
+  }
+    //Self Added End
+
     // TODO: introduce dedicated perf counter for range tombstones
     switch (block_type_) {
       case BlockType::kFilter:
       case BlockType::kFilterPartitionIndex:
         PERF_COUNTER_ADD(filter_block_read_count, 1);
+
+        // //Self Added Start 
+        // checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumFilterReadCount();
+        // //Self Added End
         break;
 
       case BlockType::kCompressionDictionary:
         PERF_COUNTER_ADD(compression_dict_block_read_count, 1);
+
+        // //Self Added Start 
+        // checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumCompressionDictBlockReadCount();
+        // //Self Added End
         break;
 
       case BlockType::kIndex:
         PERF_COUNTER_ADD(index_block_read_count, 1);
+
+        // //Self Added Start 
+        // checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumIndexReadCount();
+        // //Self Added End
         break;
+
+      // //Self Added Start
+      // case BlockType::kRangeDeletion:
+      //   checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumRangeDelReadCount();
+      //   break;
+      // //Self Added End
 
       // Nothing to do here as we don't have counters for the other types.
       default:
@@ -347,6 +423,7 @@ IOStatus BlockFetcher::ReadBlockContents() {
 }
 
 IOStatus BlockFetcher::ReadAsyncBlockContents() {
+std::cout << " ReadAsyncBlockContents " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   if (TryGetUncompressBlockFromPersistentCache()) {
     compression_type_ = kNoCompression;
 #ifndef NDEBUG

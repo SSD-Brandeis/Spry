@@ -289,7 +289,7 @@ std::cout  << "FlushMemTableToOutputFile A2 " << __FILE__ << ":" << __LINE__ << 
   // num_flush_not_started_ needs to be rollback.
   TEST_SYNC_POINT("DBImpl::FlushMemTableToOutputFile:BeforePickMemtables");
   if (s.ok()) {
-std::cout  << "FlushMemTableToOutputFile A3 @PickMemTable " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "FlushMemTableToOutputFile A3 @PickMemTable " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     flush_job.PickMemTable();
     need_cancel = true;
   }
@@ -308,7 +308,7 @@ std::cout  << "FlushMemTableToOutputFile A3 @PickMemTable " << __FILE__ << ":" <
   // and EventListener callback will be called when the db_mutex
   // is unlocked by the current thread.
   if (s.ok()) {
-std::cout  << "FlushMemTableToOutputFile A4 @flush job " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "FlushMemTableToOutputFile A4 @flush job " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     s = flush_job.Run(&logs_with_prep_tracker_, &file_meta,
                       &switched_to_mempurge);
     need_cancel = false;
@@ -320,15 +320,15 @@ std::cout  << "FlushMemTableToOutputFile A5 @cancel flush job " << __FILE__ << "
   }
 
   if (s.ok()) {
-std::cout << "@@ FlushMemTableToOutputFile A6 @InstallSuperVersionAndScheduleWork " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// //Self Added
-// if(cfd->current()->get_flush_install_count() > 0){
-//       std::cerr << "flush write to version (current_) happens more than once. times = " 
-//             << cfd->current()->get_flush_install_count() << __FILE__ << ":" << __LINE__ << std::endl
-//             << "flush = " << cfd->current()->get_flush_install_count() << std::endl
-//             << "compact = " << cfd->current()->get_compaction_install_count() << std::endl
-//             << "installSuperversion = " << cfd->current()->get_installSuperversion_count() << std::endl;
-// }
+// std::cout << "@@ FlushMemTableToOutputFile A6 @InstallSuperVersionAndScheduleWork " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// // //Self Added
+// // if(cfd->current()->get_flush_install_count() > 0){
+// //       std::cerr << "flush write to version (current_) happens more than once. times = " 
+// //             << cfd->current()->get_flush_install_count() << __FILE__ << ":" << __LINE__ << std::endl
+// //             << "flush = " << cfd->current()->get_flush_install_count() << std::endl
+// //             << "compact = " << cfd->current()->get_compaction_install_count() << std::endl
+// //             << "installSuperversion = " << cfd->current()->get_installSuperversion_count() << std::endl;
+// // }
 if(cfd->current()->get_flush_install_count() > 0){
       std::cerr << "flush write to version (current_) happens more than once. times = " 
             << cfd->current()->get_flush_install_count() << __FILE__ << ":" << __LINE__ << std::endl
@@ -440,8 +440,8 @@ cfd->updateRDF2NewVersion(1, split_flag); // 1 for flush, 2 for compaction
 Status DBImpl::FlushMemTablesToOutputFiles(
     const autovector<BGFlushArg>& bg_flush_args, bool* made_progress,
     JobContext* job_context, LogBuffer* log_buffer, Env::Priority thread_pri) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   if (immutable_db_options_.atomic_flush) {
     return AtomicFlushMemTablesToOutputFiles(
         bg_flush_args, made_progress, job_context, log_buffer, thread_pri);
@@ -893,8 +893,8 @@ std::cout << "@@ AtomicFlushMemTableToOutputFile A @InstallSuperVersionAndSchedu
 void DBImpl::NotifyOnFlushBegin(ColumnFamilyData* cfd, FileMetaData* file_meta,
                                 const MutableCFOptions& mutable_cf_options,
                                 int job_id, FlushReason flush_reason) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   if (immutable_db_options_.listeners.size() == 0U) {
     return;
   }
@@ -1920,8 +1920,8 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 
 Status DBImpl::Flush(const FlushOptions& flush_options,
                      ColumnFamilyHandle* column_family) {
-std::cout  << "FLUSH t1 " << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+// std::cout  << "FLUSH t1 " << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(column_family);
   ROCKS_LOG_INFO(immutable_db_options_.info_log, "[%s] Manual flush start.",
                  cfh->GetName().c_str());
@@ -2519,8 +2519,8 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 Status DBImpl::WaitUntilFlushWouldNotStallWrites(ColumnFamilyData* cfd,
                                                  bool* flush_needed) {
   {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
     *flush_needed = true;
     InstrumentedMutexLock l(&mutex_);
     uint64_t orig_active_memtable_id = cfd->mem()->GetID();
@@ -2600,8 +2600,8 @@ Status DBImpl::WaitForFlushMemTables(
     const autovector<ColumnFamilyData*>& cfds,
     const autovector<const uint64_t*>& flush_memtable_ids,
     bool resuming_from_bg_err) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   int num = static_cast<int>(cfds.size());
   // Wait until the compaction completes
   InstrumentedMutexLock l(&mutex_);
@@ -2858,8 +2858,8 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 }
 
 DBImpl::FlushRequest DBImpl::PopFirstFromFlushQueue() {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   assert(!flush_queue_.empty());
   FlushRequest flush_req = flush_queue_.front();
   flush_queue_.pop_front();
@@ -3309,8 +3309,8 @@ void DBImpl::BackgroundCallFlush(Env::Priority thread_pri) {
 
 void DBImpl::BackgroundCallCompaction(PrepickedCompaction* prepicked_compaction,
                                       Env::Priority bg_thread_pri) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   bool made_progress = false;
   JobContext job_context(next_job_id_.fetch_add(1), true);
   TEST_SYNC_POINT("BackgroundCallCompaction:0");
@@ -3683,6 +3683,7 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
     // c->column_family_data()->current()->set_compaction_direct_delete_RD_vector(file_meta_data_vectors);
     c->column_family_data()->set_compaction_direct_delete_RD_vector(file_meta_data_vectors);
     c->column_family_data()->set_split__compaction_direct_delete_RD_vector(file_meta_data_vectors);
+    // c->column_family_data()->set_top_level__direct_delete__delete_RD_vector(file_meta_data_vectors);
 
     // c->column_family_data()->GetSuperVersion()->current->deleteRDFAssociatedWithFilesAtCurrentLevel(&file_meta_data_vectors);
     //Self Added
@@ -3725,7 +3726,8 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
     *made_progress = true;
     TEST_SYNC_POINT_CALLBACK("DBImpl::BackgroundCompaction:AfterCompaction",
                              c->column_family_data());
-  } else if (!trivial_move_disallowed && c->IsTrivialMove()) {
+  // } else if (!trivial_move_disallowed && c->IsTrivialMove()) {
+  } else if (!trivial_move_disallowed && c->IsTrivialMove() && false) { // <------------------- && false: do this only for top-level RDF behavioral simulation
     TEST_SYNC_POINT("DBImpl::BackgroundCompaction:TrivialMove");
     TEST_SYNC_POINT_CALLBACK("DBImpl::BackgroundCompaction:BeforeCompaction",
                              c->column_family_data());
@@ -3743,6 +3745,7 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
 
     //Self Added
     std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>();
+    std::tuple<int, std::vector<pll>, std::vector<uint64_t>> delete_RD_vector; 
 
     for (unsigned int l = 0; l < c->num_input_levels(); l++) {
       if (c->level(l) == c->output_level()) {
@@ -3766,8 +3769,14 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
             file_numbers.push_back(file_meta->fd.GetNumber());
           }
           file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries, file_numbers));
-          flag = true;
+          
+          if(c->level(l) == 0){ // coming from level 0
+            delete_RD_vector = std::make_tuple(1, smallest_largest_boundries, file_numbers);
+          }
+
+          flag = true; //why flag?
         }
+
 
         FileMetaData* f = c->input(l, i);
         c->edit()->DeleteFile(c->level(l), f->fd.GetNumber());
@@ -3806,6 +3815,7 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
     //rdfilter::PLRDF::getRDFilter()->shiftRDFToOutputLevel(file_meta_data_vectors);
     c->column_family_data()->set_compaction_moving_RD_vector(*file_meta_data_vectors);
     c->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
+    c->column_family_data()->set_top_level__trivial_move__delete_RD_vector(delete_RD_vector); 
 
     // c->column_family_data()->GetSuperVersion()->current->shiftRDFToOutputLevel(file_meta_data_vectors);
     
@@ -3954,7 +3964,7 @@ c->column_family_data()->updateRDF2NewVersion(2, split_flag); // 1 for flush, 2 
     status = compaction_job.Install(*c->mutable_cf_options());
     io_s = compaction_job.io_status();
     if (status.ok()) {
-std::cout << "@@ BackgroundCompaction A @InstallSuperVersionAndScheduleWork " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << "@@ BackgroundCompaction A @InstallSuperVersionAndScheduleWork " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 //Self Added Start
 //shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
 bool split_flag = true;
@@ -4265,7 +4275,7 @@ void DBImpl::InstallSuperVersionAndScheduleWork(
     sv_context->NewSuperVersion();
   }
 
-std::cout << "@@ cfd = " << cfd << " , name = "<< cfd->GetName() << " " << __FILE__ << ":" << __LINE__ << std::endl;
+// std::cout << "@@ cfd = " << cfd << " , name = "<< cfd->GetName() << " " << __FILE__ << ":" << __LINE__ << std::endl;
   cfd->InstallSuperVersion(sv_context, mutable_cf_options);
 
   // There may be a small data race here. The snapshot tricking bottommost

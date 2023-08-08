@@ -1,0 +1,586 @@
+{
+"start" : "start"
+,"T" : 5
+,"P" : 64
+,"B" : 4
+,"E" : 1024
+,"write_buffer_size" : 262144
+,"correlation" : 0
+,"num_inserts" : 100000
+,"rd_count" : 100
+,"selectivity" : 0.001
+,"workload_file_name" : "workload/workload1.txt"
+,"insert_before_rangeDelete" : 0.8
+,"gen_workload" : 1
+,"max_background_jobs" : 1
+,"target_file_size_base" : 262144
+,"target_file_size_multiplier" : 1
+,"max_bytes_for_level_base" : 167772160
+,"num_levels" : 10
+,"max_write_buffer_number" : 2
+,"level0_file_num_compaction_trigger" : 1
+,"PLRDF Number Of Total Ranges" : 100
+,"Split PLRDF Number Of Total Ranges" : 750
+,"TopLevel RDF Number Of Total Ranges" : 1211
+,"Skyline RDF Number Of Total Ranges" : 92
+,"Log Of Numbers Of Ranges In PLRDF" : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11, 12, 12, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 13, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 16, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 17, 18, 18, 18, 18, 19, 19, 19, 19, 19, 20, 20, 20, 20, 20, 20, 20, 20, 21, 21, 21, 21, 21, 21, 22, 22, 22, 22, 22, 22, 23, 23, 23, 23, 24, 24, 24, 24, 24, 24, 25, 25, 25, 25, 25, 25, 26, 26, 26, 26, 26, 26, 26, 27, 27, 27, 28, 28, 28, 28, 29, 29, 28, 28, 28, 28, 28, 29, 29, 29, 30, 30, 30, 31, 31, 31, 31, 31, 31, 32, 32, 32, 32, 32, 32, 33, 33, 33, 34, 34, 34, 34, 34, 35, 35, 35, 35, 35, 35, 35, 35, 36, 36, 36, 36, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 38, 38, 38, 38, 38, 38, 39, 39, 39, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 41, 41, 42, 42, 42, 43, 43, 43, 43, 43, 43, 44, 44, 44, 44, 44, 44, 45, 45, 45, 46, 46, 46, 46, 46, 46, 46, 46, 47, 47, 47, 47, 47, 47, 48, 48, 48, 48, 48, 48, 49, 49, 49, 49, 50, 50, 50, 50, 50, 51, 51, 51, 52, 52, 52, 52, 52, 52, 52, 52, 52, 53, 53, 53, 54, 54, 54, 54, 55, 55, 55, 56, 56, 56, 57, 57, 57, 57, 57, 57, 58, 58, 58, 58, 59, 59, 59, 60, 60, 60, 60, 60, 60, 59, 59, 59, 59, 59, 60, 60, 60, 60, 60, 61, 61, 61, 62, 62, 62, 62, 62, 63, 63, 63, 63, 63, 63, 64, 64, 64, 64, 64, 64, 64, 65, 65, 65, 66, 66, 66, 66, 66, 66, 66, 66, 66, 66, 67, 67, 67, 68, 68, 68, 68, 68, 68, 68, 69, 69, 69, 69, 70, 70, 70, 70, 70, 70, 70, 70, 71, 71, 71, 72, 72, 72, 72, 72, 72, 71, 72, 72, 73, 73, 73, 73, 73, 73, 74, 74, 74, 73, 73, 73, 74, 74, 74, 74, 74, 74, 74, 74, 74, 75, 75, 75, 76, 76, 76, 76, 77, 77, 77, 76, 76, 77, 77, 77, 78, 78, 78, 78, 79, 78, 78, 78, 78, 78, 78, 79, 79, 79, 80, 80, 80, 81, 81, 81, 81, 81, 82, 82, 82, 81, 81, 81, 81, 82, 82, 82, 83, 83, 83, 83, 84, 84, 84, 84, 84, 84, 84, 84, 84, 84, 85, 85, 85, 86, 86, 86, 86, 86, 86, 87, 87, 87, 87, 87, 87, 88, 88, 88, 88, 88, 89, 89, 90, 90, 90, 91, 91, 91, 91, 91, 91, 91, 91, 92, 92, 92, 93, 93, 93, 93, 93, 93, 94, 94, 94, 94, 94, 94, 94, 95, 95, 95, 95, 96, 96, 96, 97, 96, 96, 96, 96, 96, 97, 97, 97, 98, 98, 98, 98, 99, 99, 99, 99, 100, 100, 100, 100, 100]
+,"Log Of Numbers Of Ranges In SplitPLRDF" : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 9, 10, 10, 10, 10, 10, 11, 12, 14, 14, 14, 14, 15, 15, 15, 15, 16, 17, 17, 17, 17, 18, 18, 18, 18, 19, 19, 19, 19, 19, 19, 19, 20, 20, 20, 20, 20, 20, 22, 24, 24, 25, 26, 26, 27, 27, 27, 27, 27, 27, 28, 28, 29, 29, 33, 33, 34, 35, 41, 41, 41, 41, 43, 43, 43, 43, 45, 46, 49, 49, 49, 50, 50, 50, 51, 51, 51, 51, 51, 52, 52, 52, 52, 52, 52, 53, 55, 55, 55, 55, 55, 56, 57, 59, 59, 60, 61, 76, 76, 76, 76, 77, 78, 78, 78, 78, 78, 79, 79, 87, 87, 91, 91, 91, 92, 92, 92, 93, 93, 93, 93, 94, 95, 95, 95, 95, 95, 95, 96, 96, 96, 96, 96, 96, 97, 97, 98, 98, 102, 102, 103, 103, 108, 108, 108, 108, 109, 109, 109, 111, 113, 115, 115, 115, 116, 116, 116, 116, 116, 116, 116, 116, 117, 117, 117, 117, 118, 118, 118, 120, 123, 123, 123, 123, 123, 123, 124, 125, 128, 140, 140, 140, 141, 143, 143, 144, 144, 144, 144, 144, 144, 144, 144, 144, 144, 146, 146, 148, 148, 148, 149, 149, 151, 151, 151, 151, 153, 153, 154, 157, 157, 157, 158, 158, 158, 160, 162, 167, 167, 171, 171, 171, 171, 172, 172, 172, 172, 172, 172, 173, 173, 182, 182, 182, 182, 183, 183, 185, 185, 186, 186, 205, 205, 205, 207, 207, 207, 208, 208, 209, 212, 212, 212, 212, 212, 212, 213, 214, 214, 215, 215, 219, 219, 236, 236, 236, 237, 237, 237, 238, 239, 240, 240, 240, 240, 241, 241, 244, 244, 245, 245, 245, 246, 246, 246, 249, 256, 256, 252, 252, 252, 252, 252, 253, 253, 258, 258, 258, 259, 259, 259, 260, 260, 263, 263, 263, 264, 264, 280, 280, 280, 280, 281, 281, 288, 288, 295, 295, 295, 296, 296, 296, 297, 298, 298, 304, 304, 316, 316, 316, 316, 316, 318, 318, 318, 320, 320, 321, 321, 323, 323, 323, 324, 324, 324, 324, 325, 325, 329, 329, 329, 329, 329, 329, 331, 332, 332, 333, 334, 334, 335, 341, 349, 349, 349, 349, 350, 352, 358, 358, 358, 358, 359, 359, 366, 365, 365, 365, 366, 367, 367, 373, 373, 396, 396, 396, 396, 397, 397, 397, 398, 399, 401, 401, 402, 402, 413, 413, 413, 441, 441, 441, 442, 442, 444, 444, 445, 444, 444, 451, 453, 453, 453, 454, 455, 457, 457, 457, 457, 459, 461, 466, 466, 466, 469, 470, 472, 492, 492, 492, 492, 493, 493, 493, 494, 495, 499, 499, 500, 503, 504, 504, 504, 504, 504, 504, 504, 504, 506, 506, 506, 508, 508, 518, 533, 533, 533, 534, 536, 538, 552, 552, 552, 553, 553, 569, 595, 611, 611, 611, 612, 612, 612, 613, 613, 617, 618, 636, 636, 636, 636, 637, 637, 637, 638, 639, 639, 651, 651, 651, 652, 653, 653, 683, 683, 683, 683, 684, 684, 696, 696, 697, 698, 702, 703, 706, 706, 706, 706, 706, 707, 707, 707, 709, 709, 710, 710, 711, 712, 712, 712, 713, 715, 727, 750, 750]
+,"Log Of Numbers Of Ranges In TopLevelRDF" : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 6, 6, 6, 6, 6, 8, 8, 8, 8, 8, 8, 10, 10, 10, 10, 10, 10, 10, 10, 13, 13, 13, 13, 13, 13, 17, 17, 17, 17, 17, 17, 21, 21, 21, 21, 27, 27, 27, 27, 27, 29, 29, 29, 29, 30, 30, 30, 30, 30, 30, 30, 34, 34, 34, 34, 34, 34, 38, 38, 38, 43, 43, 43, 43, 43, 43, 43, 43, 43, 47, 47, 47, 47, 47, 47, 52, 52, 52, 52, 52, 52, 60, 60, 60, 60, 67, 67, 67, 67, 67, 73, 73, 73, 73, 73, 73, 73, 73, 76, 76, 76, 76, 76, 76, 85, 85, 85, 85, 85, 85, 95, 95, 95, 95, 102, 102, 102, 102, 102, 102, 107, 107, 107, 107, 107, 107, 113, 113, 113, 113, 113, 113, 113, 126, 126, 126, 128, 128, 128, 128, 135, 135, 135, 135, 135, 135, 135, 138, 138, 138, 138, 138, 138, 141, 141, 141, 141, 141, 141, 150, 150, 150, 150, 150, 150, 157, 157, 157, 169, 169, 169, 169, 169, 181, 181, 181, 181, 181, 181, 181, 181, 191, 191, 191, 191, 201, 201, 201, 201, 201, 201, 201, 201, 201, 201, 211, 211, 211, 211, 211, 211, 221, 221, 221, 232, 232, 232, 232, 232, 232, 232, 232, 232, 232, 246, 246, 246, 246, 246, 259, 259, 259, 259, 259, 259, 264, 264, 264, 264, 264, 264, 281, 281, 281, 295, 295, 295, 295, 295, 295, 295, 295, 315, 315, 315, 315, 315, 315, 323, 323, 323, 323, 323, 323, 332, 332, 332, 332, 344, 344, 344, 344, 344, 356, 356, 356, 367, 367, 367, 367, 367, 367, 367, 367, 367, 381, 381, 381, 394, 394, 394, 394, 394, 394, 394, 401, 401, 401, 414, 414, 414, 414, 414, 414, 426, 426, 426, 426, 445, 445, 445, 445, 445, 445, 445, 445, 445, 445, 445, 445, 445, 445, 459, 459, 459, 459, 459, 472, 472, 472, 487, 487, 487, 487, 487, 500, 500, 500, 500, 500, 500, 515, 515, 515, 515, 515, 515, 515, 529, 529, 529, 543, 543, 543, 543, 543, 543, 543, 543, 543, 543, 554, 554, 554, 571, 571, 571, 571, 571, 571, 571, 589, 589, 589, 589, 605, 605, 605, 605, 605, 605, 605, 605, 630, 630, 630, 644, 644, 644, 644, 644, 644, 644, 644, 644, 661, 661, 661, 661, 661, 661, 683, 683, 683, 683, 683, 683, 710, 710, 710, 710, 710, 710, 710, 710, 710, 731, 731, 731, 751, 751, 751, 751, 769, 769, 769, 769, 769, 769, 769, 769, 788, 788, 788, 788, 808, 808, 808, 808, 808, 808, 808, 827, 827, 827, 827, 827, 827, 844, 844, 844, 844, 844, 865, 865, 865, 865, 865, 865, 865, 882, 882, 882, 903, 903, 903, 903, 921, 921, 921, 921, 921, 921, 921, 921, 921, 921, 943, 943, 943, 964, 964, 964, 964, 964, 964, 980, 980, 980, 980, 980, 980, 997, 997, 997, 997, 997, 997, 997, 1015, 1015, 1015, 1036, 1036, 1036, 1036, 1036, 1036, 1036, 1036, 1059, 1059, 1059, 1074, 1074, 1074, 1074, 1074, 1074, 1092, 1092, 1092, 1092, 1092, 1092, 1092, 1115, 1115, 1115, 1115, 1138, 1138, 1138, 1138, 1138, 1138, 1138, 1138, 1138, 1165, 1165, 1165, 1174, 1174, 1174, 1174, 1191, 1191, 1191, 1191, 1211, 1211, 1211, 1211, 1211]
+,"Log Of Numbers Of Ranges In SkylineRDF" : []
+,"N_repetitions" : 3
+,"Total number of SST Files" : 425
+
+," (Exist Keys) NONE  elapsed time" : 18440.4
+," (Exist Keys) NONE  filtered by RDF count" : 0.00
+," (Exist Keys) NONE  number of PQ" : 89949
+," (Exist Keys) NONE disk_access_count": 97236.33
+," (Exist Keys) NONE read_entry_block_count": 0.00
+
+," (Exist Keys) NONE num_index_read_count": 0.00
+," (Exist Keys) NONE num_filter_read_count": 451.00
+," (Exist Keys) NONE num_range_del_read_count": 0.00
+," (Exist Keys) NONE num_total_block_read_count": 91734.00
+
+," (Exist Keys) NONE filtered_by_RDF_count": 0.00
+
+," (Exist Keys) NONE fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys) NONE fetcher__num_index_read_count": 0.00
+," (Exist Keys) NONE fetcher__num_filter_read_count": 451.00
+," (Exist Keys) NONE fetcher__num_range_del_read_count": 0.00
+," (Exist Keys) NONE fetcher__num_data_read_count": 91283.00
+," (Exist Keys) NONE fetcher__num_total_block_read_count": 91734.00
+
+
+," (Exist Keys) NONE Avg_read_count" : 91734.00
+," (Exist Keys) NONE Avg_read_bytes" : 377798870.00
+," (Exist Keys) PLRDF  elapsed time" : 18032.89
+," (Exist Keys) PLRDF  filtered by RDF count" : 64.00
+," (Exist Keys) PLRDF  number of PQ" : 89949
+," (Exist Keys) PLRDF disk_access_count": 97236.33
+," (Exist Keys) PLRDF read_entry_block_count": 0.00
+
+," (Exist Keys) PLRDF num_index_read_count": 0.00
+," (Exist Keys) PLRDF num_filter_read_count": 451.00
+," (Exist Keys) PLRDF num_range_del_read_count": 0.00
+," (Exist Keys) PLRDF num_total_block_read_count": 91734.00
+
+," (Exist Keys) PLRDF filtered_by_RDF_count": 64.00
+
+," (Exist Keys) PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys) PLRDF fetcher__num_index_read_count": 0.00
+," (Exist Keys) PLRDF fetcher__num_filter_read_count": 451.00
+," (Exist Keys) PLRDF fetcher__num_range_del_read_count": 0.00
+," (Exist Keys) PLRDF fetcher__num_data_read_count": 91283.00
+," (Exist Keys) PLRDF fetcher__num_total_block_read_count": 91734.00
+
+
+," (Exist Keys) PLRDF Avg_read_count" : 91734.00
+," (Exist Keys) PLRDF Avg_read_bytes" : 377798870.00
+," (Exist Keys) SPLIT_PLRDF  elapsed time" : 18190.12
+," (Exist Keys) SPLIT_PLRDF  filtered by RDF count" : 0.00
+," (Exist Keys) SPLIT_PLRDF  number of PQ" : 89949
+," (Exist Keys) SPLIT_PLRDF disk_access_count": 97236.33
+," (Exist Keys) SPLIT_PLRDF read_entry_block_count": 0.00
+
+," (Exist Keys) SPLIT_PLRDF num_index_read_count": 0.00
+," (Exist Keys) SPLIT_PLRDF num_filter_read_count": 451.00
+," (Exist Keys) SPLIT_PLRDF num_range_del_read_count": 0.00
+," (Exist Keys) SPLIT_PLRDF num_total_block_read_count": 91734.00
+
+," (Exist Keys) SPLIT_PLRDF filtered_by_RDF_count": 0.00
+
+," (Exist Keys) SPLIT_PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys) SPLIT_PLRDF fetcher__num_index_read_count": 0.00
+," (Exist Keys) SPLIT_PLRDF fetcher__num_filter_read_count": 451.00
+," (Exist Keys) SPLIT_PLRDF fetcher__num_range_del_read_count": 0.00
+," (Exist Keys) SPLIT_PLRDF fetcher__num_data_read_count": 91283.00
+," (Exist Keys) SPLIT_PLRDF fetcher__num_total_block_read_count": 91734.00
+
+
+," (Exist Keys) SPLIT_PLRDF Avg_read_count" : 91734.00
+," (Exist Keys) SPLIT_PLRDF Avg_read_bytes" : 377798870.00
+," (Exist Keys) TOP_LEVEL_RDF  elapsed time" : 17983.46
+," (Exist Keys) TOP_LEVEL_RDF  filtered by RDF count" : 0.00
+," (Exist Keys) TOP_LEVEL_RDF  number of PQ" : 89949
+," (Exist Keys) TOP_LEVEL_RDF disk_access_count": 97236.33
+," (Exist Keys) TOP_LEVEL_RDF read_entry_block_count": 0.00
+
+," (Exist Keys) TOP_LEVEL_RDF num_index_read_count": 0.00
+," (Exist Keys) TOP_LEVEL_RDF num_filter_read_count": 451.00
+," (Exist Keys) TOP_LEVEL_RDF num_range_del_read_count": 0.00
+," (Exist Keys) TOP_LEVEL_RDF num_total_block_read_count": 91734.00
+
+," (Exist Keys) TOP_LEVEL_RDF filtered_by_RDF_count": 0.00
+
+," (Exist Keys) TOP_LEVEL_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys) TOP_LEVEL_RDF fetcher__num_index_read_count": 0.00
+," (Exist Keys) TOP_LEVEL_RDF fetcher__num_filter_read_count": 451.00
+," (Exist Keys) TOP_LEVEL_RDF fetcher__num_range_del_read_count": 0.00
+," (Exist Keys) TOP_LEVEL_RDF fetcher__num_data_read_count": 91283.00
+," (Exist Keys) TOP_LEVEL_RDF fetcher__num_total_block_read_count": 91734.00
+
+
+," (Exist Keys) TOP_LEVEL_RDF Avg_read_count" : 91734.00
+," (Exist Keys) TOP_LEVEL_RDF Avg_read_bytes" : 377798870.00
+," (Exist Keys) SKYLINE_RDF  elapsed time" : 18161.54
+," (Exist Keys) SKYLINE_RDF  filtered by RDF count" : 0.00
+," (Exist Keys) SKYLINE_RDF  number of PQ" : 89949
+," (Exist Keys) SKYLINE_RDF disk_access_count": 97236.33
+," (Exist Keys) SKYLINE_RDF read_entry_block_count": 0.00
+
+," (Exist Keys) SKYLINE_RDF num_index_read_count": 0.00
+," (Exist Keys) SKYLINE_RDF num_filter_read_count": 451.00
+," (Exist Keys) SKYLINE_RDF num_range_del_read_count": 0.00
+," (Exist Keys) SKYLINE_RDF num_total_block_read_count": 91734.00
+
+," (Exist Keys) SKYLINE_RDF filtered_by_RDF_count": 0.00
+
+," (Exist Keys) SKYLINE_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys) SKYLINE_RDF fetcher__num_index_read_count": 0.00
+," (Exist Keys) SKYLINE_RDF fetcher__num_filter_read_count": 451.00
+," (Exist Keys) SKYLINE_RDF fetcher__num_range_del_read_count": 0.00
+," (Exist Keys) SKYLINE_RDF fetcher__num_data_read_count": 91283.00
+," (Exist Keys) SKYLINE_RDF fetcher__num_total_block_read_count": 91734.00
+
+
+," (Exist Keys) SKYLINE_RDF Avg_read_count" : 91734.00
+," (Exist Keys) SKYLINE_RDF Avg_read_bytes" : 377798870.00
+," (Exist Keys) NONE2  elapsed time" : 17995.02
+," (Exist Keys) NONE2  filtered by RDF count" : 0.00
+," (Exist Keys) NONE2  number of PQ" : 89949
+," (Exist Keys) NONE2 disk_access_count": 97236.33
+," (Exist Keys) NONE2 read_entry_block_count": 0.00
+
+," (Exist Keys) NONE2 num_index_read_count": 0.00
+," (Exist Keys) NONE2 num_filter_read_count": 451.00
+," (Exist Keys) NONE2 num_range_del_read_count": 0.00
+," (Exist Keys) NONE2 num_total_block_read_count": 91734.00
+
+," (Exist Keys) NONE2 filtered_by_RDF_count": 0.00
+
+," (Exist Keys) NONE2 fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys) NONE2 fetcher__num_index_read_count": 0.00
+," (Exist Keys) NONE2 fetcher__num_filter_read_count": 451.00
+," (Exist Keys) NONE2 fetcher__num_range_del_read_count": 0.00
+," (Exist Keys) NONE2 fetcher__num_data_read_count": 91283.00
+," (Exist Keys) NONE2 fetcher__num_total_block_read_count": 91734.00
+
+
+," (Exist Keys) NONE2 Avg_read_count" : 91734.00
+," (Exist Keys) NONE2 Avg_read_bytes" : 377798870.00
+," (Historcially Exist Keys) NONE  elapsed time" : 18085.03
+," (Historcially Exist Keys) NONE  filtered by RDF count" : 0.00
+," (Historcially Exist Keys) NONE  number of PQ" : 99947
+," (Historcially Exist Keys) NONE disk_access_count": 106034.33
+," (Historcially Exist Keys) NONE read_entry_block_count": 0.00
+
+," (Historcially Exist Keys) NONE num_index_read_count": 0.00
+," (Historcially Exist Keys) NONE num_filter_read_count": 451.00
+," (Historcially Exist Keys) NONE num_range_del_read_count": 0.00
+," (Historcially Exist Keys) NONE num_total_block_read_count": 91898.00
+
+," (Historcially Exist Keys) NONE filtered_by_RDF_count": 0.00
+
+," (Historcially Exist Keys) NONE fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys) NONE fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys) NONE fetcher__num_filter_read_count": 451.00
+," (Historcially Exist Keys) NONE fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys) NONE fetcher__num_data_read_count": 91447.00
+," (Historcially Exist Keys) NONE fetcher__num_total_block_read_count": 91898.00
+
+
+," (Historcially Exist Keys) NONE Avg_read_count" : 91898.00
+," (Historcially Exist Keys) NONE Avg_read_bytes" : 378468555.00
+," (Historcially Exist Keys) PLRDF  elapsed time" : 18439.12
+," (Historcially Exist Keys) PLRDF  filtered by RDF count" : 9458.00
+," (Historcially Exist Keys) PLRDF  number of PQ" : 99947
+," (Historcially Exist Keys) PLRDF disk_access_count": 106034.33
+," (Historcially Exist Keys) PLRDF read_entry_block_count": 0.00
+
+," (Historcially Exist Keys) PLRDF num_index_read_count": 0.00
+," (Historcially Exist Keys) PLRDF num_filter_read_count": 451.00
+," (Historcially Exist Keys) PLRDF num_range_del_read_count": 0.00
+," (Historcially Exist Keys) PLRDF num_total_block_read_count": 91898.00
+
+," (Historcially Exist Keys) PLRDF filtered_by_RDF_count": 9458.00
+
+," (Historcially Exist Keys) PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys) PLRDF fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys) PLRDF fetcher__num_filter_read_count": 451.00
+," (Historcially Exist Keys) PLRDF fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys) PLRDF fetcher__num_data_read_count": 91447.00
+," (Historcially Exist Keys) PLRDF fetcher__num_total_block_read_count": 91898.00
+
+
+," (Historcially Exist Keys) PLRDF Avg_read_count" : 91898.00
+," (Historcially Exist Keys) PLRDF Avg_read_bytes" : 378468555.00
+," (Historcially Exist Keys) SPLIT_PLRDF  elapsed time" : 18094.01
+," (Historcially Exist Keys) SPLIT_PLRDF  filtered by RDF count" : 9998.00
+," (Historcially Exist Keys) SPLIT_PLRDF  number of PQ" : 99947
+," (Historcially Exist Keys) SPLIT_PLRDF disk_access_count": 102706.00
+," (Historcially Exist Keys) SPLIT_PLRDF read_entry_block_count": 0.00
+
+," (Historcially Exist Keys) SPLIT_PLRDF num_index_read_count": 0.00
+," (Historcially Exist Keys) SPLIT_PLRDF num_filter_read_count": 451.00
+," (Historcially Exist Keys) SPLIT_PLRDF num_range_del_read_count": 0.00
+," (Historcially Exist Keys) SPLIT_PLRDF num_total_block_read_count": 91849.00
+
+," (Historcially Exist Keys) SPLIT_PLRDF filtered_by_RDF_count": 9998.00
+
+," (Historcially Exist Keys) SPLIT_PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys) SPLIT_PLRDF fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys) SPLIT_PLRDF fetcher__num_filter_read_count": 451.00
+," (Historcially Exist Keys) SPLIT_PLRDF fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys) SPLIT_PLRDF fetcher__num_data_read_count": 91398.00
+," (Historcially Exist Keys) SPLIT_PLRDF fetcher__num_total_block_read_count": 91849.00
+
+
+," (Historcially Exist Keys) SPLIT_PLRDF Avg_read_count" : 91849.00
+," (Historcially Exist Keys) SPLIT_PLRDF Avg_read_bytes" : 378270299.00
+," (Historcially Exist Keys) TOP_LEVEL_RDF  elapsed time" : 18084.23
+," (Historcially Exist Keys) TOP_LEVEL_RDF  filtered by RDF count" : 9998.00
+," (Historcially Exist Keys) TOP_LEVEL_RDF  number of PQ" : 99947
+," (Historcially Exist Keys) TOP_LEVEL_RDF disk_access_count": 97236.33
+," (Historcially Exist Keys) TOP_LEVEL_RDF read_entry_block_count": 0.00
+
+," (Historcially Exist Keys) TOP_LEVEL_RDF num_index_read_count": 0.00
+," (Historcially Exist Keys) TOP_LEVEL_RDF num_filter_read_count": 451.00
+," (Historcially Exist Keys) TOP_LEVEL_RDF num_range_del_read_count": 0.00
+," (Historcially Exist Keys) TOP_LEVEL_RDF num_total_block_read_count": 91734.00
+
+," (Historcially Exist Keys) TOP_LEVEL_RDF filtered_by_RDF_count": 9998.00
+
+," (Historcially Exist Keys) TOP_LEVEL_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys) TOP_LEVEL_RDF fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys) TOP_LEVEL_RDF fetcher__num_filter_read_count": 451.00
+," (Historcially Exist Keys) TOP_LEVEL_RDF fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys) TOP_LEVEL_RDF fetcher__num_data_read_count": 91283.00
+," (Historcially Exist Keys) TOP_LEVEL_RDF fetcher__num_total_block_read_count": 91734.00
+
+
+," (Historcially Exist Keys) TOP_LEVEL_RDF Avg_read_count" : 91734.00
+," (Historcially Exist Keys) TOP_LEVEL_RDF Avg_read_bytes" : 377798870.00
+," (Historcially Exist Keys) SKYLINE_RDF  elapsed time" : 19468.83
+," (Historcially Exist Keys) SKYLINE_RDF  filtered by RDF count" : 6184.00
+," (Historcially Exist Keys) SKYLINE_RDF  number of PQ" : 99947
+," (Historcially Exist Keys) SKYLINE_RDF disk_access_count": 109215.33
+," (Historcially Exist Keys) SKYLINE_RDF read_entry_block_count": 0.00
+
+," (Historcially Exist Keys) SKYLINE_RDF num_index_read_count": 0.00
+," (Historcially Exist Keys) SKYLINE_RDF num_filter_read_count": 582.00
+," (Historcially Exist Keys) SKYLINE_RDF num_range_del_read_count": 0.00
+," (Historcially Exist Keys) SKYLINE_RDF num_total_block_read_count": 98230.00
+
+," (Historcially Exist Keys) SKYLINE_RDF filtered_by_RDF_count": 6184.00
+
+," (Historcially Exist Keys) SKYLINE_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys) SKYLINE_RDF fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys) SKYLINE_RDF fetcher__num_filter_read_count": 582.00
+," (Historcially Exist Keys) SKYLINE_RDF fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys) SKYLINE_RDF fetcher__num_data_read_count": 97648.00
+," (Historcially Exist Keys) SKYLINE_RDF fetcher__num_total_block_read_count": 98230.00
+
+
+," (Historcially Exist Keys) SKYLINE_RDF Avg_read_count" : 98230.00
+," (Historcially Exist Keys) SKYLINE_RDF Avg_read_bytes" : 404117005.00
+," (Historcially Exist Keys) NONE2  elapsed time" : 18109.27
+," (Historcially Exist Keys) NONE2  filtered by RDF count" : 0.00
+," (Historcially Exist Keys) NONE2  number of PQ" : 99947
+," (Historcially Exist Keys) NONE2 disk_access_count": 106034.33
+," (Historcially Exist Keys) NONE2 read_entry_block_count": 0.00
+
+," (Historcially Exist Keys) NONE2 num_index_read_count": 0.00
+," (Historcially Exist Keys) NONE2 num_filter_read_count": 451.00
+," (Historcially Exist Keys) NONE2 num_range_del_read_count": 0.00
+," (Historcially Exist Keys) NONE2 num_total_block_read_count": 91898.00
+
+," (Historcially Exist Keys) NONE2 filtered_by_RDF_count": 0.00
+
+," (Historcially Exist Keys) NONE2 fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys) NONE2 fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys) NONE2 fetcher__num_filter_read_count": 451.00
+," (Historcially Exist Keys) NONE2 fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys) NONE2 fetcher__num_data_read_count": 91447.00
+," (Historcially Exist Keys) NONE2 fetcher__num_total_block_read_count": 91898.00
+
+
+," (Historcially Exist Keys) NONE2 Avg_read_count" : 91898.00
+," (Historcially Exist Keys) NONE2 Avg_read_bytes" : 378468555.00
+," (Currently Deleted Keys) NONE  elapsed time" : 70.29
+," (Currently Deleted Keys) NONE  filtered by RDF count" : 0.00
+," (Currently Deleted Keys) NONE  number of PQ" : 9998
+," (Currently Deleted Keys) NONE disk_access_count": 8798.00
+," (Currently Deleted Keys) NONE read_entry_block_count": 0.00
+
+," (Currently Deleted Keys) NONE num_index_read_count": 0.00
+," (Currently Deleted Keys) NONE num_filter_read_count": 0.00
+," (Currently Deleted Keys) NONE num_range_del_read_count": 0.00
+," (Currently Deleted Keys) NONE num_total_block_read_count": 164.00
+
+," (Currently Deleted Keys) NONE filtered_by_RDF_count": 0.00
+
+," (Currently Deleted Keys) NONE fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys) NONE fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys) NONE fetcher__num_filter_read_count": 0.00
+," (Currently Deleted Keys) NONE fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys) NONE fetcher__num_data_read_count": 164.00
+," (Currently Deleted Keys) NONE fetcher__num_total_block_read_count": 164.00
+
+
+," (Currently Deleted Keys) NONE Avg_read_count" : 164.00
+," (Currently Deleted Keys) NONE Avg_read_bytes" : 669685.00
+," (Currently Deleted Keys) PLRDF  elapsed time" : 68.12
+," (Currently Deleted Keys) PLRDF  filtered by RDF count" : 9394.00
+," (Currently Deleted Keys) PLRDF  number of PQ" : 9998
+," (Currently Deleted Keys) PLRDF disk_access_count": 8798.00
+," (Currently Deleted Keys) PLRDF read_entry_block_count": 0.00
+
+," (Currently Deleted Keys) PLRDF num_index_read_count": 0.00
+," (Currently Deleted Keys) PLRDF num_filter_read_count": 0.00
+," (Currently Deleted Keys) PLRDF num_range_del_read_count": 0.00
+," (Currently Deleted Keys) PLRDF num_total_block_read_count": 164.00
+
+," (Currently Deleted Keys) PLRDF filtered_by_RDF_count": 9394.00
+
+," (Currently Deleted Keys) PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys) PLRDF fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys) PLRDF fetcher__num_filter_read_count": 0.00
+," (Currently Deleted Keys) PLRDF fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys) PLRDF fetcher__num_data_read_count": 164.00
+," (Currently Deleted Keys) PLRDF fetcher__num_total_block_read_count": 164.00
+
+
+," (Currently Deleted Keys) PLRDF Avg_read_count" : 164.00
+," (Currently Deleted Keys) PLRDF Avg_read_bytes" : 669685.00
+," (Currently Deleted Keys) SPLIT_PLRDF  elapsed time" : 43.58
+," (Currently Deleted Keys) SPLIT_PLRDF  filtered by RDF count" : 9998.00
+," (Currently Deleted Keys) SPLIT_PLRDF  number of PQ" : 9998
+," (Currently Deleted Keys) SPLIT_PLRDF disk_access_count": 5469.67
+," (Currently Deleted Keys) SPLIT_PLRDF read_entry_block_count": 0.00
+
+," (Currently Deleted Keys) SPLIT_PLRDF num_index_read_count": 0.00
+," (Currently Deleted Keys) SPLIT_PLRDF num_filter_read_count": 0.00
+," (Currently Deleted Keys) SPLIT_PLRDF num_range_del_read_count": 0.00
+," (Currently Deleted Keys) SPLIT_PLRDF num_total_block_read_count": 115.00
+
+," (Currently Deleted Keys) SPLIT_PLRDF filtered_by_RDF_count": 9998.00
+
+," (Currently Deleted Keys) SPLIT_PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys) SPLIT_PLRDF fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys) SPLIT_PLRDF fetcher__num_filter_read_count": 0.00
+," (Currently Deleted Keys) SPLIT_PLRDF fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys) SPLIT_PLRDF fetcher__num_data_read_count": 115.00
+," (Currently Deleted Keys) SPLIT_PLRDF fetcher__num_total_block_read_count": 115.00
+
+
+," (Currently Deleted Keys) SPLIT_PLRDF Avg_read_count" : 115.00
+," (Currently Deleted Keys) SPLIT_PLRDF Avg_read_bytes" : 471429.00
+," (Currently Deleted Keys) TOP_LEVEL_RDF  elapsed time" : 11.84
+," (Currently Deleted Keys) TOP_LEVEL_RDF  filtered by RDF count" : 9998.00
+," (Currently Deleted Keys) TOP_LEVEL_RDF  number of PQ" : 9998
+," (Currently Deleted Keys) TOP_LEVEL_RDF disk_access_count": 0.00
+," (Currently Deleted Keys) TOP_LEVEL_RDF read_entry_block_count": 0.00
+
+," (Currently Deleted Keys) TOP_LEVEL_RDF num_index_read_count": 0.00
+," (Currently Deleted Keys) TOP_LEVEL_RDF num_filter_read_count": 0.00
+," (Currently Deleted Keys) TOP_LEVEL_RDF num_range_del_read_count": 0.00
+," (Currently Deleted Keys) TOP_LEVEL_RDF num_total_block_read_count": 0.00
+
+," (Currently Deleted Keys) TOP_LEVEL_RDF filtered_by_RDF_count": 9998.00
+
+," (Currently Deleted Keys) TOP_LEVEL_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys) TOP_LEVEL_RDF fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys) TOP_LEVEL_RDF fetcher__num_filter_read_count": 0.00
+," (Currently Deleted Keys) TOP_LEVEL_RDF fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys) TOP_LEVEL_RDF fetcher__num_data_read_count": 0.00
+," (Currently Deleted Keys) TOP_LEVEL_RDF fetcher__num_total_block_read_count": 0.00
+
+
+," (Currently Deleted Keys) TOP_LEVEL_RDF Avg_read_count" : 0.00
+," (Currently Deleted Keys) TOP_LEVEL_RDF Avg_read_bytes" : 0.00
+," (Currently Deleted Keys) SKYLINE_RDF  elapsed time" : 1340.23
+," (Currently Deleted Keys) SKYLINE_RDF  filtered by RDF count" : 6184.00
+," (Currently Deleted Keys) SKYLINE_RDF  number of PQ" : 9998
+," (Currently Deleted Keys) SKYLINE_RDF disk_access_count": 11979.00
+," (Currently Deleted Keys) SKYLINE_RDF read_entry_block_count": 0.00
+
+," (Currently Deleted Keys) SKYLINE_RDF num_index_read_count": 0.00
+," (Currently Deleted Keys) SKYLINE_RDF num_filter_read_count": 131.00
+," (Currently Deleted Keys) SKYLINE_RDF num_range_del_read_count": 0.00
+," (Currently Deleted Keys) SKYLINE_RDF num_total_block_read_count": 6496.00
+
+," (Currently Deleted Keys) SKYLINE_RDF filtered_by_RDF_count": 6184.00
+
+," (Currently Deleted Keys) SKYLINE_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys) SKYLINE_RDF fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys) SKYLINE_RDF fetcher__num_filter_read_count": 131.00
+," (Currently Deleted Keys) SKYLINE_RDF fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys) SKYLINE_RDF fetcher__num_data_read_count": 6365.00
+," (Currently Deleted Keys) SKYLINE_RDF fetcher__num_total_block_read_count": 6496.00
+
+
+," (Currently Deleted Keys) SKYLINE_RDF Avg_read_count" : 6496.00
+," (Currently Deleted Keys) SKYLINE_RDF Avg_read_bytes" : 26318135.00
+," (Currently Deleted Keys) NONE2  elapsed time" : 75.41
+," (Currently Deleted Keys) NONE2  filtered by RDF count" : 0.00
+," (Currently Deleted Keys) NONE2  number of PQ" : 9998
+," (Currently Deleted Keys) NONE2 disk_access_count": 8798.00
+," (Currently Deleted Keys) NONE2 read_entry_block_count": 0.00
+
+," (Currently Deleted Keys) NONE2 num_index_read_count": 0.00
+," (Currently Deleted Keys) NONE2 num_filter_read_count": 0.00
+," (Currently Deleted Keys) NONE2 num_range_del_read_count": 0.00
+," (Currently Deleted Keys) NONE2 num_total_block_read_count": 164.00
+
+," (Currently Deleted Keys) NONE2 filtered_by_RDF_count": 0.00
+
+," (Currently Deleted Keys) NONE2 fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys) NONE2 fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys) NONE2 fetcher__num_filter_read_count": 0.00
+," (Currently Deleted Keys) NONE2 fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys) NONE2 fetcher__num_data_read_count": 164.00
+," (Currently Deleted Keys) NONE2 fetcher__num_total_block_read_count": 164.00
+
+
+," (Currently Deleted Keys) NONE2 Avg_read_count" : 164.00
+," (Currently Deleted Keys) NONE2 Avg_read_bytes" : 669685.00
+," (Non-inserted Keys) NONE  elapsed time" : 8.42
+," (Non-inserted Keys) NONE  filtered by RDF count" : 0.00
+," (Non-inserted Keys) NONE  number of PQ" : 1000
+," (Non-inserted Keys) NONE disk_access_count": 893.00
+," (Non-inserted Keys) NONE read_entry_block_count": 0.00
+
+," (Non-inserted Keys) NONE num_index_read_count": 0.00
+," (Non-inserted Keys) NONE num_filter_read_count": 0.00
+," (Non-inserted Keys) NONE num_range_del_read_count": 0.00
+," (Non-inserted Keys) NONE num_total_block_read_count": 17.00
+
+," (Non-inserted Keys) NONE filtered_by_RDF_count": 0.00
+
+," (Non-inserted Keys) NONE fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys) NONE fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys) NONE fetcher__num_filter_read_count": 0.00
+," (Non-inserted Keys) NONE fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys) NONE fetcher__num_data_read_count": 17.00
+," (Non-inserted Keys) NONE fetcher__num_total_block_read_count": 17.00
+
+
+," (Non-inserted Keys) NONE Avg_read_count" : 17.00
+," (Non-inserted Keys) NONE Avg_read_bytes" : 70613.00
+," (Non-inserted Keys) PLRDF  elapsed time" : 8.04
+," (Non-inserted Keys) PLRDF  filtered by RDF count" : 907.00
+," (Non-inserted Keys) PLRDF  number of PQ" : 1000
+," (Non-inserted Keys) PLRDF disk_access_count": 893.00
+," (Non-inserted Keys) PLRDF read_entry_block_count": 0.00
+
+," (Non-inserted Keys) PLRDF num_index_read_count": 0.00
+," (Non-inserted Keys) PLRDF num_filter_read_count": 0.00
+," (Non-inserted Keys) PLRDF num_range_del_read_count": 0.00
+," (Non-inserted Keys) PLRDF num_total_block_read_count": 17.00
+
+," (Non-inserted Keys) PLRDF filtered_by_RDF_count": 907.00
+
+," (Non-inserted Keys) PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys) PLRDF fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys) PLRDF fetcher__num_filter_read_count": 0.00
+," (Non-inserted Keys) PLRDF fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys) PLRDF fetcher__num_data_read_count": 17.00
+," (Non-inserted Keys) PLRDF fetcher__num_total_block_read_count": 17.00
+
+
+," (Non-inserted Keys) PLRDF Avg_read_count" : 17.00
+," (Non-inserted Keys) PLRDF Avg_read_bytes" : 70613.00
+," (Non-inserted Keys) SPLIT_PLRDF  elapsed time" : 5.91
+," (Non-inserted Keys) SPLIT_PLRDF  filtered by RDF count" : 1000.00
+," (Non-inserted Keys) SPLIT_PLRDF  number of PQ" : 1000
+," (Non-inserted Keys) SPLIT_PLRDF disk_access_count": 560.00
+," (Non-inserted Keys) SPLIT_PLRDF read_entry_block_count": 0.00
+
+," (Non-inserted Keys) SPLIT_PLRDF num_index_read_count": 0.00
+," (Non-inserted Keys) SPLIT_PLRDF num_filter_read_count": 0.00
+," (Non-inserted Keys) SPLIT_PLRDF num_range_del_read_count": 0.00
+," (Non-inserted Keys) SPLIT_PLRDF num_total_block_read_count": 12.00
+
+," (Non-inserted Keys) SPLIT_PLRDF filtered_by_RDF_count": 1000.00
+
+," (Non-inserted Keys) SPLIT_PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys) SPLIT_PLRDF fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys) SPLIT_PLRDF fetcher__num_filter_read_count": 0.00
+," (Non-inserted Keys) SPLIT_PLRDF fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys) SPLIT_PLRDF fetcher__num_data_read_count": 12.00
+," (Non-inserted Keys) SPLIT_PLRDF fetcher__num_total_block_read_count": 12.00
+
+
+," (Non-inserted Keys) SPLIT_PLRDF Avg_read_count" : 12.00
+," (Non-inserted Keys) SPLIT_PLRDF Avg_read_bytes" : 49849.00
+," (Non-inserted Keys) TOP_LEVEL_RDF  elapsed time" : 1.05
+," (Non-inserted Keys) TOP_LEVEL_RDF  filtered by RDF count" : 1000.00
+," (Non-inserted Keys) TOP_LEVEL_RDF  number of PQ" : 1000
+," (Non-inserted Keys) TOP_LEVEL_RDF disk_access_count": 0.00
+," (Non-inserted Keys) TOP_LEVEL_RDF read_entry_block_count": 0.00
+
+," (Non-inserted Keys) TOP_LEVEL_RDF num_index_read_count": 0.00
+," (Non-inserted Keys) TOP_LEVEL_RDF num_filter_read_count": 0.00
+," (Non-inserted Keys) TOP_LEVEL_RDF num_range_del_read_count": 0.00
+," (Non-inserted Keys) TOP_LEVEL_RDF num_total_block_read_count": 0.00
+
+," (Non-inserted Keys) TOP_LEVEL_RDF filtered_by_RDF_count": 1000.00
+
+," (Non-inserted Keys) TOP_LEVEL_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys) TOP_LEVEL_RDF fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys) TOP_LEVEL_RDF fetcher__num_filter_read_count": 0.00
+," (Non-inserted Keys) TOP_LEVEL_RDF fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys) TOP_LEVEL_RDF fetcher__num_data_read_count": 0.00
+," (Non-inserted Keys) TOP_LEVEL_RDF fetcher__num_total_block_read_count": 0.00
+
+
+," (Non-inserted Keys) TOP_LEVEL_RDF Avg_read_count" : 0.00
+," (Non-inserted Keys) TOP_LEVEL_RDF Avg_read_bytes" : 0.00
+," (Non-inserted Keys) SKYLINE_RDF  elapsed time" : 15.30
+," (Non-inserted Keys) SKYLINE_RDF  filtered by RDF count" : 0.00
+," (Non-inserted Keys) SKYLINE_RDF  number of PQ" : 1000
+," (Non-inserted Keys) SKYLINE_RDF disk_access_count": 1205.33
+," (Non-inserted Keys) SKYLINE_RDF read_entry_block_count": 0.00
+
+," (Non-inserted Keys) SKYLINE_RDF num_index_read_count": 0.00
+," (Non-inserted Keys) SKYLINE_RDF num_filter_read_count": 16.00
+," (Non-inserted Keys) SKYLINE_RDF num_range_del_read_count": 0.00
+," (Non-inserted Keys) SKYLINE_RDF num_total_block_read_count": 38.00
+
+," (Non-inserted Keys) SKYLINE_RDF filtered_by_RDF_count": 0.00
+
+," (Non-inserted Keys) SKYLINE_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys) SKYLINE_RDF fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys) SKYLINE_RDF fetcher__num_filter_read_count": 16.00
+," (Non-inserted Keys) SKYLINE_RDF fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys) SKYLINE_RDF fetcher__num_data_read_count": 22.00
+," (Non-inserted Keys) SKYLINE_RDF fetcher__num_total_block_read_count": 38.00
+
+
+," (Non-inserted Keys) SKYLINE_RDF Avg_read_count" : 38.00
+," (Non-inserted Keys) SKYLINE_RDF Avg_read_bytes" : 97668.00
+," (Non-inserted Keys) NONE2  elapsed time" : 8.02
+," (Non-inserted Keys) NONE2  filtered by RDF count" : 0.00
+," (Non-inserted Keys) NONE2  number of PQ" : 1000
+," (Non-inserted Keys) NONE2 disk_access_count": 893.00
+," (Non-inserted Keys) NONE2 read_entry_block_count": 0.00
+
+," (Non-inserted Keys) NONE2 num_index_read_count": 0.00
+," (Non-inserted Keys) NONE2 num_filter_read_count": 0.00
+," (Non-inserted Keys) NONE2 num_range_del_read_count": 0.00
+," (Non-inserted Keys) NONE2 num_total_block_read_count": 17.00
+
+," (Non-inserted Keys) NONE2 filtered_by_RDF_count": 0.00
+
+," (Non-inserted Keys) NONE2 fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys) NONE2 fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys) NONE2 fetcher__num_filter_read_count": 0.00
+," (Non-inserted Keys) NONE2 fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys) NONE2 fetcher__num_data_read_count": 17.00
+," (Non-inserted Keys) NONE2 fetcher__num_total_block_read_count": 17.00
+
+
+," (Non-inserted Keys) NONE2 Avg_read_count" : 17.00
+," (Non-inserted Keys) NONE2 Avg_read_bytes" : 70613.00
+,"End" : "End"
+}

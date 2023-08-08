@@ -540,6 +540,15 @@ class DBImpl : public DB {
   virtual uint getCompactionQueueSize() override;
   virtual bool existFlushJob() override;
   virtual bool existCompactionJob() override;
+  virtual uint getTotalNumberOfSSTFiles() override;
+  virtual int getPLRDFNumberOfTotalRanges() override;
+  virtual int getSplitPLRDFNumberOfTotalRanges() override;
+  virtual int getTopLevelRDFNumberOfTotalRanges() override;
+  virtual int getSkylineRDFNumberOfTotalRanges() override;
+  std::vector<int> getLogOfNumbersOfRangesInPLRDF() override;
+  std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() override;
+  std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() override;
+  std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() override;
   std::mutex self_single_flush_mutex_;
   //Self Added End
 

@@ -256,6 +256,17 @@ class CompactionOutputs {
   Status CloseOutput(const Status& curr_status,
                      const CompactionFileOpenFunc& open_file_func,
                      const CompactionFileCloseFunc& close_file_func) {
+
+// //Self Added Start
+// auto it = range_del_agg_->NewIterator(); xxx
+// for (it->SeekToFirst(); it->Valid(); it->Next()) {
+// auto tombstone = it->Tombstone();
+// std::cout << " (compation_outputs.h CloseOutput) tombstone_start, tombstone_end = " << tombstone.start_key_.ToString() << ", " << tombstone.end_key_.ToString() << " "
+//           << " tombstone.seq_ = " << tombstone.seq_ << " " 
+//           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// }
+// //Self Added End
+
     Status status = curr_status;
     // handle subcompaction containing only range deletions
     if (status.ok() && !HasBuilder() && !HasOutput() && HasRangeDel()) {
