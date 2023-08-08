@@ -13,3 +13,4 @@ log
 *.log
 *_log
 *_log2
+log*

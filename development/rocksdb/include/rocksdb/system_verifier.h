@@ -237,6 +237,14 @@ namespace checking {
       result << sep << bracket << prefix << "read_entry_block_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*read_entry_block_count / N_repetitions << "\n";
       result << "\n";
 
+      // result << sep << bracket << prefix << "duration__get_rdf" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*get_total_duration__get_rdf() / N_repetitions / 1000 << "\n";
+      // result << sep << bracket << prefix << "duration__get_max_seq" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*get_total_duration__get_max_seq() / N_repetitions / 1000 << " ms " << "\n";
+      // result << sep << bracket << prefix << "duration__retrieve_block" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*get_total_duration__retrieve_block() / N_repetitions / 1000 << " ms " << "\n";
+      result << sep << bracket << prefix << "duration__get_rdf" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*get_total_duration__get_rdf() / N_repetitions << "\n";
+      result << sep << bracket << prefix << "duration__get_max_seq" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*get_total_duration__get_max_seq() / N_repetitions  << "\n";
+      result << sep << bracket << prefix << "duration__retrieve_block" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*get_total_duration__retrieve_block() / N_repetitions  << "\n";
+      result << "\n";
+
       result << sep << bracket << prefix << "num_index_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*num_index_read_count / N_repetitions << "\n";
       result << sep << bracket << prefix << "num_filter_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*num_filter_read_count / N_repetitions << "\n";
       result << sep << bracket << prefix << "num_range_del_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*num_range_del_read_count / N_repetitions << "\n";
@@ -355,6 +363,75 @@ namespace checking {
     }
 
 
+
+
+
+    std::chrono::_V2::system_clock::time_point  start__get_rdf = std::chrono::high_resolution_clock::now();
+    std::chrono::_V2::system_clock::time_point  stop__get_rdf = std::chrono::high_resolution_clock::now();
+    std::chrono::nanoseconds duration__get_rdf_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(stop__get_rdf - start__get_rdf);
+    // unsigned long long duration__get_rdf = duration__get_max_seq_us.count();
+    unsigned long long total_duation__get_rdf = 0;
+
+
+    std::chrono::_V2::system_clock::time_point  start__get_max_seq = std::chrono::high_resolution_clock::now();
+    std::chrono::_V2::system_clock::time_point  stop__get_max_seq = std::chrono::high_resolution_clock::now();
+    std::chrono::nanoseconds duration__get_max_seq_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(stop__get_max_seq - start__get_max_seq);
+    // unsigned long long duration__get_max_seq = duration__get_max_seq_us.count();
+    unsigned long long total_duation__get_max_seq = 0;
+
+    std::chrono::_V2::system_clock::time_point  start__retrieve_block = std::chrono::high_resolution_clock::now();
+    std::chrono::_V2::system_clock::time_point  stop__retrieve_block = std::chrono::high_resolution_clock::now();
+    std::chrono::nanoseconds duration__retrieve_block_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(stop__retrieve_block - start__retrieve_block);
+    // unsigned long long duration__retrieve_block = duration__retrieve_block_us.count();
+    unsigned long long total_duation__retrieve_block = 0;
+
+
+    void reset_total_duration__get_rdf(){
+      total_duation__get_rdf = 0;
+    }
+    unsigned long long get_total_duration__get_rdf(){
+      return total_duation__get_rdf;
+    }
+    void start_get_rdf(){
+      start__get_rdf = std::chrono::high_resolution_clock::now();
+    }
+    void stop_get_rdf(){
+      stop__get_rdf = std::chrono::high_resolution_clock::now();
+      duration__get_rdf_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(stop__get_rdf - start__get_rdf);
+      total_duation__get_rdf += duration__get_rdf_ns.count();
+    }
+
+    void reset_total_duration__get_max_seq(){
+      total_duation__get_max_seq = 0;
+    }
+    unsigned long long get_total_duration__get_max_seq(){
+      return total_duation__get_max_seq;
+    }
+    void start_get_max_seq(){
+      start__get_max_seq = std::chrono::high_resolution_clock::now();
+    }
+    void stop_get_max_seq(){
+      stop__get_max_seq = std::chrono::high_resolution_clock::now();
+      duration__get_max_seq_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(stop__get_max_seq - start__get_max_seq);
+// std::cout << "duration__get_max_seq_us.count() = " << duration__get_max_seq_us.count() << " " << __FILE__ << " " << __LINE__ << " " << __func__ << std::endl;
+      total_duation__get_max_seq += duration__get_max_seq_ns.count();
+    }
+
+    void reset_total_duration__retrieve_block(){
+      total_duation__retrieve_block = 0;
+    }
+    unsigned long long get_total_duration__retrieve_block(){
+      return total_duation__retrieve_block;
+    }
+    void start_retrieve_block(){
+      start__retrieve_block = std::chrono::high_resolution_clock::now();
+    }
+    void stop_retrieve_block(){
+      stop__retrieve_block = std::chrono::high_resolution_clock::now();
+      duration__retrieve_block_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(stop__retrieve_block - start__retrieve_block);
+// std::cout << "duration__retrieve_block_us.count() = " << duration__retrieve_block_us.count() << " " << __FILE__ << " " << __LINE__ << " " << __func__ << std::endl;
+      total_duation__retrieve_block += duration__retrieve_block_ns.count();
+    }
 
 
 

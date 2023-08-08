@@ -771,21 +771,23 @@ Status BlockBasedTable::Open(
 
 
   //Self Added Start
+  //Notation: file opened only @ compaction, not @ get (so far)
   bool rdf_skip_range_deletions = false;
-  std::string rdf_type = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
-  if(rdf_type == "PLRDF"){ //xxx
+  // std::string rdf_type = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
+  // // if(rdf_type == "PLRDF"){ //xxx
   // if(rdf_type == "PLRDF" || rdf_type == "SPLIT_PLRDF" || rdf_type == "TOP_LEVEL_RDF"){
-    rdf_skip_range_deletions = true;
-  }else if(rdf_type == "SKYLINE_RDF"){
-    rdf_skip_range_deletions = true;
+  //   rdf_skip_range_deletions = true;
+  // }else if(rdf_type == "SKYLINE_RDF"){
+  //   rdf_skip_range_deletions = true;
 
-  }else if(rdf_type != "NONE" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
-    std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
-              << "rdf_type = " << rdf_type << std::endl;
-  }
+  // }else if(rdf_type != "NONE" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
+  //   std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+  //             << "rdf_type = " << rdf_type << std::endl;
+  // }
 
-
+// std::cout << "ReadRangeDelBlock pre1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   if(!rdf_skip_range_deletions){
+// std::cout << "ReadRangeDelBlock pre2 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     s = new_table->ReadRangeDelBlock(ro, prefetch_buffer.get(),
                                      metaindex_iter.get(), internal_comparator,
                                      &lookup_context);
@@ -1005,6 +1007,7 @@ Status BlockBasedTable::ReadRangeDelBlock(
     InternalIterator* meta_iter,
     const InternalKeyComparator& internal_comparator,
     BlockCacheLookupContext* lookup_context) {
+std::cout << "ReadRangeDelBlock " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   Status s;
   BlockHandle range_del_handle;
   s = FindOptionalMetaBlock(meta_iter, kRangeDelBlockName, &range_del_handle);

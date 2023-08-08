@@ -1066,10 +1066,15 @@ class ColumnFamilyData {
   }
 
 
+  void logCurrentTotalNumbersOfRangesInSkylineRDF(){
+    skyline__numbers_of_ranges_in_rdf_log.push_back(skyline_rdf_prime.size());
+  }
+
   void logCurrentTotalNumbersOfRangesInEachRDF(){
     plrdf_prime.logCurrentTotalNumbersOfRanges();
     split_plrdf_prime.logCurrentTotalNumbersOfRanges();
     top_level_rdf_prime.logCurrentTotalNumbersOfRanges();
+    logCurrentTotalNumbersOfRangesInSkylineRDF();
   }
   std::vector<int> getLogOfNumbersOfRangesInPLRDF(){
     return plrdf_prime.getNumbersOfRangesInRDFLog();
@@ -1145,6 +1150,11 @@ class ColumnFamilyData {
       // }
 
       if(pq.empty()){t_cur = start;}
+      else{
+        auto seq2 = +pq.top().first;
+        out_v.push_back(std::make_tuple(t_cur, start, seq2));
+        t_cur = start;
+      }
 
       pq.push(std::make_pair(+seq, +end));
     }
@@ -1179,7 +1189,7 @@ class ColumnFamilyData {
     out_v2.push_back(std::make_tuple(start, end, seq));
 
     skyline_rdf_prime = out_v2;
-    skyline__numbers_of_ranges_in_rdf_log.push_back(out_v2.size());
+    // skyline__numbers_of_ranges_in_rdf_log.push_back(out_v2.size());
   }
 
  private:
