@@ -74,6 +74,12 @@
 #include "util/stop_watch.h"
 #include "util/string_util.h"
 
+
+//Self Added Start
+#include "include/rocksdb/system_verifier.h"
+//Self Added End
+
+
 namespace ROCKSDB_NAMESPACE {
 namespace {
 
@@ -763,9 +769,36 @@ Status BlockBasedTable::Open(
       PersistentCacheOptions(rep->table_options.persistent_cache,
                              rep->base_cache_key, rep->ioptions.stats);
 
-  s = new_table->ReadRangeDelBlock(ro, prefetch_buffer.get(),
-                                   metaindex_iter.get(), internal_comparator,
-                                   &lookup_context);
+
+  //Self Added Start
+  bool rdf_skip_range_deletions = false;
+  std::string rdf_type = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
+  if(rdf_type == "PLRDF"){ //xxx
+  // if(rdf_type == "PLRDF" || rdf_type == "SPLIT_PLRDF" || rdf_type == "TOP_LEVEL_RDF"){
+    rdf_skip_range_deletions = true;
+  }else if(rdf_type == "SKYLINE_RDF"){
+    rdf_skip_range_deletions = true;
+
+  }else if(rdf_type != "NONE" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
+    std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+              << "rdf_type = " << rdf_type << std::endl;
+  }
+
+
+  if(!rdf_skip_range_deletions){
+    s = new_table->ReadRangeDelBlock(ro, prefetch_buffer.get(),
+                                     metaindex_iter.get(), internal_comparator,
+                                     &lookup_context);
+  }
+  //Self Added End
+
+  
+  // s = new_table->ReadRangeDelBlock(ro, prefetch_buffer.get(),
+  //                                  metaindex_iter.get(), internal_comparator,
+  //                                  &lookup_context);
+
+
+
   if (!s.ok()) {
     return s;
   }
@@ -1745,15 +1778,34 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
         uncompression_dict, rep_->persistent_cache_options,
         GetMemoryAllocator(rep_->table_options), for_compaction, async_read);
 
+
+
+    //Self Added Start 
+    checking::SystemVerifier::getSystemVerifier()->increaseNumTotalBlockReadCount();
+    //Self Added End
+
     if (get_context) {
       switch (TBlocklike::kBlockType) {
         case BlockType::kIndex:
           ++(get_context->get_context_stats_.num_index_read);
+
+          //Self Added Start 
+          checking::SystemVerifier::getSystemVerifier()->increaseNumIndexReadCount();
+          //Self Added End
           break;
         case BlockType::kFilter:
         case BlockType::kFilterPartitionIndex:
           ++(get_context->get_context_stats_.num_filter_read);
+
+          //Self Added Start 
+          checking::SystemVerifier::getSystemVerifier()->increaseNumFilterReadCount();
+          //Self Added End
           break;
+        //Self Added Start
+        case BlockType::kRangeDeletion:
+          checking::SystemVerifier::getSystemVerifier()->increaseNumRangeDelReadCount();
+          break;
+        //Self Added End
         default:
           break;
       }

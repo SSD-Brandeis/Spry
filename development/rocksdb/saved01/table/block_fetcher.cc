@@ -254,6 +254,7 @@ IOStatus BlockFetcher::ReadBlockContents() {
   } else if (!TryGetSerializedBlockFromPersistentCache()) {
     IOOptions opts;
     io_status_ = file_->PrepareIOOptions(read_options_, opts);
+    // Self Added Notice <-- inside read function, is where the bytes and block counts are incremented
     // Actual file read
     if (io_status_.ok()) {
       if (file_->use_direct_io()) {

@@ -52,18 +52,37 @@ namespace checking {
 
 
     int disk_access_count = 0;
-    int filteredByRDFCount = 0;
+    int read_entry_block_count = 0;
+    int filtered_by_RDF_count = 0;
+
+    //increasing in block_based_table_reader.cc
+    int num_index_read_count = 0;
+    int num_filter_read_count = 0;
+    int num_range_del_read_count = 0; 
+    int num_total_block_read_count = 0;
+
+    //increasing in block_fetcher.cc
+    int fetcher__num_compression_dict_block_read_count = 0;
+    int fetcher__num_index_read_count = 0;
+    int fetcher__num_filter_read_count = 0;
+    int fetcher__num_range_del_read_count = 0; 
+    int fetcher__num_data_read_count = 0; 
+    int fetcher__num_total_block_read_count = 0;
+
 
 
     bool flag_log__deleted_keys__max_sequnce_number = false;
     std::unordered_map<long long, uint64_t> deleted_keys__max_sequnce_number;
-    bool flag_is_PLRDF_filtered_entry = false;
+    bool flag_is_RDF_filtered_entry = false;
+
+    bool flag_testing_on_currently_deleted_keys = false;
 
   public:
     static SystemVerifier* system_verifier;
 
     // WorkloadRecorder();
     const static int EXPERIMENT_REPETITION_TIMES = 3;
+    // const static int EXPERIMENT_REPETITION_TIMES = 1;
 
     static void init(){
       if(system_verifier == NULL){
@@ -93,24 +112,180 @@ namespace checking {
       return disk_access_count;
     }
 
+    void increaseeReadEntryBlockCount(){
+      read_entry_block_count++;
+    }
+
+    void resetReadEntryBlockCount(){
+      read_entry_block_count = 0;
+    }
+
+    int getReadEntryBlockCount(){
+      return read_entry_block_count;
+    }
+
+    void increaseNumIndexReadCount(){
+      num_index_read_count++;
+    }
+    void increaseNumFilterReadCount(){
+      num_filter_read_count++;
+    }
+    void increaseNumRangeDelReadCount(){
+      num_range_del_read_count++;
+    }
+    void increaseNumTotalBlockReadCount(){
+      num_total_block_read_count++;
+    }
+    void resetNumIndexReadCount(){
+      num_index_read_count = 0;
+    }
+    void resetNumFilterReadCount(){
+      num_filter_read_count = 0;
+    }
+    void resetNumRangeDelReadCount(){
+      num_range_del_read_count = 0;
+    }
+    void resetNumTotalBlockReadCount(){
+      num_total_block_read_count = 0;
+    }
+    int getNumIndexReadCount(){
+      return num_index_read_count;
+    }
+    int getNumFilterReadCount(){
+      return num_filter_read_count;
+    }
+    int getNumRangeDelReadCount(){
+      return num_range_del_read_count;
+    }
+    int getNumTotalBlockReadCount(){
+      return num_total_block_read_count;
+    }
+    
+
+
     void increaseFilteredByRDFCount(){
-      filteredByRDFCount++;
+      filtered_by_RDF_count++;
     }
-
     void resetFilteredByRDFCount(){
-      filteredByRDFCount = 0;
+      filtered_by_RDF_count = 0;
+    }
+    int getFilteredByRDFCount(){
+      return filtered_by_RDF_count;
     }
 
-    int getFilteredByRDFCount(){
-      return filteredByRDFCount;
+
+    void increaseFetcherNumCompressionDictBlockReadCount(){
+      fetcher__num_compression_dict_block_read_count++;
+    }
+    void increaseFetcherNumIndexReadCount(){
+      fetcher__num_index_read_count++;
+    }
+    void increaseFetcherNumFilterReadCount(){
+      fetcher__num_filter_read_count++;
+    }
+    void increaseFetcherNumRangeDelReadCount(){
+      fetcher__num_range_del_read_count++;
+    }
+    void increaseFetcherNumTotalBlockReadCount(){
+      fetcher__num_total_block_read_count++;
+    }
+    void increaseFetcherNumDataReadCount(){
+      fetcher__num_data_read_count++;
+    }
+    void resetFetcherNumCompressionDictBlockReadCount(){
+      fetcher__num_compression_dict_block_read_count = 0;
+    }
+    void resetFetcherNumIndexReadCount(){
+      fetcher__num_index_read_count = 0;
+    }
+    void resetFetcherNumFilterReadCount(){
+      fetcher__num_filter_read_count = 0;
+    }
+    void resetFetcherNumRangeDelReadCount(){
+      fetcher__num_range_del_read_count = 0;
+    }
+    void resetFetcherNumTotalBlockReadCount(){
+      fetcher__num_total_block_read_count = 0;
+    }
+    void resetFetcherNumDataReadCount(){
+      fetcher__num_data_read_count = 0;
+    }
+    int getFetcherNumCompressionDictBlockReadCount(){
+      return fetcher__num_compression_dict_block_read_count;
+    }
+    int getFetcherNumIndexReadCount(){
+      return fetcher__num_index_read_count;
+    }
+    int getFetcherNumFilterReadCount(){
+      return fetcher__num_filter_read_count;
+    }
+    int getFetcherNumRangeDelReadCount(){
+      return fetcher__num_range_del_read_count;
+    }
+    int getFetcherNumTotalBlockReadCount(){
+      return fetcher__num_total_block_read_count;
+    }
+    int getFetcherNumDataReadCount(){
+      return fetcher__num_data_read_count;
+    }
+
+
+    std::string getAllCount(std::string sep, std::string bracket, std::string prefix, int N_repetitions){
+      std::stringstream result;
+      
+      result << sep << bracket << prefix << "disk_access_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*disk_access_count / N_repetitions << "\n";
+      result << sep << bracket << prefix << "read_entry_block_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*read_entry_block_count / N_repetitions << "\n";
+      result << "\n";
+
+      result << sep << bracket << prefix << "num_index_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*num_index_read_count / N_repetitions << "\n";
+      result << sep << bracket << prefix << "num_filter_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*num_filter_read_count / N_repetitions << "\n";
+      result << sep << bracket << prefix << "num_range_del_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*num_range_del_read_count / N_repetitions << "\n";
+      result << sep << bracket << prefix << "num_total_block_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*num_total_block_read_count / N_repetitions << "\n";
+      result << "\n";
+
+      result << sep << bracket << prefix << "filtered_by_RDF_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*filtered_by_RDF_count / N_repetitions << "\n";
+      result << "\n";
+
+      result << sep << bracket << prefix << "fetcher__num_compression_dict_block_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_compression_dict_block_read_count / N_repetitions << "\n";
+      result << sep << bracket << prefix << "fetcher__num_index_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_index_read_count / N_repetitions << "\n";
+      result << sep << bracket << prefix << "fetcher__num_filter_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_filter_read_count / N_repetitions << "\n";
+      result << sep << bracket << prefix << "fetcher__num_range_del_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_range_del_read_count / N_repetitions << "\n";
+      result << sep << bracket << prefix << "fetcher__num_data_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_data_read_count / N_repetitions << "\n";
+      result << sep << bracket << prefix << "fetcher__num_total_block_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_total_block_read_count / N_repetitions << "\n";
+      result << "\n";  
+
+      return result.str();
+    }
+
+
+    void resetAllCount(){
+      resetDiskAccessCount();
+      resetReadEntryBlockCount();
+
+      resetNumIndexReadCount();
+      resetNumFilterReadCount();
+      resetNumRangeDelReadCount();
+      resetNumTotalBlockReadCount();
+
+      resetFilteredByRDFCount();
+
+      resetFetcherNumCompressionDictBlockReadCount();
+      resetFetcherNumIndexReadCount();
+      resetFetcherNumFilterReadCount();
+      resetFetcherNumRangeDelReadCount();
+      resetFetcherNumDataReadCount();
+      resetFetcherNumTotalBlockReadCount();
     }
 
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "NONE"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}, {3, "NONE"}};
-    std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}, {3, "TOP_LEVEL_RDF"}, {4, "NONE2"}};
-    // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}, {3, "TOP_LEVEL_RDF"}, {4, "SKYLINE_RDF"}, {5, "NONE2"}};
+    // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}, {3, "TOP_LEVEL_RDF"}, {4, "NONE2"}};
+    // std::unordered_map<int, std::string> RDFTypes = { {0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}, {3, "TOP_LEVEL_RDF"}}; // <-- debugging
+    // std::unordered_map<int, std::string> RDFTypes = { {0, "SPLIT_PLRDF"}, {1, "TOP_LEVEL_RDF"}}; // <-- debugging
+    // std::unordered_map<int, std::string> RDFTypes = { {0, "SKYLINE_RDF"}}; // <-- debugging
+    std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}, {3, "TOP_LEVEL_RDF"}, {4, "SKYLINE_RDF"}, {5, "NONE2"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "TOP_LEVEL_RDF"}}; 
 
     int RDFType_chosed = 0;
@@ -155,18 +330,29 @@ namespace checking {
       return deleted_keys__max_sequnce_number[key];
     }
 
-    void set_flag_is_PLRDF_filtered_entry(){
-      flag_is_PLRDF_filtered_entry = true;
+    void set_flag_is_RDF_filtered_entry(){
+      flag_is_RDF_filtered_entry = true;
     }
 
-    void reset_flag_is_PLRDF_filtered_entry(){
-      flag_is_PLRDF_filtered_entry = false;
+    void reset_flag_is_RDF_filtered_entry(){
+      flag_is_RDF_filtered_entry = false;
     }
 
-    bool get_flag_is_PLRDF_filtered_entry(){
-      return flag_is_PLRDF_filtered_entry;
+    bool get_flag_is_RDF_filtered_entry(){
+      return flag_is_RDF_filtered_entry;
     }
 
+    void set_flag_testing_on_currently_deleted_keys(){
+      flag_testing_on_currently_deleted_keys = true;
+    }
+
+    void reset_flag_testing_on_currently_deleted_keys(){
+      flag_testing_on_currently_deleted_keys = false;
+    }
+
+    bool get_flag_testing_on_currently_deleted_keys(){
+      return flag_testing_on_currently_deleted_keys;
+    }
 
 
 

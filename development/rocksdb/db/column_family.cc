@@ -1099,7 +1099,7 @@ void PLRDF::print(){
   // init();
   // std::lock_guard<std::mutex> guard(update_mutex);
 
-  std::cout <<  std::setfill('-') << std::setw(60) << " START: Print PL RDF " << std::setfill('-') << "" << std::endl;
+  std::cout <<  std::setfill('-') << std::setw(60) << " START: Print  RDF " << std::setfill('-') << "" << std::endl;
   for(uint l = 0; l < rd_filter.size(); l++){
     std::cout << "Level: " << l << std::endl;
     auto& rdList = rd_filter[l];
@@ -1108,7 +1108,7 @@ void PLRDF::print(){
     }
     std::cout << std::endl;
   }
-  std::cout <<  std::setfill('-') << std::setw(60) << " END: Print PL RDF " << std::setfill('-') << "" << std::endl;
+  std::cout <<  std::setfill('-') << std::setw(60) << " END: Print  RDF " << std::setfill('-') << "" << std::endl;
 }
 
 
@@ -2705,7 +2705,26 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
 // std::cout << "opt = " << opt << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 // std::cout << "split_flag = " << split_flag << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
-  if(opt == 1){
+  if(opt == 1){ //flush
+    //Skyline RDF
+    auto RDs = std::get<1>(*this->fd_RD_in_ptr);
+    this->addRangeToSkylineRDFPrime(RDs);
+
+
+    //fd_RDs_map
+    if(this->fd_RD_in_ptr == NULL){
+      std::cerr << "Error: fd_RD_in_ptr is NULL " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      exit(1);
+    }
+    auto fd = std::get<0>(*this->fd_RD_in_ptr);
+    // auto RDs = std::get<1>(*this->fd_RD_in_ptr);
+    RDs = std::get<1>(*this->fd_RD_in_ptr);
+    this->fd_RDs_map[fd] = RDs;
+    this->reset_fd_RD_in_ptr();
+// std::cout << " save RD of fd = " << fd << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; //xxx 
+
+
+
     //PLRDF
     auto &file_num = std::get<0>(this->flush_to_level0_RD_vector);
     auto &range_delete_list_in = std::get<1>(this->flush_to_level0_RD_vector);
@@ -2746,8 +2765,41 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
     this->clear_flush_install_count_clr();
     this->clear_split__flush_install_count_clr();
   }else if(opt == 2 || opt == 3){ //compaction
+    //fd_RDs_map
+    const std::vector<uint64_t> &fd_in = file_in_out_ptr->fd_in;
+    const std::vector<std::tuple<uint64_t, long long, long long>> &file_out = file_in_out_ptr->file_out;
+    std::vector<t3ll> RD_seq_vector;
+    for (auto fd : fd_in){
+      for( auto &RD_seq : this->fd_RDs_map[fd]){
+        RD_seq_vector.push_back(RD_seq);
+      }
+    }
+    for(auto &file : file_out){
+      auto fd = std::get<0>(file);
+      auto min_range = std::get<1>(file);
+      auto max_range = std::get<2>(file);
+      std::vector<t3ll> RD_seq_vector2;
+      for(auto &RD_seq : RD_seq_vector){
+        auto new_min_range = std::max(std::get<0>(RD_seq), min_range);
+        auto new_max_range = std::min(std::get<1>(RD_seq), max_range+1);
+        if(new_min_range >= new_max_range){
+          continue;
+        }
+        RD_seq_vector2.push_back( std::make_tuple(
+            new_min_range, 
+            new_max_range,
+            std::get<2>(RD_seq)
+          )
+        );
+      }
+      std::sort(RD_seq_vector2.begin(), RD_seq_vector2.end());
+      this->fd_RDs_map[fd] = RD_seq_vector2;
+// std::cout << " save RD of fd = " << fd << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; //xxx
+    }
+    this->reset_file_in_out_ptr();
 
-    if(opt == 2){
+
+    if(opt == 2){ //complete compaction or trivial move compaction
       //PLRDF
       (this->plrdf_prime).shiftRDFToOutputLevel(&this->compaction_moving_RD_vector);
       this->compaction_moving_RD_vector.clear();
@@ -2774,7 +2826,7 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
       }
 
       //Top Level RDF
-      if(split_flag == true){ //complex compaction
+      if(split_flag == true){ //complete compaction
         int in_lvl = std::get<0>(this->split__compaction_moving_RD_vector[0]);
         // if(in_lvl == 0 || in_lvl == 1){
         if(in_lvl == 0){
@@ -2799,10 +2851,14 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
       this->split__compaction_moving_RD_vector.clear();
 
       //Split PLRDF
-      if(split_flag == true){
+      if(split_flag == true){ //complete compaction
         // // std::cerr << "Logging: split RDF out level = " << this->get_split__out_level() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         (this->split_plrdf_prime).splitRangesOnLevel((uint)this->get_split__out_level(), this->split__level_points);
-        
+// std::cout << "split__level_points.size() = " << this->split__level_points.size() << std::endl;
+// for (auto &i : this->split__level_points){
+//   std::cout <<  i << " ";
+// }
+// std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; //xxx
         this->split__level_points.clear();
 
         this->clear_split__count();
@@ -2982,6 +3038,10 @@ void ColumnFamilyData::InstallSuperVersion(
 
     //Top Level RDF
     current_->setTopLevelRDF(this->top_level_rdf_prime);
+
+    //Skyline RDF
+    current_->setSkylineRDF(this->skyline_rdf_prime);
+    current_->setSkylineNumbersOfRangesInRDFLog(this->skyline__numbers_of_ranges_in_rdf_log);
   }
 
   if(old_superversion != NULL && old_superversion->current != current_){
@@ -3009,6 +3069,9 @@ void ColumnFamilyData::InstallSuperVersion(
 
     //Top Level RDF
     current_->setTopLevelRDF(this->top_level_rdf_prime);
+
+    //Skyline RDF
+    current_->setSkylineRDF(this->skyline_rdf_prime);
 
 
 

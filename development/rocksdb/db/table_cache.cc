@@ -467,22 +467,28 @@ Status TableCache::Get(
         get_context->max_covering_tombstone_seq();
 
     //Self Added Start
+    // *** Also Required to implement in block_based_table_reader.cc ***
     bool rdf_skip_range_deletions = false;
-    // std::string rdf_type = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
-    // if(rdf_type == "PLRDF"){
-    //   rdf_skip_range_deletions = true;
-    //   if(checking::SystemVerifier::getSystemVerifier()->get_flag_is_PLRDF_filtered_entry() == true){
-    //     *max_covering_tombstone_seq = ( checking::SystemVerifier::getSystemVerifier()->
-    //                                 get_deleted_keys__max_sequnce_number(stoll(ExtractUserKey(k).ToString())) );
-    //   }
+    std::string rdf_type = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
+    if(rdf_type == "PLRDF"){ // xxx
+    // if(rdf_type == "PLRDF" || rdf_type == "SPLIT_PLRDF" || rdf_type == "TOP_LEVEL_RDF"){
+      rdf_skip_range_deletions = true;
+      if(checking::SystemVerifier::getSystemVerifier()->get_flag_is_RDF_filtered_entry() == true){
+        // *max_covering_tombstone_seq = ( checking::SystemVerifier::getSystemVerifier()->
+        //                             get_deleted_keys__max_sequnce_number(stoll(ExtractUserKey(k).ToString())) );
+        // xxx
+      }
 
-    // }else if(rdf_type == "SKYLINE_RDF"){
-    //   rdf_skip_range_deletions = true;
+    }else if(rdf_type == "SPLIT_PLRDF" || rdf_type == "TOP_LEVEL_RDF"){
+      rdf_skip_range_deletions = true;
 
-    // }else if(rdf_type != "NONE" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
-    //   std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
-    //             << "rdf_type = " << rdf_type << std::endl;
-    // }
+    }else if(rdf_type == "SKYLINE_RDF"){
+      rdf_skip_range_deletions = true;
+
+    }else if(rdf_type != "NONE" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
+      std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+                << "rdf_type = " << rdf_type << std::endl;
+    }
     //Self Added End
 
 // std::cout << "(pre) *max_covering_tombstone_seq =  " << *max_covering_tombstone_seq 
@@ -513,9 +519,9 @@ Status TableCache::Get(
 
   //Self Added Start
   if(*max_covering_tombstone_seq != 0){
-std::cout << " *(post) max_covering_tombstone_seq =  " << *max_covering_tombstone_seq 
-          << " user_key = " << ExtractUserKey(k).ToString()
-          << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << " *(post) max_covering_tombstone_seq =  " << *max_covering_tombstone_seq 
+//           << " user_key = " << ExtractUserKey(k).ToString()
+//           << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
     if(checking::SystemVerifier::getSystemVerifier()->is_enable_log__deleted_keys__max_sequnce_number()){
       checking::SystemVerifier::getSystemVerifier()->insert_deleted_keys__max_sequnce_number( 

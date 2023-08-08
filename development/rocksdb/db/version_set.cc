@@ -2358,29 +2358,33 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
   //PLRDF
   // bool is_alive_after_cur_level = isAliveAfterRDFilter(fp.GetCurrentLevel(), std::stoll(user_key.ToString()));
   // bool is_alive_after_cur_level = isAliveAfterRDFilter(fp.GetCurrentLevel(), std::stoll(user_key.ToString()));
-  bool is_alive_after_hit_file_level = isAliveAfterRDFilter(fp.GetHitFileLevel(), std::stoll(user_key.ToString()));
+  bool is_alive_after_hit_file_level = isAliveAfterRDFilter(fp_hit_file_level, std::stoll(user_key.ToString()));
   // if(is_alive_after_cur_level == false){
   //   std::cout << "$$$ (PLRDF) is_alive_after_cur_level = false " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   // }
   //Split PLRDF 
-  bool split__is_alive_after_cur_level = isAliveAfterSplitRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
+  // bool split__is_alive_after_cur_level = isAliveAfterSplitRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
   bool split__is_alive_after_hit_file_level = isAliveAfterSplitRDFilter(fp_hit_file_level, std::stoll(user_key.ToString()));
   
+  // long long skyline__max_seq = -1;
+
   //PLRDF
   if(rdf_type == "PLRDF"){
-    checking::SystemVerifier::getSystemVerifier()->reset_flag_is_PLRDF_filtered_entry();
+    checking::SystemVerifier::getSystemVerifier()->reset_flag_is_RDF_filtered_entry();
     if(is_alive_after_hit_file_level == false){
-      checking::SystemVerifier::getSystemVerifier()->set_flag_is_PLRDF_filtered_entry();
+      checking::SystemVerifier::getSystemVerifier()->set_flag_is_RDF_filtered_entry();
       checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
     }
   }
   //Split PLRDF
-  else if(rdf_type == "SPLIT_PLRDF" && split__is_alive_after_hit_file_level == false){
-    *status = Status::NotFound();
-    checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+  else if(rdf_type == "SPLIT_PLRDF"){
+    if(split__is_alive_after_hit_file_level == false){
+      *status = Status::NotFound();
+      checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
 // this->split_plrdf.print();
 // std::cout << "### filtered by SPLIT RDF, level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    return;
+      return;
+    }
   }
   //TOP Level RDF
   else if(rdf_type == "TOP_LEVEL_RDF"){
@@ -2392,6 +2396,11 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
 // std::cout << "### filtered by TOP Level RDF, hit_file_level = " << fp.GetHitFileLevel() << " current_level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       return;
     }
+  // }
+  // //Skyline RDF
+  // else if(rdf_type != "SKYLINE_RDF"){
+  //   skyline__max_seq = getMaxSeqFromSkylineRDFilter(std::stoll(user_key.ToString()));
+
   }else if(rdf_type != "NONE" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
         std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
                   << "rdf_type = " << rdf_type << std::endl;
@@ -2423,22 +2432,31 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
         IsFilterSkipped(static_cast<int>(fp.GetHitFileLevel()),
                         fp.IsHitFileLastInLevel()),
         fp.GetHitFileLevel(), max_file_size_for_l0_meta_pin_);
+
+
+// std::cout << "### (Get), hit_file_level = " << fp.GetHitFileLevel() << " current_level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  
+//           << " found = " << (get_context.State() == GetContext::kFound) 
+//           << "value = " << value->ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// if(checking::SystemVerifier::getSystemVerifier()->get_flag_testing_on_currently_deleted_keys() == true){
+// std::cout << "### (Get), hit_file_level = " << fp.GetHitFileLevel() << " current_level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  
+//           << " found = " << (get_context.State() == GetContext::kFound) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// // std::cout << "split-PLRDF:" << std::endl;
+// // this->split_plrdf.print();
+// } // xxx
+
     // TODO: examine the behavior for corrupted key
     if (timer_enabled) {
       PERF_COUNTER_BY_LEVEL_ADD(get_from_table_nanos, timer.ElapsedNanos(),
                                 fp.GetHitFileLevel());
     }
     if (!status->ok()) {
-// std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       if (db_statistics_ != nullptr) {
         get_context.ReportCounters();
       }
       return;
     }
 
-
-// std::cout << "### (Get), hit_file_level = " << fp.GetHitFileLevel() << " current_level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  
-//           << " found = " << (get_context.State() == GetContext::kFound) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
     // report the counters before returning
     if (get_context.State() != GetContext::kNotFound &&
@@ -2456,6 +2474,29 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       case GetContext::kFound:
 // std::cout << "kFound !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 // std::cout << " level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString();
+
+        //Self Added Start
+        if(rdf_type == "SKYLINE_RDF"){
+          std::string val_pre = value->ToString();
+          auto separator_pos = val_pre.find("|");
+          long long skyline__get_seq = std::stoll(val_pre.substr(separator_pos + 1));
+          auto val = val_pre.substr(0, separator_pos);
+          long long skyline__max_seq = getMaxSeqFromSkylineRDFilter(std::stoll(user_key.ToString()));
+// std::cout << " key = " << user_key.ToString() << " skyline__get_seq = " << skyline__get_seq << " skyline__max_seq = " << skyline__max_seq << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// printSkylineRDF();
+          if(skyline__get_seq < skyline__max_seq){
+            *status = Status::NotFound();
+            checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+            return ;   
+          }
+        }else if(rdf_type != "NONE" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
+              std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+                        << "rdf_type = " << rdf_type << std::endl;
+        }
+        //Self Added End
+
+
+
 
         if (fp.GetHitFileLevel() == 0) {
           RecordTick(db_statistics_, GET_HIT_L0);
@@ -2576,19 +2617,19 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
 //       // }
 
 
-      //Split PLRDF
-      split__is_alive_after_cur_level = isAliveAfterSplitRDFilter(fp.GetCurrentLevel(), std::stoll(user_key.ToString()));
+//       //Split PLRDF
+//       split__is_alive_after_cur_level = isAliveAfterSplitRDFilter(fp.GetCurrentLevel(), std::stoll(user_key.ToString()));
 
-      if(rdf_type == "SPLIT_PLRDF" && split__is_alive_after_cur_level == false){
-        *status = Status::NotFound();
-        checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
-// this->split_plrdf.print();
-// std::cout << "### filtered by SPLIT RDF, level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-        return;
-      }else if(rdf_type != "NONE" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
-        std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
-                  << "rdf_type = " << rdf_type << std::endl;
-      }
+//       if(rdf_type == "SPLIT_PLRDF" && split__is_alive_after_cur_level == false){
+//         *status = Status::NotFound();
+//         checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+// // this->split_plrdf.print();
+// // std::cout << "### filtered by SPLIT RDF, level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+//         return;
+//       }else if(rdf_type != "NONE" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
+//         std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+//                   << "rdf_type = " << rdf_type << std::endl;
+//       }
     }
     // if(rdf_debug_flag == true){
     //   std::cout << "fp_cur_level = " << fp_cur_level << " fp.GetCurrentLevel() " << fp.GetCurrentLevel() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -2609,7 +2650,7 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
     //Self Added Start
     if(fp_hit_file_level != fp.GetHitFileLevel()){
       //PLRDF
-      if(rdf_type == "PLRDF" && is_alive_after_hit_file_level == false){
+      if(rdf_type == "PLRDF"){
         if(is_alive_after_hit_file_level == false){
           *status = Status::NotFound();
           checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
@@ -2617,7 +2658,7 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
         }
         is_alive_after_hit_file_level = isAliveAfterRDFilter(fp.GetHitFileLevel(), std::stoll(user_key.ToString()));
         if(is_alive_after_hit_file_level == false){
-          checking::SystemVerifier::getSystemVerifier()->set_flag_is_PLRDF_filtered_entry();
+          checking::SystemVerifier::getSystemVerifier()->set_flag_is_RDF_filtered_entry();
         }
 
       }else if(rdf_type != "NONE" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
@@ -2626,6 +2667,21 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
       }
 
       fp_hit_file_level = fp.GetHitFileLevel();  // current file's level
+
+      if(rdf_type == "SPLIT_PLRDF"){
+        split__is_alive_after_hit_file_level = isAliveAfterSplitRDFilter(fp_hit_file_level, std::stoll(user_key.ToString()));
+
+        if(split__is_alive_after_hit_file_level == false){
+          *status = Status::NotFound();
+          checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+  // this->split_plrdf.print();
+  // std::cout << "### filtered by SPLIT RDF, level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          return;
+        }
+      }else if(rdf_type != "NONE" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
+        std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+                  << "rdf_type = " << rdf_type << std::endl;
+      }
     }
     //Self Added End
   }

@@ -698,6 +698,13 @@ Status CompactionOutputs::AddRangeDels(
     assert(icmp.Compare(tombstone_start, tombstone_end) <= 0);
     meta.UpdateBoundariesForRange(tombstone_start, tombstone_end,
                                   tombstone.seq_, icmp);
+
+//Self Added Start
+// std::cout << " (compation_outputs.cc) tombstone_start, tombstone_end = " << tombstone_start.user_key().ToString() << ", " << tombstone_end.user_key().ToString() << " "
+//           << " tombstone.seq_ = " << tombstone.seq_ << " " 
+//           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; //xxx
+//Self Added End
+
     if (!bottommost_level) {
       bool start_user_key_changed =
           last_tombstone_start_user_key.empty() ||
