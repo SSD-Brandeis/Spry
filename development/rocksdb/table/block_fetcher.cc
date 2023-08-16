@@ -243,6 +243,12 @@ inline void BlockFetcher::GetBlockContents() {
 #endif
 }
 
+//Self Added Start
+void sentinelFunc01(){
+  std::cout << " sentinelFunc01 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+} 
+//Self Added End
+
 IOStatus BlockFetcher::ReadBlockContents() {
   if (TryGetUncompressBlockFromPersistentCache()) {
     compression_type_ = kNoCompression;
@@ -263,18 +269,30 @@ IOStatus BlockFetcher::ReadBlockContents() {
       if (file_->use_direct_io()) {
         PERF_TIMER_GUARD(block_read_time);
         PERF_CPU_TIMER_GUARD(block_read_cpu_time, nullptr);
+        //Self Added Start 
+        checking::SystemVerifier::getSystemVerifier()->start_retrieve_block();
+        //Self Added End
         io_status_ = file_->Read(
             opts, handle_.offset(), block_size_with_trailer_, &slice_, nullptr,
             &direct_io_buf_, read_options_.rate_limiter_priority);
+        //Self Added Start 
+        checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
+        //Self Added End
         PERF_COUNTER_ADD(block_read_count, 1);
         used_buf_ = const_cast<char*>(slice_.data());
       } else {
         PrepareBufferForBlockFromFile();
         PERF_TIMER_GUARD(block_read_time);
         PERF_CPU_TIMER_GUARD(block_read_cpu_time, nullptr);
+        //Self Added Start 
+        checking::SystemVerifier::getSystemVerifier()->start_retrieve_block();
+        //Self Added End
         io_status_ = file_->Read(opts, handle_.offset(),
                                  block_size_with_trailer_, &slice_, used_buf_,
                                  nullptr, read_options_.rate_limiter_priority);
+        //Self Added Start 
+        checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
+        //Self Added End
         PERF_COUNTER_ADD(block_read_count, 1);
 #ifndef NDEBUG
         if (slice_.data() == &stack_buf_[0]) {
@@ -332,6 +350,7 @@ IOStatus BlockFetcher::ReadBlockContents() {
       std::cout << "block_type_ = " << "kMetaIndex" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       break;
     case BlockType::kIndex:
+      // sentinelFunc01();
       // std::cout << "block_type_ = " << "kIndex" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumIndexReadCount();
       

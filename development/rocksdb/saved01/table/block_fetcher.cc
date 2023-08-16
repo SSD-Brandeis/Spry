@@ -27,6 +27,11 @@
 #include "util/compression.h"
 #include "util/stop_watch.h"
 
+
+//Self Added Start 
+#include "include/rocksdb/system_verifier.h"
+//Self Added End
+
 namespace ROCKSDB_NAMESPACE {
 
 inline void BlockFetcher::ProcessTrailerIfPresent() {
@@ -248,10 +253,12 @@ IOStatus BlockFetcher::ReadBlockContents() {
     return IOStatus::OK();
   }
   if (TryGetFromPrefetchBuffer()) {
+// std::cout << "TryGetFromPrefetchBuffer" << " " << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl;
     if (!io_status_.ok()) {
       return io_status_;
     }
   } else if (!TryGetSerializedBlockFromPersistentCache()) {
+// std::cout << "TryGetSerializedBlockFromPersistentCache" << " " << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl;
     IOOptions opts;
     io_status_ = file_->PrepareIOOptions(read_options_, opts);
     // Self Added Notice <-- inside read function, is where the bytes and block counts are incremented
@@ -259,19 +266,31 @@ IOStatus BlockFetcher::ReadBlockContents() {
     if (io_status_.ok()) {
       if (file_->use_direct_io()) {
         PERF_TIMER_GUARD(block_read_time);
+        // //Self Added Start 
+        // checking::SystemVerifier::getSystemVerifier()->start_retrieve_block();
+        // //Self Added End
         PERF_CPU_TIMER_GUARD(block_read_cpu_time, nullptr);
         io_status_ = file_->Read(
             opts, handle_.offset(), block_size_with_trailer_, &slice_, nullptr,
             &direct_io_buf_, read_options_.rate_limiter_priority);
+        // //Self Added Start 
+        // checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
+        // //Self Added End
         PERF_COUNTER_ADD(block_read_count, 1);
         used_buf_ = const_cast<char*>(slice_.data());
       } else {
         PrepareBufferForBlockFromFile();
         PERF_TIMER_GUARD(block_read_time);
+        // //Self Added Start 
+        // checking::SystemVerifier::getSystemVerifier()->start_retrieve_block();
+        // //Self Added End
         PERF_CPU_TIMER_GUARD(block_read_cpu_time, nullptr);
         io_status_ = file_->Read(opts, handle_.offset(),
                                  block_size_with_trailer_, &slice_, used_buf_,
                                  nullptr, read_options_.rate_limiter_priority);
+        // //Self Added Start 
+        // checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
+        // //Self Added End
         PERF_COUNTER_ADD(block_read_count, 1);
 #ifndef NDEBUG
         if (slice_.data() == &stack_buf_[0]) {

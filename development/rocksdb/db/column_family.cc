@@ -3072,6 +3072,7 @@ void ColumnFamilyData::InstallSuperVersion(
 
     //Skyline RDF
     current_->setSkylineRDF(this->skyline_rdf_prime);
+    current_->setSkylineNumbersOfRangesInRDFLog(this->skyline__numbers_of_ranges_in_rdf_log);
 
 
 
