@@ -2298,6 +2298,11 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
                   PinnedIteratorsManager* pinned_iters_mgr, bool* value_found,
                   bool* key_exists, SequenceNumber* seq, ReadCallback* callback,
                   bool* is_blob, bool do_merge) {
+
+// //Self Added Start, Timer
+// std::chrono::_V2::system_clock::time_point  timer_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
+
 // std::cout  << "Version::Get A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   Slice ikey = k.internal_key();
   Slice user_key = k.user_key();
@@ -2347,6 +2352,11 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
                 internal_comparator());
   FdWithKeyRange* f = fp.GetNextFile();
 
+
+  //Self Added Start: timing
+  checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+  // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+  //Self Added End: timing
 
   //Self Added Start
   // bool rdf_debug_flag = false;
@@ -2427,8 +2437,27 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
   // checking::SystemVerifier *system_verifier = checking::SystemVerifier::getSystemVerifier(); 
   //Self Added End
 
+  
+  //Self Added Start: timing
+  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+  // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+  //Self Added End: timing
+
+// //Self Added Start, Timer
+// std::chrono::_V2::system_clock::time_point  timer_end = std::chrono::high_resolution_clock::now();
+// std::chrono::nanoseconds duration_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_end - timer_start);
+// std::cout << "(Version::Get) timer duration1 = " << duration_ns.count() << std::endl;
+// timer_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
+
 // std::cout  << "A2 @Go through overlapped File loop " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   while (f != nullptr) {
+
+// //Self Added Start, Timer
+// std::chrono::_V2::system_clock::time_point  timer2_start = std::chrono::high_resolution_clock::now();
+// std::chrono::_V2::system_clock::time_point  timer2_0_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
+
     if (*max_covering_tombstone_seq > 0) {
       // The remaining files we look at will only contain covered keys, so we
       // stop here.
@@ -2442,16 +2471,55 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
         GetPerfLevel() >= PerfLevel::kEnableTimeExceptForMutex &&
         get_perf_context()->per_level_perf_context_enabled;
     StopWatchNano timer(clock_, timer_enabled /* auto_start */);
+
+// //Self Added Start, Timer
+// std::chrono::_V2::system_clock::time_point  timer2_end = std::chrono::high_resolution_clock::now();
+// std::chrono::nanoseconds duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_1 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
+
+    rocksdb::HistogramImpl *histogram_ptr = cfd_->internal_stats()->GetFileReadHist(fp.GetHitFileLevel());
+
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_2_1 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer    
+
+    bool is_filter_skipped = IsFilterSkipped(static_cast<int>(fp.GetHitFileLevel()), fp.IsHitFileLastInLevel());
+
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_2_2 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
+
     //check the cache
     *status = table_cache_->Get(
         read_options, *internal_comparator(), *f->file_metadata, ikey,
         &get_context, mutable_cf_options_.block_protection_bytes_per_key,
         mutable_cf_options_.prefix_extractor,
-        cfd_->internal_stats()->GetFileReadHist(fp.GetHitFileLevel()),
-        IsFilterSkipped(static_cast<int>(fp.GetHitFileLevel()),
-                        fp.IsHitFileLastInLevel()),
+        histogram_ptr,
+        is_filter_skipped,
         fp.GetHitFileLevel(), max_file_size_for_l0_meta_pin_);
+    // *status = table_cache_->Get(
+    //     read_options, *internal_comparator(), *f->file_metadata, ikey,
+    //     &get_context, mutable_cf_options_.block_protection_bytes_per_key,
+    //     mutable_cf_options_.prefix_extractor,
+    //     cfd_->internal_stats()->GetFileReadHist(fp.GetHitFileLevel()),
+    //     IsFilterSkipped(static_cast<int>(fp.GetHitFileLevel()),
+    //                     fp.IsHitFileLastInLevel()),
+    //     fp.GetHitFileLevel(), max_file_size_for_l0_meta_pin_);
 
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_2 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
 
 // std::cout << "### (Get), hit_file_level = " << fp.GetHitFileLevel() << " current_level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  
 //           << " found = " << (get_context.State() == GetContext::kFound) 
@@ -2473,8 +2541,23 @@ std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " <<
       if (db_statistics_ != nullptr) {
         get_context.ReportCounters();
       }
+
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_3 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
+
       return;
     }
+
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_3 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
 
 
     // report the counters before returning
@@ -2483,6 +2566,14 @@ std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " <<
         db_statistics_ != nullptr) {
       get_context.ReportCounters();
     }
+
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_4 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
+
     switch (get_context.State()) {
       case GetContext::kNotFound:
         // Keep searching in other files
@@ -2493,6 +2584,11 @@ std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " <<
       case GetContext::kFound:
 // std::cout << "kFound !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 // std::cout << " level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString();
+
+        //Self Added Start: timing
+        checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+        // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+        //Self Added End: timing
 
         //Self Added Start
         if(rdf_type == "SKYLINE_RDF"){
@@ -2510,6 +2606,13 @@ std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " <<
           if(skyline__get_seq < skyline__max_seq){
             *status = Status::NotFound();
             checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_5 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
             return ;   
           }
         }else if(rdf_type != "NONE" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
@@ -2518,6 +2621,10 @@ std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " <<
         }
         //Self Added End
 
+        //Self Added Start: timing
+        // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+        checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+        //Self Added End: timing
 
 
 
@@ -2565,6 +2672,13 @@ std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " <<
 // std::cout << "GetBlob status->IsIncomplete()  MarkKeyMayExist !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
               get_context.MarkKeyMayExist();
             }
+
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_5 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
             return;
           }
 
@@ -2576,21 +2690,55 @@ std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " <<
           }
         }
 
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_5 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
+
         return;
       case GetContext::kDeleted:
+
+        //Self Added Start: timing
+        checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+        // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+        //Self Added End: timing
+
         //Self Added Start
         if(rdf_type == "PLRDF"){
           checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
         }
         //Self Added End
+
+        //Self Added Start: timing
+        // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+        checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+        //Self Added End: timing
+
+
 // std::cout << "kDeleted !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 // std::cout << " level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString();
         // Use empty error message for speed
         *status = Status::NotFound();
+
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_5 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
         return;
       case GetContext::kCorrupt:
 // std::cout << "kCorrupt !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         *status = Status::Corruption("corrupted key for ", user_key);
+
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_5 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
         return;
       case GetContext::kUnexpectedBlobIndex:
 // std::cout << "kUnexpectedBlobIndex !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -2598,16 +2746,41 @@ std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " <<
         *status = Status::NotSupported(
             "Encounter unexpected blob index. Please open DB with "
             "ROCKSDB_NAMESPACE::blob_db::BlobDB instead.");
+
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_5 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
         return;
       case GetContext::kMergeOperatorFailed:
 // std::cout << "kMergeOperatorFailed !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         *status = Status::Corruption(Status::SubCode::kMergeOperatorFailed);
+  
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_5 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
         return;
     }
 
 
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_5 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
 
-    //Self Added Begin
+    //Self Added Start: timing
+    checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+    //Self Added End: timing
+
+    //Self Added Start
     if(fp.GetCurrentLevel() < fp_cur_level){
 std::cerr << "(pre) fp_cur_level = " << fp_cur_level << " (cur) fp.GetCurrentLevel() = " << fp.GetCurrentLevel() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString() <<   " (pre) f2->largest_key.ToString() = " << f2->largest_key.ToString() << std::endl
@@ -2663,12 +2836,20 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
     fp_cur_level = fp.GetCurrentLevel();
     //Self Added End
 
+    //Self Added Start: timing
+    // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+    //Self Added End: timing
 
 
     f = fp.GetNextFile();
 
 
 
+    //Self Added Start: timing
+    checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+    //Self Added End: timing
 
     //Self Added Start
     if(fp_hit_file_level != fp.GetHitFileLevel()){
@@ -2676,7 +2857,15 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
       if(rdf_type == "PLRDF"){
         if(is_alive_after_hit_file_level == false){
           *status = Status::NotFound();
-          checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+          checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount();
+  
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_6 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
+
           return ;   
         }
 
@@ -2706,6 +2895,14 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
           checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
   // this->split_plrdf.print();
   // std::cout << "### filtered by SPLIT RDF, level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_6 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
+
           return;
         }
       }else if(rdf_type != "NONE" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
@@ -2714,8 +2911,40 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
       }
     }
     //Self Added End
+
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_6 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
+    
+    //Self Added Start: timing
+    // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+    //Self Added End: timing
+
+// //Self Added Start, Timer
+// timer2_end = std::chrono::high_resolution_clock::now();
+// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
+// std::cout << "(Version::Get) timer duration2_7 = " << duration2_ns.count() << std::endl;
+// timer2_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
+
+// //Self Added Start, Timer
+// std::chrono::_V2::system_clock::time_point  timer2_0_end = std::chrono::high_resolution_clock::now();
+// std::chrono::nanoseconds duration2_0_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_0_end - timer2_0_start);
+// std::cout << "(Version::Get) timer duration2_0 = " << duration2_0_ns.count() << std::endl;
+// // timer2_0_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
   }
 
+// //Self Added Start, Timer
+// timer_end = std::chrono::high_resolution_clock::now();
+// duration_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_end - timer_start);
+// std::cout << "(Version::Get) timer duration2 = " << duration_ns.count() << std::endl;
+// timer_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
 
 
   if (db_statistics_ != nullptr) {
@@ -2763,6 +2992,13 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
 // std::cout << " level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString() << std::endl;
     *status = Status::NotFound();  // Use an empty error message for speed
   }
+  
+// //Self Added Start, Timer
+// timer_end = std::chrono::high_resolution_clock::now();
+// duration_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_end - timer_start);
+// std::cout << "(Version::Get) timer duration3 = " << duration_ns.count() << std::endl;
+// timer_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
 }
 
 void Version::MultiGet(const ReadOptions& read_options, MultiGetRange* range,

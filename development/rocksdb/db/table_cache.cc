@@ -419,6 +419,10 @@ Status TableCache::Get(
     const std::shared_ptr<const SliceTransform>& prefix_extractor,
     HistogramImpl* file_read_hist, bool skip_filters, int level,
     size_t max_file_size_for_l0_meta_pin) {
+//Self Added Start, Timer
+// std::chrono::_V2::system_clock::time_point  timer_start = std::chrono::high_resolution_clock::now();
+// std::chrono::_V2::system_clock::time_point  timer_0_start = std::chrono::high_resolution_clock::now();
+//Self Added End, Timer
 // std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   auto& fd = file_meta.fd;
   std::string* row_cache_entry = nullptr;
@@ -466,6 +470,12 @@ Status TableCache::Get(
     SequenceNumber* max_covering_tombstone_seq =
         get_context->max_covering_tombstone_seq();
 
+
+    //Self Added Start: timing
+    checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+    //Self Added End: timing
+
     //Self Added Start
     // *** Also Required to implement in block_based_table_reader.cc ***
     bool rdf_skip_range_deletions = false;
@@ -492,9 +502,12 @@ Status TableCache::Get(
     }
     //Self Added End
 
+
 // std::cout << "(pre) *max_covering_tombstone_seq =  " << *max_covering_tombstone_seq 
 //           << " options.ignore_range_deletions = " << options.ignore_range_deletions
 //           << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+
 
     //Self Added Start
     if(!rdf_skip_range_deletions){
@@ -521,6 +534,8 @@ Status TableCache::Get(
       checking::SystemVerifier::getSystemVerifier()->stop_get_max_seq();
     }
     //Self Added End
+  
+
 
   //Self Added Start
   if(*max_covering_tombstone_seq != 0){
@@ -534,16 +549,36 @@ Status TableCache::Get(
         *max_covering_tombstone_seq);
     }
 
+
+
   }
   //Self Added End
 
+  
+  //Self Added Start: timing
+  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+  //Self Added End: timing
+
     
     if (s.ok()) {
+      
+  //Self Added Start: timing
+  checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+  // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+  //Self Added End: timing
+
 //Self Added Start
 checking::SystemVerifier *system_verifier = checking::SystemVerifier::getSystemVerifier(); 
 system_verifier->increaseDiskAccessCount();
 // std::cout << " OK in disk Get " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 //Self Added End
+
+  //Self Added Start: timing
+  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+  //Self Added End: timing
+
 
       get_context->SetReplayLog(row_cache_entry);  // nullptr if no cache.
       s = t->Get(options, k, get_context, prefix_extractor.get(), skip_filters);
@@ -556,6 +591,12 @@ system_verifier->increaseDiskAccessCount();
       done = true;
     }
   }
+// //Self Added Start, Timer
+// std::chrono::_V2::system_clock::time_point  timer_end = std::chrono::high_resolution_clock::now();
+// std::chrono::nanoseconds duration_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_end - timer_start);
+// std::cout << "(TableCache::Get) timer duration1 = " << duration_ns.count() << std::endl;
+// timer_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
 
   // Put the replay log in row cache only if something was found.
   if (!done && s.ok() && row_cache_entry && !row_cache_entry->empty()) {
@@ -570,6 +611,23 @@ system_verifier->increaseDiskAccessCount();
   if (handle != nullptr) {
     cache_.Release(handle);
   }
+
+  
+// //Self Added Start, Timer
+// timer_end = std::chrono::high_resolution_clock::now();
+// duration_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_end - timer_start);
+// std::cout << "(TableCache::Get) timer duration2 = " << duration_ns.count() << std::endl;
+// // timer_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
+
+
+// //Self Added Start, Timer
+// std::chrono::_V2::system_clock::time_point  timer_0_end = std::chrono::high_resolution_clock::now();
+// std::chrono::nanoseconds duration_0_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_0_end - timer_0_start);
+// std::cout << "(TableCache::Get) timer duration0 = " << duration_0_ns.count() << std::endl;
+// // timer_0_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
+
   return s;
 }
 

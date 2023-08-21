@@ -11,7 +11,8 @@
 
 
 namespace rdfilter {
-  class PerlevelRangeDeleteFilterByVector;
+  // class PerlevelRangeDeleteFilterByVector {
+  class PLRDF;
 } 
 
 
@@ -50,14 +51,16 @@ namespace rdfilter {
 
 
 using namespace std;
+using namespace ROCKSDB_NAMESPACE;
 // using namespace workload_exec;
 
 namespace rdfilter {
   using pll = std::pair<long long, long long>;
   
   // class PLRDF {
-  class PerlevelRangeDeleteFilterByVector {
-    using PLRDF = PerlevelRangeDeleteFilterByVector;
+  // class PerlevelRangeDeleteFilterByVector {
+  class PLRDF {
+    // using PLRDF = PerlevelRangeDeleteFilterByVector;
 
     private:
       static const int KEY_SIZE = 12;
