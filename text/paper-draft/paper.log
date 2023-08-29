@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2023.8.1)  1 AUG 2023 22:28
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2023.8.1)  29 AUG 2023 23:05
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -772,38 +772,115 @@ Underfull \hbox (badness 10000) in paragraph at lines 5--191
 
  []
 
-(/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/6-experimental_results.tex) (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/7-related_work.tex) (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/8-conclusion.tex) (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/biblio.tex (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/paper.bbl
+(/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/6-experimental_results.tex
+<Figures/workload.png, id=87, 620.3175pt x 242.1045pt>
+File: Figures/workload.png Graphic file (type png)
+<use Figures/workload.png>
+Package pdftex.def Info: Figures/workload.png  used on input line 15.
+(pdftex.def)             Requested size: 101.25745pt x 39.51698pt.
+
+Underfull \vbox (badness 2495) has occurred while \output is active []
+
+ [2.2 </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/workload.png>]
+<Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_elapse_time_on_currently_deleted_keys__Skyline.png, id=99, 867.24pt x 578.16pt>
+File: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_elapse_time_on_currently_deleted_keys__Skyline.png Graphic file (type png)
+<use Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_elapse_time_on_currently_deleted_keys__Skyline.png>
+Package pdftex.def Info: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_elapse_time_on_currently_deleted_keys__Skyline.png  used on input line 42.
+(pdftex.def)             Requested size: 101.25745pt x 67.49712pt.
+<Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_elapse_time_on_currently_deleted_keys.png, id=100, 867.24pt x 578.16pt>
+File: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_elapse_time_on_currently_deleted_keys.png Graphic file (type png)
+<use Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_elapse_time_on_currently_deleted_keys.png>
+Package pdftex.def Info: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_elapse_time_on_currently_deleted_keys.png  used on input line 52.
+(pdftex.def)             Requested size: 101.25745pt x 67.49712pt.
+<Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_timing_breakdown_on_currently_deleted_keys__Skyline.png, id=101, 867.24pt x 578.16pt>
+File: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_timing_breakdown_on_currently_deleted_keys__Skyline.png Graphic file (type png)
+<use Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_timing_breakdown_on_currently_deleted_keys__Skyline.png>
+Package pdftex.def Info: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_timing_breakdown_on_currently_deleted_keys__Skyline.png  used on input line 61.
+(pdftex.def)             Requested size: 50.63258pt x 33.75296pt.
+<Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_elapse_time_on_existing_keys.png, id=102, 867.24pt x 578.16pt>
+File: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_elapse_time_on_existing_keys.png Graphic file (type png)
+<use Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_elapse_time_on_existing_keys.png>
+Package pdftex.def Info: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_elapse_time_on_existing_keys.png  used on input line 70.
+(pdftex.def)             Requested size: 50.63258pt x 33.75296pt.
+<Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_IOs_on_currently_deleted_keys__Skyline.png, id=103, 867.24pt x 578.16pt>
+File: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_IOs_on_currently_deleted_keys__Skyline.png Graphic file (type png)
+<use Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_IOs_on_currently_deleted_keys__Skyline.png>
+Package pdftex.def Info: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_IOs_on_currently_deleted_keys__Skyline.png  used on input line 79.
+(pdftex.def)             Requested size: 50.63258pt x 33.75296pt.
+<Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png, id=104, 867.24pt x 578.16pt>
+File: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png Graphic file (type png)
+<use Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png>
+Package pdftex.def Info: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png  used on input line 88.
+(pdftex.def)             Requested size: 50.63258pt x 33.75296pt.
+<Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_Numbers_of_Ranges__Skyline.png, id=105, 867.24pt x 578.16pt>
+File: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_Numbers_of_Ranges__Skyline.png Graphic file (type png)
+<use Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_Numbers_of_Ranges__Skyline.png>
+Package pdftex.def Info: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_Numbers_of_Ranges__Skyline.png  used on input line 97.
+(pdftex.def)             Requested size: 50.63258pt x 33.75296pt.
+<Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9___I_100000_RD_100_Sel_0p001__alpha_0p9_growth_of_RDs.png, id=106, 462.528pt x 346.896pt>
+File: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9___I_100000_RD_100_Sel_0p001__alpha_0p9_growth_of_RDs.png Graphic file (type png)
+<use Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9___I_100000_RD_100_Sel_0p001__alpha_0p9_growth_of_RDs.png>
+Package pdftex.def Info: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9___I_100000_RD_100_Sel_0p001__alpha_0p9_growth_of_RDs.png  used on input line 106.
+(pdftex.def)             Requested size: 50.63258pt x 37.9734pt.
+ [3.3 </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_elapse_time_on_currently_deleted_keys__Skyline.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_elapse_time_on_currently_deleted_keys.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_timing_breakdown_on_currently_deleted_keys__Skyline.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_elapse_time_on_existing_keys.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_IOs_on_currently_deleted_keys__Skyline.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_Numbers_of_Ranges__Skyline.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9___I_100000_RD_100_Sel_0p001__alpha_0p9_growth_of_RDs.png>]
+<Figures/T2_P32_B4_E1024_128p0MB_alpha0p5/T2_P32_B4_E1024_128p0MB_alpha0p5_Numbers_of_Ranges__Skyline.png, id=135, 867.24pt x 578.16pt>
+File: Figures/T2_P32_B4_E1024_128p0MB_alpha0p5/T2_P32_B4_E1024_128p0MB_alpha0p5_Numbers_of_Ranges__Skyline.png Graphic file (type png)
+<use Figures/T2_P32_B4_E1024_128p0MB_alpha0p5/T2_P32_B4_E1024_128p0MB_alpha0p5_Numbers_of_Ranges__Skyline.png>
+Package pdftex.def Info: Figures/T2_P32_B4_E1024_128p0MB_alpha0p5/T2_P32_B4_E1024_128p0MB_alpha0p5_Numbers_of_Ranges__Skyline.png  used on input line 138.
+(pdftex.def)             Requested size: 50.63258pt x 33.75296pt.
+<Figures/T2_P32_B4_E1024_128p0MB_alpha0p1/T2_P32_B4_E1024_128p0MB_alpha0p1_Numbers_of_Ranges__Skyline.png, id=136, 867.24pt x 578.16pt>
+File: Figures/T2_P32_B4_E1024_128p0MB_alpha0p1/T2_P32_B4_E1024_128p0MB_alpha0p1_Numbers_of_Ranges__Skyline.png Graphic file (type png)
+<use Figures/T2_P32_B4_E1024_128p0MB_alpha0p1/T2_P32_B4_E1024_128p0MB_alpha0p1_Numbers_of_Ranges__Skyline.png>
+Package pdftex.def Info: Figures/T2_P32_B4_E1024_128p0MB_alpha0p1/T2_P32_B4_E1024_128p0MB_alpha0p1_Numbers_of_Ranges__Skyline.png  used on input line 146.
+(pdftex.def)             Requested size: 50.63258pt x 33.75296pt.
+File: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png Graphic file (type png)
+<use Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png>
+Package pdftex.def Info: Figures/T2_P32_B4_E1024_128p0MB_alpha0p9/T2_P32_B4_E1024_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png  used on input line 193.
+(pdftex.def)             Requested size: 50.63258pt x 33.75296pt.
+<Figures/T2_P32_B16_E256_128p0MB_alpha0p9/T2_P32_B16_E256_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png, id=140, 867.24pt x 578.16pt>
+File: Figures/T2_P32_B16_E256_128p0MB_alpha0p9/T2_P32_B16_E256_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png Graphic file (type png)
+<use Figures/T2_P32_B16_E256_128p0MB_alpha0p9/T2_P32_B16_E256_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png>
+Package pdftex.def Info: Figures/T2_P32_B16_E256_128p0MB_alpha0p9/T2_P32_B16_E256_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png  used on input line 201.
+(pdftex.def)             Requested size: 50.63258pt x 33.75296pt.
+<Figures/T2_P32_B64_E64_128p0MB_alpha0p9/T2_P32_B64_E64_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png, id=141, 867.24pt x 578.16pt>
+File: Figures/T2_P32_B64_E64_128p0MB_alpha0p9/T2_P32_B64_E64_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png Graphic file (type png)
+<use Figures/T2_P32_B64_E64_128p0MB_alpha0p9/T2_P32_B64_E64_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png>
+Package pdftex.def Info: Figures/T2_P32_B64_E64_128p0MB_alpha0p9/T2_P32_B64_E64_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png  used on input line 209.
+(pdftex.def)             Requested size: 50.63258pt x 33.75296pt.
+) (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/7-related_work.tex) (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/8-conclusion.tex) (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/biblio.tex (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/paper.bbl
 
 Package natbib Warning: Empty `thebibliography' environment on input line 3.
 
 ))
 
-Package balance Warning: You have called \balance in second column
-(balance)                Columns might not be balanced.
+Class acmart Warning: ACM keywords are mandatory for papers over two pages.
 
-Package atenddvi Info: Last page = 2.
-[2.2]
+
+Class acmart Warning: CCS concepts are mandatory for papers over two pages.
+
+Package atenddvi Info: Last page = 4.
+[4.4 </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/T2_P32_B64_E64_128p0MB_alpha0p9/T2_P32_B64_E64_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/T2_P32_B4_E1024_128p0MB_alpha0p5/T2_P32_B4_E1024_128p0MB_alpha0p5_Numbers_of_Ranges__Skyline.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/T2_P32_B4_E1024_128p0MB_alpha0p1/T2_P32_B4_E1024_128p0MB_alpha0p1_Numbers_of_Ranges__Skyline.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/T2_P32_B16_E256_128p0MB_alpha0p9/T2_P32_B16_E256_128p0MB_alpha0p9_IOs_on_currently_deleted_keys.png>]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 214.
 Package atveryend Info: Executing hook `AfterLastShipout' on input line 214.
  (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/paper.aux)
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 214.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 214.
 Package rerunfilecheck Info: File `paper.out' has not changed.
-(rerunfilecheck)             Checksum: A0FFFB9FD152A2DA448F39218D79EA92;1574.
+(rerunfilecheck)             Checksum: 520AA6A38B19390B89D10A3E024B89E3;1754.
  ) 
 Here is how much of TeX's memory you used:
- 17577 strings out of 494847
- 262238 string characters out of 6179081
- 433808 words of memory out of 5000000
- 20236 multiletter control sequences out of 15000+600000
- 18095 words of font info for 107 fonts, out of 8000000 for 9000
+ 17719 strings out of 494847
+ 270414 string characters out of 6179081
+ 439425 words of memory out of 5000000
+ 20329 multiletter control sequences out of 15000+600000
+ 20005 words of font info for 115 fonts, out of 8000000 for 9000
  220 hyphenation exceptions out of 8191
- 60i,11n,94p,1087b,464s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb>
-Output written on /mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/paper.pdf (2 pages, 199478 bytes).
+ 60i,11n,94p,1087b,474s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb>
+Output written on /mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/paper.pdf (4 pages, 940118 bytes).
 PDF statistics:
- 150 PDF objects out of 1000 (max. 8388607)
- 113 compressed objects within 2 object streams
- 18 named destinations out of 1000 (max. 500000)
- 22141 words of extra memory for PDF output out of 24883 (max. 10000000)
+ 231 PDF objects out of 1000 (max. 8388607)
+ 162 compressed objects within 2 object streams
+ 35 named destinations out of 1000 (max. 500000)
+ 22214 words of extra memory for PDF output out of 24883 (max. 10000000)
 
