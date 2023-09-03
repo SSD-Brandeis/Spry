@@ -1782,33 +1782,81 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
         GetMemoryAllocator(rep_->table_options), for_compaction, async_read);
 
 
+    //Self Added Start: timing
+    checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+    //Self Added End: timing
 
     //Self Added Start 
     checking::SystemVerifier::getSystemVerifier()->increaseNumTotalBlockReadCount();
     //Self Added End
+
+    //Self Added Start: timing
+    // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+    //Self Added End: timing
+
 
     if (get_context) {
       switch (TBlocklike::kBlockType) {
         case BlockType::kIndex:
           ++(get_context->get_context_stats_.num_index_read);
 
+          //Self Added Start: timing
+          checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+          // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+          //Self Added End: timing
+
           //Self Added Start 
           checking::SystemVerifier::getSystemVerifier()->increaseNumIndexReadCount();
           //Self Added End
+          
+          //Self Added Start: timing
+          // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+          checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+          //Self Added End: timing
+
           break;
         case BlockType::kFilter:
         case BlockType::kFilterPartitionIndex:
           ++(get_context->get_context_stats_.num_filter_read);
 
+          //Self Added Start: timing
+          checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+          // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+          //Self Added End: timing
+
           //Self Added Start 
           checking::SystemVerifier::getSystemVerifier()->increaseNumFilterReadCount();
           //Self Added End
+
+          //Self Added Start: timing
+          // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+          checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+          //Self Added End: timing
+
           break;
+
         //Self Added Start
         case BlockType::kRangeDeletion:
+
+          //Self Added Start: timing
+          checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+          // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+          //Self Added End: timing
+          
           checking::SystemVerifier::getSystemVerifier()->increaseNumRangeDelReadCount();
+        
+          //Self Added Start: timing
+          // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+          checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+          //Self Added End: timing
+          
           break;
         //Self Added End
+        
+        
+
         default:
           break;
       }
