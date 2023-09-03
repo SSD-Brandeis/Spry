@@ -421,7 +421,7 @@ Status TableCache::Get(
     size_t max_file_size_for_l0_meta_pin) {
 //Self Added Start, Timer
 // std::chrono::_V2::system_clock::time_point  timer_start = std::chrono::high_resolution_clock::now();
-std::chrono::_V2::system_clock::time_point  timer_0_start = std::chrono::high_resolution_clock::now();
+// std::chrono::_V2::system_clock::time_point  timer_0_start = std::chrono::high_resolution_clock::now();
 //Self Added End, Timer
 // std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   auto& fd = file_meta.fd;
@@ -621,12 +621,12 @@ system_verifier->increaseDiskAccessCount();
 // //Self Added End, Timer
 
 
-//Self Added Start, Timer
-std::chrono::_V2::system_clock::time_point  timer_0_end = std::chrono::high_resolution_clock::now();
-std::chrono::nanoseconds duration_0_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_0_end - timer_0_start);
-std::cout << "(TableCache::Get) timer duration0 = " << duration_0_ns.count() << std::endl;
-// timer_0_start = std::chrono::high_resolution_clock::now();
-//Self Added End, Timer
+// //Self Added Start, Timer
+// std::chrono::_V2::system_clock::time_point  timer_0_end = std::chrono::high_resolution_clock::now();
+// std::chrono::nanoseconds duration_0_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_0_end - timer_0_start);
+// std::cout << "(TableCache::Get) timer duration0 = " << duration_0_ns.count() << std::endl;
+// // timer_0_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
 
   return s;
 }
