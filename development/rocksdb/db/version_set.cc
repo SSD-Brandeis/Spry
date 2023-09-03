@@ -2440,7 +2440,7 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
   
   //Self Added Start: timing
   // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+  // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
   //Self Added End: timing
 
 // //Self Added Start, Timer
@@ -2455,7 +2455,7 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
 
 // //Self Added Start, Timer
 // std::chrono::_V2::system_clock::time_point  timer2_start = std::chrono::high_resolution_clock::now();
-std::chrono::_V2::system_clock::time_point  timer2_0_start = std::chrono::high_resolution_clock::now();
+// std::chrono::_V2::system_clock::time_point  timer2_0_start = std::chrono::high_resolution_clock::now();
 // //Self Added End, Timer
 
     if (*max_covering_tombstone_seq > 0) {
@@ -2931,12 +2931,12 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
 // timer2_start = std::chrono::high_resolution_clock::now();
 // //Self Added End, Timer
 
-//Self Added Start, Timer
-std::chrono::_V2::system_clock::time_point  timer2_0_end = std::chrono::high_resolution_clock::now();
-std::chrono::nanoseconds duration2_0_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_0_end - timer2_0_start);
-std::cout << "(Version::Get) timer duration2_0 = " << duration2_0_ns.count() << std::endl;
-// timer2_0_start = std::chrono::high_resolution_clock::now();
-//Self Added End, Timer
+// //Self Added Start, Timer
+// std::chrono::_V2::system_clock::time_point  timer2_0_end = std::chrono::high_resolution_clock::now();
+// std::chrono::nanoseconds duration2_0_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_0_end - timer2_0_start);
+// std::cout << "(Version::Get) timer duration2_0 = " << duration2_0_ns.count() << std::endl;
+// // timer2_0_start = std::chrono::high_resolution_clock::now();
+// //Self Added End, Timer
   }
 
 // //Self Added Start, Timer
