@@ -2409,6 +2409,11 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
 // this->split_plrdf.print();
 // std::cout << "### filtered by SPLIT RDF, level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+  // Self Added Start: timing
+  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+  // Self Added End: timing
       return;
     }
   }
@@ -2423,6 +2428,11 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
 
 // this->top_level_rdf.print();
 // std::cout << "### filtered by TOP Level RDF, hit_file_level = " << fp.GetHitFileLevel() << " current_level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+  // Self Added Start: timing
+  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+  // Self Added End: timing
       return;
     }
   // }
@@ -2438,10 +2448,10 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
   //Self Added End
 
   
-  //Self Added Start: timing
+  // Self Added Start: timing
   // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-  // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-  //Self Added End: timing
+  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+  // Self Added End: timing
 
 // //Self Added Start, Timer
 // std::chrono::_V2::system_clock::time_point  timer_end = std::chrono::high_resolution_clock::now();
@@ -2613,6 +2623,12 @@ std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " <<
 // std::cout << "(Version::Get) timer duration2_5 = " << duration2_ns.count() << std::endl;
 // timer2_start = std::chrono::high_resolution_clock::now();
 // //Self Added End, Timer
+
+
+  // Self Added Start: timing
+  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+  // Self Added End: timing
             return ;   
           }
         }else if(rdf_type != "NONE" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
@@ -2866,6 +2882,12 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
 // timer2_start = std::chrono::high_resolution_clock::now();
 // //Self Added End, Timer
 
+
+  // Self Added Start: timing
+  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+  // Self Added End: timing
+
           return ;   
         }
 
@@ -2902,6 +2924,12 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
 // std::cout << "(Version::Get) timer duration2_6 = " << duration2_ns.count() << std::endl;
 // timer2_start = std::chrono::high_resolution_clock::now();
 // //Self Added End, Timer
+
+
+  // Self Added Start: timing
+  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+  // Self Added End: timing
 
           return;
         }
