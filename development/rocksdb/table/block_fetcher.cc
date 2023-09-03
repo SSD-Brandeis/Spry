@@ -269,6 +269,11 @@ IOStatus BlockFetcher::ReadBlockContents() {
       if (file_->use_direct_io()) {
         PERF_TIMER_GUARD(block_read_time);
         PERF_CPU_TIMER_GUARD(block_read_cpu_time, nullptr);
+        
+        //Self Added Start: timing
+        checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+        // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+        //Self Added End: timing
         //Self Added Start 
         checking::SystemVerifier::getSystemVerifier()->start_retrieve_block();
         //Self Added End
@@ -277,13 +282,23 @@ IOStatus BlockFetcher::ReadBlockContents() {
             &direct_io_buf_, read_options_.rate_limiter_priority);
         //Self Added Start 
         checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
-        //Self Added End
+        //Self Added End        
+        //Self Added Start: timing
+        // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+        checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+        //Self Added End: timing
+
         PERF_COUNTER_ADD(block_read_count, 1);
         used_buf_ = const_cast<char*>(slice_.data());
       } else {
         PrepareBufferForBlockFromFile();
         PERF_TIMER_GUARD(block_read_time);
         PERF_CPU_TIMER_GUARD(block_read_cpu_time, nullptr);
+
+        //Self Added Start: timing
+        checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+        // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+        //Self Added End: timing
         //Self Added Start 
         checking::SystemVerifier::getSystemVerifier()->start_retrieve_block();
         //Self Added End
@@ -293,6 +308,11 @@ IOStatus BlockFetcher::ReadBlockContents() {
         //Self Added Start 
         checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
         //Self Added End
+        //Self Added Start: timing
+        // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+        checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+        //Self Added End: timing
+
         PERF_COUNTER_ADD(block_read_count, 1);
 #ifndef NDEBUG
         if (slice_.data() == &stack_buf_[0]) {
@@ -307,6 +327,10 @@ IOStatus BlockFetcher::ReadBlockContents() {
     }
 
     
+    //Self Added Start: timing
+    checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+    //Self Added End: timing
 
     //Self Added Start xxx
     checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumTotalBlockReadCount();
@@ -360,6 +384,12 @@ IOStatus BlockFetcher::ReadBlockContents() {
       break;
   }
     //Self Added End
+    
+    //Self Added Start: timing
+    // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+    //Self Added End: timing
+    
 
     // TODO: introduce dedicated perf counter for range tombstones
     switch (block_type_) {
