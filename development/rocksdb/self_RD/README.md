@@ -1,5 +1,6 @@
 1. Compile RocksDB first by executing `make static_lib` in parent dir
 2. Compile all examples: `cd examples/; make all`
+Set --gen_workload 1 if the workload hasn't been generated yet
 To Run:
 	./simple_example -i 100000 --RD 100 -P 64 -B 4 -E 1024 -T 5 --selectivity 0.001 --workload_filename "workload/workload1.txt" --insert_before_range_delete 0.9 --gen_workload 0
 
@@ -290,6 +291,128 @@ To Run:
 ./simple_example -i 100000 --RD 9 -P 32 -B 4 -E 1024 -T 2 --selectivity 0.1 --workload_filename "workload/workload339.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log339
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+./simple_example -i 100000 --RD 1 -P 512 -B 4 -E 1024 -T 2 --selectivity 0.001 --workload_filename "workload/workload411.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log411
+./simple_example -i 100000 --RD 5 -P 512 -B 4 -E 1024 -T 2 --selectivity 0.001 --workload_filename "workload/workload412.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log412
+./simple_example -i 100000 --RD 10 -P 512 -B 4 -E 1024 -T 2 --selectivity 0.001 --workload_filename "workload/workload413.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log413
+./simple_example -i 100000 --RD 100 -P 512 -B 4 -E 1024 -T 2 --selectivity 0.001 --workload_filename "workload/workload414.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log414
+./simple_example -i 100000 --RD 500 -P 512 -B 4 -E 1024 -T 2 --selectivity 0.001 --workload_filename "workload/workload415.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log415
+./simple_example -i 100000 --RD 1000 -P 512 -B 4 -E 1024 -T 2 --selectivity 0.001 --workload_filename "workload/workload416.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log416
+./simple_example -i 100000 --RD 5000 -P 512 -B 4 -E 1024 -T 2 --selectivity 0.001 --workload_filename "workload/workload417.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log417
+./simple_example -i 100000 --RD 9000 -P 512 -B 4 -E 1024 -T 2 --selectivity 0.001 --workload_filename "workload/workload418.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log418
+
+
+./simple_example -i 100000 --RD 1 -P 512 -B 16 -E 256 -T 2 --selectivity 0.001 --workload_filename "workload/workload421.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log421
+./simple_example -i 100000 --RD 5 -P 512 -B 16 -E 256 -T 2 --selectivity 0.001 --workload_filename "workload/workload422.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log422
+./simple_example -i 100000 --RD 10 -P 512 -B 16 -E 256 -T 2 --selectivity 0.001 --workload_filename "workload/workload423.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log423
+./simple_example -i 100000 --RD 100 -P 512 -B 16 -E 256 -T 2 --selectivity 0.001 --workload_filename "workload/workload424.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log424
+./simple_example -i 100000 --RD 500 -P 512 -B 16 -E 256 -T 2 --selectivity 0.001 --workload_filename "workload/workload425.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log425
+./simple_example -i 100000 --RD 1000 -P 512 -B 16 -E 256 -T 2 --selectivity 0.001 --workload_filename "workload/workload426.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log426
+./simple_example -i 100000 --RD 5000 -P 512 -B 16 -E 256 -T 2 --selectivity 0.001 --workload_filename "workload/workload427.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log427
+./simple_example -i 100000 --RD 9000 -P 512 -B 16 -E 256 -T 2 --selectivity 0.001 --workload_filename "workload/workload428.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log428
+
+
+./simple_example -i 100000 --RD 1 -P 512 -B 64 -E 64 -T 2 --selectivity 0.001 --workload_filename "workload/workload431.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log431
+./simple_example -i 100000 --RD 5 -P 512 -B 64 -E 64 -T 2 --selectivity 0.001 --workload_filename "workload/workload432.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log432
+./simple_example -i 100000 --RD 10 -P 512 -B 64 -E 64 -T 2 --selectivity 0.001 --workload_filename "workload/workload433.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log433
+./simple_example -i 100000 --RD 100 -P 512 -B 64 -E 64 -T 2 --selectivity 0.001 --workload_filename "workload/workload434.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log434
+./simple_example -i 100000 --RD 500 -P 512 -B 64 -E 64 -T 2 --selectivity 0.001 --workload_filename "workload/workload435.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log435
+./simple_example -i 100000 --RD 1000 -P 512 -B 64 -E 64 -T 2 --selectivity 0.001 --workload_filename "workload/workload436.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log436
+./simple_example -i 100000 --RD 5000 -P 512 -B 64 -E 64 -T 2 --selectivity 0.001 --workload_filename "workload/workload437.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log437
+./simple_example -i 100000 --RD 9000 -P 512 -B 64 -E 64 -T 2 --selectivity 0.001 --workload_filename "workload/workload438.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log438
+
+
+./simple_example -i 100000 --RD 1 -P 512 -B 256 -E 16 -T 2 --selectivity 0.001 --workload_filename "workload/workload441.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log441
+./simple_example -i 100000 --RD 5 -P 512 -B 256 -E 16 -T 2 --selectivity 0.001 --workload_filename "workload/workload442.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log442
+./simple_example -i 100000 --RD 10 -P 512 -B 256 -E 16 -T 2 --selectivity 0.001 --workload_filename "workload/workload443.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log443
+./simple_example -i 100000 --RD 100 -P 512 -B 256 -E 16 -T 2 --selectivity 0.001 --workload_filename "workload/workload444.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log444
+./simple_example -i 100000 --RD 500 -P 512 -B 256 -E 16 -T 2 --selectivity 0.001 --workload_filename "workload/workload445.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log445
+./simple_example -i 100000 --RD 1000 -P 512 -B 256 -E 16 -T 2 --selectivity 0.001 --workload_filename "workload/workload446.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log446
+./simple_example -i 100000 --RD 5000 -P 512 -B 256 -E 16 -T 2 --selectivity 0.001 --workload_filename "workload/workload447.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log447
+./simple_example -i 100000 --RD 9000 -P 512 -B 256 -E 16 -T 2 --selectivity 0.001 --workload_filename "workload/workload448.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log448
+
+
+
+
+
+
+
+
+
+
+./simple_example -i 100000 --RD 100 -P 512 -B 4 -E 1024 -T 2 --selectivity 0.001 --workload_filename "workload/workload511.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log511
+./simple_example -i 100000 --RD 100 -P 512 -B 4 -E 1024 -T 2 --selectivity 0.005 --workload_filename "workload/workload512.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log512
+./simple_example -i 100000 --RD 100 -P 512 -B 4 -E 1024 -T 2 --selectivity 0.009 --workload_filename "workload/workload513.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log513
+
+
+./simple_example -i 100000 --RD 100 -P 512 -B 16 -E 256 -T 2 --selectivity 0.001 --workload_filename "workload/workload521.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log521
+./simple_example -i 100000 --RD 100 -P 512 -B 16 -E 256 -T 2 --selectivity 0.005 --workload_filename "workload/workload522.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log522
+./simple_example -i 100000 --RD 100 -P 512 -B 16 -E 256 -T 2 --selectivity 0.009 --workload_filename "workload/workload523.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log523
+
+
+./simple_example -i 100000 --RD 100 -P 512 -B 64 -E 64 -T 2 --selectivity 0.001 --workload_filename "workload/workload531.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log531
+./simple_example -i 100000 --RD 100 -P 512 -B 64 -E 64 -T 2 --selectivity 0.005 --workload_filename "workload/workload532.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log532
+./simple_example -i 100000 --RD 100 -P 512 -B 64 -E 64 -T 2 --selectivity 0.009 --workload_filename "workload/workload533.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log533
+
+
+./simple_example -i 100000 --RD 100 -P 512 -B 256 -E 16 -T 2 --selectivity 0.001 --workload_filename "workload/workload541.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log541
+./simple_example -i 100000 --RD 100 -P 512 -B 256 -E 16 -T 2 --selectivity 0.005 --workload_filename "workload/workload542.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log542
+./simple_example -i 100000 --RD 100 -P 512 -B 256 -E 16 -T 2 --selectivity 0.009 --workload_filename "workload/workload543.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log543
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+./simple_example -i 100000 --RD 10 -P 512 -B 4 -E 1024 -T 2 --selectivity 0.001 --workload_filename "workload/workload611.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log611
+./simple_example -i 100000 --RD 10 -P 512 -B 4 -E 1024 -T 2 --selectivity 0.005 --workload_filename "workload/workload612.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log612
+./simple_example -i 100000 --RD 10 -P 512 -B 4 -E 1024 -T 2 --selectivity 0.009 --workload_filename "workload/workload613.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log613
+./simple_example -i 100000 --RD 10 -P 512 -B 4 -E 1024 -T 2 --selectivity 0.01 --workload_filename "workload/workload614.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log614
+./simple_example -i 100000 --RD 10 -P 512 -B 4 -E 1024 -T 2 --selectivity 0.05 --workload_filename "workload/workload615.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log615
+./simple_example -i 100000 --RD 10 -P 512 -B 4 -E 1024 -T 2 --selectivity 0.09 --workload_filename "workload/workload616.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log616
+
+
+./simple_example -i 100000 --RD 10 -P 512 -B 16 -E 256 -T 2 --selectivity 0.001 --workload_filename "workload/workload621.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log621
+./simple_example -i 100000 --RD 10 -P 512 -B 16 -E 256 -T 2 --selectivity 0.005 --workload_filename "workload/workload622.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log622
+./simple_example -i 100000 --RD 10 -P 512 -B 16 -E 256 -T 2 --selectivity 0.009 --workload_filename "workload/workload623.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log623
+./simple_example -i 100000 --RD 10 -P 512 -B 16 -E 256 -T 2 --selectivity 0.01 --workload_filename "workload/workload624.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log624
+./simple_example -i 100000 --RD 10 -P 512 -B 16 -E 256 -T 2 --selectivity 0.05 --workload_filename "workload/workload625.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log625
+./simple_example -i 100000 --RD 10 -P 512 -B 16 -E 256 -T 2 --selectivity 0.09 --workload_filename "workload/workload626.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log626
+
+
+./simple_example -i 100000 --RD 10 -P 512 -B 64 -E 64 -T 2 --selectivity 0.001 --workload_filename "workload/workload631.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log631
+./simple_example -i 100000 --RD 10 -P 512 -B 64 -E 64 -T 2 --selectivity 0.005 --workload_filename "workload/workload632.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log632
+./simple_example -i 100000 --RD 10 -P 512 -B 64 -E 64 -T 2 --selectivity 0.009 --workload_filename "workload/workload633.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log633
+./simple_example -i 100000 --RD 10 -P 512 -B 64 -E 64 -T 2 --selectivity 0.01 --workload_filename "workload/workload634.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log634
+./simple_example -i 100000 --RD 10 -P 512 -B 64 -E 64 -T 2 --selectivity 0.05 --workload_filename "workload/workload635.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log635
+./simple_example -i 100000 --RD 10 -P 512 -B 64 -E 64 -T 2 --selectivity 0.09 --workload_filename "workload/workload636.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log636
+
+
+./simple_example -i 100000 --RD 10 -P 512 -B 256 -E 16 -T 2 --selectivity 0.001 --workload_filename "workload/workload641.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log641
+./simple_example -i 100000 --RD 10 -P 512 -B 256 -E 16 -T 2 --selectivity 0.005 --workload_filename "workload/workload642.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log642
+./simple_example -i 100000 --RD 10 -P 512 -B 256 -E 16 -T 2 --selectivity 0.009 --workload_filename "workload/workload643.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log643
+./simple_example -i 100000 --RD 10 -P 512 -B 256 -E 16 -T 2 --selectivity 0.01 --workload_filename "workload/workload644.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log644
+./simple_example -i 100000 --RD 10 -P 512 -B 256 -E 16 -T 2 --selectivity 0.05 --workload_filename "workload/workload645.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log645
+./simple_example -i 100000 --RD 10 -P 512 -B 256 -E 16 -T 2 --selectivity 0.09 --workload_filename "workload/workload646.txt" --insert_before_range_delete 0.1 --gen_workload 0 > log646
 
 
 

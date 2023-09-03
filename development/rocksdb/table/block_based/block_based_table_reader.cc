@@ -1007,7 +1007,7 @@ Status BlockBasedTable::ReadRangeDelBlock(
     InternalIterator* meta_iter,
     const InternalKeyComparator& internal_comparator,
     BlockCacheLookupContext* lookup_context) {
-std::cout << "ReadRangeDelBlock " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << "ReadRangeDelBlock " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   Status s;
   BlockHandle range_del_handle;
   s = FindOptionalMetaBlock(meta_iter, kRangeDelBlockName, &range_del_handle);

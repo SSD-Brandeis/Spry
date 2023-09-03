@@ -243,6 +243,7 @@ namespace checking {
       result << sep << bracket << prefix << "duration__get_rdf" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*get_total_duration__get_rdf() / N_repetitions << "\n";
       result << sep << bracket << prefix << "duration__get_max_seq" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*get_total_duration__get_max_seq() / N_repetitions  << "\n";
       result << sep << bracket << prefix << "duration__retrieve_block" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*get_total_duration__retrieve_block() / N_repetitions  << "\n";
+      result << sep << bracket << prefix << "duration__find_table" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*get_total_duration__find_table() / N_repetitions  << "\n";
       result << sep << bracket << prefix << "duration__remaining_get_path" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*get_total_duration__remaining_get_path() / N_repetitions  << "\n";
       result << "\n";
 
@@ -387,10 +388,15 @@ namespace checking {
     unsigned long long total_duation__retrieve_block = 0;
 
 
+    std::chrono::_V2::system_clock::time_point  start__find_table = std::chrono::high_resolution_clock::now();
+    std::chrono::_V2::system_clock::time_point  stop__find_table = std::chrono::high_resolution_clock::now();
+    std::chrono::nanoseconds duration__find_table_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(stop__find_table - start__find_table);
+    unsigned long long total_duation__find_table = 0;
+
+
     std::chrono::_V2::system_clock::time_point  start__remaining_get_path = std::chrono::high_resolution_clock::now();
     std::chrono::_V2::system_clock::time_point  stop__remaining_get_path = std::chrono::high_resolution_clock::now();
     std::chrono::nanoseconds duration__remaining_get_path_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(stop__remaining_get_path - start__remaining_get_path);
-    // unsigned long long duration__retrieve_block = duration__retrieve_block_us.count();
     unsigned long long total_duation__remaining_get_path = 0;
 
 
@@ -441,6 +447,22 @@ namespace checking {
       duration__retrieve_block_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(stop__retrieve_block - start__retrieve_block);
 // std::cout << "duration__retrieve_block_us.count() = " << duration__retrieve_block_us.count() << " " << __FILE__ << " " << __LINE__ << " " << __func__ << std::endl;
       total_duation__retrieve_block += duration__retrieve_block_ns.count();
+    }
+
+    void reset_total_duration__find_table(){
+      total_duation__find_table = 0;
+    }
+    unsigned long long get_total_duration__find_table(){
+      return total_duation__find_table;
+    }
+    void start_find_table(){
+      start__find_table = std::chrono::high_resolution_clock::now();
+    }
+    void stop_find_table(){
+      stop__find_table = std::chrono::high_resolution_clock::now();
+      duration__find_table_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(stop__find_table - start__find_table);
+// std::cout << "duration__remaining_get_path_us.count() = " << duration__remaining_get_path_us.count() << " " << __FILE__ << " " << __LINE__ << " " << __func__ << std::endl;
+      total_duation__find_table += duration__find_table_ns.count();
     }
 
 

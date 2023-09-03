@@ -643,6 +643,7 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
     system_verifier->reset_total_duration__get_rdf();
     system_verifier->reset_total_duration__get_max_seq();
     system_verifier->reset_total_duration__retrieve_block();
+    system_verifier->reset_total_duration__find_table();
     system_verifier->reset_total_duration__remaining_get_path();
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     disk_access_count = 0;
@@ -812,6 +813,7 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
     system_verifier->reset_total_duration__get_rdf();
     system_verifier->reset_total_duration__get_max_seq();
     system_verifier->reset_total_duration__retrieve_block();
+    system_verifier->reset_total_duration__find_table();
     system_verifier->reset_total_duration__remaining_get_path();
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     disk_access_count = 0;
@@ -990,6 +992,7 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
     system_verifier->reset_total_duration__get_rdf();
     system_verifier->reset_total_duration__get_max_seq();
     system_verifier->reset_total_duration__retrieve_block();
+    system_verifier->reset_total_duration__find_table();
     system_verifier->reset_total_duration__remaining_get_path();
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     disk_access_count = 0;
@@ -1164,6 +1167,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
     system_verifier->reset_total_duration__get_rdf();
     system_verifier->reset_total_duration__get_max_seq();
     system_verifier->reset_total_duration__retrieve_block();
+    system_verifier->reset_total_duration__find_table();
     system_verifier->reset_total_duration__remaining_get_path();
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     disk_access_count = 0;
@@ -1501,7 +1505,7 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
 
   std::cout << "!!! Insertion Workload Ends." << std::endl;
 
-  std::this_thread::sleep_for(std::chrono::seconds(60));  // Sleep for 10 second
+  std::this_thread::sleep_for(std::chrono::seconds(10));  // Sleep for 10 second
 
   std::cout << "!!! After sleep." << std::endl;
 
@@ -1521,7 +1525,7 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
   
 
 
-  std::this_thread::sleep_for(std::chrono::seconds(60));  // Sleep for 10 second
+  std::this_thread::sleep_for(std::chrono::seconds(10));  // Sleep for 10 second
 
   db->printAllFileRanges();
 

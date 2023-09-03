@@ -118,7 +118,8 @@ EmuEnv::EmuEnv()
   // Other DBOptions
     create_if_missing = true;
     delayed_write_rate = 0;
-    max_open_files = 99999;    // resetting to 20
+    // max_open_files = 99999;    // resetting to 20 //-1 for always open (no closing)
+    max_open_files = 20;   
     max_file_opening_threads = 80;
     bytes_per_sync = 0;
     stats_persist_period_sec = 600;
