@@ -615,7 +615,8 @@ void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOp
 
   auto start_pq = std::chrono::high_resolution_clock::now();
   auto stop_pq = std::chrono::high_resolution_clock::now();
-  auto duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+  // auto duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+  auto duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
   unsigned long long point_query_time = duration_pq.count();
 
 std::cout << "!!! Testing On Existing Keys " << std::endl;
@@ -704,6 +705,7 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 //         system_verifier->stop_remaining_get_path(); 
 //         stop_pq = std::chrono::high_resolution_clock::now();
 //         duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+//         duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
 //         point_query_time += duration_pq.count();
 //         size_t separator_pos = value.find("|");
 //         time_stamp = value.substr(separator_pos + 1);
@@ -722,6 +724,7 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 //       disk_access_count += system_verifier->getDiskAccessCount();
 //       // stop_pq = std::chrono::high_resolution_clock::now();
 //       // duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+//       // duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
 //       // point_query_time += duration_pq.count();
 
 // // testing_result_file << i << " -----" << std::endl;    
@@ -872,6 +875,7 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 //         system_verifier->stop_remaining_get_path(); 
 //         stop_pq = std::chrono::high_resolution_clock::now();
 //         duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+//         duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
 //         point_query_time += duration_pq.count();
 //         size_t separator_pos = value.find("|");
 //         time_stamp = value.substr(separator_pos + 1);
@@ -890,6 +894,7 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 //       disk_access_count += system_verifier->getDiskAccessCount();
 //       // stop_pq = std::chrono::high_resolution_clock::now();
 //       // duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+//       // duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
 //       // point_query_time += duration_pq.count();
 
 // // testing_result_file << i << " -----" << std::endl;    
@@ -1047,7 +1052,8 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
         s = db->Get(read_op, searching_key.str(), &value);
         system_verifier->stop_remaining_get_path(); 
         stop_pq = std::chrono::high_resolution_clock::now();
-        duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+        // duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+        duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
         size_t separator_pos = value.find("|");
         time_stamp = value.substr(separator_pos + 1);
@@ -1066,6 +1072,7 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
       disk_access_count += system_verifier->getDiskAccessCount();
       // stop_pq = std::chrono::high_resolution_clock::now();
       // duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+      // duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
       // point_query_time += duration_pq.count();
 
 // testing_result_file << i << " -----" << std::endl;    
@@ -1219,7 +1226,8 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
         s = db->Get(read_op, searching_key.str(), &value);
         system_verifier->stop_remaining_get_path(); 
         stop_pq = std::chrono::high_resolution_clock::now();
-        duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+        // duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+        duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
         size_t separator_pos = value.find("|");
         time_stamp = value.substr(separator_pos + 1);
@@ -1238,6 +1246,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
       disk_access_count += system_verifier->getDiskAccessCount();
       // stop_pq = std::chrono::high_resolution_clock::now();
       // duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+      // duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
       // point_query_time += duration_pq.count();
 
 // testing_result_file << i << " -----" << std::endl;    
@@ -2331,6 +2340,7 @@ void configOptions(EmuEnv* _env, Options *op, BlockBasedTableOptions *t_op, Writ
 
 //   auto stop_pq = std::chrono::high_resolution_clock::now();
 //   auto duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+//   auto duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
 //   unsigned long long point_query_time = duration_pq.count();
 //   std::cout << "done " << num << std::endl;
 //   std::cout << "time elapsed = " << point_query_time << std::endl;
@@ -2355,6 +2365,7 @@ void configOptions(EmuEnv* _env, Options *op, BlockBasedTableOptions *t_op, Writ
 //   std::lower_bound(v.begin(), v.end(), 100000);
 //   stop_pq = std::chrono::high_resolution_clock::now();
 //   duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+//   duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
 //   point_query_time = duration_pq.count();
 //   std::cout << "done " << 1000000 << std::endl;
 //   std::cout << "time elapsed = " << point_query_time << std::endl;
@@ -2378,6 +2389,7 @@ void configOptions(EmuEnv* _env, Options *op, BlockBasedTableOptions *t_op, Writ
 
 //   auto stop_pq = std::chrono::high_resolution_clock::now();
 //   auto duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+//   auto duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
 //   unsigned long long point_query_time = duration_pq.count();
 //   std::cout << "done " << num << std::endl;
 //   std::cout << "time elapsed = " << point_query_time << std::endl;
