@@ -30,6 +30,14 @@
 #include "rocksdb/version.h"
 #include "rocksdb/wide_columns.h"
 
+//self added start
+// #include "../../db/column_family.h"d
+// #include "../rocksdb/sys_rdfilter.h"
+// #include "rocksdb/sys_rdfilter.h"
+#include "sys_rdfilter.h"
+//self added end
+
+
 #ifdef _WIN32
 // Windows API macro interference
 #undef DeleteFile
@@ -334,17 +342,59 @@ class DB {
   virtual Status printPLRDF() { return Status::NotSupported(); }
   virtual uint getFlushQueueSize() { return -1; }
   virtual uint getCompactionQueueSize() { return -1; }
-  virtual bool existFlushJob() {return false;};
-  virtual bool existCompactionJob() {return false;};
-  virtual uint getTotalNumberOfSSTFiles() {return -1;};
-  virtual int getPLRDFNumberOfTotalRanges() {return -1;};
-  virtual int getSplitPLRDFNumberOfTotalRanges() {return -1;};
-  virtual int getTopLevelRDFNumberOfTotalRanges() {return -1;};
-  virtual int getSkylineRDFNumberOfTotalRanges() {return -1;};
-  virtual std::vector<int> getLogOfNumbersOfRangesInPLRDF() {return {-1, -1, -1};};
-  virtual std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() {return {-1, -1, -1};};
-  virtual std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() {return {-1, -1, -1};};
-  virtual std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() {return {-1, -1, -1};};
+  virtual bool existFlushJob() {return false;}
+  virtual bool existCompactionJob() {return false;}
+  virtual uint getTotalNumberOfSSTFiles() {return -1;}
+  virtual int getPLRDFNumberOfTotalRanges() {return -1;}
+  virtual int getSplitPLRDFNumberOfTotalRanges() {return -1;}
+  virtual int getTopLevelRDFNumberOfTotalRanges() {return -1;}
+  virtual int getSkylineRDFNumberOfTotalRanges() {return -1;}
+  virtual std::vector<int> getLogOfNumbersOfRangesInPLRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() {return {-1, -1, -1};}
+  
+
+
+
+
+
+  // using t3ll = std::tuple<int, int, int>;
+  virtual const PLRDF *getPLRDF() {return NULL;}
+  virtual const PLRDF *getSplitPLRDF() {return NULL;}
+  virtual const PLRDF *getTopLevelRDF() {return NULL;}
+  virtual const std::vector<t3ll> *getSkylineRDF() {return NULL;}
+  virtual const std::vector<int> *getSkylineNumbersOfRangesInRDFLog() {return NULL;}
+  // virtual void setPLRDF( std::vector<int> v){
+  //   if(v.size() == 0){
+  //     return;
+  //   }
+  // };
+  virtual void setPLRDF( PLRDF *plrdf){
+    if(plrdf == NULL){
+      return;
+    } 
+  }
+  virtual void setSplitPLRDF( PLRDF *plrdf){
+    if(plrdf == NULL){
+      return;
+    } 
+  }
+  virtual void setTopLevelRDF( PLRDF *plrdf){
+    if(plrdf == NULL){
+      return;
+    }
+  }
+  virtual void setSkylineRDF( std::vector<t3ll> *skyline_rdf){
+    if(skyline_rdf == NULL){
+      return;
+    }
+  }
+  virtual void setSkylineNumbersOfRangesInRDFLog( std::vector<int> *v){
+    if(v == NULL){
+      return;
+    }
+  }
   //self Added End
 
   // ListColumnFamilies will open the DB specified by argument name

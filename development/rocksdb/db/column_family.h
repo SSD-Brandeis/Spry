@@ -17,9 +17,11 @@
 #include <iostream>
 #include <iomanip>
 
-//Self Added
+//Self Added Start
 #include <tuple>
 #include <queue>
+// #include "include/rocksdb/sys_rdfilter.h"
+//Self Added End
 
 
 #include "cache/cache_reservation_manager.h"
@@ -36,6 +38,13 @@
 #include "trace_replay/block_cache_tracer.h"
 #include "util/hash_containers.h"
 #include "util/thread_local.h"
+
+//Self Added Start
+// #include "include/rocksdb/sys_rdfilter.h"
+// #include "rocksdb/sys_rdfilter.h"
+#include "../include/rocksdb/sys_rdfilter.h"
+// #include "../include/rocksdb/sys_rdfilter.cc"
+//Self Added End
 
 namespace ROCKSDB_NAMESPACE {
 
@@ -59,70 +68,71 @@ namespace ROCKSDB_NAMESPACE {
     }
   };
 
-  using pll = std::pair<long long, long long>; //[start, end)
-  using t3ll = std::tuple<long long, long long, long long>; //([start, end), time)
 
-  // class PerlevelRangeDeleteFilterByVector {  
-  class PLRDF {  
-    private:
-      std::unordered_map<uint64_t, std::vector<pll>> rd_filter_level0; //for level 0, (file_num, RD_list), FileMetaData* -> fd .GetNumber();
+  // using pll = std::pair<long long, long long>; //[start, end)
+  // using t3ll = std::tuple<long long, long long, long long>; //([start, end), time)
 
-      std::vector<std::vector<pll>> rd_filter; //for level > 0, list of range delete (start, end), all entries are non-overlapping
-      std::vector<int> numbers_of_ranges_in_RDF_log; //for level > 0, number of ranges in RDF
+  // // class PerlevelRangeDeleteFilterByVector {  
+  // class PLRDF {  
+  //   private:
+  //     std::unordered_map<uint64_t, std::vector<pll>> rd_filter_level0; //for level 0, (file_num, RD_list), FileMetaData* -> fd .GetNumber();
+
+  //     std::vector<std::vector<pll>> rd_filter; //for level > 0, list of range delete (start, end), all entries are non-overlapping
+  //     std::vector<int> numbers_of_ranges_in_RDF_log; //for level > 0, number of ranges in RDF
       
-      void addRangeDelete_internal(uint level, std::vector<pll> &range_delete_list_in);
-      std::vector<pll> sortAndMerge(std::vector<pll> &range_delete_list_in);
-      void addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll> &range_delete_list_in);
-      void addRangeDelete(std::vector<pll> &range_delete_list, long long start, long long end);
-      void print_internal();
+  //     void addRangeDelete_internal(uint level, std::vector<pll> &range_delete_list_in);
+  //     std::vector<pll> sortAndMerge(std::vector<pll> &range_delete_list_in);
+  //     void addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll> &range_delete_list_in);
+  //     void addRangeDelete(std::vector<pll> &range_delete_list, long long start, long long end);
+  //     void print_internal();
 
 
-      /*
-       * adjust range deletes as per the compaction
-       */
-      void adjustRangeDeletesForLevel0Input(uint olevel, std::vector<uint64_t> file_numbers);
-      void adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<long long, long long>> one_level_compaction_file_boundaries);
+  //     /*
+  //      * adjust range deletes as per the compaction
+  //      */
+  //     void adjustRangeDeletesForLevel0Input(uint olevel, std::vector<uint64_t> file_numbers);
+  //     void adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<long long, long long>> one_level_compaction_file_boundaries);
 
-    public:
-      // std::vector<pll> getRangeDeleteList();
-      void insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pll> &range_delete_list_in, std::vector<uint64_t> exist_level0_file_nums);
+  //   public:
+  //     // std::vector<pll> getRangeDeleteList();
+  //     void insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pll> &range_delete_list_in, std::vector<uint64_t> exist_level0_file_nums);
 
-      void addRangeDelete(uint level, long long start, long long end);
-      void addRangeDelete(uint level, std::vector<pll> &range_delete_list_in);
-      void shiftRDFToOutputLevel(std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors);
-      void deleteLastLevelIfEqualsBottomLevel(uint bottom_level);
-      // void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data);
-      void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, std::vector<pll>, std::vector<uint64_t>> *file_meta_data);
+  //     void addRangeDelete(uint level, long long start, long long end);
+  //     void addRangeDelete(uint level, std::vector<pll> &range_delete_list_in);
+  //     void shiftRDFToOutputLevel(std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors);
+  //     void deleteLastLevelIfEqualsBottomLevel(uint bottom_level);
+  //     // void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data);
+  //     void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, std::vector<pll>, std::vector<uint64_t>> *file_meta_data);
 
-      std::vector<pll> getLevelRanges(int outlevel);
-      void setLevelRanges(std::vector<pll> level_ranges_in, int outlevel);
+  //     std::vector<pll> getLevelRanges(int outlevel);
+  //     void setLevelRanges(std::vector<pll> level_ranges_in, int outlevel);
 
-      int getNumberOfTotalLevels();
-      int getNumberOfTotalRanges();
+  //     int getNumberOfTotalLevels();
+  //     int getNumberOfTotalRanges();
 
-      void printLevel0();
-      void print();
+  //     void printLevel0();
+  //     void print();
 
-      bool isEntryAlive(uint level, long long key);
+  //     bool isEntryAlive(uint level, long long key);
 
 
-      void splitRangesOnLevel(uint level, std::vector<long long> keys);
-      // int getRangeDeleteCount();
+  //     void splitRangesOnLevel(uint level, std::vector<long long> keys);
+  //     // int getRangeDeleteCount();
 
-      void logCurrentTotalNumbersOfRanges();
-      std::vector<int> getNumbersOfRangesInRDFLog();
-  };
+  //     void logCurrentTotalNumbersOfRanges();
+  //     std::vector<int> getNumbersOfRangesInRDFLog();
+  // };
 
-  class SKyLineRDF {
-    private:
-      std::vector<t3ll> range_delete_list_in;
+  // class SKyLineRDF {
+  //   private:
+  //     std::vector<t3ll> range_delete_list_in;
 
-    public:      
-      void addRangeDelete(std::vector<t3ll> &range_delete_list_in);
-      bool isEntryAlive(long long key);
-      void print();
-  };
-  //Self Added End
+  //   public:      
+  //     void addRangeDelete(std::vector<t3ll> &range_delete_list_in);
+  //     bool isEntryAlive(long long key);
+  //     void print();
+  // };
+  // //Self Added End
 
 
 
@@ -842,6 +852,8 @@ class ColumnFamilyData {
   std::tuple<int, std::vector<pll>, std::vector<uint64_t>> get_split__compaction_direct_delete_RD_vector(){
     return split__compaction_direct_delete_RD_vector;
   }
+
+
   
 
 
@@ -873,6 +885,39 @@ class ColumnFamilyData {
 
 
 
+  const PLRDF *getPLRDF(){
+    return &plrdf_prime;
+  }
+  const PLRDF *getSplitPLRDF(){
+    return &split_plrdf_prime;
+  }
+  const PLRDF *getTopLevelRDF(){
+    return &top_level_rdf_prime;
+  }
+  const std::vector<t3ll> *getSkylineRDF(){
+    return &skyline_rdf_prime;
+  }
+  const std::vector<int> *getSkylineNumbersOfRangesInRDFLog(){
+    return &skyline__numbers_of_ranges_in_rdf_log;
+  }
+
+  void setPLRDF(PLRDF &plrdf_in){
+    plrdf_prime = plrdf_in;
+  }
+  void setSplitPLRDF(PLRDF &plrdf_in){
+    split_plrdf_prime = plrdf_in;
+  }
+  void setTopLevelRDF(PLRDF &plrdf_in){
+    top_level_rdf_prime = plrdf_in;
+  }
+  void setSkylineRDF(std::vector<t3ll> &skyline_rdf_in){
+    skyline_rdf_prime = skyline_rdf_in;
+  }
+  void setSkylineNumbersOfRangesInRDFLog(std::vector<int> &skyline__numbers_of_ranges_in_rdf_log_in){
+    skyline__numbers_of_ranges_in_rdf_log = skyline__numbers_of_ranges_in_rdf_log_in;
+  }
+
+  
 
 
   void printPLRDF(){

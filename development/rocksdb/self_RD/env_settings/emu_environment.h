@@ -291,6 +291,8 @@ public:
   string workload_file_name = "workload.txt";
   double insert_before_rangeDelete = 0.5;
   bool gen_workload = true;
+  bool skip_reading_RD_blocks = false;
+  int number_of_PQ = 5000;
   //YuCheng Added End
 
 // old options

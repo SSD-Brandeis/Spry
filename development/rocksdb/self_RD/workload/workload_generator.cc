@@ -108,12 +108,18 @@ int WorkloadGenerator::generateWorkload(long long insert_count, long entry_size,
   long i_delete = 0;
   // long insert_group_size = 7;
 // cout << range_delete_count << endl;
-  long insert_group_size = (((long)(insert_count)) - ((long)numberOfInsertInTheBeginning))/range_delete_count;
+  long insert_group_size = INT_MAX;
+  if(range_delete_count != 0){
+    insert_group_size = (((long)(insert_count)) - ((long)numberOfInsertInTheBeginning))/range_delete_count;
+  }
   assert(insert_group_size > 0);
 // cout << insert_group_size << endl;
   // long delete_group_size = 3;
   long delete_group_size = 1;
 
+  if(range_delete_count == 0){
+    numberOfInsertInTheBeginning = insert_count;
+  }
   for(; i_insert < numberOfInsertInTheBeginning; i_insert++){
       if (correlation == 0){
         sortkey = generateKey();
@@ -123,14 +129,25 @@ int WorkloadGenerator::generateWorkload(long long insert_count, long entry_size,
 
       deletekey = std::to_string(i_insert + 1);
 
-      long value_size = entry_size - 2*sizeof(long);
+      long value_size = entry_size - key_size;
       if(key_size == -1){
-        value_size = entry_size - key_size;
+        value_size = entry_size;
+      }
+      if(value_size < 1){
+        std::cout << "Error: value size is less than 1" << std::endl;
+        std::cerr << "Error: value size is less than 1" << std::endl;
+        exit(1);
       }
       string value = generateValue(value_size);
       // workload_file << "I " << sortkey << " " << deletekey << " " << value << std::endl;
       workload_file << "I " << sortkey << " " << value << std::endl;
       existingKeys.insert(stol(sortkey));
+  }
+
+  if(range_delete_count == 0){
+    workload_file.close();
+
+    return 1;
   }
 
   while( (i_insert < insert_count) || (i_delete < range_delete_count) ){
@@ -179,11 +196,16 @@ int WorkloadGenerator::generateWorkload(long long insert_count, long entry_size,
 
       deletekey = std::to_string(i_insert + 1);
 
-      long value_size = entry_size - 2*sizeof(long);
-      string value = generateValue(value_size);
+      long value_size = entry_size - key_size;
       if(key_size == -1){
-        value_size = entry_size - key_size;
+        value_size = entry_size;
       }
+      if(value_size < 1){
+        std::cout << "Error: value size is less than 1" << std::endl;
+        std::cerr << "Error: value size is less than 1" << std::endl;
+        exit(1);
+      }
+      string value = generateValue(value_size);
       // workload_file << "I " << sortkey << " " << deletekey << " " << value << std::endl;
       workload_file << "I " << sortkey << " " << value << std::endl;
       existingKeys.insert(stol(sortkey));

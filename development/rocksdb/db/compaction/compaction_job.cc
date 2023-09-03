@@ -2080,7 +2080,26 @@ if( (current_level+1) !=  compaction->output_level()){
       std::vector<uint64_t> flie_numbers;
       for (auto file_meta : *(compaction->inputs(lvl)))
       {
-        smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+        //xxx
+        auto RDs_seq_vec = compaction->column_family_data()
+            ->get_RDs_by_fd((u_int64_t)file_meta->fd.GetNumber());
+        long long max_end_key = 0;
+        for(auto RD_seq : RDs_seq_vec){
+          // auto start_key = std::get<0>(RD_seq);
+          auto end_key = std::get<1>(RD_seq);
+          // auto seq = std::get<2>(RD_seq);
+          max_end_key = max(max_end_key, end_key);
+        }
+        //xxx
+
+        if(max_end_key != std::stoll(file_meta->largest.user_key().ToString())){
+          // std::cout << "Err1: max_end_key != file_meta->largest.user_key().ToString()" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), max_end_key));
+        }else{
+          smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+        }
+
+        // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
         flie_numbers.push_back(file_meta->fd.GetNumber());
 
         file_in_out_ptr->fd_in.push_back(file_meta->fd.GetNumber());
