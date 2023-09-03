@@ -2125,14 +2125,14 @@ if( (current_level+1) !=  compaction->output_level()){
     // std::cout << "output file fd: i) compaction outputs ii) penultimate level outputs " 
     // << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // std::cout << "i) ";
-    for(const auto fmeta: compaction_output_file_meta_data) {
+    for(const auto &fmeta: compaction_output_file_meta_data) {
       file_in_out_ptr->file_out.push_back(std::make_tuple(fmeta.fd.GetNumber(), std::stoll(fmeta.smallest.user_key().ToString()), std::stoll(fmeta.largest.user_key().ToString())));
 
       // std::cout << fmeta.fd.GetNumber() << " (" << fmeta.smallest.user_key().ToString() << ", " << fmeta.largest.user_key().ToString() << ") "<<" ";
     }
     // std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // std::cout << "ii) ";
-    for(const auto fmeta: penultimate_level_output_file_meta_data) {
+    for(const auto &fmeta: penultimate_level_output_file_meta_data) {
       file_in_out_ptr->file_out.push_back(std::make_tuple(fmeta.fd.GetNumber(), std::stoll(fmeta.smallest.user_key().ToString()), std::stoll(fmeta.largest.user_key().ToString())));
 
       // std::cout << fmeta.fd.GetNumber() << " (" << fmeta.smallest.user_key().ToString() << ", " << fmeta.largest.user_key().ToString() << ") "<<" ";
