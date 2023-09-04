@@ -642,6 +642,12 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
     system_verifier->setRDFTypeChosed(t);
     system_verifier->resetAllCount();
     system_verifier->resetAllDuration();
+    
+    if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
+      s = db->SetOptions({{"max_open_files", "1"}}); // is there any compaction happended after this????
+    }else{
+      s = db->SetOptions({{"max_open_files", "20"}}); // is there any compaction happended after this????
+    }
     // system_verifier->reset_total_duration__get_rdf();
     // system_verifier->reset_total_duration__get_max_seq();
     // system_verifier->reset_total_duration__retrieve_block();
@@ -822,6 +828,12 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
     system_verifier->setRDFTypeChosed(t);
     system_verifier->resetAllCount();
     system_verifier->resetAllDuration();
+    
+    if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
+      s = db->SetOptions({{"max_open_files", "1"}}); // is there any compaction happended after this????
+    }else{
+      s = db->SetOptions({{"max_open_files", "20"}}); // is there any compaction happended after this????
+    }
     // system_verifier->reset_total_duration__get_rdf();
     // system_verifier->reset_total_duration__get_max_seq();
     // system_verifier->reset_total_duration__retrieve_block();
@@ -1011,6 +1023,12 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
     system_verifier->setRDFTypeChosed(t);
     system_verifier->resetAllCount();
     system_verifier->resetAllDuration();
+    
+    if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
+      s = db->SetOptions({{"max_open_files", "1"}}); // is there any compaction happended after this????
+    }else{
+      s = db->SetOptions({{"max_open_files", "20"}}); // is there any compaction happended after this????
+    }
     // system_verifier->reset_total_duration__get_rdf();
     // system_verifier->reset_total_duration__get_max_seq();
     // system_verifier->reset_total_duration__retrieve_block();
@@ -1196,6 +1214,12 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
     system_verifier->setRDFTypeChosed(t);
     system_verifier->resetAllCount();
     system_verifier->resetAllDuration();
+    
+    if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
+      s = db->SetOptions({{"max_open_files", "1"}}); // is there any compaction happended after this????
+    }else{
+      s = db->SetOptions({{"max_open_files", "20"}}); // is there any compaction happended after this????
+    }
     // system_verifier->reset_total_duration__get_rdf();
     // system_verifier->reset_total_duration__get_max_seq();
     // system_verifier->reset_total_duration__retrieve_block();
@@ -1525,6 +1549,8 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
       default:
         std::cerr << "ERROR: Case match NOT found !!" << std::endl;
         std::cerr << "instruction = " << instruction << std::endl;
+        std::cout << "ERROR: Case match NOT found !!" << std::endl;
+        std::cout << "instruction = " << instruction << std::endl;
         break;
     }
 
