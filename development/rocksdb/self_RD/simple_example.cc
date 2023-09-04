@@ -529,6 +529,7 @@ void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOp
   checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
   int KEY_SIZE = checking::SystemVerifier::getKeySize();
 
+  system_verifier->setRunningPQ();
 
   system_verifier->enable_log__deleted_keys__max_sequnce_number();
   system_verifier->setRDFTypeChosed(0); // 0: NONE
@@ -637,14 +638,15 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 
 
     // system_verifier->resetDiskAccessCount();
-    system_verifier->resetFilteredByRDFCount();
+    // system_verifier->resetFilteredByRDFCount();
     system_verifier->setRDFTypeChosed(t);
     system_verifier->resetAllCount();
-    system_verifier->reset_total_duration__get_rdf();
-    system_verifier->reset_total_duration__get_max_seq();
-    system_verifier->reset_total_duration__retrieve_block();
-    system_verifier->reset_total_duration__find_table();
-    system_verifier->reset_total_duration__remaining_get_path();
+    system_verifier->resetAllDuration();
+    // system_verifier->reset_total_duration__get_rdf();
+    // system_verifier->reset_total_duration__get_max_seq();
+    // system_verifier->reset_total_duration__retrieve_block();
+    // system_verifier->reset_total_duration__find_table();
+    // system_verifier->reset_total_duration__remaining_get_path();
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
@@ -705,9 +707,12 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
         s = db->Get(read_op, searching_key.str(), &value); 
         system_verifier->stop_remaining_get_path(); 
         stop_pq = std::chrono::high_resolution_clock::now();
-        duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+        // duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
         duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
+        if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
+          continue;
+        }
         size_t separator_pos = value.find("|");
         time_stamp = value.substr(separator_pos + 1);
         value = value.substr(0, separator_pos);
@@ -721,6 +726,9 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
         if(value != gt_value){
           testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
         }
+      }
+      if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
+        continue;
       }
       disk_access_count += system_verifier->getDiskAccessCount();
       // stop_pq = std::chrono::high_resolution_clock::now();
@@ -807,14 +815,15 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
 
 
     // system_verifier->resetDiskAccessCount();
-    system_verifier->resetFilteredByRDFCount();
+    // system_verifier->resetFilteredByRDFCount();
     system_verifier->setRDFTypeChosed(t);
     system_verifier->resetAllCount();
-    system_verifier->reset_total_duration__get_rdf();
-    system_verifier->reset_total_duration__get_max_seq();
-    system_verifier->reset_total_duration__retrieve_block();
-    system_verifier->reset_total_duration__find_table();
-    system_verifier->reset_total_duration__remaining_get_path();
+    system_verifier->resetAllDuration();
+    // system_verifier->reset_total_duration__get_rdf();
+    // system_verifier->reset_total_duration__get_max_seq();
+    // system_verifier->reset_total_duration__retrieve_block();
+    // system_verifier->reset_total_duration__find_table();
+    // system_verifier->reset_total_duration__remaining_get_path();
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
@@ -876,9 +885,12 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
         s = db->Get(read_op, searching_key.str(), &value);
         system_verifier->stop_remaining_get_path(); 
         stop_pq = std::chrono::high_resolution_clock::now();
-        duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
+        // duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
         duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
+        if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
+          continue;
+        }
         size_t separator_pos = value.find("|");
         time_stamp = value.substr(separator_pos + 1);
         value = value.substr(0, separator_pos);
@@ -892,6 +904,9 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
         if(value != gt_value){
           testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
         }
+      }
+      if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
+        continue;
       }
       disk_access_count += system_verifier->getDiskAccessCount();
       // stop_pq = std::chrono::high_resolution_clock::now();
@@ -986,14 +1001,15 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
 
 
     // system_verifier->resetDiskAccessCount();
-    system_verifier->resetFilteredByRDFCount();
+    // system_verifier->resetFilteredByRDFCount();
     system_verifier->setRDFTypeChosed(t);
     system_verifier->resetAllCount();
-    system_verifier->reset_total_duration__get_rdf();
-    system_verifier->reset_total_duration__get_max_seq();
-    system_verifier->reset_total_duration__retrieve_block();
-    system_verifier->reset_total_duration__find_table();
-    system_verifier->reset_total_duration__remaining_get_path();
+    system_verifier->resetAllDuration();
+    // system_verifier->reset_total_duration__get_rdf();
+    // system_verifier->reset_total_duration__get_max_seq();
+    // system_verifier->reset_total_duration__retrieve_block();
+    // system_verifier->reset_total_duration__find_table();
+    // system_verifier->reset_total_duration__remaining_get_path();
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
@@ -1058,6 +1074,9 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
         // duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
         duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
+        if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
+          continue;
+        }
         size_t separator_pos = value.find("|");
         time_stamp = value.substr(separator_pos + 1);
         value = value.substr(0, separator_pos);
@@ -1071,6 +1090,9 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
         if(value != gt_value){
           testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
         }
+      }
+      if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
+        continue;
       }
       disk_access_count += system_verifier->getDiskAccessCount();
       // stop_pq = std::chrono::high_resolution_clock::now();
@@ -1161,14 +1183,15 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 
 
     // system_verifier->resetDiskAccessCount();
-    system_verifier->resetFilteredByRDFCount();
+    // system_verifier->resetFilteredByRDFCount();
     system_verifier->setRDFTypeChosed(t);
     system_verifier->resetAllCount();
-    system_verifier->reset_total_duration__get_rdf();
-    system_verifier->reset_total_duration__get_max_seq();
-    system_verifier->reset_total_duration__retrieve_block();
-    system_verifier->reset_total_duration__find_table();
-    system_verifier->reset_total_duration__remaining_get_path();
+    system_verifier->resetAllDuration();
+    // system_verifier->reset_total_duration__get_rdf();
+    // system_verifier->reset_total_duration__get_max_seq();
+    // system_verifier->reset_total_duration__retrieve_block();
+    // system_verifier->reset_total_duration__find_table();
+    // system_verifier->reset_total_duration__remaining_get_path();
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
@@ -1233,6 +1256,9 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
         // duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
         duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
+        if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
+          continue;
+        }
         size_t separator_pos = value.find("|");
         time_stamp = value.substr(separator_pos + 1);
         value = value.substr(0, separator_pos);
@@ -1246,6 +1272,9 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
         if(value != gt_value){
           testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
         }
+      }
+      if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
+        continue;
       }
       disk_access_count += system_verifier->getDiskAccessCount();
       // stop_pq = std::chrono::high_resolution_clock::now();
@@ -1324,6 +1353,8 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
   testing_result_file2 << "}"<< std::endl;
   testing_result_file2.close();
   // Status s = DB::Open(op, kDBPath, &db);
+
+  system_verifier->resetRunningPQ();
 }
 
 
@@ -1353,6 +1384,7 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
   assert(workload_file);
 
   checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
+  system_verifier->resetRunningPQ();
 
   Iterator* it = db->NewIterator(read_op);  // for range reads
   uint64_t counter = 0;                     // for progress bar

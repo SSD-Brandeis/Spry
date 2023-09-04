@@ -539,7 +539,7 @@ Status TableCache::Get(
     }else if(rdf_type == "SKYLINE_RDF"){
       rdf_skip_range_deletions = true;
 
-    }else if(rdf_type != "NONE" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
+    }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
       std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
                 << "rdf_type = " << rdf_type << std::endl;
     }

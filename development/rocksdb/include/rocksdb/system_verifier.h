@@ -54,6 +54,7 @@ namespace checking {
     int disk_access_count = 0;
     int read_entry_block_count = 0;
     int filtered_by_RDF_count = 0;
+    int block_based_table_open_count = 0;
 
     //increasing in block_based_table_reader.cc
     int num_index_read_count = 0;
@@ -97,6 +98,17 @@ namespace checking {
 
     static int getKeySize(){
       return KEY_SIZE;
+    }
+
+    bool flag_is_running_PQ = false;
+    bool isRunningPQ(){
+      return flag_is_running_PQ;
+    }
+    void setRunningPQ(){
+      flag_is_running_PQ = true;
+    }
+    void resetRunningPQ(){
+      flag_is_running_PQ = false;
     }
 
 
@@ -162,7 +174,6 @@ namespace checking {
     }
     
 
-
     void increaseFilteredByRDFCount(){
       filtered_by_RDF_count++;
     }
@@ -172,6 +183,19 @@ namespace checking {
     int getFilteredByRDFCount(){
       return filtered_by_RDF_count;
     }
+
+    void increaseBlockBasedTableOpenCount(){
+      block_based_table_open_count++;
+    }
+    void resetBlockBasedTableOpenCount(){
+      block_based_table_open_count = 0;
+    }
+    int getBlockBasedTableOpenCount(){
+      return block_based_table_open_count;
+    }
+
+
+
 
 
     void increaseFetcherNumCompressionDictBlockReadCount(){
@@ -251,6 +275,8 @@ namespace checking {
       result << sep << bracket << prefix << "num_filter_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*num_filter_read_count / N_repetitions << "\n";
       result << sep << bracket << prefix << "num_range_del_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*num_range_del_read_count / N_repetitions << "\n";
       result << sep << bracket << prefix << "num_total_block_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*num_total_block_read_count / N_repetitions << "\n";
+      result << sep << bracket << prefix << "block_based_table_open_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*block_based_table_open_count / N_repetitions << "\n";
+
       result << "\n";
 
       result << sep << bracket << prefix << "filtered_by_RDF_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*filtered_by_RDF_count / N_repetitions << "\n";
@@ -272,6 +298,9 @@ namespace checking {
       resetDiskAccessCount();
       resetReadEntryBlockCount();
 
+      resetFilteredByRDFCount();
+      resetBlockBasedTableOpenCount();
+
       resetNumIndexReadCount();
       resetNumFilterReadCount();
       resetNumRangeDelReadCount();
@@ -287,6 +316,15 @@ namespace checking {
       resetFetcherNumTotalBlockReadCount();
     }
 
+    void resetAllDuration(){
+      reset_total_duration__get_rdf();
+      reset_total_duration__get_max_seq();
+      reset_total_duration__retrieve_block();
+      reset_total_duration__find_table();
+      reset_total_duration__remaining_get_path();
+    }
+
+
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "NONE"}};
@@ -295,7 +333,7 @@ namespace checking {
     // std::unordered_map<int, std::string> RDFTypes = { {0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}, {3, "TOP_LEVEL_RDF"}}; // <-- debugging
     // std::unordered_map<int, std::string> RDFTypes = { {0, "SPLIT_PLRDF"}, {1, "TOP_LEVEL_RDF"}}; // <-- debugging
     // std::unordered_map<int, std::string> RDFTypes = { {0, "SKYLINE_RDF"}}; // <-- debugging
-    std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}, {3, "TOP_LEVEL_RDF"}, {4, "SKYLINE_RDF"}, {5, "NONE2"}};
+    std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}, {3, "TOP_LEVEL_RDF"}, {4, "SKYLINE_RDF"},  {5, "NONE_DUMMY"}, {6, "NONE2"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "TOP_LEVEL_RDF"}}; 
 
     int RDFType_chosed = 0;

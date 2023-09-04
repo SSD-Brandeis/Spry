@@ -1701,6 +1701,8 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
     CachableEntry<TBlocklike>* out_parsed_block, GetContext* get_context,
     BlockCacheLookupContext* lookup_context, bool for_compaction,
     bool use_cache, bool async_read) const {
+
+
   assert(out_parsed_block);
   assert(out_parsed_block->IsEmpty());
 
@@ -1712,12 +1714,14 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
         /*contents=*/nullptr, async_read);
 
     if (!s.ok()) {
+
       return s;
     }
 
     if (out_parsed_block->GetValue() != nullptr ||
         out_parsed_block->GetCacheHandle() != nullptr) {
       assert(s.ok());
+
       return s;
     }
   }
@@ -1726,6 +1730,7 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
 
   const bool no_io = ro.read_tier == kBlockCacheTier;
   if (no_io) {
+
     return Status::Incomplete("no blocking io");
   }
 
@@ -1761,12 +1766,16 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
   }
 
   if (!s.ok()) {
+
+
     return s;
   }
 
   out_parsed_block->SetOwnedValue(std::move(block));
 
   assert(s.ok());
+
+
   return s;
 }
 
