@@ -761,6 +761,9 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 
   // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
     }  
+    if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
+      continue;
+    }
     double block_read_cpu_time = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), ".*block_read_cpu_time = ([0-9.]+)");
 
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
@@ -940,6 +943,9 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
 
   // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
     }  
+    if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
+      continue;
+    }
     double block_read_cpu_time = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), ".*block_read_cpu_time = ([0-9.]+)");
 
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
@@ -1126,6 +1132,9 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
 
   // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
     }  
+    if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
+      continue;
+    }
     double block_read_cpu_time = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), ".*block_read_cpu_time = ([0-9.]+)");
 
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
@@ -1308,6 +1317,9 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 
   // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*count/1 << std::endl;
     }  
+    if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
+      continue;
+    }
     double block_read_cpu_time = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), ".*block_read_cpu_time = ([0-9.]+)");
 
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
