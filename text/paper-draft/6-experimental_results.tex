@@ -213,7 +213,99 @@ Now, when we decrease the value of alpha, making the first RD appeared earlier i
 \end{figure}
 
 
+
+
+
+
 % Comparing Figure \ref{fig:elapsed_time__currently_deleted_keys__B4_E1024}, \ref{fig:elapsed_time__currently_deleted_keys__B16_E256} and \ref{fig:elapsed_time__currently_deleted_keys__B64_E64}, we can see that when the sizes of pages and write buffers are fixed and varying on entry size, RDFs gain a small advantage when entry size becomes smaller, 
 
 
 Comparing Figure \ref{fig:IOs__currently_deleted_keys__B4_E1024}, \ref{fig:IOs__currently_deleted_keys__B16_E256} and \ref{fig:IOs__currently_deleted_keys__B64_E64}, we can see that when the sizes of pages and write buffers are fixed and only varying on entry size, RDFs gain a small advantage when entry size becomes smaller, total numbers of IOs decrease slightly.
+
+
+
+
+\begin{figure*}[t!]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[height=1.8in]{Figures/Varying_on_numbers_of_RDs/T2_P512_B4_E1024_2048p0KB_alpha0p9/T2_P512_B4_E1024_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys.png}
+        \caption{ Timing breakdown, tested on all of the existing keys when $\alpha$ = 0.9, T = 2, P = 512, B = 4, E = 1024. Over 7 workloads.}
+        \label{fig:elapsed_time__currently_deleted_keys__P512_B4_E1024__unnormalized}
+    \end{subfigure}%
+    ~ 
+    % \vspace{1em}
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[height=1.8in]{Figures/Varying_on_numbers_of_RDs/T2_P512_B16_E256_2048p0KB_alpha0p9/T2_P512_B16_E256_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys.png}
+        \caption{ Timing breakdown, tested on all of the existing keys when $\alpha$ = 0.9, T = 2, P = 512, B = 4, E = 1024. Over 7 workloads.}
+        \label{fig:elapsed_time__currently_deleted_keys__P512_B16_E256__normalized}
+    \end{subfigure}%
+    % ~ 
+    \vspace{1em}
+    % \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[height=1.8in]{Figures/Varying_on_numbers_of_RDs/T2_P512_B64_E64_2048p0KB_alpha0p9/T2_P512_B64_E64_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys.png}
+        \caption{ Timing breakdown, tested on all of the existing keys when $\alpha$ = 0.9, T = 2, P = 512, B = 4, E = 1024. Over 7 workloads.}
+        \label{fig:elapsed_time__currently_deleted_keys__P512_B64_E64__unnormalized}
+    \end{subfigure}%
+    ~ 
+    % \vspace{1em}
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[height=1.8in]{Figures/Varying_on_numbers_of_RDs/T2_P512_B64_E64_2048p0KB_alpha0p9/T2_P512_B64_E64_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys.png}
+        \caption{ Timing breakdown, tested on all of the existing keys when $\alpha$ = 0.9, T = 2, P = 512, B = 4, E = 1024. Over 7 workloads.}
+        \label{fig:elapsed_time__currently_deleted_keys__P512_B64_E64__unnormalized}
+    \end{subfigure}
+    \caption{Normalized timing breakdown, varying on numbers of RDs for workload with $\alpha$ = 0.9, T = 2, P = 512, BxE = 4096.} 
+    \label{fig:elapsed_time_breakdown__unnormalized__currently_deleted_keys__varying_on_numbers_of_RDs}
+\end{figure*}
+
+
+
+\begin{figure*}[t!]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[height=1.8in]{Figures/Varying_on_numbers_of_RDs/T2_P512_B4_E1024_2048p0KB_alpha0p9/T2_P512_B4_E1024_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys__normalized.png}
+        \caption{ Timing breakdown, tested on all of the existing keys when $\alpha$ = 0.9, T = 2, P = 512, B = 4, E = 1024. Over 7 workloads.}
+        \label{fig:elapsed_time__currently_deleted_keys__P512_B4_E1024__normalized}
+    \end{subfigure}%
+    ~ 
+    % \vspace{1em}
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[height=1.8in]{Figures/Varying_on_numbers_of_RDs/T2_P512_B16_E256_2048p0KB_alpha0p9/T2_P512_B16_E256_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys__normalized.png}
+        \caption{ Timing breakdown, tested on all of the existing keys when $\alpha$ = 0.9, T = 2, P = 512, B = 4, E = 1024. Over 7 workloads.}
+        \label{fig:elapsed_time__currently_deleted_keys__P512_B16_E256__normalized}
+    \end{subfigure}%
+    % ~ 
+    \vspace{1em}
+    % \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[height=1.8in]{Figures/Varying_on_numbers_of_RDs/T2_P512_B64_E64_2048p0KB_alpha0p9/T2_P512_B64_E64_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys__normalized.png}
+        \caption{ Timing breakdown, tested on all of the existing keys when $\alpha$ = 0.9, T = 2, P = 512, B = 4, E = 1024. Over 7 workloads.}
+        \label{fig:elapsed_time__currently_deleted_keys__P512_B64_E64__normalized}
+    \end{subfigure}%
+    ~ 
+    % \vspace{1em}
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[height=1.8in]{Figures/Varying_on_numbers_of_RDs/T2_P512_B64_E64_2048p0KB_alpha0p9/T2_P512_B64_E64_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys__normalized.png}
+        \caption{ Timing breakdown, tested on all of the existing keys when $\alpha$ = 0.9, T = 2, P = 512, B = 4, E = 1024. Over 7 workloads.}
+        \label{fig:elapsed_time__currently_deleted_keys__P512_B64_E64__normalized}
+    \end{subfigure}
+    \caption{Unnormalized timing breakdown, varying on numbers of RDs for workload with $\alpha$ = 0.9, T = 2, P = 512, BxE = 4096.} 
+    \label{fig:elapsed_time_breakdown__normalized__currently_deleted_keys__varying_on_numbers_of_RDs}
+\end{figure*}
+
+
+
+With Figure \ref{fig:elapsed_time_breakdown__unnormalized__currently_deleted_keys__varying_on_numbers_of_RDs} and Figure \ref{fig:elapsed_time_breakdown__normalized__currently_deleted_keys__varying_on_numbers_of_RDs}, we see when E becomes smaller, the total size of the file becomes smaller, so is the trend of the total elapsed time. While the percentage of CPU times comparing to Disk IOs time decreases too; This may cause by the fact that the retrieved data has to be processed.
+

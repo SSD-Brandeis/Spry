@@ -435,9 +435,26 @@ Status TableCache::Get(
   // sequence numbers, we cannot use it if we need to fetch the sequence.
   if (ioptions_.row_cache && !get_context->NeedToReadSequence()) {
     auto user_key = ExtractUserKey(k);
+
+    //Self Added Start: timing
+    checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+    //Self Added End: timing
+    //Self Added Start
+    checking::SystemVerifier::getSystemVerifier()->start_get_from_row_cache();
+    //Self Added End
+
     CreateRowCacheKeyPrefix(options, fd, k, get_context, row_cache_key);
     done = GetFromRowCache(user_key, row_cache_key, row_cache_key.Size(),
                            get_context);
+
+    //Self Added Start
+    checking::SystemVerifier::getSystemVerifier()->stop_get_from_row_cache();
+    //Self Added End
+    //Self Added Start: timing
+    // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+    //Self Added End: timing
 
 //Self Added
 // if(done == true){
@@ -648,6 +665,12 @@ system_verifier->increaseDiskAccessCount();
       get_context->SetReplayLog(row_cache_entry);  // nullptr if no cache.
       s = t->Get(options, k, get_context, prefix_extractor.get(), skip_filters);
       get_context->SetReplayLog(nullptr);
+
+      
+      // //Self Added Start: timing
+      // // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+      // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+      // //Self Added End: timing
     } else if (options.read_tier == kBlockCacheTier && s.IsIncomplete()) {
 // std::cout << " MarkKeyMayExist in disk Get " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       // Couldn't find Table in cache but treat as kFound if no_io set
