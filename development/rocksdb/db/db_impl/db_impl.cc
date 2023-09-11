@@ -4906,6 +4906,97 @@ std::vector<int> DBImpl::getLogOfNumbersOfRangesInSkylineRDF(){
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfNumbersOfRangesInSkylineRDF();
 }
+
+
+const PLRDF *DBImpl::getPLRDF(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  return cfd->getPLRDF();
+}
+const PLRDF *DBImpl::getSplitPLRDF(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  return cfd->getSplitPLRDF();
+}
+const PLRDF *DBImpl::getTopLevelRDF(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  return cfd->getTopLevelRDF();
+}
+const std::vector<t3ll> *DBImpl::getSkylineRDF(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  return cfd->getSkylineRDF();
+}
+const std::vector<int> *DBImpl::getSkylineNumbersOfRangesInRDFLog(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  return cfd->getSkylineNumbersOfRangesInRDFLog();
+}
+
+// void DBImpl::setPLRDF(std::vector<int> v){
+//   if(v.size() != 0){
+//     std::cout << "" << std::endl;
+//   }
+// }
+
+void DBImpl::setPLRDF( PLRDF *plrdf){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  cfd->setPLRDF(*plrdf);
+  
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  sv->current->setPLRDF(*plrdf);
+  // return Status::OK();
+}
+void DBImpl::setSplitPLRDF( PLRDF *plrdf){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+
+  cfd->setSplitPLRDF(*plrdf);
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  sv->current->setSplitPLRDF(*plrdf);
+  // return Status::OK();
+}
+void DBImpl::setTopLevelRDF( PLRDF *plrdf){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+
+  cfd->setTopLevelRDF(*plrdf);
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  sv->current->setTopLevelRDF(*plrdf);
+  // return Status::OK();
+}
+void DBImpl::setSkylineRDF( std::vector<t3ll> *skyline_rdf){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+
+  cfd->setSkylineRDF(*skyline_rdf);
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  sv->current->setSkylineRDF(*skyline_rdf);
+  // return Status::OK();
+}
+void DBImpl::setSkylineNumbersOfRangesInRDFLog( std::vector<int> *skyline__numbers_of_ranges_in_rdf_log){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+
+  cfd->setSkylineNumbersOfRangesInRDFLog(*skyline__numbers_of_ranges_in_rdf_log);
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  sv->current->setSkylineNumbersOfRangesInRDFLog(*skyline__numbers_of_ranges_in_rdf_log);
+  // return Status::OK();
+}
+
+
 //Self Added End
 
 

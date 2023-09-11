@@ -3,7 +3,9 @@ Making range deletes better in LSMs
 
 To Run:
     1. Go to directory ./development/rocksdb/
-    2. run: make static_lib -j9
+    2. run: 
+        i) make clean             (Make sure running this command whenever your DB file relation has broken)
+        ii) make static_lib -j9
     3. Go to directory ./development/rocksdb/self_RD
     4. run: make simple_example -j9
     5. run workload: 

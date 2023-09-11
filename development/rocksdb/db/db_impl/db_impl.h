@@ -550,6 +550,19 @@ class DBImpl : public DB {
   std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() override;
   std::mutex self_single_flush_mutex_;
+
+  const PLRDF * getPLRDF() override;
+  const PLRDF *getSplitPLRDF() override;
+  const PLRDF *getTopLevelRDF() override;
+  const std::vector<t3ll> *getSkylineRDF() override;
+  const std::vector<int> *getSkylineNumbersOfRangesInRDFLog() override;
+  using DB::setPLRDF;
+  // void setPLRDF( std::vector<int> v) override;
+  void setPLRDF( PLRDF *plrdf) override;
+  void setSplitPLRDF( PLRDF *plrdf) override;
+  void setTopLevelRDF( PLRDF *plrdf) override;
+  void setSkylineRDF( std::vector<t3ll> *skylineRDF) override;
+  void setSkylineNumbersOfRangesInRDFLog( std::vector<int> *logOfNumbersOfRangesInPLRDF) override;
   //Self Added End
 
   virtual Status DisableFileDeletions() override;

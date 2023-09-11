@@ -1,0 +1,1568 @@
+{
+"start" : "start"
+,"T" : 5
+,"P" : 64
+,"B" : 4
+,"E" : 1024
+,"write_buffer_size" : 262144
+,"correlation" : 0
+,"num_inserts" : 100
+,"rd_count" : 10
+,"selectivity" : 0.01
+,"workload_file_name" : "workload/workload1.txt"
+,"insert_before_rangeDelete" : 0.9
+,"gen_workload" : 1
+,"max_background_jobs" : 1
+,"target_file_size_base" : 262144
+,"target_file_size_multiplier" : 1
+,"max_bytes_for_level_base" : 167772160
+,"num_levels" : 10
+,"max_write_buffer_number" : 2
+,"level0_file_num_compaction_trigger" : 1
+,"PLRDF Number Of Total Ranges" : 9
+,"Split PLRDF Number Of Total Ranges" : 10
+,"TopLevel RDF Number Of Total Ranges" : 10
+,"Skyline RDF Number Of Total Ranges" : 10
+,"Log Of Numbers Of Ranges In PLRDF" : [0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7, 7, 8, 8, 9]
+,"Log Of Numbers Of Ranges In SplitPLRDF" : [0, 0, 0, 1, 1, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 8, 8, 9, 9, 10]
+,"Log Of Numbers Of Ranges In TopLevelRDF" : [0, 0, 0, 1, 1, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 8, 8, 9, 9, 10]
+,"Log Of Numbers Of Ranges In SkylineRDF" : [0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10]
+,"N_repetitions" : 3
+,"Total number of SST Files" : 1
+
+," (Exist Keys ) NONE  elapsed time" : 24.0328
+," (Exist Keys ) NONE  filtered by RDF count" : 0.00
+," (Exist Keys ) NONE  number of PQ" : 90
+," (Exist Keys ) NONE disk_access_count": 30.00
+," (Exist Keys ) NONE read_entry_block_count": 0.00
+
+," (Exist Keys ) NONE duration__get_rdf": 0.00
+," (Exist Keys ) NONE duration__get_max_seq": 14833.33
+," (Exist Keys ) NONE duration__retrieve_block": 22664166.67
+," (Exist Keys ) NONE duration__find_table": 60466.67
+," (Exist Keys ) NONE duration__get_from_row_cache": 0.00
+," (Exist Keys ) NONE duration__remaining_get_path": 1095900.00
+
+," (Exist Keys ) NONE num_index_read_count": 0.00
+," (Exist Keys ) NONE num_filter_read_count": 0.00
+," (Exist Keys ) NONE num_range_del_read_count": 0.00
+," (Exist Keys ) NONE num_total_block_read_count": 90.00
+," (Exist Keys ) NONE block_based_table_open_count": 0.00
+
+," (Exist Keys ) NONE filtered_by_RDF_count": 0.00
+
+," (Exist Keys ) NONE fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys ) NONE fetcher__num_index_read_count": 0.00
+," (Exist Keys ) NONE fetcher__num_filter_read_count": 0.00
+," (Exist Keys ) NONE fetcher__num_range_del_read_count": 0.00
+," (Exist Keys ) NONE fetcher__num_data_read_count": 90.00
+," (Exist Keys ) NONE fetcher__num_total_block_read_count": 90.00
+
+
+," (Exist Keys ) NONE  block_read_cpu_time" : 0.00
+," (Exist Keys ) NONE Avg_read_count" : 90.00
+," (Exist Keys ) NONE Avg_read_bytes" : 372599.00
+," (Exist Keys ) NONE2  elapsed time" : 22.21
+," (Exist Keys ) NONE2  filtered by RDF count" : 0.00
+," (Exist Keys ) NONE2  number of PQ" : 90
+," (Exist Keys ) NONE2 disk_access_count": 30.00
+," (Exist Keys ) NONE2 read_entry_block_count": 0.00
+
+," (Exist Keys ) NONE2 duration__get_rdf": 0.00
+," (Exist Keys ) NONE2 duration__get_max_seq": 14533.33
+," (Exist Keys ) NONE2 duration__retrieve_block": 20771433.33
+," (Exist Keys ) NONE2 duration__find_table": 65566.67
+," (Exist Keys ) NONE2 duration__get_from_row_cache": 0.00
+," (Exist Keys ) NONE2 duration__remaining_get_path": 1134733.33
+
+," (Exist Keys ) NONE2 num_index_read_count": 0.00
+," (Exist Keys ) NONE2 num_filter_read_count": 0.00
+," (Exist Keys ) NONE2 num_range_del_read_count": 0.00
+," (Exist Keys ) NONE2 num_total_block_read_count": 90.00
+," (Exist Keys ) NONE2 block_based_table_open_count": 0.00
+
+," (Exist Keys ) NONE2 filtered_by_RDF_count": 0.00
+
+," (Exist Keys ) NONE2 fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys ) NONE2 fetcher__num_index_read_count": 0.00
+," (Exist Keys ) NONE2 fetcher__num_filter_read_count": 0.00
+," (Exist Keys ) NONE2 fetcher__num_range_del_read_count": 0.00
+," (Exist Keys ) NONE2 fetcher__num_data_read_count": 90.00
+," (Exist Keys ) NONE2 fetcher__num_total_block_read_count": 90.00
+
+
+," (Exist Keys ) NONE2  block_read_cpu_time" : 0.00
+," (Exist Keys ) NONE2 Avg_read_count" : 90.00
+," (Exist Keys ) NONE2 Avg_read_bytes" : 372599.00
+," (Exist Keys ) PLRDF  elapsed time" : 22.43
+," (Exist Keys ) PLRDF  filtered by RDF count" : 1.00
+," (Exist Keys ) PLRDF  number of PQ" : 90
+," (Exist Keys ) PLRDF disk_access_count": 30.00
+," (Exist Keys ) PLRDF read_entry_block_count": 0.00
+
+," (Exist Keys ) PLRDF duration__get_rdf": 43966.67
+," (Exist Keys ) PLRDF duration__get_max_seq": 0.00
+," (Exist Keys ) PLRDF duration__retrieve_block": 21071266.67
+," (Exist Keys ) PLRDF duration__find_table": 57866.67
+," (Exist Keys ) PLRDF duration__get_from_row_cache": 0.00
+," (Exist Keys ) PLRDF duration__remaining_get_path": 1065766.67
+
+," (Exist Keys ) PLRDF num_index_read_count": 0.00
+," (Exist Keys ) PLRDF num_filter_read_count": 0.00
+," (Exist Keys ) PLRDF num_range_del_read_count": 0.00
+," (Exist Keys ) PLRDF num_total_block_read_count": 90.00
+," (Exist Keys ) PLRDF block_based_table_open_count": 0.00
+
+," (Exist Keys ) PLRDF filtered_by_RDF_count": 1.00
+
+," (Exist Keys ) PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys ) PLRDF fetcher__num_index_read_count": 0.00
+," (Exist Keys ) PLRDF fetcher__num_filter_read_count": 0.00
+," (Exist Keys ) PLRDF fetcher__num_range_del_read_count": 0.00
+," (Exist Keys ) PLRDF fetcher__num_data_read_count": 90.00
+," (Exist Keys ) PLRDF fetcher__num_total_block_read_count": 90.00
+
+
+," (Exist Keys ) PLRDF  block_read_cpu_time" : 0.00
+," (Exist Keys ) PLRDF Avg_read_count" : 90.00
+," (Exist Keys ) PLRDF Avg_read_bytes" : 372599.00
+," (Exist Keys ) SPLIT_PLRDF  elapsed time" : 22.87
+," (Exist Keys ) SPLIT_PLRDF  filtered by RDF count" : 0.00
+," (Exist Keys ) SPLIT_PLRDF  number of PQ" : 90
+," (Exist Keys ) SPLIT_PLRDF disk_access_count": 30.00
+," (Exist Keys ) SPLIT_PLRDF read_entry_block_count": 0.00
+
+," (Exist Keys ) SPLIT_PLRDF duration__get_rdf": 48533.33
+," (Exist Keys ) SPLIT_PLRDF duration__get_max_seq": 0.00
+," (Exist Keys ) SPLIT_PLRDF duration__retrieve_block": 21473300.00
+," (Exist Keys ) SPLIT_PLRDF duration__find_table": 57433.33
+," (Exist Keys ) SPLIT_PLRDF duration__get_from_row_cache": 0.00
+," (Exist Keys ) SPLIT_PLRDF duration__remaining_get_path": 1093400.00
+
+," (Exist Keys ) SPLIT_PLRDF num_index_read_count": 0.00
+," (Exist Keys ) SPLIT_PLRDF num_filter_read_count": 0.00
+," (Exist Keys ) SPLIT_PLRDF num_range_del_read_count": 0.00
+," (Exist Keys ) SPLIT_PLRDF num_total_block_read_count": 90.00
+," (Exist Keys ) SPLIT_PLRDF block_based_table_open_count": 0.00
+
+," (Exist Keys ) SPLIT_PLRDF filtered_by_RDF_count": 0.00
+
+," (Exist Keys ) SPLIT_PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys ) SPLIT_PLRDF fetcher__num_index_read_count": 0.00
+," (Exist Keys ) SPLIT_PLRDF fetcher__num_filter_read_count": 0.00
+," (Exist Keys ) SPLIT_PLRDF fetcher__num_range_del_read_count": 0.00
+," (Exist Keys ) SPLIT_PLRDF fetcher__num_data_read_count": 90.00
+," (Exist Keys ) SPLIT_PLRDF fetcher__num_total_block_read_count": 90.00
+
+
+," (Exist Keys ) SPLIT_PLRDF  block_read_cpu_time" : 0.00
+," (Exist Keys ) SPLIT_PLRDF Avg_read_count" : 90.00
+," (Exist Keys ) SPLIT_PLRDF Avg_read_bytes" : 372599.00
+," (Exist Keys ) TOP_LEVEL_RDF  elapsed time" : 22.53
+," (Exist Keys ) TOP_LEVEL_RDF  filtered by RDF count" : 0.00
+," (Exist Keys ) TOP_LEVEL_RDF  number of PQ" : 90
+," (Exist Keys ) TOP_LEVEL_RDF disk_access_count": 30.00
+," (Exist Keys ) TOP_LEVEL_RDF read_entry_block_count": 0.00
+
+," (Exist Keys ) TOP_LEVEL_RDF duration__get_rdf": 47500.00
+," (Exist Keys ) TOP_LEVEL_RDF duration__get_max_seq": 0.00
+," (Exist Keys ) TOP_LEVEL_RDF duration__retrieve_block": 21107966.67
+," (Exist Keys ) TOP_LEVEL_RDF duration__find_table": 67866.67
+," (Exist Keys ) TOP_LEVEL_RDF duration__get_from_row_cache": 0.00
+," (Exist Keys ) TOP_LEVEL_RDF duration__remaining_get_path": 1104833.33
+
+," (Exist Keys ) TOP_LEVEL_RDF num_index_read_count": 0.00
+," (Exist Keys ) TOP_LEVEL_RDF num_filter_read_count": 0.00
+," (Exist Keys ) TOP_LEVEL_RDF num_range_del_read_count": 0.00
+," (Exist Keys ) TOP_LEVEL_RDF num_total_block_read_count": 90.00
+," (Exist Keys ) TOP_LEVEL_RDF block_based_table_open_count": 0.00
+
+," (Exist Keys ) TOP_LEVEL_RDF filtered_by_RDF_count": 0.00
+
+," (Exist Keys ) TOP_LEVEL_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys ) TOP_LEVEL_RDF fetcher__num_index_read_count": 0.00
+," (Exist Keys ) TOP_LEVEL_RDF fetcher__num_filter_read_count": 0.00
+," (Exist Keys ) TOP_LEVEL_RDF fetcher__num_range_del_read_count": 0.00
+," (Exist Keys ) TOP_LEVEL_RDF fetcher__num_data_read_count": 90.00
+," (Exist Keys ) TOP_LEVEL_RDF fetcher__num_total_block_read_count": 90.00
+
+
+," (Exist Keys ) TOP_LEVEL_RDF  block_read_cpu_time" : 0.00
+," (Exist Keys ) TOP_LEVEL_RDF Avg_read_count" : 90.00
+," (Exist Keys ) TOP_LEVEL_RDF Avg_read_bytes" : 372599.00
+," (Exist Keys ) SKYLINE_RDF  elapsed time" : 23.22
+," (Exist Keys ) SKYLINE_RDF  filtered by RDF count" : 0.00
+," (Exist Keys ) SKYLINE_RDF  number of PQ" : 90
+," (Exist Keys ) SKYLINE_RDF disk_access_count": 30.00
+," (Exist Keys ) SKYLINE_RDF read_entry_block_count": 0.00
+
+," (Exist Keys ) SKYLINE_RDF duration__get_rdf": 23533.33
+," (Exist Keys ) SKYLINE_RDF duration__get_max_seq": 0.00
+," (Exist Keys ) SKYLINE_RDF duration__retrieve_block": 21713900.00
+," (Exist Keys ) SKYLINE_RDF duration__find_table": 59466.67
+," (Exist Keys ) SKYLINE_RDF duration__get_from_row_cache": 0.00
+," (Exist Keys ) SKYLINE_RDF duration__remaining_get_path": 1144000.00
+
+," (Exist Keys ) SKYLINE_RDF num_index_read_count": 0.00
+," (Exist Keys ) SKYLINE_RDF num_filter_read_count": 0.00
+," (Exist Keys ) SKYLINE_RDF num_range_del_read_count": 0.00
+," (Exist Keys ) SKYLINE_RDF num_total_block_read_count": 90.00
+," (Exist Keys ) SKYLINE_RDF block_based_table_open_count": 0.00
+
+," (Exist Keys ) SKYLINE_RDF filtered_by_RDF_count": 0.00
+
+," (Exist Keys ) SKYLINE_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys ) SKYLINE_RDF fetcher__num_index_read_count": 0.00
+," (Exist Keys ) SKYLINE_RDF fetcher__num_filter_read_count": 0.00
+," (Exist Keys ) SKYLINE_RDF fetcher__num_range_del_read_count": 0.00
+," (Exist Keys ) SKYLINE_RDF fetcher__num_data_read_count": 90.00
+," (Exist Keys ) SKYLINE_RDF fetcher__num_total_block_read_count": 90.00
+
+
+," (Exist Keys ) SKYLINE_RDF  block_read_cpu_time" : 0.00
+," (Exist Keys ) SKYLINE_RDF Avg_read_count" : 90.00
+," (Exist Keys ) SKYLINE_RDF Avg_read_bytes" : 372599.00
+," (Historcially Exist Keys ) NONE  elapsed time" : 23.72
+," (Historcially Exist Keys ) NONE  filtered by RDF count" : 0.00
+," (Historcially Exist Keys ) NONE  number of PQ" : 100
+," (Historcially Exist Keys ) NONE disk_access_count": 33.33
+," (Historcially Exist Keys ) NONE read_entry_block_count": 0.00
+
+," (Historcially Exist Keys ) NONE duration__get_rdf": 0.00
+," (Historcially Exist Keys ) NONE duration__get_max_seq": 16766.67
+," (Historcially Exist Keys ) NONE duration__retrieve_block": 22234666.67
+," (Historcially Exist Keys ) NONE duration__find_table": 70400.00
+," (Historcially Exist Keys ) NONE duration__get_from_row_cache": 0.00
+," (Historcially Exist Keys ) NONE duration__remaining_get_path": 1177733.33
+
+," (Historcially Exist Keys ) NONE num_index_read_count": 0.00
+," (Historcially Exist Keys ) NONE num_filter_read_count": 0.00
+," (Historcially Exist Keys ) NONE num_range_del_read_count": 0.00
+," (Historcially Exist Keys ) NONE num_total_block_read_count": 90.00
+," (Historcially Exist Keys ) NONE block_based_table_open_count": 0.00
+
+," (Historcially Exist Keys ) NONE filtered_by_RDF_count": 0.00
+
+," (Historcially Exist Keys ) NONE fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys ) NONE fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys ) NONE fetcher__num_filter_read_count": 0.00
+," (Historcially Exist Keys ) NONE fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys ) NONE fetcher__num_data_read_count": 90.00
+," (Historcially Exist Keys ) NONE fetcher__num_total_block_read_count": 90.00
+
+
+," (Historcially Exist Keys ) NONE  block_read_cpu_time" : 0.00
+," (Historcially Exist Keys ) NONE Avg_read_count" : 90.00
+," (Historcially Exist Keys ) NONE Avg_read_bytes" : 372599.00
+," (Historcially Exist Keys ) NONE2  elapsed time" : 24.34
+," (Historcially Exist Keys ) NONE2  filtered by RDF count" : 0.00
+," (Historcially Exist Keys ) NONE2  number of PQ" : 100
+," (Historcially Exist Keys ) NONE2 disk_access_count": 33.33
+," (Historcially Exist Keys ) NONE2 read_entry_block_count": 0.00
+
+," (Historcially Exist Keys ) NONE2 duration__get_rdf": 0.00
+," (Historcially Exist Keys ) NONE2 duration__get_max_seq": 15833.33
+," (Historcially Exist Keys ) NONE2 duration__retrieve_block": 22852933.33
+," (Historcially Exist Keys ) NONE2 duration__find_table": 62900.00
+," (Historcially Exist Keys ) NONE2 duration__get_from_row_cache": 0.00
+," (Historcially Exist Keys ) NONE2 duration__remaining_get_path": 1169866.67
+
+," (Historcially Exist Keys ) NONE2 num_index_read_count": 0.00
+," (Historcially Exist Keys ) NONE2 num_filter_read_count": 0.00
+," (Historcially Exist Keys ) NONE2 num_range_del_read_count": 0.00
+," (Historcially Exist Keys ) NONE2 num_total_block_read_count": 90.00
+," (Historcially Exist Keys ) NONE2 block_based_table_open_count": 0.00
+
+," (Historcially Exist Keys ) NONE2 filtered_by_RDF_count": 0.00
+
+," (Historcially Exist Keys ) NONE2 fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys ) NONE2 fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys ) NONE2 fetcher__num_filter_read_count": 0.00
+," (Historcially Exist Keys ) NONE2 fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys ) NONE2 fetcher__num_data_read_count": 90.00
+," (Historcially Exist Keys ) NONE2 fetcher__num_total_block_read_count": 90.00
+
+
+," (Historcially Exist Keys ) NONE2  block_read_cpu_time" : 0.00
+," (Historcially Exist Keys ) NONE2 Avg_read_count" : 90.00
+," (Historcially Exist Keys ) NONE2 Avg_read_bytes" : 372599.00
+," (Historcially Exist Keys ) PLRDF  elapsed time" : 23.60
+," (Historcially Exist Keys ) PLRDF  filtered by RDF count" : 11.00
+," (Historcially Exist Keys ) PLRDF  number of PQ" : 100
+," (Historcially Exist Keys ) PLRDF disk_access_count": 33.33
+," (Historcially Exist Keys ) PLRDF read_entry_block_count": 0.00
+
+," (Historcially Exist Keys ) PLRDF duration__get_rdf": 51666.67
+," (Historcially Exist Keys ) PLRDF duration__get_max_seq": 0.00
+," (Historcially Exist Keys ) PLRDF duration__retrieve_block": 22044966.67
+," (Historcially Exist Keys ) PLRDF duration__find_table": 66700.00
+," (Historcially Exist Keys ) PLRDF duration__get_from_row_cache": 0.00
+," (Historcially Exist Keys ) PLRDF duration__remaining_get_path": 1210833.33
+
+," (Historcially Exist Keys ) PLRDF num_index_read_count": 0.00
+," (Historcially Exist Keys ) PLRDF num_filter_read_count": 0.00
+," (Historcially Exist Keys ) PLRDF num_range_del_read_count": 0.00
+," (Historcially Exist Keys ) PLRDF num_total_block_read_count": 90.00
+," (Historcially Exist Keys ) PLRDF block_based_table_open_count": 0.00
+
+," (Historcially Exist Keys ) PLRDF filtered_by_RDF_count": 11.00
+
+," (Historcially Exist Keys ) PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys ) PLRDF fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys ) PLRDF fetcher__num_filter_read_count": 0.00
+," (Historcially Exist Keys ) PLRDF fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys ) PLRDF fetcher__num_data_read_count": 90.00
+," (Historcially Exist Keys ) PLRDF fetcher__num_total_block_read_count": 90.00
+
+
+," (Historcially Exist Keys ) PLRDF  block_read_cpu_time" : 0.00
+," (Historcially Exist Keys ) PLRDF Avg_read_count" : 90.00
+," (Historcially Exist Keys ) PLRDF Avg_read_bytes" : 372599.00
+," (Historcially Exist Keys ) SPLIT_PLRDF  elapsed time" : 20.48
+," (Historcially Exist Keys ) SPLIT_PLRDF  filtered by RDF count" : 10.00
+," (Historcially Exist Keys ) SPLIT_PLRDF  number of PQ" : 100
+," (Historcially Exist Keys ) SPLIT_PLRDF disk_access_count": 30.00
+," (Historcially Exist Keys ) SPLIT_PLRDF read_entry_block_count": 0.00
+
+," (Historcially Exist Keys ) SPLIT_PLRDF duration__get_rdf": 46233.33
+," (Historcially Exist Keys ) SPLIT_PLRDF duration__get_max_seq": 0.00
+," (Historcially Exist Keys ) SPLIT_PLRDF duration__retrieve_block": 19059500.00
+," (Historcially Exist Keys ) SPLIT_PLRDF duration__find_table": 60200.00
+," (Historcially Exist Keys ) SPLIT_PLRDF duration__get_from_row_cache": 0.00
+," (Historcially Exist Keys ) SPLIT_PLRDF duration__remaining_get_path": 1102000.00
+
+," (Historcially Exist Keys ) SPLIT_PLRDF num_index_read_count": 0.00
+," (Historcially Exist Keys ) SPLIT_PLRDF num_filter_read_count": 0.00
+," (Historcially Exist Keys ) SPLIT_PLRDF num_range_del_read_count": 0.00
+," (Historcially Exist Keys ) SPLIT_PLRDF num_total_block_read_count": 90.00
+," (Historcially Exist Keys ) SPLIT_PLRDF block_based_table_open_count": 0.00
+
+," (Historcially Exist Keys ) SPLIT_PLRDF filtered_by_RDF_count": 10.00
+
+," (Historcially Exist Keys ) SPLIT_PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys ) SPLIT_PLRDF fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys ) SPLIT_PLRDF fetcher__num_filter_read_count": 0.00
+," (Historcially Exist Keys ) SPLIT_PLRDF fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys ) SPLIT_PLRDF fetcher__num_data_read_count": 90.00
+," (Historcially Exist Keys ) SPLIT_PLRDF fetcher__num_total_block_read_count": 90.00
+
+
+," (Historcially Exist Keys ) SPLIT_PLRDF  block_read_cpu_time" : 0.00
+," (Historcially Exist Keys ) SPLIT_PLRDF Avg_read_count" : 90.00
+," (Historcially Exist Keys ) SPLIT_PLRDF Avg_read_bytes" : 372599.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF  elapsed time" : 21.83
+," (Historcially Exist Keys ) TOP_LEVEL_RDF  filtered by RDF count" : 10.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF  number of PQ" : 100
+," (Historcially Exist Keys ) TOP_LEVEL_RDF disk_access_count": 30.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF read_entry_block_count": 0.00
+
+," (Historcially Exist Keys ) TOP_LEVEL_RDF duration__get_rdf": 52666.67
+," (Historcially Exist Keys ) TOP_LEVEL_RDF duration__get_max_seq": 0.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF duration__retrieve_block": 20332200.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF duration__find_table": 66600.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF duration__get_from_row_cache": 0.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF duration__remaining_get_path": 1157600.00
+
+," (Historcially Exist Keys ) TOP_LEVEL_RDF num_index_read_count": 0.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF num_filter_read_count": 0.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF num_range_del_read_count": 0.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF num_total_block_read_count": 90.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF block_based_table_open_count": 0.00
+
+," (Historcially Exist Keys ) TOP_LEVEL_RDF filtered_by_RDF_count": 10.00
+
+," (Historcially Exist Keys ) TOP_LEVEL_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF fetcher__num_filter_read_count": 0.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF fetcher__num_data_read_count": 90.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF fetcher__num_total_block_read_count": 90.00
+
+
+," (Historcially Exist Keys ) TOP_LEVEL_RDF  block_read_cpu_time" : 0.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF Avg_read_count" : 90.00
+," (Historcially Exist Keys ) TOP_LEVEL_RDF Avg_read_bytes" : 372599.00
+," (Historcially Exist Keys ) SKYLINE_RDF  elapsed time" : 21.19
+," (Historcially Exist Keys ) SKYLINE_RDF  filtered by RDF count" : 0.00
+," (Historcially Exist Keys ) SKYLINE_RDF  number of PQ" : 100
+," (Historcially Exist Keys ) SKYLINE_RDF disk_access_count": 33.33
+," (Historcially Exist Keys ) SKYLINE_RDF read_entry_block_count": 0.00
+
+," (Historcially Exist Keys ) SKYLINE_RDF duration__get_rdf": 23200.00
+," (Historcially Exist Keys ) SKYLINE_RDF duration__get_max_seq": 0.00
+," (Historcially Exist Keys ) SKYLINE_RDF duration__retrieve_block": 19645566.67
+," (Historcially Exist Keys ) SKYLINE_RDF duration__find_table": 70300.00
+," (Historcially Exist Keys ) SKYLINE_RDF duration__get_from_row_cache": 0.00
+," (Historcially Exist Keys ) SKYLINE_RDF duration__remaining_get_path": 1141766.67
+
+," (Historcially Exist Keys ) SKYLINE_RDF num_index_read_count": 0.00
+," (Historcially Exist Keys ) SKYLINE_RDF num_filter_read_count": 0.00
+," (Historcially Exist Keys ) SKYLINE_RDF num_range_del_read_count": 0.00
+," (Historcially Exist Keys ) SKYLINE_RDF num_total_block_read_count": 90.00
+," (Historcially Exist Keys ) SKYLINE_RDF block_based_table_open_count": 0.00
+
+," (Historcially Exist Keys ) SKYLINE_RDF filtered_by_RDF_count": 0.00
+
+," (Historcially Exist Keys ) SKYLINE_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys ) SKYLINE_RDF fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys ) SKYLINE_RDF fetcher__num_filter_read_count": 0.00
+," (Historcially Exist Keys ) SKYLINE_RDF fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys ) SKYLINE_RDF fetcher__num_data_read_count": 90.00
+," (Historcially Exist Keys ) SKYLINE_RDF fetcher__num_total_block_read_count": 90.00
+
+
+," (Historcially Exist Keys ) SKYLINE_RDF  block_read_cpu_time" : 0.00
+," (Historcially Exist Keys ) SKYLINE_RDF Avg_read_count" : 90.00
+," (Historcially Exist Keys ) SKYLINE_RDF Avg_read_bytes" : 372599.00
+," (Currently Deleted Keys ) NONE  elapsed time" : 0.07
+," (Currently Deleted Keys ) NONE  filtered by RDF count" : 0.00
+," (Currently Deleted Keys ) NONE  number of PQ" : 10
+," (Currently Deleted Keys ) NONE disk_access_count": 3.33
+," (Currently Deleted Keys ) NONE read_entry_block_count": 0.00
+
+," (Currently Deleted Keys ) NONE duration__get_rdf": 0.00
+," (Currently Deleted Keys ) NONE duration__get_max_seq": 1766.67
+," (Currently Deleted Keys ) NONE duration__retrieve_block": 5633.33
+," (Currently Deleted Keys ) NONE duration__find_table": 7066.67
+," (Currently Deleted Keys ) NONE duration__get_from_row_cache": 0.00
+," (Currently Deleted Keys ) NONE duration__remaining_get_path": 44366.67
+
+," (Currently Deleted Keys ) NONE num_index_read_count": 0.00
+," (Currently Deleted Keys ) NONE num_filter_read_count": 0.00
+," (Currently Deleted Keys ) NONE num_range_del_read_count": 0.00
+," (Currently Deleted Keys ) NONE num_total_block_read_count": 0.00
+," (Currently Deleted Keys ) NONE block_based_table_open_count": 0.00
+
+," (Currently Deleted Keys ) NONE filtered_by_RDF_count": 0.00
+
+," (Currently Deleted Keys ) NONE fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys ) NONE fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys ) NONE fetcher__num_filter_read_count": 0.00
+," (Currently Deleted Keys ) NONE fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys ) NONE fetcher__num_data_read_count": 0.00
+," (Currently Deleted Keys ) NONE fetcher__num_total_block_read_count": 0.00
+
+
+," (Currently Deleted Keys ) NONE  block_read_cpu_time" : 0.00
+," (Currently Deleted Keys ) NONE Avg_read_count" : 0.00
+," (Currently Deleted Keys ) NONE Avg_read_bytes" : 0.00
+," (Currently Deleted Keys ) NONE2  elapsed time" : 0.07
+," (Currently Deleted Keys ) NONE2  filtered by RDF count" : 0.00
+," (Currently Deleted Keys ) NONE2  number of PQ" : 10
+," (Currently Deleted Keys ) NONE2 disk_access_count": 3.33
+," (Currently Deleted Keys ) NONE2 read_entry_block_count": 0.00
+
+," (Currently Deleted Keys ) NONE2 duration__get_rdf": 0.00
+," (Currently Deleted Keys ) NONE2 duration__get_max_seq": 1733.33
+," (Currently Deleted Keys ) NONE2 duration__retrieve_block": 6100.00
+," (Currently Deleted Keys ) NONE2 duration__find_table": 6866.67
+," (Currently Deleted Keys ) NONE2 duration__get_from_row_cache": 0.00
+," (Currently Deleted Keys ) NONE2 duration__remaining_get_path": 44366.67
+
+," (Currently Deleted Keys ) NONE2 num_index_read_count": 0.00
+," (Currently Deleted Keys ) NONE2 num_filter_read_count": 0.00
+," (Currently Deleted Keys ) NONE2 num_range_del_read_count": 0.00
+," (Currently Deleted Keys ) NONE2 num_total_block_read_count": 0.00
+," (Currently Deleted Keys ) NONE2 block_based_table_open_count": 0.00
+
+," (Currently Deleted Keys ) NONE2 filtered_by_RDF_count": 0.00
+
+," (Currently Deleted Keys ) NONE2 fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys ) NONE2 fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys ) NONE2 fetcher__num_filter_read_count": 0.00
+," (Currently Deleted Keys ) NONE2 fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys ) NONE2 fetcher__num_data_read_count": 0.00
+," (Currently Deleted Keys ) NONE2 fetcher__num_total_block_read_count": 0.00
+
+
+," (Currently Deleted Keys ) NONE2  block_read_cpu_time" : 0.00
+," (Currently Deleted Keys ) NONE2 Avg_read_count" : 0.00
+," (Currently Deleted Keys ) NONE2 Avg_read_bytes" : 0.00
+," (Currently Deleted Keys ) PLRDF  elapsed time" : 0.08
+," (Currently Deleted Keys ) PLRDF  filtered by RDF count" : 10.00
+," (Currently Deleted Keys ) PLRDF  number of PQ" : 10
+," (Currently Deleted Keys ) PLRDF disk_access_count": 3.33
+," (Currently Deleted Keys ) PLRDF read_entry_block_count": 0.00
+
+," (Currently Deleted Keys ) PLRDF duration__get_rdf": 2433.33
+," (Currently Deleted Keys ) PLRDF duration__get_max_seq": 0.00
+," (Currently Deleted Keys ) PLRDF duration__retrieve_block": 8933.33
+," (Currently Deleted Keys ) PLRDF duration__find_table": 6466.67
+," (Currently Deleted Keys ) PLRDF duration__get_from_row_cache": 0.00
+," (Currently Deleted Keys ) PLRDF duration__remaining_get_path": 43666.67
+
+," (Currently Deleted Keys ) PLRDF num_index_read_count": 0.00
+," (Currently Deleted Keys ) PLRDF num_filter_read_count": 0.00
+," (Currently Deleted Keys ) PLRDF num_range_del_read_count": 0.00
+," (Currently Deleted Keys ) PLRDF num_total_block_read_count": 0.00
+," (Currently Deleted Keys ) PLRDF block_based_table_open_count": 0.00
+
+," (Currently Deleted Keys ) PLRDF filtered_by_RDF_count": 10.00
+
+," (Currently Deleted Keys ) PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys ) PLRDF fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys ) PLRDF fetcher__num_filter_read_count": 0.00
+," (Currently Deleted Keys ) PLRDF fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys ) PLRDF fetcher__num_data_read_count": 0.00
+," (Currently Deleted Keys ) PLRDF fetcher__num_total_block_read_count": 0.00
+
+
+," (Currently Deleted Keys ) PLRDF  block_read_cpu_time" : 0.00
+," (Currently Deleted Keys ) PLRDF Avg_read_count" : 0.00
+," (Currently Deleted Keys ) PLRDF Avg_read_bytes" : 0.00
+," (Currently Deleted Keys ) SPLIT_PLRDF  elapsed time" : 0.04
+," (Currently Deleted Keys ) SPLIT_PLRDF  filtered by RDF count" : 10.00
+," (Currently Deleted Keys ) SPLIT_PLRDF  number of PQ" : 10
+," (Currently Deleted Keys ) SPLIT_PLRDF disk_access_count": 0.00
+," (Currently Deleted Keys ) SPLIT_PLRDF read_entry_block_count": 0.00
+
+," (Currently Deleted Keys ) SPLIT_PLRDF duration__get_rdf": 2733.33
+," (Currently Deleted Keys ) SPLIT_PLRDF duration__get_max_seq": 0.00
+," (Currently Deleted Keys ) SPLIT_PLRDF duration__retrieve_block": 0.00
+," (Currently Deleted Keys ) SPLIT_PLRDF duration__find_table": 0.00
+," (Currently Deleted Keys ) SPLIT_PLRDF duration__get_from_row_cache": 0.00
+," (Currently Deleted Keys ) SPLIT_PLRDF duration__remaining_get_path": 31933.33
+
+," (Currently Deleted Keys ) SPLIT_PLRDF num_index_read_count": 0.00
+," (Currently Deleted Keys ) SPLIT_PLRDF num_filter_read_count": 0.00
+," (Currently Deleted Keys ) SPLIT_PLRDF num_range_del_read_count": 0.00
+," (Currently Deleted Keys ) SPLIT_PLRDF num_total_block_read_count": 0.00
+," (Currently Deleted Keys ) SPLIT_PLRDF block_based_table_open_count": 0.00
+
+," (Currently Deleted Keys ) SPLIT_PLRDF filtered_by_RDF_count": 10.00
+
+," (Currently Deleted Keys ) SPLIT_PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys ) SPLIT_PLRDF fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys ) SPLIT_PLRDF fetcher__num_filter_read_count": 0.00
+," (Currently Deleted Keys ) SPLIT_PLRDF fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys ) SPLIT_PLRDF fetcher__num_data_read_count": 0.00
+," (Currently Deleted Keys ) SPLIT_PLRDF fetcher__num_total_block_read_count": 0.00
+
+
+," (Currently Deleted Keys ) SPLIT_PLRDF  block_read_cpu_time" : 0.00
+," (Currently Deleted Keys ) SPLIT_PLRDF Avg_read_count" : 0.00
+," (Currently Deleted Keys ) SPLIT_PLRDF Avg_read_bytes" : 0.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF  elapsed time" : 0.04
+," (Currently Deleted Keys ) TOP_LEVEL_RDF  filtered by RDF count" : 10.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF  number of PQ" : 10
+," (Currently Deleted Keys ) TOP_LEVEL_RDF disk_access_count": 0.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF read_entry_block_count": 0.00
+
+," (Currently Deleted Keys ) TOP_LEVEL_RDF duration__get_rdf": 3033.33
+," (Currently Deleted Keys ) TOP_LEVEL_RDF duration__get_max_seq": 0.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF duration__retrieve_block": 0.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF duration__find_table": 0.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF duration__get_from_row_cache": 0.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF duration__remaining_get_path": 33033.33
+
+," (Currently Deleted Keys ) TOP_LEVEL_RDF num_index_read_count": 0.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF num_filter_read_count": 0.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF num_range_del_read_count": 0.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF num_total_block_read_count": 0.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF block_based_table_open_count": 0.00
+
+," (Currently Deleted Keys ) TOP_LEVEL_RDF filtered_by_RDF_count": 10.00
+
+," (Currently Deleted Keys ) TOP_LEVEL_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF fetcher__num_filter_read_count": 0.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF fetcher__num_data_read_count": 0.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF fetcher__num_total_block_read_count": 0.00
+
+
+," (Currently Deleted Keys ) TOP_LEVEL_RDF  block_read_cpu_time" : 0.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF Avg_read_count" : 0.00
+," (Currently Deleted Keys ) TOP_LEVEL_RDF Avg_read_bytes" : 0.00
+," (Currently Deleted Keys ) SKYLINE_RDF  elapsed time" : 0.08
+," (Currently Deleted Keys ) SKYLINE_RDF  filtered by RDF count" : 0.00
+," (Currently Deleted Keys ) SKYLINE_RDF  number of PQ" : 10
+," (Currently Deleted Keys ) SKYLINE_RDF disk_access_count": 3.33
+," (Currently Deleted Keys ) SKYLINE_RDF read_entry_block_count": 0.00
+
+," (Currently Deleted Keys ) SKYLINE_RDF duration__get_rdf": 0.00
+," (Currently Deleted Keys ) SKYLINE_RDF duration__get_max_seq": 0.00
+," (Currently Deleted Keys ) SKYLINE_RDF duration__retrieve_block": 5800.00
+," (Currently Deleted Keys ) SKYLINE_RDF duration__find_table": 7200.00
+," (Currently Deleted Keys ) SKYLINE_RDF duration__get_from_row_cache": 0.00
+," (Currently Deleted Keys ) SKYLINE_RDF duration__remaining_get_path": 52666.67
+
+," (Currently Deleted Keys ) SKYLINE_RDF num_index_read_count": 0.00
+," (Currently Deleted Keys ) SKYLINE_RDF num_filter_read_count": 0.00
+," (Currently Deleted Keys ) SKYLINE_RDF num_range_del_read_count": 0.00
+," (Currently Deleted Keys ) SKYLINE_RDF num_total_block_read_count": 0.00
+," (Currently Deleted Keys ) SKYLINE_RDF block_based_table_open_count": 0.00
+
+," (Currently Deleted Keys ) SKYLINE_RDF filtered_by_RDF_count": 0.00
+
+," (Currently Deleted Keys ) SKYLINE_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys ) SKYLINE_RDF fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys ) SKYLINE_RDF fetcher__num_filter_read_count": 0.00
+," (Currently Deleted Keys ) SKYLINE_RDF fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys ) SKYLINE_RDF fetcher__num_data_read_count": 0.00
+," (Currently Deleted Keys ) SKYLINE_RDF fetcher__num_total_block_read_count": 0.00
+
+
+," (Currently Deleted Keys ) SKYLINE_RDF  block_read_cpu_time" : 0.00
+," (Currently Deleted Keys ) SKYLINE_RDF Avg_read_count" : 0.00
+," (Currently Deleted Keys ) SKYLINE_RDF Avg_read_bytes" : 0.00
+," (Non-inserted Keys ) NONE  elapsed time" : 5.36
+," (Non-inserted Keys ) NONE  filtered by RDF count" : 0.00
+," (Non-inserted Keys ) NONE  number of PQ" : 1000
+," (Non-inserted Keys ) NONE disk_access_count": 333.33
+," (Non-inserted Keys ) NONE read_entry_block_count": 0.00
+
+," (Non-inserted Keys ) NONE duration__get_rdf": 0.00
+," (Non-inserted Keys ) NONE duration__get_max_seq": 114866.67
+," (Non-inserted Keys ) NONE duration__retrieve_block": 229100.00
+," (Non-inserted Keys ) NONE duration__find_table": 414566.67
+," (Non-inserted Keys ) NONE duration__get_from_row_cache": 0.00
+," (Non-inserted Keys ) NONE duration__remaining_get_path": 3133633.33
+
+," (Non-inserted Keys ) NONE num_index_read_count": 0.00
+," (Non-inserted Keys ) NONE num_filter_read_count": 0.00
+," (Non-inserted Keys ) NONE num_range_del_read_count": 0.00
+," (Non-inserted Keys ) NONE num_total_block_read_count": 0.00
+," (Non-inserted Keys ) NONE block_based_table_open_count": 0.00
+
+," (Non-inserted Keys ) NONE filtered_by_RDF_count": 0.00
+
+," (Non-inserted Keys ) NONE fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys ) NONE fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys ) NONE fetcher__num_filter_read_count": 0.00
+," (Non-inserted Keys ) NONE fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys ) NONE fetcher__num_data_read_count": 0.00
+," (Non-inserted Keys ) NONE fetcher__num_total_block_read_count": 0.00
+
+
+," (Non-inserted Keys ) NONE  block_read_cpu_time" : 0.00
+," (Non-inserted Keys ) NONE Avg_read_count" : 0.00
+," (Non-inserted Keys ) NONE Avg_read_bytes" : 0.00
+," (Non-inserted Keys ) NONE2  elapsed time" : 5.01
+," (Non-inserted Keys ) NONE2  filtered by RDF count" : 0.00
+," (Non-inserted Keys ) NONE2  number of PQ" : 1000
+," (Non-inserted Keys ) NONE2 disk_access_count": 333.33
+," (Non-inserted Keys ) NONE2 read_entry_block_count": 0.00
+
+," (Non-inserted Keys ) NONE2 duration__get_rdf": 0.00
+," (Non-inserted Keys ) NONE2 duration__get_max_seq": 108400.00
+," (Non-inserted Keys ) NONE2 duration__retrieve_block": 195666.67
+," (Non-inserted Keys ) NONE2 duration__find_table": 408933.33
+," (Non-inserted Keys ) NONE2 duration__get_from_row_cache": 0.00
+," (Non-inserted Keys ) NONE2 duration__remaining_get_path": 2907600.00
+
+," (Non-inserted Keys ) NONE2 num_index_read_count": 0.00
+," (Non-inserted Keys ) NONE2 num_filter_read_count": 0.00
+," (Non-inserted Keys ) NONE2 num_range_del_read_count": 0.00
+," (Non-inserted Keys ) NONE2 num_total_block_read_count": 0.00
+," (Non-inserted Keys ) NONE2 block_based_table_open_count": 0.00
+
+," (Non-inserted Keys ) NONE2 filtered_by_RDF_count": 0.00
+
+," (Non-inserted Keys ) NONE2 fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys ) NONE2 fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys ) NONE2 fetcher__num_filter_read_count": 0.00
+," (Non-inserted Keys ) NONE2 fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys ) NONE2 fetcher__num_data_read_count": 0.00
+," (Non-inserted Keys ) NONE2 fetcher__num_total_block_read_count": 0.00
+
+
+," (Non-inserted Keys ) NONE2  block_read_cpu_time" : 0.00
+," (Non-inserted Keys ) NONE2 Avg_read_count" : 0.00
+," (Non-inserted Keys ) NONE2 Avg_read_bytes" : 0.00
+," (Non-inserted Keys ) PLRDF  elapsed time" : 4.62
+," (Non-inserted Keys ) PLRDF  filtered by RDF count" : 1000.00
+," (Non-inserted Keys ) PLRDF  number of PQ" : 1000
+," (Non-inserted Keys ) PLRDF disk_access_count": 333.33
+," (Non-inserted Keys ) PLRDF read_entry_block_count": 0.00
+
+," (Non-inserted Keys ) PLRDF duration__get_rdf": 187933.33
+," (Non-inserted Keys ) PLRDF duration__get_max_seq": 0.00
+," (Non-inserted Keys ) PLRDF duration__retrieve_block": 204766.67
+," (Non-inserted Keys ) PLRDF duration__find_table": 346666.67
+," (Non-inserted Keys ) PLRDF duration__get_from_row_cache": 0.00
+," (Non-inserted Keys ) PLRDF duration__remaining_get_path": 2599766.67
+
+," (Non-inserted Keys ) PLRDF num_index_read_count": 0.00
+," (Non-inserted Keys ) PLRDF num_filter_read_count": 0.00
+," (Non-inserted Keys ) PLRDF num_range_del_read_count": 0.00
+," (Non-inserted Keys ) PLRDF num_total_block_read_count": 0.00
+," (Non-inserted Keys ) PLRDF block_based_table_open_count": 0.00
+
+," (Non-inserted Keys ) PLRDF filtered_by_RDF_count": 1000.00
+
+," (Non-inserted Keys ) PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys ) PLRDF fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys ) PLRDF fetcher__num_filter_read_count": 0.00
+," (Non-inserted Keys ) PLRDF fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys ) PLRDF fetcher__num_data_read_count": 0.00
+," (Non-inserted Keys ) PLRDF fetcher__num_total_block_read_count": 0.00
+
+
+," (Non-inserted Keys ) PLRDF  block_read_cpu_time" : 0.00
+," (Non-inserted Keys ) PLRDF Avg_read_count" : 0.00
+," (Non-inserted Keys ) PLRDF Avg_read_bytes" : 0.00
+," (Non-inserted Keys ) SPLIT_PLRDF  elapsed time" : 2.25
+," (Non-inserted Keys ) SPLIT_PLRDF  filtered by RDF count" : 1000.00
+," (Non-inserted Keys ) SPLIT_PLRDF  number of PQ" : 1000
+," (Non-inserted Keys ) SPLIT_PLRDF disk_access_count": 0.00
+," (Non-inserted Keys ) SPLIT_PLRDF read_entry_block_count": 0.00
+
+," (Non-inserted Keys ) SPLIT_PLRDF duration__get_rdf": 174766.67
+," (Non-inserted Keys ) SPLIT_PLRDF duration__get_max_seq": 0.00
+," (Non-inserted Keys ) SPLIT_PLRDF duration__retrieve_block": 0.00
+," (Non-inserted Keys ) SPLIT_PLRDF duration__find_table": 0.00
+," (Non-inserted Keys ) SPLIT_PLRDF duration__get_from_row_cache": 0.00
+," (Non-inserted Keys ) SPLIT_PLRDF duration__remaining_get_path": 1585766.67
+
+," (Non-inserted Keys ) SPLIT_PLRDF num_index_read_count": 0.00
+," (Non-inserted Keys ) SPLIT_PLRDF num_filter_read_count": 0.00
+," (Non-inserted Keys ) SPLIT_PLRDF num_range_del_read_count": 0.00
+," (Non-inserted Keys ) SPLIT_PLRDF num_total_block_read_count": 0.00
+," (Non-inserted Keys ) SPLIT_PLRDF block_based_table_open_count": 0.00
+
+," (Non-inserted Keys ) SPLIT_PLRDF filtered_by_RDF_count": 1000.00
+
+," (Non-inserted Keys ) SPLIT_PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys ) SPLIT_PLRDF fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys ) SPLIT_PLRDF fetcher__num_filter_read_count": 0.00
+," (Non-inserted Keys ) SPLIT_PLRDF fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys ) SPLIT_PLRDF fetcher__num_data_read_count": 0.00
+," (Non-inserted Keys ) SPLIT_PLRDF fetcher__num_total_block_read_count": 0.00
+
+
+," (Non-inserted Keys ) SPLIT_PLRDF  block_read_cpu_time" : 0.00
+," (Non-inserted Keys ) SPLIT_PLRDF Avg_read_count" : 0.00
+," (Non-inserted Keys ) SPLIT_PLRDF Avg_read_bytes" : 0.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF  elapsed time" : 2.25
+," (Non-inserted Keys ) TOP_LEVEL_RDF  filtered by RDF count" : 1000.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF  number of PQ" : 1000
+," (Non-inserted Keys ) TOP_LEVEL_RDF disk_access_count": 0.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF read_entry_block_count": 0.00
+
+," (Non-inserted Keys ) TOP_LEVEL_RDF duration__get_rdf": 185200.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF duration__get_max_seq": 0.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF duration__retrieve_block": 0.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF duration__find_table": 0.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF duration__get_from_row_cache": 0.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF duration__remaining_get_path": 1551033.33
+
+," (Non-inserted Keys ) TOP_LEVEL_RDF num_index_read_count": 0.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF num_filter_read_count": 0.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF num_range_del_read_count": 0.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF num_total_block_read_count": 0.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF block_based_table_open_count": 0.00
+
+," (Non-inserted Keys ) TOP_LEVEL_RDF filtered_by_RDF_count": 1000.00
+
+," (Non-inserted Keys ) TOP_LEVEL_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF fetcher__num_filter_read_count": 0.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF fetcher__num_data_read_count": 0.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF fetcher__num_total_block_read_count": 0.00
+
+
+," (Non-inserted Keys ) TOP_LEVEL_RDF  block_read_cpu_time" : 0.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF Avg_read_count" : 0.00
+," (Non-inserted Keys ) TOP_LEVEL_RDF Avg_read_bytes" : 0.00
+," (Non-inserted Keys ) SKYLINE_RDF  elapsed time" : 5.03
+," (Non-inserted Keys ) SKYLINE_RDF  filtered by RDF count" : 0.00
+," (Non-inserted Keys ) SKYLINE_RDF  number of PQ" : 1000
+," (Non-inserted Keys ) SKYLINE_RDF disk_access_count": 333.33
+," (Non-inserted Keys ) SKYLINE_RDF read_entry_block_count": 0.00
+
+," (Non-inserted Keys ) SKYLINE_RDF duration__get_rdf": 0.00
+," (Non-inserted Keys ) SKYLINE_RDF duration__get_max_seq": 0.00
+," (Non-inserted Keys ) SKYLINE_RDF duration__retrieve_block": 252066.67
+," (Non-inserted Keys ) SKYLINE_RDF duration__find_table": 455300.00
+," (Non-inserted Keys ) SKYLINE_RDF duration__get_from_row_cache": 0.00
+," (Non-inserted Keys ) SKYLINE_RDF duration__remaining_get_path": 2995500.00
+
+," (Non-inserted Keys ) SKYLINE_RDF num_index_read_count": 0.00
+," (Non-inserted Keys ) SKYLINE_RDF num_filter_read_count": 0.00
+," (Non-inserted Keys ) SKYLINE_RDF num_range_del_read_count": 0.00
+," (Non-inserted Keys ) SKYLINE_RDF num_total_block_read_count": 0.00
+," (Non-inserted Keys ) SKYLINE_RDF block_based_table_open_count": 0.00
+
+," (Non-inserted Keys ) SKYLINE_RDF filtered_by_RDF_count": 0.00
+
+," (Non-inserted Keys ) SKYLINE_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys ) SKYLINE_RDF fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys ) SKYLINE_RDF fetcher__num_filter_read_count": 0.00
+," (Non-inserted Keys ) SKYLINE_RDF fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys ) SKYLINE_RDF fetcher__num_data_read_count": 0.00
+," (Non-inserted Keys ) SKYLINE_RDF fetcher__num_total_block_read_count": 0.00
+
+
+," (Non-inserted Keys ) SKYLINE_RDF  block_read_cpu_time" : 0.00
+," (Non-inserted Keys ) SKYLINE_RDF Avg_read_count" : 0.00
+," (Non-inserted Keys ) SKYLINE_RDF Avg_read_bytes" : 0.00
+," (Exist Keys fixed #PQ = 5000) NONE  elapsed time" : 986.18
+," (Exist Keys fixed #PQ = 5000) NONE  filtered by RDF count" : 0.00
+," (Exist Keys fixed #PQ = 5000) NONE  number of PQ" : 90
+," (Exist Keys fixed #PQ = 5000) NONE disk_access_count": 1666.67
+," (Exist Keys fixed #PQ = 5000) NONE read_entry_block_count": 0.00
+
+," (Exist Keys fixed #PQ = 5000) NONE duration__get_rdf": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE duration__get_max_seq": 871366.67
+," (Exist Keys fixed #PQ = 5000) NONE duration__retrieve_block": 914471133.33
+," (Exist Keys fixed #PQ = 5000) NONE duration__find_table": 3425266.67
+," (Exist Keys fixed #PQ = 5000) NONE duration__get_from_row_cache": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE duration__remaining_get_path": 56211500.00
+
+," (Exist Keys fixed #PQ = 5000) NONE num_index_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE num_filter_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE num_range_del_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE num_total_block_read_count": 5000.00
+," (Exist Keys fixed #PQ = 5000) NONE block_based_table_open_count": 0.00
+
+," (Exist Keys fixed #PQ = 5000) NONE filtered_by_RDF_count": 0.00
+
+," (Exist Keys fixed #PQ = 5000) NONE fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE fetcher__num_index_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE fetcher__num_filter_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE fetcher__num_range_del_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE fetcher__num_data_read_count": 5000.00
+," (Exist Keys fixed #PQ = 5000) NONE fetcher__num_total_block_read_count": 5000.00
+
+
+," (Exist Keys fixed #PQ = 5000) NONE  block_read_cpu_time" : 0.00
+," (Exist Keys fixed #PQ = 5000) NONE Avg_read_count" : 5000.00
+," (Exist Keys fixed #PQ = 5000) NONE Avg_read_bytes" : 20700357.00
+," (Exist Keys fixed #PQ = 5000) NONE2  elapsed time" : 997.03
+," (Exist Keys fixed #PQ = 5000) NONE2  filtered by RDF count" : 0.00
+," (Exist Keys fixed #PQ = 5000) NONE2  number of PQ" : 90
+," (Exist Keys fixed #PQ = 5000) NONE2 disk_access_count": 1666.67
+," (Exist Keys fixed #PQ = 5000) NONE2 read_entry_block_count": 0.00
+
+," (Exist Keys fixed #PQ = 5000) NONE2 duration__get_rdf": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE2 duration__get_max_seq": 806000.00
+," (Exist Keys fixed #PQ = 5000) NONE2 duration__retrieve_block": 923852266.67
+," (Exist Keys fixed #PQ = 5000) NONE2 duration__find_table": 3434500.00
+," (Exist Keys fixed #PQ = 5000) NONE2 duration__get_from_row_cache": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE2 duration__remaining_get_path": 56857566.67
+
+," (Exist Keys fixed #PQ = 5000) NONE2 num_index_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE2 num_filter_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE2 num_range_del_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE2 num_total_block_read_count": 5000.00
+," (Exist Keys fixed #PQ = 5000) NONE2 block_based_table_open_count": 0.00
+
+," (Exist Keys fixed #PQ = 5000) NONE2 filtered_by_RDF_count": 0.00
+
+," (Exist Keys fixed #PQ = 5000) NONE2 fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE2 fetcher__num_index_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE2 fetcher__num_filter_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE2 fetcher__num_range_del_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) NONE2 fetcher__num_data_read_count": 5000.00
+," (Exist Keys fixed #PQ = 5000) NONE2 fetcher__num_total_block_read_count": 5000.00
+
+
+," (Exist Keys fixed #PQ = 5000) NONE2  block_read_cpu_time" : 0.00
+," (Exist Keys fixed #PQ = 5000) NONE2 Avg_read_count" : 5000.00
+," (Exist Keys fixed #PQ = 5000) NONE2 Avg_read_bytes" : 20700357.00
+," (Exist Keys fixed #PQ = 5000) PLRDF  elapsed time" : 1009.61
+," (Exist Keys fixed #PQ = 5000) PLRDF  filtered by RDF count" : 61.33
+," (Exist Keys fixed #PQ = 5000) PLRDF  number of PQ" : 90
+," (Exist Keys fixed #PQ = 5000) PLRDF disk_access_count": 1666.67
+," (Exist Keys fixed #PQ = 5000) PLRDF read_entry_block_count": 0.00
+
+," (Exist Keys fixed #PQ = 5000) PLRDF duration__get_rdf": 2471700.00
+," (Exist Keys fixed #PQ = 5000) PLRDF duration__get_max_seq": 0.00
+," (Exist Keys fixed #PQ = 5000) PLRDF duration__retrieve_block": 935258900.00
+," (Exist Keys fixed #PQ = 5000) PLRDF duration__find_table": 3253433.33
+," (Exist Keys fixed #PQ = 5000) PLRDF duration__get_from_row_cache": 0.00
+," (Exist Keys fixed #PQ = 5000) PLRDF duration__remaining_get_path": 57645900.00
+
+," (Exist Keys fixed #PQ = 5000) PLRDF num_index_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) PLRDF num_filter_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) PLRDF num_range_del_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) PLRDF num_total_block_read_count": 5000.00
+," (Exist Keys fixed #PQ = 5000) PLRDF block_based_table_open_count": 0.00
+
+," (Exist Keys fixed #PQ = 5000) PLRDF filtered_by_RDF_count": 61.33
+
+," (Exist Keys fixed #PQ = 5000) PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) PLRDF fetcher__num_index_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) PLRDF fetcher__num_filter_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) PLRDF fetcher__num_range_del_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) PLRDF fetcher__num_data_read_count": 5000.00
+," (Exist Keys fixed #PQ = 5000) PLRDF fetcher__num_total_block_read_count": 5000.00
+
+
+," (Exist Keys fixed #PQ = 5000) PLRDF  block_read_cpu_time" : 0.00
+," (Exist Keys fixed #PQ = 5000) PLRDF Avg_read_count" : 5000.00
+," (Exist Keys fixed #PQ = 5000) PLRDF Avg_read_bytes" : 20700357.00
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF  elapsed time" : 1043.77
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF  filtered by RDF count" : 0.00
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF  number of PQ" : 90
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF disk_access_count": 1666.67
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF read_entry_block_count": 0.00
+
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF duration__get_rdf": 2531666.67
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF duration__get_max_seq": 0.00
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF duration__retrieve_block": 967011466.67
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF duration__find_table": 3407066.67
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF duration__get_from_row_cache": 0.00
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF duration__remaining_get_path": 59401866.67
+
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF num_index_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF num_filter_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF num_range_del_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF num_total_block_read_count": 5000.00
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF block_based_table_open_count": 0.00
+
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF filtered_by_RDF_count": 0.00
+
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_index_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_filter_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_range_del_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_data_read_count": 5000.00
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_total_block_read_count": 5000.00
+
+
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF  block_read_cpu_time" : 0.00
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF Avg_read_count" : 5000.00
+," (Exist Keys fixed #PQ = 5000) SPLIT_PLRDF Avg_read_bytes" : 20700357.00
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF  elapsed time" : 1060.24
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF  filtered by RDF count" : 0.00
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF  number of PQ" : 90
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF disk_access_count": 1666.67
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF read_entry_block_count": 0.00
+
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__get_rdf": 2717600.00
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__get_max_seq": 0.00
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__retrieve_block": 980841866.67
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__find_table": 3529700.00
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__get_from_row_cache": 0.00
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__remaining_get_path": 61046800.00
+
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF num_index_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF num_filter_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF num_range_del_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF num_total_block_read_count": 5000.00
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF block_based_table_open_count": 0.00
+
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF filtered_by_RDF_count": 0.00
+
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_index_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_filter_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_range_del_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_data_read_count": 5000.00
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_total_block_read_count": 5000.00
+
+
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF  block_read_cpu_time" : 0.00
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF Avg_read_count" : 5000.00
+," (Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF Avg_read_bytes" : 20700357.00
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF  elapsed time" : 1009.48
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF  filtered by RDF count" : 0.00
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF  number of PQ" : 90
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF disk_access_count": 1666.67
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF read_entry_block_count": 0.00
+
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF duration__get_rdf": 1306366.67
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF duration__get_max_seq": 0.00
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF duration__retrieve_block": 932431966.67
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF duration__find_table": 3243700.00
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF duration__get_from_row_cache": 0.00
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF duration__remaining_get_path": 57097400.00
+
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF num_index_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF num_filter_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF num_range_del_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF num_total_block_read_count": 5000.00
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF block_based_table_open_count": 0.00
+
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF filtered_by_RDF_count": 0.00
+
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_index_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_filter_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_range_del_read_count": 0.00
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_data_read_count": 5000.00
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_total_block_read_count": 5000.00
+
+
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF  block_read_cpu_time" : 0.00
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF Avg_read_count" : 5000.00
+," (Exist Keys fixed #PQ = 5000) SKYLINE_RDF Avg_read_bytes" : 20700357.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE  elapsed time" : 942.31
+," (Historcially Exist Keys fixed #PQ = 5000) NONE  filtered by RDF count" : 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE  number of PQ" : 100
+," (Historcially Exist Keys fixed #PQ = 5000) NONE disk_access_count": 1666.67
+," (Historcially Exist Keys fixed #PQ = 5000) NONE read_entry_block_count": 0.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) NONE duration__get_rdf": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE duration__get_max_seq": 863166.67
+," (Historcially Exist Keys fixed #PQ = 5000) NONE duration__retrieve_block": 872168933.33
+," (Historcially Exist Keys fixed #PQ = 5000) NONE duration__find_table": 3344466.67
+," (Historcially Exist Keys fixed #PQ = 5000) NONE duration__get_from_row_cache": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE duration__remaining_get_path": 54843600.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) NONE num_index_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE num_filter_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE num_range_del_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE num_total_block_read_count": 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) NONE block_based_table_open_count": 0.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) NONE filtered_by_RDF_count": 0.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) NONE fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE fetcher__num_filter_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE fetcher__num_data_read_count": 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) NONE fetcher__num_total_block_read_count": 4481.67
+
+
+," (Historcially Exist Keys fixed #PQ = 5000) NONE  block_read_cpu_time" : 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE Avg_read_count" : 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) NONE Avg_read_bytes" : 18559551.67
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2  elapsed time" : 917.31
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2  filtered by RDF count" : 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2  number of PQ" : 100
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 disk_access_count": 1666.67
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 read_entry_block_count": 0.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 duration__get_rdf": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 duration__get_max_seq": 775466.67
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 duration__retrieve_block": 848091866.67
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 duration__find_table": 3246566.67
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 duration__get_from_row_cache": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 duration__remaining_get_path": 53565900.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 num_index_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 num_filter_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 num_range_del_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 num_total_block_read_count": 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 block_based_table_open_count": 0.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 filtered_by_RDF_count": 0.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 fetcher__num_filter_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 fetcher__num_data_read_count": 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 fetcher__num_total_block_read_count": 4481.67
+
+
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2  block_read_cpu_time" : 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 Avg_read_count" : 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) NONE2 Avg_read_bytes" : 18559551.67
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF  elapsed time" : 942.12
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF  filtered by RDF count" : 570.33
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF  number of PQ" : 100
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF disk_access_count": 1666.67
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF read_entry_block_count": 0.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF duration__get_rdf": 2405366.67
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF duration__get_max_seq": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF duration__retrieve_block": 870560700.00
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF duration__find_table": 3206933.33
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF duration__get_from_row_cache": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF duration__remaining_get_path": 55113500.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF num_index_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF num_filter_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF num_range_del_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF num_total_block_read_count": 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF block_based_table_open_count": 0.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF filtered_by_RDF_count": 570.33
+
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF fetcher__num_filter_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF fetcher__num_data_read_count": 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF fetcher__num_total_block_read_count": 4481.67
+
+
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF  block_read_cpu_time" : 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF Avg_read_count" : 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) PLRDF Avg_read_bytes" : 18559551.67
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF  elapsed time" : 908.15
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF  filtered by RDF count" : 518.33
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF  number of PQ" : 100
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF disk_access_count": 1503.67
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF read_entry_block_count": 0.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF duration__get_rdf": 2317833.33
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF duration__get_max_seq": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF duration__retrieve_block": 839722366.67
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF duration__find_table": 2953433.33
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF duration__get_from_row_cache": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF duration__remaining_get_path": 52696600.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF num_index_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF num_filter_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF num_range_del_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF num_total_block_read_count": 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF block_based_table_open_count": 0.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF filtered_by_RDF_count": 518.33
+
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_filter_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_data_read_count": 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_total_block_read_count": 4481.67
+
+
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF  block_read_cpu_time" : 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF Avg_read_count" : 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) SPLIT_PLRDF Avg_read_bytes" : 18559551.67
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF  elapsed time" : 955.27
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF  filtered by RDF count" : 518.33
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF  number of PQ" : 100
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF disk_access_count": 1503.67
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF read_entry_block_count": 0.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__get_rdf": 2554833.33
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__get_max_seq": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__retrieve_block": 882793333.33
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__find_table": 3138366.67
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__get_from_row_cache": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__remaining_get_path": 55526033.33
+
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF num_index_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF num_filter_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF num_range_del_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF num_total_block_read_count": 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF block_based_table_open_count": 0.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF filtered_by_RDF_count": 518.33
+
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_filter_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_data_read_count": 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_total_block_read_count": 4481.67
+
+
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF  block_read_cpu_time" : 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF Avg_read_count" : 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) TOP_LEVEL_RDF Avg_read_bytes" : 18559551.67
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF  elapsed time" : 918.88
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF  filtered by RDF count" : 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF  number of PQ" : 100
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF disk_access_count": 1666.67
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF read_entry_block_count": 0.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF duration__get_rdf": 1151533.33
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF duration__get_max_seq": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF duration__retrieve_block": 847034533.33
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF duration__find_table": 3129400.00
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF duration__get_from_row_cache": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF duration__remaining_get_path": 52836133.33
+
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF num_index_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF num_filter_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF num_range_del_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF num_total_block_read_count": 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF block_based_table_open_count": 0.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF filtered_by_RDF_count": 0.00
+
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_index_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_filter_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_range_del_read_count": 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_data_read_count": 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_total_block_read_count": 4481.67
+
+
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF  block_read_cpu_time" : 0.00
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF Avg_read_count" : 4481.67
+," (Historcially Exist Keys fixed #PQ = 5000) SKYLINE_RDF Avg_read_bytes" : 18559551.67
+," (Currently Deleted Keys fixed #PQ = 5000) NONE  elapsed time" : 24.88
+," (Currently Deleted Keys fixed #PQ = 5000) NONE  filtered by RDF count" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE  number of PQ" : 10
+," (Currently Deleted Keys fixed #PQ = 5000) NONE disk_access_count": 1666.67
+," (Currently Deleted Keys fixed #PQ = 5000) NONE read_entry_block_count": 0.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) NONE duration__get_rdf": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE duration__get_max_seq": 569133.33
+," (Currently Deleted Keys fixed #PQ = 5000) NONE duration__retrieve_block": 1061666.67
+," (Currently Deleted Keys fixed #PQ = 5000) NONE duration__find_table": 1985433.33
+," (Currently Deleted Keys fixed #PQ = 5000) NONE duration__get_from_row_cache": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE duration__remaining_get_path": 14198100.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) NONE num_index_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE num_filter_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE num_range_del_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE num_total_block_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE block_based_table_open_count": 0.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) NONE filtered_by_RDF_count": 0.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) NONE fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE fetcher__num_filter_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE fetcher__num_data_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE fetcher__num_total_block_read_count": 0.00
+
+
+," (Currently Deleted Keys fixed #PQ = 5000) NONE  block_read_cpu_time" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE Avg_read_count" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE Avg_read_bytes" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2  elapsed time" : 24.17
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2  filtered by RDF count" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2  number of PQ" : 10
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 disk_access_count": 1666.67
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 read_entry_block_count": 0.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 duration__get_rdf": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 duration__get_max_seq": 547300.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 duration__retrieve_block": 1056300.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 duration__find_table": 1925700.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 duration__get_from_row_cache": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 duration__remaining_get_path": 13736933.33
+
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 num_index_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 num_filter_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 num_range_del_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 num_total_block_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 block_based_table_open_count": 0.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 filtered_by_RDF_count": 0.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 fetcher__num_filter_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 fetcher__num_data_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 fetcher__num_total_block_read_count": 0.00
+
+
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2  block_read_cpu_time" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 Avg_read_count" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) NONE2 Avg_read_bytes" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF  elapsed time" : 25.39
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF  filtered by RDF count" : 5000.00
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF  number of PQ" : 10
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF disk_access_count": 1666.67
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF read_entry_block_count": 0.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF duration__get_rdf": 977833.33
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF duration__get_max_seq": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF duration__retrieve_block": 1105500.00
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF duration__find_table": 2049466.67
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF duration__get_from_row_cache": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF duration__remaining_get_path": 14437166.67
+
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF num_index_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF num_filter_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF num_range_del_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF num_total_block_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF block_based_table_open_count": 0.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF filtered_by_RDF_count": 5000.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF fetcher__num_filter_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF fetcher__num_data_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF fetcher__num_total_block_read_count": 0.00
+
+
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF  block_read_cpu_time" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF Avg_read_count" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) PLRDF Avg_read_bytes" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF  elapsed time" : 10.27
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF  filtered by RDF count" : 5000.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF  number of PQ" : 10
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF disk_access_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF read_entry_block_count": 0.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF duration__get_rdf": 855800.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF duration__get_max_seq": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF duration__retrieve_block": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF duration__find_table": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF duration__get_from_row_cache": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF duration__remaining_get_path": 7132100.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF num_index_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF num_filter_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF num_range_del_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF num_total_block_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF block_based_table_open_count": 0.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF filtered_by_RDF_count": 5000.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_filter_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_data_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_total_block_read_count": 0.00
+
+
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF  block_read_cpu_time" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF Avg_read_count" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SPLIT_PLRDF Avg_read_bytes" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF  elapsed time" : 11.51
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF  filtered by RDF count" : 5000.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF  number of PQ" : 10
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF disk_access_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF read_entry_block_count": 0.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__get_rdf": 981366.67
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__get_max_seq": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__retrieve_block": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__find_table": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__get_from_row_cache": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__remaining_get_path": 7985733.33
+
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF num_index_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF num_filter_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF num_range_del_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF num_total_block_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF block_based_table_open_count": 0.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF filtered_by_RDF_count": 5000.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_filter_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_data_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_total_block_read_count": 0.00
+
+
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF  block_read_cpu_time" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF Avg_read_count" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) TOP_LEVEL_RDF Avg_read_bytes" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF  elapsed time" : 21.65
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF  filtered by RDF count" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF  number of PQ" : 10
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF disk_access_count": 1666.67
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF read_entry_block_count": 0.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF duration__get_rdf": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF duration__get_max_seq": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF duration__retrieve_block": 940500.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF duration__find_table": 1828800.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF duration__get_from_row_cache": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF duration__remaining_get_path": 12869300.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF num_index_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF num_filter_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF num_range_del_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF num_total_block_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF block_based_table_open_count": 0.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF filtered_by_RDF_count": 0.00
+
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_index_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_filter_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_range_del_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_data_read_count": 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_total_block_read_count": 0.00
+
+
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF  block_read_cpu_time" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF Avg_read_count" : 0.00
+," (Currently Deleted Keys fixed #PQ = 5000) SKYLINE_RDF Avg_read_bytes" : 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE  elapsed time" : 38.75
+," (Non-inserted Keys fixed #PQ = 5000) NONE  filtered by RDF count" : 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE  number of PQ" : 1000
+," (Non-inserted Keys fixed #PQ = 5000) NONE disk_access_count": 1666.67
+," (Non-inserted Keys fixed #PQ = 5000) NONE read_entry_block_count": 0.00
+
+," (Non-inserted Keys fixed #PQ = 5000) NONE duration__get_rdf": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE duration__get_max_seq": 630066.67
+," (Non-inserted Keys fixed #PQ = 5000) NONE duration__retrieve_block": 11829733.33
+," (Non-inserted Keys fixed #PQ = 5000) NONE duration__find_table": 2106066.67
+," (Non-inserted Keys fixed #PQ = 5000) NONE duration__get_from_row_cache": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE duration__remaining_get_path": 16510566.67
+
+," (Non-inserted Keys fixed #PQ = 5000) NONE num_index_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE num_filter_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE num_range_del_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE num_total_block_read_count": 26.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE block_based_table_open_count": 0.00
+
+," (Non-inserted Keys fixed #PQ = 5000) NONE filtered_by_RDF_count": 0.00
+
+," (Non-inserted Keys fixed #PQ = 5000) NONE fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE fetcher__num_filter_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE fetcher__num_data_read_count": 26.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE fetcher__num_total_block_read_count": 26.00
+
+
+," (Non-inserted Keys fixed #PQ = 5000) NONE  block_read_cpu_time" : 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE Avg_read_count" : 26.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE Avg_read_bytes" : 108518.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE2  elapsed time" : 33.87
+," (Non-inserted Keys fixed #PQ = 5000) NONE2  filtered by RDF count" : 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE2  number of PQ" : 1000
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 disk_access_count": 1666.67
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 read_entry_block_count": 0.00
+
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 duration__get_rdf": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 duration__get_max_seq": 595400.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 duration__retrieve_block": 9730033.33
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 duration__find_table": 1862700.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 duration__get_from_row_cache": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 duration__remaining_get_path": 14468200.00
+
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 num_index_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 num_filter_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 num_range_del_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 num_total_block_read_count": 26.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 block_based_table_open_count": 0.00
+
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 filtered_by_RDF_count": 0.00
+
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 fetcher__num_filter_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 fetcher__num_data_read_count": 26.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 fetcher__num_total_block_read_count": 26.00
+
+
+," (Non-inserted Keys fixed #PQ = 5000) NONE2  block_read_cpu_time" : 0.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 Avg_read_count" : 26.00
+," (Non-inserted Keys fixed #PQ = 5000) NONE2 Avg_read_bytes" : 108518.00
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF  elapsed time" : 35.35
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF  filtered by RDF count" : 5000.00
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF  number of PQ" : 1000
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF disk_access_count": 1666.67
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF read_entry_block_count": 0.00
+
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF duration__get_rdf": 1013033.33
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF duration__get_max_seq": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF duration__retrieve_block": 10270466.67
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF duration__find_table": 2055466.67
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF duration__get_from_row_cache": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF duration__remaining_get_path": 15088200.00
+
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF num_index_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF num_filter_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF num_range_del_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF num_total_block_read_count": 26.00
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF block_based_table_open_count": 0.00
+
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF filtered_by_RDF_count": 5000.00
+
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF fetcher__num_filter_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF fetcher__num_data_read_count": 26.00
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF fetcher__num_total_block_read_count": 26.00
+
+
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF  block_read_cpu_time" : 0.00
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF Avg_read_count" : 26.00
+," (Non-inserted Keys fixed #PQ = 5000) PLRDF Avg_read_bytes" : 108518.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF  elapsed time" : 10.36
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF  filtered by RDF count" : 5000.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF  number of PQ" : 1000
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF disk_access_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF read_entry_block_count": 0.00
+
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF duration__get_rdf": 912900.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF duration__get_max_seq": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF duration__retrieve_block": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF duration__find_table": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF duration__get_from_row_cache": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF duration__remaining_get_path": 7055866.67
+
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF num_index_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF num_filter_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF num_range_del_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF num_total_block_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF block_based_table_open_count": 0.00
+
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF filtered_by_RDF_count": 5000.00
+
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_filter_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_data_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF fetcher__num_total_block_read_count": 0.00
+
+
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF  block_read_cpu_time" : 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF Avg_read_count" : 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SPLIT_PLRDF Avg_read_bytes" : 0.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF  elapsed time" : 10.93
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF  filtered by RDF count" : 5000.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF  number of PQ" : 1000
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF disk_access_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF read_entry_block_count": 0.00
+
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__get_rdf": 897766.67
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__get_max_seq": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__retrieve_block": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__find_table": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__get_from_row_cache": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF duration__remaining_get_path": 7516533.33
+
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF num_index_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF num_filter_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF num_range_del_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF num_total_block_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF block_based_table_open_count": 0.00
+
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF filtered_by_RDF_count": 5000.00
+
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_filter_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_data_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF fetcher__num_total_block_read_count": 0.00
+
+
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF  block_read_cpu_time" : 0.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF Avg_read_count" : 0.00
+," (Non-inserted Keys fixed #PQ = 5000) TOP_LEVEL_RDF Avg_read_bytes" : 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF  elapsed time" : 35.40
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF  filtered by RDF count" : 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF  number of PQ" : 1000
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF disk_access_count": 1666.67
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF read_entry_block_count": 0.00
+
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF duration__get_rdf": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF duration__get_max_seq": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF duration__retrieve_block": 11462566.67
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF duration__find_table": 2101900.00
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF duration__get_from_row_cache": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF duration__remaining_get_path": 15058366.67
+
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF num_index_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF num_filter_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF num_range_del_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF num_total_block_read_count": 26.00
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF block_based_table_open_count": 0.00
+
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF filtered_by_RDF_count": 0.00
+
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_compression_dict_block_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_index_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_filter_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_range_del_read_count": 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_data_read_count": 26.00
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF fetcher__num_total_block_read_count": 26.00
+
+
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF  block_read_cpu_time" : 0.00
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF Avg_read_count" : 26.00
+," (Non-inserted Keys fixed #PQ = 5000) SKYLINE_RDF Avg_read_bytes" : 108518.00

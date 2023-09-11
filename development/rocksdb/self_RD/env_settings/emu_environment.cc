@@ -179,209 +179,43 @@ EmuEnv* EmuEnv::getInstance()
   return instance;
 }
 
-// // !YBS-sep06-XX
-// void EmuEnv::AddNewLevel(int _level_count, EmuEnv* _env) {
-//   _env->live_levels = _level_count;
-//   if (_env->compaction_pri == 5) {
-//     EmuEnv::ReSetLevelDeletePersistenceLatency(_level_count, _env);
-//   }
-//   else  std::cout << "                                                                                               " << std::endl; 
-// } 
-// // !END
 
-// void EmuEnv::ReSetLevelDeletePersistenceLatency(int _level_count, EmuEnv* _env) { // reset dpl-per-level when there in a new level added
-//     // note: last level does not have a del_per_lat (therefore, level id replaced by level-1)
-//     // !YBS-sep06-XX
-//       double x = _env->delete_persistence_latency * (_env->size_ratio - 1) / ( pow( _env->size_ratio, (_level_count - 1 ) ) - 1 );
-//       std::cout << " [ DPL(s) = " << _env->delete_persistence_latency << " = ";
-//       for (int i = 0; i < _level_count - 1; ++i) { // i=0 corresponds to level-1
-//         _env->level_delete_persistence_latency[i] = x * pow( _env->size_ratio, i );
-//         std::cout << _env->level_delete_persistence_latency[i] << " (L" << i << ") + ";
-//       }
-//       std::cout << "\b\b]";
-//       if (_env->show_progress) 
-//         std::cout << "                                                           " << std::endl;
-//     // !END
-//   }
-
-// double EmuEnv::GetLevelDeletePersistenceLatency(int _level, EmuEnv* _env){
-//   return _env->level_delete_persistence_latency[_level]; // index:_level-1 corresponds to level:_level-1
-// }
-
-// void EmuEnv::DumpDeleteFileTimestamp(std::chrono::time_point<std::chrono::system_clock> delete_file_timestamp, uint64_t delete_file_id, EmuEnv* _env){
-//   std::chrono::time_point<std::chrono::system_clock> current_timestamp = std::chrono::system_clock::now();
-//   auto current_age = (std::chrono::duration<double, std::milli>(current_timestamp - current_timestamp)).count();
-//   auto delete_file_age = (std::chrono::duration<double, std::milli>(current_timestamp - delete_file_timestamp)).count();
-//   if (_env->verbosity >= 3)
-//     std::cout << "current_age = " << current_age
-//             << " & delete_file_age = " << delete_file_age << " & delete_file_no = " << delete_file_id; // << std::endl;
-//   if (delete_file_age > current_age) {
-//     _env->oldest_delete_file_timestamp = delete_file_timestamp;
-//   }
-//   _env->flag+=2;
-//   if (_env->verbosity >= 3)
-//     std::cout << " & flag = " << _env->flag << std::endl;
-// }
-
-// std::chrono::time_point<std::chrono::system_clock> EmuEnv::GetDumpedDeleteFileTimestamp(){
+// void EmuEnv::PopulatingVector(uint64_t _file_id){
 //   EmuEnv* _env = EmuEnv::getInstance();
-//   // std::cout << "returning timestamp = " << std::chrono::system_clock::to_time_t(_env->oldest_delete_file_timestamp) << std::endl;
-//   std::chrono::time_point<std::chrono::system_clock> temp = _env->oldest_delete_file_timestamp;
-//   --_env->flag;
-//   if (_env->flag == 0)
-//     _env->oldest_delete_file_timestamp = std::chrono::system_clock::now();
-//   if (_env->flag < 0)
-//     _env->flag =0;
-//   // std::cout << " reducing flag : flag = " << _env->flag << std::endl;
-//   return temp;
-// }
+//   if (_file_id > 0) {
+//     // for (int i = 0; i < _env->vec.size(); ++i) 
+//     //   std::cout << "printing vector state BEFORE: " << _env->vec[i] << "\t";
+//     // std::cout << "\n";
 
-void EmuEnv::PopulatingVector(uint64_t _file_id){
-  EmuEnv* _env = EmuEnv::getInstance();
-  if (_file_id > 0) {
-    // for (int i = 0; i < _env->vec.size(); ++i) 
-    //   std::cout << "printing vector state BEFORE: " << _env->vec[i] << "\t";
-    // std::cout << "\n";
+//     _env->vec.push_back(_file_id);
+//     // std::cout << "pushing file_id = " << _file_id << std::endl;
 
-    _env->vec.push_back(_file_id);
-    // std::cout << "pushing file_id = " << _file_id << std::endl;
-
-    // for (int i = 0; i < _env->vec.size(); ++i) 
-    //   std::cout << "printing vector state AFTER : " << _env->vec[i] << "\t";
-    // std::cout << "\n";
-  }
-}
-
-int EmuEnv::CheckingVector(uint64_t _file_id){
-  EmuEnv* _env = EmuEnv::getInstance();
-  bool match = false;
-  // for (int i = 0; i < _env->vec.size(); ++i) 
-  //   std::cout << "printing vector state BEFORE: " << _env->vec[i] << "\t";
-  // std::cout << "\n";
-
-  for (int i = 0; i < _env->vec.size(); ++i) {
-    if (_env->vec[i] == _file_id) {
-      // std::cout << "MATCH FOUND file_id = " << _file_id << std::endl;
-      _env->vec.erase(std::remove(_env->vec.begin(), _env->vec.end(), _file_id), _env->vec.end());
-      match = true;
-    }
-  }
-  // for (int i = 0; i < _env->vec.size(); ++i) 
-  //   std::cout << "printing vector state AFTER : " << _env->vec[i] << "\t";
-  // std::cout << "\n";
-
-  if(match) return 2; return 1;
-
-}
-
-// // !YBS-sep06-XX
-// void EmuEnv::PrintRRIndices(EmuEnv* _env) {
-//   std::cout << "RRIndexArray = [ ";
-//   for (int i=0; i<20; i++) {
-//     std::cout << _env->RR_level_last_file_selected[i] << " ";
+//     // for (int i = 0; i < _env->vec.size(); ++i) 
+//     //   std::cout << "printing vector state AFTER : " << _env->vec[i] << "\t";
+//     // std::cout << "\n";
 //   }
-//   std::cout << " ]" << std::endl;
 // }
-// // !END
 
+// int EmuEnv::CheckingVector(uint64_t _file_id){
+//   EmuEnv* _env = EmuEnv::getInstance();
+//   bool match = false;
+//   // for (int i = 0; i < _env->vec.size(); ++i) 
+//   //   std::cout << "printing vector state BEFORE: " << _env->vec[i] << "\t";
+//   // std::cout << "\n";
 
+//   for (int i = 0; i < _env->vec.size(); ++i) {
+//     if (_env->vec[i] == _file_id) {
+//       // std::cout << "MATCH FOUND file_id = " << _file_id << std::endl;
+//       _env->vec.erase(std::remove(_env->vec.begin(), _env->vec.end(), _file_id), _env->vec.end());
+//       match = true;
+//     }
+//   }
+//   // for (int i = 0; i < _env->vec.size(); ++i) 
+//   //   std::cout << "printing vector state AFTER : " << _env->vec[i] << "\t";
+//   // std::cout << "\n";
 
+//   if(match) return 2; return 1;
 
-/*
-std::string get_time_string() {
-   time_t rawtime;
-   struct tm * timeinfo;
-   char buffer[80];
-   time (&rawtime);
-   timeinfo = localtime(&rawtime);
-   strftime(buffer,80,"%Y-%m-%d_%H:%M:%S",timeinfo);
-   std::string str(buffer);
-   return str;
-}
+// }
 
-bool is_zero(double val)
-{
-    double epsilon = 0.00001;
-    return ( abs(val)<epsilon );
-}
-
-// Collect some existing keys to be used within the experiment
-void collect_existing_entries(ExpEnv* _env, vector<string>& existing_keys ) {
-  Options options;
-  options.create_if_missing = false;
-  options.use_direct_reads = false;
-  options.num_levels = _env->rocksDB_max_levels;
-  options.IncreaseParallelism(6);
-  rocksdb::BlockBasedTableOptions table_options;
-  options.num_levels = _env->rocksDB_max_levels;
-  
-  
-  //file_size is defaulting to : std::numeric_limits<uint64_t>::max()
-  FluidLSMTree* tree = new FluidLSMTree(_env->T, _env->K, _env->Z, _env->file_size, options);
-  options.listeners.emplace_back(tree);
-
-
-  DB* db = nullptr;
-  Status s = DB::OpenForReadOnly(options, _env->path, &db);
-
-  if (!s.ok()) {
-    std::cerr << "Problem opening DB. Closing." << std::endl;
-    delete db;
-    exit(0);
-  }
-
-  tree->buildStructure(db);
-
-  int num_existing_keys_to_get = _env->num_queries * (_env->nonzero_to_zero_ratio / (_env->nonzero_to_zero_ratio + 1));
-
-  if (num_existing_keys_to_get == 0) {
-    return;
-  }
-
-  struct timeval t1, t2;
-  gettimeofday(&t1, NULL);
-
-  string key_prefix = "";
-  string val_prefix = "";
-  //if (_env->target_level_for_non_zero_result_point_lookups != -1) {
-  key_prefix = _env->key_prefix_for_entries_to_target_in_queries;
-  val_prefix = to_string(_env->target_level_for_non_zero_result_point_lookups) + "-";
-  //}
-  //else {
-  //  val_prefix = to_string(tree->largestOccupiedLevel()) + "-";
-  //}
-
-
-  // verify the values are still there
-  existing_keys.reserve(num_existing_keys_to_get);
-  std::string existing_key;
-  std::string existing_val;
-  auto iter = db->NewIterator(ReadOptions());
-  while (existing_keys.size() < num_existing_keys_to_get) {
-    string key = DataGenerator::generate_key(key_prefix);
-    iter->Seek(key);
-    if (iter->Valid()) {
-      existing_key = iter->key().ToString();
-      existing_val = iter->value().ToString();
-      if (existing_val.compare(0, val_prefix.size(), val_prefix) == 0) {
-        existing_keys.push_back(existing_key);
-      }
-    }
-    //assert(value == std::string(500, 'a' + (i % 26)));
-  }
-  //double query_time = difftime(end_q, start_q);
-  delete iter;
-  gettimeofday(&t2, NULL);
-  double experiment_time = (t2.tv_sec - t1.tv_sec) * 1000.0 + (t2.tv_usec - t1.tv_usec)/1000.0;
-  experiment_time /= 1000.0;  // get it to be in seconds
-
-  if (_env->debugging) {
-    std::cerr << "collected " << num_existing_keys_to_get << " existing keys in " << experiment_time << "seconds" << endl;
-    std::cerr << endl;
-  }
-
-  db->Close();
-  delete db;
-}
-*/
 

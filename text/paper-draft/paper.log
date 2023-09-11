@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2023.8.1)  6 SEP 2023 13:28
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2023.8.1)  6 SEP 2023 21:50
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -594,6 +594,9 @@ LaTeX Warning: Label `fig:elapsed_time__currently_deleted_keys__P512_B16_E256__n
 
 LaTeX Warning: Label `sub@fig:elapsed_time__currently_deleted_keys__P512_B16_E256__normalized' multiply defined.
 
+
+LaTeX Warning: Label `fig:elapsed_time_breakdown__normalized__currently_deleted_keys__varying_on_selectivity' multiply defined.
+
 )
 \openout1 = `paper.aux'.
 
@@ -901,6 +904,52 @@ Package pdftex.def Info: Figures/Varying_on_numbers_of_RDs/T2_P512_B256_E16_2048
 
 Class acmart Warning: A possible image without description on input line 306.
 
+<Figures/Varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity_61x__timing_breakdown_on_currently_deleted_keys__normalized.png, id=172, 867.24pt x 578.16pt>
+File: Figures/Varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity_61x__timing_breakdown_on_currently_deleted_keys__normalized.png Graphic file (type png)
+<use Figures/Varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity_61x__timing_breakdown_on_currently_deleted_keys__normalized.png>
+Package pdftex.def Info: Figures/Varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity_61x__timing_breakdown_on_currently_deleted_keys__normalized.png  used on input line 319.
+(pdftex.def)             Requested size: 195.12057pt x 130.08621pt.
+<Figures/Varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity_62x__timing_breakdown_on_currently_deleted_keys__normalized.png, id=173, 867.24pt x 578.16pt>
+File: Figures/Varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity_62x__timing_breakdown_on_currently_deleted_keys__normalized.png Graphic file (type png)
+<use Figures/Varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity_62x__timing_breakdown_on_currently_deleted_keys__normalized.png>
+Package pdftex.def Info: Figures/Varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity_62x__timing_breakdown_on_currently_deleted_keys__normalized.png  used on input line 328.
+(pdftex.def)             Requested size: 195.12057pt x 130.08621pt.
+<Figures/Varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity_63x__timing_breakdown_on_currently_deleted_keys__normalized.png, id=174, 867.24pt x 578.16pt>
+File: Figures/Varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity_63x__timing_breakdown_on_currently_deleted_keys__normalized.png Graphic file (type png)
+<use Figures/Varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity_63x__timing_breakdown_on_currently_deleted_keys__normalized.png>
+Package pdftex.def Info: Figures/Varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity_63x__timing_breakdown_on_currently_deleted_keys__normalized.png  used on input line 337.
+(pdftex.def)             Requested size: 195.12057pt x 130.08621pt.
+<Figures/Varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity_64x__timing_breakdown_on_currently_deleted_keys__normalized.png, id=175, 867.24pt x 578.16pt>
+File: Figures/Varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity_64x__timing_breakdown_on_currently_deleted_keys__normalized.png Graphic file (type png)
+<use Figures/Varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity_64x__timing_breakdown_on_currently_deleted_keys__normalized.png>
+Package pdftex.def Info: Figures/Varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity_64x__timing_breakdown_on_currently_deleted_keys__normalized.png  used on input line 346.
+(pdftex.def)             Requested size: 195.12057pt x 130.08621pt.
+
+Class acmart Warning: A possible image without description on input line 352.
+
+<Figures/Varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity_51x__timing_breakdown_on_currently_deleted_keys__normalized.png, id=176, 867.24pt x 578.16pt>
+File: Figures/Varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity_51x__timing_breakdown_on_currently_deleted_keys__normalized.png Graphic file (type png)
+<use Figures/Varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity_51x__timing_breakdown_on_currently_deleted_keys__normalized.png>
+Package pdftex.def Info: Figures/Varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity_51x__timing_breakdown_on_currently_deleted_keys__normalized.png  used on input line 360.
+(pdftex.def)             Requested size: 195.12057pt x 130.08621pt.
+<Figures/Varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity_52x__timing_breakdown_on_currently_deleted_keys__normalized.png, id=177, 867.24pt x 578.16pt>
+File: Figures/Varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity_52x__timing_breakdown_on_currently_deleted_keys__normalized.png Graphic file (type png)
+<use Figures/Varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity_52x__timing_breakdown_on_currently_deleted_keys__normalized.png>
+Package pdftex.def Info: Figures/Varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity_52x__timing_breakdown_on_currently_deleted_keys__normalized.png  used on input line 369.
+(pdftex.def)             Requested size: 195.12057pt x 130.08621pt.
+<Figures/Varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity_53x__timing_breakdown_on_currently_deleted_keys__normalized.png, id=178, 867.24pt x 578.16pt>
+File: Figures/Varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity_53x__timing_breakdown_on_currently_deleted_keys__normalized.png Graphic file (type png)
+<use Figures/Varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity_53x__timing_breakdown_on_currently_deleted_keys__normalized.png>
+Package pdftex.def Info: Figures/Varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity_53x__timing_breakdown_on_currently_deleted_keys__normalized.png  used on input line 378.
+(pdftex.def)             Requested size: 195.12057pt x 130.08621pt.
+<Figures/Varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity_54x__timing_breakdown_on_currently_deleted_keys__normalized.png, id=179, 867.24pt x 578.16pt>
+File: Figures/Varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity_54x__timing_breakdown_on_currently_deleted_keys__normalized.png Graphic file (type png)
+<use Figures/Varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity_54x__timing_breakdown_on_currently_deleted_keys__normalized.png>
+Package pdftex.def Info: Figures/Varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity_54x__timing_breakdown_on_currently_deleted_keys__normalized.png  used on input line 387.
+(pdftex.def)             Requested size: 195.12057pt x 130.08621pt.
+
+Class acmart Warning: A possible image without description on input line 393.
+
 ) (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/7-related_work.tex) (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/8-conclusion.tex) (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/biblio.tex (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/paper.bbl
 
 Package natbib Warning: Empty `thebibliography' environment on input line 3.
@@ -915,34 +964,34 @@ Class acmart Warning: ACM keywords are mandatory for papers over two pages.
 
 Class acmart Warning: CCS concepts are mandatory for papers over two pages.
 
-[6.6] [7.7 </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_numbers_of_RDs/T2_P512_B4_E1024_2048p0KB_alpha0p9/T2_P512_B4_E1024_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_numbers_of_RDs/T2_P512_B16_E256_2048p0KB_alpha0p9/T2_P512_B16_E256_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_numbers_of_RDs/T2_P512_B64_E64_2048p0KB_alpha0p9/T2_P512_B64_E64_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_numbers_of_RDs/T2_P512_B256_E16_2048p0KB_alpha0p9/T2_P512_B256_E16_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys.png>]
-Package atenddvi Info: Last page = 8.
- [8.8 </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_numbers_of_RDs/T2_P512_B4_E1024_2048p0KB_alpha0p9/T2_P512_B4_E1024_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys__normalized.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_numbers_of_RDs/T2_P512_B16_E256_2048p0KB_alpha0p9/T2_P512_B16_E256_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys__normalized.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_numbers_of_RDs/T2_P512_B64_E64_2048p0KB_alpha0p9/T2_P512_B64_E64_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys__normalized.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_numbers_of_RDs/T2_P512_B256_E16_2048p0KB_alpha0p9/T2_P512_B256_E16_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys__normalized.png>]
+[6.6] [7.7 </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_numbers_of_RDs/T2_P512_B4_E1024_2048p0KB_alpha0p9/T2_P512_B4_E1024_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_numbers_of_RDs/T2_P512_B16_E256_2048p0KB_alpha0p9/T2_P512_B16_E256_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_numbers_of_RDs/T2_P512_B64_E64_2048p0KB_alpha0p9/T2_P512_B64_E64_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_numbers_of_RDs/T2_P512_B256_E16_2048p0KB_alpha0p9/T2_P512_B256_E16_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys.png>] [8.8 </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_numbers_of_RDs/T2_P512_B4_E1024_2048p0KB_alpha0p9/T2_P512_B4_E1024_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys__normalized.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_numbers_of_RDs/T2_P512_B16_E256_2048p0KB_alpha0p9/T2_P512_B16_E256_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys__normalized.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_numbers_of_RDs/T2_P512_B64_E64_2048p0KB_alpha0p9/T2_P512_B64_E64_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys__normalized.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_numbers_of_RDs/T2_P512_B256_E16_2048p0KB_alpha0p9/T2_P512_B256_E16_2048p0KB_alpha0p9_timing_breakdown_on_currently_deleted_keys__normalized.png>] [9.9 </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity_61x__timing_breakdown_on_currently_deleted_keys__normalized.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity_62x__timing_breakdown_on_currently_deleted_keys__normalized.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity_63x__timing_breakdown_on_currently_deleted_keys__normalized.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity_64x__timing_breakdown_on_currently_deleted_keys__normalized.png>]
+Package atenddvi Info: Last page = 10.
+ [10.10 </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B4_E1024_2048p0KB_alpha0p9__varying_on_selectivity_51x__timing_breakdown_on_currently_deleted_keys__normalized.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B16_E256_2048p0KB_alpha0p9__varying_on_selectivity_52x__timing_breakdown_on_currently_deleted_keys__normalized.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B64_E64_2048p0KB_alpha0p9__varying_on_selectivity_53x__timing_breakdown_on_currently_deleted_keys__normalized.png> </mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/Figures/Varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity/T2_P512_B256_E16_2048p0KB_alpha0p9__varying_on_selectivity_54x__timing_breakdown_on_currently_deleted_keys__normalized.png>]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 214.
 Package atveryend Info: Executing hook `AfterLastShipout' on input line 214.
  (/mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/paper.aux)
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 214.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 214.
 Package rerunfilecheck Info: File `paper.out' has not changed.
-(rerunfilecheck)             Checksum: 54C240C68EA30581850827EF3A1EF94B;1754.
+(rerunfilecheck)             Checksum: 0E66FC3D529C7BAD1068BF62DF469EB4;1754.
 
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 17793 strings out of 494847
- 277890 string characters out of 6179081
- 441878 words of memory out of 5000000
- 20383 multiletter control sequences out of 15000+600000
+ 17858 strings out of 494847
+ 287874 string characters out of 6179081
+ 444486 words of memory out of 5000000
+ 20432 multiletter control sequences out of 15000+600000
  20056 words of font info for 116 fonts, out of 8000000 for 9000
  220 hyphenation exceptions out of 8191
  60i,11n,94p,1081b,628s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb>
-Output written on /mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/paper.pdf (8 pages, 1410999 bytes).
+Output written on /mnt/d/LocalLaptop/BU/courses/2023-Spring/CS_561/Project/LSMRangeDeletes/text/paper-draft/paper.pdf (10 pages, 1897917 bytes).
 PDF statistics:
- 277 PDF objects out of 1000 (max. 8388607)
- 186 compressed objects within 2 object streams
- 41 named destinations out of 1000 (max. 500000)
- 22254 words of extra memory for PDF output out of 24883 (max. 10000000)
+ 304 PDF objects out of 1000 (max. 8388607)
+ 195 compressed objects within 2 object streams
+ 45 named destinations out of 1000 (max. 500000)
+ 22294 words of extra memory for PDF output out of 24883 (max. 10000000)
 
