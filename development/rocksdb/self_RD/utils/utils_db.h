@@ -11,7 +11,7 @@
 #include "rocksdb/options.h"
 #include "rocksdb/advanced_options.h"
 #include "rocksdb/system_verifier.h"
-#include "utils_RDF.h"
+#include "utils_rdf.h"
 #include "../env_settings/emu_environment.h"
 
 using namespace std;
