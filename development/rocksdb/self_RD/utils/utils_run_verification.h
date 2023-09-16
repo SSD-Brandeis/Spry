@@ -635,8 +635,8 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 void verification_runner::endPQVerification(){
   checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
 
-  testing_result_file.close();
-  testing_result_file2.close();
+  // testing_result_file.close();
+  // testing_result_file2.close();
 
   
   testing_result_file << std::endl << std::endl;
