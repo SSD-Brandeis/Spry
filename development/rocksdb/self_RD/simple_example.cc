@@ -115,11 +115,16 @@ int main(int argc, char *argv[]) {
   //   set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
   // }
 
+  reset_perf_iostats_context();
+  
+
   std::this_thread::sleep_for(std::chrono::seconds(10));  // Sleep for 1 second
   {
     // std::clog << "Press Enter to continue...";
     // std::cin.ignore(); // Waits for user to press Enter key
     verification_runner::initPQVerification(db_ptr2, read_op, _env);
+    
+    std::cout << "!!! runQPVerification start " << std::endl;
 
     // verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env);
     int numbers_of_PQs = -1;
@@ -133,6 +138,8 @@ int main(int argc, char *argv[]) {
   set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
 
   std::cout << "!!! runQPVerification done " << std::endl;
+  
+  print_perf_iostats_context(std::cout, 1);
 
 
   end(db_ptr2);

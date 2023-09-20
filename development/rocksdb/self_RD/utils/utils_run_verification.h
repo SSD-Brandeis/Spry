@@ -206,7 +206,7 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
     if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
       s = db->SetOptions({{"max_open_files", "1"}}); // is there any compaction happended after this????
     }else{
-      s = db->SetOptions({{"max_open_files", "20"}}); // is there any compaction happended after this????
+      s = db->SetOptions({{"max_open_files", std::to_string(_env->max_open_files)}}); // is there any compaction happended after this????
     }
 
     // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
@@ -322,7 +322,7 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
     if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
       s = db->SetOptions({{"max_open_files", "1"}}); // is there any compaction happended after this????
     }else{
-      s = db->SetOptions({{"max_open_files", "20"}}); // is there any compaction happended after this????
+      s = db->SetOptions({{"max_open_files", std::to_string(_env->max_open_files)}}); // is there any compaction happended after this????
     }
 
     // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
@@ -437,7 +437,7 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
     if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
       s = db->SetOptions({{"max_open_files", "1"}}); // is there any compaction happended after this????
     }else{
-      s = db->SetOptions({{"max_open_files", "20"}}); // is there any compaction happended after this????
+      s = db->SetOptions({{"max_open_files", std::to_string(_env->max_open_files)}}); // is there any compaction happended after this????
     }
 
     // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
@@ -554,7 +554,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
     if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
       s = db->SetOptions({{"max_open_files", "1"}}); // is there any compaction happended after this????
     }else{
-      s = db->SetOptions({{"max_open_files", "20"}}); // is there any compaction happended after this????
+      s = db->SetOptions({{"max_open_files", std::to_string(_env->max_open_files)}}); // is there any compaction happended after this????
     }
 
     // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;

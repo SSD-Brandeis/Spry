@@ -289,7 +289,7 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
   
   printStats(db, op);
 
-  std::cout << "!!! runQPVerification start " << std::endl;
+  // std::cout << "!!! runQPVerification start " << std::endl;
 
   io_timing_test(db);
 
