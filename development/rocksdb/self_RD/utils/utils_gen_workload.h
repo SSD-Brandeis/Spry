@@ -85,6 +85,8 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env) {
   args::ValueFlag<double> insert_before_range_delete_cmd(group1, "insert_before_range_delete", "percent of inserts in insert themself that precede any of the range delete [def:0.5]", {"insert_before_range_delete"});
   args::ValueFlag<int> gen_workload_cmd(group1, "gen_workload", "want to generate workload [def:1]", {"gen_workload"});
   args::ValueFlag<int> max_open_files_cmd(group1, "max_open_files", "maximum number of opened SST [def:1]", {"max_open_files"});
+  args::ValueFlag<int> skip_reading_RD_blocks_cmd(group1, "skip_reading_RD_blocks", "skip_reading_RD_blocks [def:0 (false)]", {"skip_reading_RD_blocks"});
+  args::ValueFlag<int> number_of_PQ_cmd(group1, "number_of_PQ", "number_of_PQ [def:5000]", {"number_of_PQ"});
   //YuCheng Added End
 
 
@@ -148,7 +150,8 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env) {
   double insert_before_rangeDelete = insert_before_range_delete_cmd ? args::get(insert_before_range_delete_cmd) : 0.5;
   bool gen_workload = gen_workload_cmd ? (args::get(gen_workload_cmd) != 0) : 1;
   int max_open_files = max_open_files_cmd ? args::get(max_open_files_cmd) : 9999;
-
+  bool skip_reading_RD_blocks = skip_reading_RD_blocks_cmd ? (args::get(skip_reading_RD_blocks_cmd) != 0) : false;
+  int number_of_PQ = number_of_PQ_cmd ? args::get(number_of_PQ_cmd) : 5000;
   // _env->entry_size = entry_size;
   _env->correlation = correlation;
   // _env.num_inserts = num_inserts;
@@ -158,6 +161,8 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env) {
   _env->insert_before_rangeDelete = insert_before_rangeDelete;
   _env->gen_workload = gen_workload;
   _env->max_open_files = max_open_files;
+  _env->skip_reading_RD_blocks = skip_reading_RD_blocks;
+  _env->number_of_PQ = number_of_PQ;
   //YuCheng Added End
   return 0;
 }

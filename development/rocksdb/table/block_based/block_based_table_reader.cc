@@ -777,7 +777,8 @@ Status BlockBasedTable::Open(
   bool rdf_skip_range_deletions = false;
   std::string rdf_type = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
   // if(rdf_type == "PLRDF"){ //xxx
-  if(checking::SystemVerifier::getSystemVerifier()->isRunningPQ()){
+  if(checking::SystemVerifier::getSystemVerifier()->isSkipReadingRangeDeleteBlock() &&
+    checking::SystemVerifier::getSystemVerifier()->isRunningPQ()){
     if(rdf_type == "PLRDF" || rdf_type == "SPLIT_PLRDF" || rdf_type == "TOP_LEVEL_RDF"){
       rdf_skip_range_deletions = true;
     }else if(rdf_type == "SKYLINE_RDF"){

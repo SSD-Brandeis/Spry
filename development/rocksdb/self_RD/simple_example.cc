@@ -73,7 +73,8 @@ int main(int argc, char *argv[]) {
   if (parse_arguments2(argc, argv, _env)){
     exit(1);
   }
-
+// setSkipReadingRangeDeleteBlock
+  checking::SystemVerifier::getSystemVerifier()->setSkipReadingRangeDeleteBlock(_env->skip_reading_RD_blocks);
 
 
   // speed_test();
@@ -129,7 +130,8 @@ int main(int argc, char *argv[]) {
     // verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env);
     int numbers_of_PQs = -1;
     verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, numbers_of_PQs, kDBPath);
-    numbers_of_PQs = 5000;
+    // numbers_of_PQs = 5000;
+    numbers_of_PQs = _env->number_of_PQ;
     verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, numbers_of_PQs, kDBPath);
     
     verification_runner::endPQVerification();

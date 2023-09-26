@@ -51,6 +51,7 @@ namespace checking {
 
     int CurrentlyNonInsertedKeysNum = 1000;
 
+    bool flag_skip_reading_range_delete_block = false;
 
     int disk_access_count = 0;
     int read_entry_block_count = 0;
@@ -99,6 +100,13 @@ namespace checking {
 
     static int getKeySize(){
       return KEY_SIZE;
+    }
+
+    void setSkipReadingRangeDeleteBlock(bool flag){
+      flag_skip_reading_range_delete_block = flag;
+    }
+    bool isSkipReadingRangeDeleteBlock(){
+      return flag_skip_reading_range_delete_block;
     }
 
     bool flag_is_running_PQ = false;
