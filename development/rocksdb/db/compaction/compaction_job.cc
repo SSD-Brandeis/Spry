@@ -2093,7 +2093,7 @@ if( (current_level+1) !=  compaction->output_level()){
         //xxx
 
         if(max_end_key != std::stoll(file_meta->largest.user_key().ToString())){
-          std::cout << "Err1: max_end_key != file_meta->largest.user_key().ToString()" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          // std::cout << "Err1: max_end_key != file_meta->largest.user_key().ToString()" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
           smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), max_end_key));
         }else{
           smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
