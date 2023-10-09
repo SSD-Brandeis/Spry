@@ -118,6 +118,17 @@ int main(int argc, char *argv[]) {
 
   reset_perf_iostats_context();
   
+  std::string out, out2, out3, out4;
+  (*db_ptr2)->GetProperty("rocksdb.block-cache-usage", &out);
+  (*db_ptr2)->GetProperty("rocksdb.estimate-table-readers-mem", &out2);
+  (*db_ptr2)->GetProperty("rocksdb.block-cache-capacity", &out3);
+  (*db_ptr2)->GetProperty("rocksdb.size-all-mem-tables", &out4);
+  cout << "rocksdb.block-cache-usage: " << out << endl;
+  cout << "rocksdb.estimate-table-readers-mem: " << out2 << endl;
+  cout << "rocksdb.block-cache-capacity: " << out3 << endl;
+  cout << "rocksdb.size-all-mem-tables: " << out4 << endl;
+
+
 
   std::this_thread::sleep_for(std::chrono::seconds(10));  // Sleep for 1 second
   {

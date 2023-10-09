@@ -133,6 +133,7 @@ void setNoBlockCacheForReading(Options& op){
   // table_options.block_cache = NewLRUCache(0.5*1024*1024);
   // table_options.block_cache = NULL; //default block cache
   table_options.no_block_cache = true; //disable block cache completely
+  table_options.block_size = 4 * 1024;
 
   op.table_factory.reset(NewBlockBasedTableFactory(table_options));
 
