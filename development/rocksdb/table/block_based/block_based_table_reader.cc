@@ -824,7 +824,19 @@ Status BlockBasedTable::Open(
     }
   }
 
+// Self Added Start
+cout << "table_reader_cache_res_mgr: " << table_reader_cache_res_mgr << " " << __FILE__ << ":" << __LINE__ << endl;
+std::size_t mem_usage_self = new_table->ApproximateMemoryUsage();
+cout << "new_table mem_usage: " << mem_usage_self << " " << __FILE__ << ":" << __LINE__ << endl;
+// Self Added End
   if (s.ok() && table_reader_cache_res_mgr) {
+// Self Added Start
+size_t totalReservedCacheSize = table_reader_cache_res_mgr->GetTotalReservedCacheSize();
+size_t totalMemoryUsed = table_reader_cache_res_mgr->GetTotalMemoryUsed();
+cout << "totalReservedCacheSize: " << totalReservedCacheSize << " " << __FILE__ << ":" << __LINE__ << endl;
+cout << "totalMemoryUsed: " << totalMemoryUsed << " " << __FILE__ << ":" << __LINE__ << endl;
+cout << "Ha Passed ?? " << __FILE__ << ":" << __LINE__ << endl;
+// Self Added End
     std::size_t mem_usage = new_table->ApproximateMemoryUsage();
     s = table_reader_cache_res_mgr->MakeCacheReservation(
         mem_usage, &(rep->table_reader_cache_res_handle));

@@ -46,8 +46,9 @@ void init(DB **db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_o
       std::cerr << "Error creating directory" << std::endl;
   }
 
+  // options are set in configOptions()
   // setNewBlockCacheForReading(op);
-  setNoBlockCacheForReading(op);
+  // setNoBlockCacheForReading(op);
 
   clearCache(op);
 }
