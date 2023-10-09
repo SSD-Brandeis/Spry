@@ -136,8 +136,8 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
         workload_file >> type >> start_key >> end_key;
         if (type == "Range") {
           
-          FlushOptions flush_opts;
-          s = db->Flush(flush_opts);
+          // FlushOptions flush_opts;
+          // s = db->Flush(flush_opts);
           while(db->existFlushJob() == true){
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
           }
@@ -145,7 +145,7 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
           while(db->existFlushJob() == true){
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
           }
-          s = db->Flush(flush_opts);
+          // s = db->Flush(flush_opts);
 
 
           ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
