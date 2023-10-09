@@ -693,7 +693,9 @@ namespace checking {
     }
 
     void genCurrentlyNonInsertedKeys(int num){
-      sort(RDs.begin(), RDs.end());
+      if(RDs.size() > 0){
+        sort(RDs.begin(), RDs.end());
+      }
       vector<pll2> RDS2;
       if(RDs.size() > 0){
         pll2 range = RDs[0];
@@ -720,7 +722,7 @@ namespace checking {
       currentlyNonInsertedKeys.clear();
       int max_trial = num * 3;
       int i_trial = 0;
-      while(num){
+      while(num && len_RDs > 0){
         int i_RDs = rand() % len_RDs;
         pll2 range = RDs[i_RDs];
         int len_range = range.second - range.first;

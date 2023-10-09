@@ -117,6 +117,9 @@ int WorkloadGenerator::generateWorkload(long long insert_count, long entry_size,
   // long delete_group_size = 3;
   long delete_group_size = 1;
 
+  if(range_delete_count == 0){
+    numberOfInsertInTheBeginning = insert_count;
+  }
   for(; i_insert < numberOfInsertInTheBeginning; i_insert++){
       if (correlation == 0){
         sortkey = generateKey();
