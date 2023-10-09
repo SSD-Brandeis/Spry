@@ -643,7 +643,11 @@ namespace checking {
       size_t len_historic_existing_keys = historic_existing_keys.size();
       size_t len_currently_deleted_keys = currently_deleted_keys.size();
       size_t len_currently_non_inserted_keys = currently_non_inserted_keys.size();
-
+      
+      if(len_currently_deleted_keys <= 0){
+        workload_currently_deleted_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
+      }
+      
       //random picking num_of_PQs points
       for(int i = 0; i < N_repetitions; i++){
         int idx;
@@ -654,8 +658,10 @@ namespace checking {
           idx = (int) (rand() % len_historic_existing_keys);
           workload_historic_existing_keys[i][j] = historic_existing_keys[idx];
 
-          idx = (int) (rand() % len_currently_deleted_keys);
-          workload_currently_deleted_keys[i][j] = currently_deleted_keys[idx];
+          if(len_currently_deleted_keys > 0){
+            idx = (int) (rand() % len_currently_deleted_keys);
+            workload_currently_deleted_keys[i][j] = currently_deleted_keys[idx];
+          }
 
           idx = (int) (rand() % len_currently_non_inserted_keys);
           workload_currently_non_inserted_keys[i][j] = currently_non_inserted_keys[idx];
