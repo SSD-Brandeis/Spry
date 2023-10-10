@@ -8,9 +8,10 @@ params = {
     "--gen_workload": [1],
     #"--max_open_files": [999],
     "--max_open_files": [20],
-	"--skip_reading_RD_blocks": [0],
-	#"--number_of_PQ": [5000*100],
-	"--number_of_PQ": [5000],
+    "--skip_reading_RD_blocks": [0],
+    #"--number_of_PQ": [5000*100],
+    "--number_of_PQ": [5000],
+    "--bb": [0],
 }
 tasks = ["./simple_example"]
 for key, values in params.items():
