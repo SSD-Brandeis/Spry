@@ -19,8 +19,12 @@ for key, values in params.items():
 
 B_list: list = [4, 16, 64, 256]
 E_list: list = [1024, 256, 64, 16]
+
+task_tmp = []
 for i, (B, E) in enumerate(zip(B_list, E_list)):
-    tasks = [f"{task} -B {B} -E {E}" for task in tasks]
+    task_tmp.extend([f"{task} -B {B} -E {E}" for task in tasks])
+tasks = task_tmp
+
 
 def run(
         exp_code: chr = '4',
