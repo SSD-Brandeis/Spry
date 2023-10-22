@@ -2524,6 +2524,18 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
     //                     fp.IsHitFileLastInLevel()),
     //     fp.GetHitFileLevel(), max_file_size_for_l0_meta_pin_);
 
+// std::cout << "key: " << std::stoll(user_key.ToString())
+//           << " file fd: " << (f->fd).GetNumber() 
+//           << " level: " << fp.GetHitFileLevel()
+//           << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+
+checking::SystemVerifier::getSystemVerifier()
+    ->logPQTracingInfo(
+      std::stoll(user_key.ToString()),
+      (f->fd).GetNumber(),
+      fp.GetHitFileLevel()
+    );
+
 // //Self Added Start, Timer
 // timer2_end = std::chrono::high_resolution_clock::now();
 // duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);

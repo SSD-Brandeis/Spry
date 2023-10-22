@@ -419,6 +419,7 @@ system_verifier->reset_flag_testing_on_currently_deleted_keys();
 
 std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
 system_verifier->set_flag_testing_on_currently_deleted_keys();
+system_verifier->startPQTracing();
 
   testing_result_file << std::endl << std::endl;
   testing_result_file << "----------------------Testing On Currently Deleted Keys-----------------------" << std::endl;
@@ -503,6 +504,13 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
 
       testing_result_file << " Disk Access count = " << system_verifier->getDiskAccessCount() << std::endl;
       testing_logger.set_to_end(op, testing_result_file);
+
+
+      std::string prefix = " (Currently Deleted Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+      testing_result_file2 << system_verifier->getMapPQTracingInfo(",", "\"", prefix, i) << std::endl;
+      testing_result_file2 << system_verifier->getVPQTracingInfo(",", "\"", prefix, i) << std::endl;
+      system_verifier->clearMapPQTracingInfo();
+      system_verifier->clearVPQTracingInfo();
     }  
     if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
       continue;
@@ -533,6 +541,7 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
     
   }
 system_verifier->reset_flag_testing_on_currently_deleted_keys();
+system_verifier->endPQTracing();
 
 std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 

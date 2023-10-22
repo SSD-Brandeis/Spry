@@ -24,6 +24,7 @@ namespace checking {
 #include <algorithm>
 #include <iomanip>
 #include <chrono>
+#include <unordered_map>
 // #include "../emu_environment.h"
 // #include "../workload_executor.h"
 // #include "../workload/workload.h"
@@ -80,6 +81,9 @@ namespace checking {
 
     bool flag_testing_on_currently_deleted_keys = false;
 
+    bool flag_pq_tracing_on = false;
+    unordered_map<long long, vector<pair<unsigned long long, unsigned int>>> map_pq_tracing_info; // key -> {(fd, LSM level), ...}
+    vector<pair<unsigned long long, unsigned int>> v_pq_tracing_info; // {(fd, LSM level), ...}
   public:
     static SystemVerifier* system_verifier;
 
@@ -101,6 +105,76 @@ namespace checking {
     static int getKeySize(){
       return KEY_SIZE;
     }
+
+
+    void startPQTracing(){
+      flag_pq_tracing_on = true;
+    }
+    void endPQTracing(){
+      flag_pq_tracing_on = false;
+    }
+    void clearMapPQTracingInfo(){
+      map_pq_tracing_info.clear();
+    }
+    void clearVPQTracingInfo(){
+      v_pq_tracing_info.clear();
+    }
+    void logPQTracingInfo(long long key, unsigned long long fd, unsigned int LSM_level){
+      if(!flag_pq_tracing_on){
+        return;
+      }
+
+      if(map_pq_tracing_info.find(key) == map_pq_tracing_info.end()){
+        map_pq_tracing_info[key] = vector<pair<unsigned long long, unsigned int>>();
+      }
+      map_pq_tracing_info[key].push_back(make_pair(fd, LSM_level));
+
+      v_pq_tracing_info.push_back(make_pair(fd, LSM_level));
+    }
+    std::string getMapPQTracingInfo(std::string sep, std::string bracket, std::string prefix, int i_round){
+      std::stringstream result;
+      
+      result << sep << bracket << prefix << " map_pq_tracing_info key2fd_level round" << to_string(i_round) << bracket << ": " << "{" << "\n";
+      
+      string sep2 = "";
+      for(auto &[k, v]: map_pq_tracing_info){
+        result << sep2 << "\"" << to_string(k) << "\"" <<  ": [";
+        sep2 = ", ";
+        string sep3 = "";
+        for(auto &fd_level: v){
+          auto fd = fd_level.first;
+          auto LSM_level = fd_level.second;
+          result << sep3 << "[" << fd << ", " << LSM_level << "] ";
+          sep3 = ", ";
+        }
+        result << "] " << "\n";
+      }
+      result << "}" << "\n";
+
+      return result.str();
+    }
+    std::string getVPQTracingInfo(std::string sep, std::string bracket, std::string prefix, int i_round){
+      std::stringstream result;
+
+      result << sep << bracket << prefix << " v_pq_tracing_info key2fd_level round" << to_string(i_round) << bracket << ": " << "[" << "\n";
+
+      string sep2 = "";
+      for(auto &fd_level: v_pq_tracing_info){
+        auto fd = fd_level.first;
+        auto LSM_level = fd_level.second;
+        result << sep2 << "[" << fd << ", " << LSM_level << "] ";
+        sep2 = ", ";
+      }
+
+      result << "]" << "\n";
+
+      return result.str();
+    }
+
+
+
+
+
 
     void setSkipReadingRangeDeleteBlock(bool flag){
       flag_skip_reading_range_delete_block = flag;
