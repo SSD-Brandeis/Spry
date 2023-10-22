@@ -188,6 +188,9 @@ std::cout << "number_of_PQ = " << number_of_PQs <<  std::endl;
   }
   system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, number_of_PQs);
 
+  testing_result_file2 << system_verifier->getCurrentlyDeletedKeysVec2dString(",", "\"", prefix_number_of_PQs) << std::endl;
+
+
   auto start_pq = std::chrono::high_resolution_clock::now();
   auto stop_pq = std::chrono::high_resolution_clock::now();
   // auto duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
@@ -298,8 +301,6 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
     testing_result_file2 << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
 
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
-
-
   }
 
 std::cout << "!!! Testing On historic-existing Keys " << std::endl;
@@ -419,6 +420,7 @@ system_verifier->reset_flag_testing_on_currently_deleted_keys();
 
 std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
 system_verifier->set_flag_testing_on_currently_deleted_keys();
+system_verifier->startPQTracing();
 
   testing_result_file << std::endl << std::endl;
   testing_result_file << "----------------------Testing On Currently Deleted Keys-----------------------" << std::endl;
@@ -450,6 +452,8 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
     rocksdb::get_iostats_context()->Reset();
     for(auto i = 0; i < N_repetitions; i++){
       clearCache(op);
+      system_verifier->clearMapPQTracingInfo();
+      system_verifier->clearVPQTracingInfo();
 
       db = *db_ptr2;
       system_verifier->resetDiskAccessCount();
@@ -464,6 +468,7 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
       }
     //   for(auto &x: system_verifier->getCurrentlyDeletedKeys()){
       for(auto x: system_verifier->getCurrentlyDeletedKeysAtNRound(i)){
+// cout << "x = " << x << " " << __FILE__ << ":" << __LINE__ << endl;
         bool gt_is_exist = system_verifier->isKeyExist(x);
         std::string gt_value = system_verifier->get(x);
 
@@ -503,6 +508,13 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
 
       testing_result_file << " Disk Access count = " << system_verifier->getDiskAccessCount() << std::endl;
       testing_logger.set_to_end(op, testing_result_file);
+
+
+      std::string prefix = " (Currently Deleted Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+      testing_result_file2 << system_verifier->getMapPQTracingInfo(",", "\"", prefix, i) << std::endl;
+      testing_result_file2 << system_verifier->getVPQTracingInfo(",", "\"", prefix, i) << std::endl;
+      // system_verifier->clearMapPQTracingInfo();
+      // system_verifier->clearVPQTracingInfo();
     }  
     if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
       continue;
@@ -533,6 +545,7 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
     
   }
 system_verifier->reset_flag_testing_on_currently_deleted_keys();
+system_verifier->endPQTracing();
 
 std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 

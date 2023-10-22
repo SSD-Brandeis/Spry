@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 
+#include <unistd.h>
 #include "../workload/args.hxx"
 #include "../workload/workload_generator.h"
 #include "../env_settings/emu_environment.h"
@@ -29,12 +30,73 @@ void gen_workload(EmuEnv* _env){
   
     
   WorkloadGenerator workload_generator;
-  long number_Of_point_in_the_beginning = (long) ceil(num_inserts * insert_before_rangeDelete);
-  assert(1.0*rd_count*selectivity <= 1.0);
-  workload_generator.generateWorkload((long)num_inserts, (long)entry_size, (double) correlation, 
-          (long)rd_count, (double) selectivity, (long) number_Of_point_in_the_beginning, (string) workload_file_name,   
-          (int) checking::SystemVerifier::getKeySize()
-          );    
+  // long number_Of_point_in_the_beginning = (long) ceil(num_inserts * insert_before_rangeDelete);
+  // assert(1.0*rd_count*selectivity <= 1.0);
+  // workload_generator.generateWorkload((long)num_inserts, (long)entry_size, (double) correlation, 
+  //         (long)rd_count, (double) selectivity, (long) number_Of_point_in_the_beginning, (string) workload_file_name,   
+  //         (int) checking::SystemVerifier::getKeySize()
+  //         );    
+
+  string gen_workload_command = string("./K-V-Workload-Generator-master/load_gen")
+      + string(" --insert=") + to_string(num_inserts) 
+      + string(" --range_delete=") + to_string(rd_count)  
+      + string(" --range_delete_selectivity=") + to_string(selectivity) 
+      + string(" --entry_size=") + to_string(entry_size - checking::SystemVerifier::getKeySize() + sizeof(uint32_t));
+
+  string move_workload_command = string(" mv workload.txt ./K-V-Workload-Generator-master/ ");
+
+  // The command you want to execute, for example, "ls" to list files in the current directory.
+  string sed_workload_command = string("cat ./K-V-Workload-Generator-master/workload.txt | sed 's/^R/D Range/g' > ") + string("./") + workload_file_name;
+
+  cout << "gen_workload_command: " << gen_workload_command << endl;
+  // Use the system function to execute the command.
+  int returnCode = system(gen_workload_command.c_str());
+
+  // Check the return code to see if the command was executed successfully.
+  if (returnCode == 0) {
+      // std::cout << "Gen workload command executed successfully." << std::endl;
+  } else {
+    if(returnCode > 0){
+        std::cout << "Gen workload command returnCode: " << returnCode << std::endl;
+        sleep(5);
+    }
+    if(returnCode < 0){
+      std::cout << "Gen workload command failed to execute." << std::endl;
+      std::cerr << "Gen workload command failed to execute." << std::endl;
+      // std::perror("system");
+      exit(-1);
+    }
+  }
+
+  cout << "move_workload_command: " << move_workload_command << endl;
+  // Use the system function to execute the command.
+  returnCode = system(move_workload_command.c_str());
+
+  // Check the return code to see if the command was executed successfully.
+  if (returnCode == 0) {
+      // std::cout << "Move workload command executed successfully." << std::endl;
+  } else {
+      std::cout << "Move workload command failed to execute." << std::endl;
+      std::cerr << "Move workload command failed to execute." << std::endl;
+      // std::perror("system");
+      exit(-1);
+  }
+
+  
+  cout << "sed_workload_command: " << sed_workload_command << endl;
+  // Use the system function to execute the command.
+  returnCode = system(sed_workload_command.c_str());
+
+  // Check the return code to see if the command was executed successfully.
+  if (returnCode == 0) {
+      // std::cout << "Move workload command executed successfully." << std::endl;
+  } else {
+      std::cout << "Sed workload command failed to execute." << std::endl;
+      std::cerr << "Sed workload command failed to execute." << std::endl;
+      // std::perror("system");
+      exit(-1);
+  }
+
 
   std::cout << "Workload Generated!" << std::endl;
 }

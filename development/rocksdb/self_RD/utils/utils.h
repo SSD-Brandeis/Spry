@@ -150,7 +150,9 @@ void clearCache(Options& op){
 
   // Clearing the system cache
   std::cout << "Clearing system cache ..." << std::endl;
-  int clean_flag = system("sudo sh -c 'echo 3 >/proc/sys/vm/drop_caches'");
+  std::cout << "Reminder: please put your sudo password in the secret.txt file under development/rocksdb/self_RD." << std::endl;
+  // int clean_flag = system("sudo sh -c 'echo 3 >/proc/sys/vm/drop_caches'");
+  int clean_flag = system("cat secret.txt | sudo -S sh -c 'echo 3 >/proc/sys/vm/drop_caches'");
   if (clean_flag) {
     std::cerr << "Cannot clean the system cache" << std::endl;
     exit(0);
