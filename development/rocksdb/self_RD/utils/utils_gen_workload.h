@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 
+#include <unistd.h>
 #include "../workload/args.hxx"
 #include "../workload/workload_generator.h"
 #include "../env_settings/emu_environment.h"
@@ -55,10 +56,16 @@ void gen_workload(EmuEnv* _env){
   if (returnCode == 0) {
       // std::cout << "Gen workload command executed successfully." << std::endl;
   } else {
+    if(returnCode > 0){
+        std::cout << "Gen workload command returnCode: " << returnCode << std::endl;
+        sleep(5);
+    }
+    if(returnCode < 0){
       std::cout << "Gen workload command failed to execute." << std::endl;
       std::cerr << "Gen workload command failed to execute." << std::endl;
       // std::perror("system");
       exit(-1);
+    }
   }
 
   cout << "move_workload_command: " << move_workload_command << endl;
