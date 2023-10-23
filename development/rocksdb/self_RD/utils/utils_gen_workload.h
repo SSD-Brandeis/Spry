@@ -40,10 +40,12 @@ void gen_workload(EmuEnv* _env){
       + string(" --insert=") + to_string(num_inserts) 
       + string(" --range_delete=") + to_string(rd_count)  
       + string(" --range_delete_selectivity=") + to_string(selectivity) 
-      + string(" --entry_size=") + to_string(entry_size - checking::SystemVerifier::getKeySize() + sizeof(uint32_t))
-      + string(" ; mv workload.txt ./K-V-Workload-Generator-master/ ");
+      + string(" --entry_size=") + to_string(entry_size - checking::SystemVerifier::getKeySize() + sizeof(uint32_t));
+
+  string move_workload_command = string(" mv workload.txt ./K-V-Workload-Generator-master/ ");
+
   // The command you want to execute, for example, "ls" to list files in the current directory.
-  string move_workload_command = string("cat ./K-V-Workload-Generator-master/workload.txt | sed 's/^R/D Range/g' > ") + string("./") + workload_file_name;
+  string sed_workload_command = string("cat ./K-V-Workload-Generator-master/workload.txt | sed 's/^R/D Range/g' > ") + string("./") + workload_file_name;
 
   cout << "gen_workload_command: " << gen_workload_command << endl;
   // Use the system function to execute the command.
@@ -69,6 +71,21 @@ void gen_workload(EmuEnv* _env){
   } else {
       std::cout << "Move workload command failed to execute." << std::endl;
       std::cerr << "Move workload command failed to execute." << std::endl;
+      // std::perror("system");
+      exit(-1);
+  }
+
+  
+  cout << "sed_workload_command: " << sed_workload_command << endl;
+  // Use the system function to execute the command.
+  returnCode = system(sed_workload_command.c_str());
+
+  // Check the return code to see if the command was executed successfully.
+  if (returnCode == 0) {
+      // std::cout << "Move workload command executed successfully." << std::endl;
+  } else {
+      std::cout << "Sed workload command failed to execute." << std::endl;
+      std::cerr << "Sed workload command failed to execute." << std::endl;
       // std::perror("system");
       exit(-1);
   }
