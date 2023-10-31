@@ -1,0 +1,28 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+      // {
+      //   "type": "node",
+      //   "request": "launch",
+      //   "name": "launch program",
+      //   "skipFiles": [ "<node_internals>/**"],
+      //   "preLaunchTask": "simple_example",
+      //   "program": "${workspaceFolder}/simple_example",
+      // }
+      {
+        "name": "simple_example",
+        "type": "cppdbg",
+        "request": "launch",
+        "program": "${fileDirname}/../development/rocksdb/self_RD/simple_example",
+        "args": [">", "log"],
+        "stopAtEntry": false,
+        "cwd": "${fileDirname}",
+        "environment": [],
+        "externalConsole": false,
+        "MIMode": "gdb",
+      }
+    ]
+}

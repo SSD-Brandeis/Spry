@@ -1,0 +1,58 @@
+\Paragraph{Our Method} Our method minimizes wasted I/Os by efficiently storing in main memory the keys that have been determined as ``deleted'' from the range delete aggregator. 
+We also check all other keys in the same page as the searched key. 
+Since in every I/O we retrieve a page, checking these additional keys wastes minimal resources and at the same time benefits us as more useful information about range deleted keys is efficiently stored in memory. 
+In a cold start, the LSM tree will have the exact same structure as in RocksDB. 
+Each SST file will only have one Bloom Filter associated with, stored in main memory. 
+If at some point, the database receives a key lookup and the RDA responds that the key is deleted, then and only then, we construct a data structure called A that keeps the ranges of the deleted keys. When checking for a key, we also check for the other keys on the same page. 
+Each SST file has its own A, which will eventually become more accurate as we have more key lookups for deleted keys in its different pages. 
+In more detail, when the RDA responds that the key we are searching is deleted, we check all other keys in the same page. 
+We might receive one of the results showing in Figure \ref{fig:method}.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[scale=0.5]{figures/deletes_in_page.png}
+\caption{Possible results after requesting the deleted keys for a particular page from the RDA}
+\label{fig:method}
+\end{figure}
+
+In this example we suppose that we are looking for 'key3' and it is the first time that this key is looked up. We will also assume that 'key3' is deleted. If not deleted, the I/O can not be avoided anyway. In the worst case (case2), 'key3' is the only key deleted in page. Thus, the resulted trie will only contain 'key3'. 
+In the other cases, the A, will contain more than one key, even if these keys were never requested. 
+Again, it is essential to mention that determining whether these keys are deleted is very quick by checking asking the RDA. 
+No more than one I/O is used as one I/O retrieves exactly one page. 
+Thus, we take advantage of all the data that a page contains.
+
+\Paragraph{Benefits of Maintaining an A} 
+Again, we will assume that we are looking for a deleted key and that this key is not requested after it was deleted. 
+As soon as this key is requested, we will have to execute one I/O and then check ask the RDA. 
+Immediately after that, we will check all other keys in the same page and then construct an A which will be assigned to the corresponding SST file. 
+From now on, this SST file will have both a Bloom filter and an A. 
+If the key is requested for a second time, the Bloom filter of the file will respond positively that the key is in the file (with a certain probability), but the trie can guarantee that the key is deleted. 
+As a result, a wasted I/O can be avoided. 
+Also, because the A might contain other deleted keys of the same page, we benefit in case these keys are ever requested. 
+The path can be seen in figure 4.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.3]{figures/my_path.png}
+    \caption{My path.}
+    \label{fig:method}
+\end{figure}
+
+\Paragraph{Dealing with Compactions} When an SST file merges with n files from a higher level, at most $n + 1$ files can be created. 
+The A of the file in lower level certainly dominates the A of the files of the higher levels. 
+Thus, a simple solution would be to keep the dominating A, split it accordingly, and then assign it to the files generated after the merge. 
+All other As can be discarded. 
+However, we are still thinking of ways to retain as much useful data as we possibly can.
+
+
+\Paragraph{Challenges and Scope of Improvement} 
+Our method uses extra memory to store the A in order to save I/Os. 
+In a cold start it uses the same memory as RocksDB, however, if deleted keys are requested, new A are constructed, and more memory is used. 
+In workloads, where there are many reads of deleted keys, our method might prove extremely beneficial as it saves I/Os. 
+Our method is also read-driven. 
+The results are totally depended on the workload. 
+If the reads in the workload are sparse we might allocate a lot of memory with our As. 
+Finally, read performance might suffer. 
+If we assume that a key A is not deleted by a range delete and that the SST file containing that key has a A, our method will first search the A, will determine that the key is not there, so it might not be deleted. 
+The RDA will respond that the key is valid and the key will be returned. 
+In this series of events, compared to RocksDB, our method had to check the existence of the key in the A. 
+Although, our intuition is that this extra computation is inconsiderable, we are thinking of ways to minimize its impact.
