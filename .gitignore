@@ -4,6 +4,8 @@
 # .vscode
 .vscode/*
 
+*callgrind*
+
 # build
 **/build/**
 

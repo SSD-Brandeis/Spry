@@ -11,6 +11,7 @@ ifneq ($(USE_RTTI), 1)
 	CXXFLAGS += -fno-rtti
 endif
 
+CXXFLAGS += -pg
 
 all: load_gen
 

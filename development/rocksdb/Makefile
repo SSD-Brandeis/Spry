@@ -593,6 +593,10 @@ CXXFLAGS += $(WARNING_FLAGS) -I. -I./include $(PLATFORM_CXXFLAGS) $(OPT) -Woverl
 # happens.
 CXXFLAGS += -Wno-invalid-offsetof
 
+# Self Added (YCH)
+CFLAGS += -pg
+CXXFLAGS += -pg
+
 LDFLAGS += $(PLATFORM_LDFLAGS)
 
 LIB_OBJECTS = $(patsubst %.cc, $(OBJ_DIR)/%.o, $(LIB_SOURCES))
