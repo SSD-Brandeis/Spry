@@ -826,7 +826,7 @@ Status BlockBasedTable::Open(
 
 // Self Added Start
 // cout << "table_reader_cache_res_mgr: " << table_reader_cache_res_mgr << " " << __FILE__ << ":" << __LINE__ << endl;
-std::size_t mem_usage_self = new_table->ApproximateMemoryUsage();
+// std::size_t mem_usage_self = new_table->ApproximateMemoryUsage();
 // cout << "new_table mem_usage: " << mem_usage_self << " " << __FILE__ << ":" << __LINE__ << endl;
 // Self Added End
   if (s.ok() && table_reader_cache_res_mgr) {
