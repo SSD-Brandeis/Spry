@@ -857,6 +857,39 @@ namespace checking {
       return workload_currently_non_inserted_keys[n_round];
     }
 
+
+
+
+     std::string getCurrentlyDeletedKeysVec2dString(std::string sep, std::string bracket, std::string prefix){
+      std::stringstream result;
+
+      vector<vector<long long>> &vec2d = workload_currently_deleted_keys;
+
+      int len =  vec2d.size();
+      vector<long long> currently_deleted_keys = getCurrentlyDeletedKeys();
+      size_t len_currently_deleted_keys = currently_deleted_keys.size();
+      result << sep << bracket << prefix << " logNumCurrentlyDeletedDistinctKeys"  << bracket << ": " << len_currently_deleted_keys << "\n";
+      result << sep << bracket << prefix << " logCurrentlyDeletedKeysVec2d"  << bracket << ": " << "[" << "\n";
+
+      string sep2 = "";
+      for(int i = 0; i < len; i++){
+        result << sep2 << "[";
+
+        string sep3 = "";
+        vector<long long> &vec1d = vec2d[i];
+        for(auto &key: vec1d){
+          result << sep3 << key;
+          sep3 = ", ";
+        }
+        result << "]" << "\n";
+        sep2 = ", ";
+      }
+      result << "]" << "\n";
+
+
+      return result.str();
+    }
+
     // vector<int> checkOnExistingKeys();
     // vector<int> checkOnAllInsertedKeys();
     // vector<int> checkOnAllCurrentlyDeletedKeys();
