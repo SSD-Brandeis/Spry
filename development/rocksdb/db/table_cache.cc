@@ -202,7 +202,7 @@ Status TableCache::FindTable(
       // or somebody repairs the file, we recover automatically.
     } else {
       s = cache_.Insert(key, table_reader.get(), 1, handle);
-cout << "cache_ size: " << cache_.get()->GetCapacity() << " " << __FILE__ << ":" << __LINE__ << endl; 
+// cout << "cache_ size: " << cache_.get()->GetCapacity() << " " << __FILE__ << ":" << __LINE__ << endl; 
       if (s.ok()) {
         // Release ownership of table reader.
         table_reader.release();
