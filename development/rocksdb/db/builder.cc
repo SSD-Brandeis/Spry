@@ -74,7 +74,6 @@ Status BuildTable(
     BlobFileCompletionCallback* blob_callback, Version* version,
     uint64_t* num_input_entries, uint64_t* memtable_payload_bytes,
     uint64_t* memtable_garbage_bytes) {
-// std::cout  << "BuildTable A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   assert((tboptions.column_family_id ==
           TablePropertiesCollectorFactory::Context::kUnknownColumnFamily) ==
          tboptions.column_family_name.empty());
@@ -96,18 +95,6 @@ Status BuildTable(
   uint64_t num_unfragmented_tombstones = 0;
   uint64_t total_tombstone_payload_bytes = 0;
   for (auto& range_del_iter : range_del_iters) {
-//Self Added Start
-// auto tombstone = range_del_iter->Tombstone();
-  
-// std::cout << " (flush) range_del " << tombstone.start_key_.ToString()
-//           << ", " << tombstone.end_key_.ToString() 
-//           << " ; seq = " << tombstone.seq_
-//           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << " (flush) range_del " << range_del_iter->key().ToString()
-//           << ", " << range_del_iter->value().ToString() 
-//           << " ; seq = " << range_del_iter->seq()
-//           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//Self Added End
     num_unfragmented_tombstones +=
         range_del_iter->num_unfragmented_tombstones();
     total_tombstone_payload_bytes +=
@@ -115,30 +102,17 @@ Status BuildTable(
     range_del_agg->AddTombstones(std::move(range_del_iter));
   }
 
-//Self Added Start
-std::vector<std::tuple<long long, long long, uint64_t>> range_del_vec_self;
+  // Self Added Start
+  std::vector<std::tuple<long long, long long, uint64_t>> range_del_vec_self;
   auto range_del_it2 = range_del_agg->NewIterator();
   for (range_del_it2->SeekToFirst(); range_del_it2->Valid();
-        range_del_it2->Next()) {
-
+       range_del_it2->Next()) {
     auto tombstone = range_del_it2->Tombstone();
-    range_del_vec_self.push_back(std::make_tuple(std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()), tombstone.seq_));
-    // std::cout << std::endl
-    //           << " (flush) range_del " << tombstone.start_key_.ToString()
-    //           << ", " << tombstone.end_key_.ToString() 
-    //           << " ; seq = " << tombstone.seq_
-    //           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    range_del_vec_self.push_back(std::make_tuple(
+        std::stoll(tombstone.start_key_.ToString()),
+        std::stoll(tombstone.end_key_.ToString()), tombstone.seq_));
   }
-//Self Added End
-
-
-
-
-
-
-
-
-
+  // Self Added End
 
   std::string fname = TableFileName(ioptions.cf_paths, meta->fd.GetNumber(),
                                     meta->fd.GetPathId());
@@ -251,68 +225,64 @@ std::vector<std::tuple<long long, long long, uint64_t>> range_del_vec_self;
       // Generate a rolling 64-bit hash of the key and values
       // Note :
       // Here "key" integrates 'sequence_number'+'kType'+'user key'.
-//Self Added Start
-bool flag_delete_current_entry = false;
-auto point_key_type = ikey.type;
-for(auto &rd: range_del_vec_self){
-  auto &start_key = std::get<0>(rd);
-  auto &end_key = std::get<1>(rd);
-  auto &seq = std::get<2>(rd);
 
-  auto point_key = std::stoll(ikey.user_key.ToString());
-  auto point_key_seq = ikey.sequence;
-  auto point_value_pre = value.ToString();
-  auto separator_pos = point_value_pre.find("|");
-  auto point_key_seq2 = point_value_pre.substr(separator_pos + 1);
-  auto point_value = point_value_pre.substr(0, separator_pos);
-// if(point_key >= start_key && point_key < end_key && (point_key_type != 1 && point_key_type != 15) ){
-// if(point_key >= start_key && point_key < end_key && (point_key_type == 1) ){
-if(point_key >= start_key && point_key < end_key ){
-  std::cout << "(flush) point_key >= start_key && point_key < end_key "
-            << " (kv pair) point_key_type = " << point_key_type
-            << " (kv pair) ikey.user_key = " << point_key
-            << " (kv pair) ikey.sequence = " << point_key_seq << " "
-            << " (kv pair) point_key_seq2 = " << point_key_seq2 << " "
-            << " (range_del) key = " << start_key << " " << end_key
-            << " (range_del) seq = " << seq
-            << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-}  
-  if(point_key_type != 1){break;} // if not point key (key-value)
-  if(point_key_seq == seq){
-    std::cerr << " (range_del) key = " << start_key << " " << end_key
-              << " (kv pair) ikey.user_key = " << point_key
-              << " Sequence number shall not be the same"
-              << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    exit(1);
-  }
-  if(point_key >= start_key && point_key < end_key && point_key_seq < seq){
-    std::clog << " (flush) range delete key in flush"
-              << " (range_del) key = " << start_key << " " << end_key
-              << " (kv pair) ikey.user_key = " << point_key
-              << " (range_del) seq = " << seq
-              << " (kv pair) ikey.sequence = " << point_key_seq
-              << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    break;
-  }
-}
-if(flag_delete_current_entry){
-  continue;
-}
+      // Self Added Start
+      bool flag_delete_current_entry = false;
+      auto point_key_type = ikey.type;
+      for (auto& rd : range_del_vec_self) {
+        auto& start_key = std::get<0>(rd);
+        auto& end_key = std::get<1>(rd);
+        auto& seq = std::get<2>(rd);
 
-//Self Added End
+        auto point_key = std::stoll(ikey.user_key.ToString());
+        auto point_key_seq = ikey.sequence;
+        auto point_value_pre = value.ToString();
+        auto separator_pos = point_value_pre.find("|");
+        auto point_key_seq2 = point_value_pre.substr(separator_pos + 1);
+        auto point_value = point_value_pre.substr(0, separator_pos);
+
+        if (point_key >= start_key && point_key < end_key) {
+          std::cout << "(flush) point_key >= start_key && point_key < end_key "
+                    << " (kv pair) point_key_type = " << point_key_type
+                    << " (kv pair) ikey.user_key = " << point_key
+                    << " (kv pair) ikey.sequence = " << point_key_seq << " "
+                    << " (kv pair) point_key_seq2 = " << point_key_seq2 << " "
+                    << " (range_del) key = " << start_key << " " << end_key
+                    << " (range_del) seq = " << seq << __FILE__ << ":"
+                    << __LINE__ << " " << __FUNCTION__ << std::endl;
+        }
+        if (point_key_type != 1) {
+          break;
+        }  // if not point key (key-value)
+        if (point_key_seq == seq) {
+          std::cerr << " (range_del) key = " << start_key << " " << end_key
+                    << " (kv pair) ikey.user_key = " << point_key
+                    << " Sequence number shall not be the same" << __FILE__
+                    << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          exit(1);
+        }
+        if (point_key >= start_key && point_key < end_key &&
+            point_key_seq < seq) {
+          std::clog << " (flush) range delete key in flush"
+                    << " (range_del) key = " << start_key << " " << end_key
+                    << " (kv pair) ikey.user_key = " << point_key
+                    << " (range_del) seq = " << seq
+                    << " (kv pair) ikey.sequence = " << point_key_seq
+                    << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                    << std::endl;
+          break;
+        }
+      }
+      if (flag_delete_current_entry) {
+        continue;
+      }
+
+      // Self Added End
       s = output_validator.Add(key, value);
       if (!s.ok()) {
         break;
       }
       builder->Add(key, value);
-//Self Added Start
-// std::cout << " (flush) key = " << key.ToString() 
-//           << " (flush) ikey.user_key = " << ikey.user_key.ToString() 
-//           << " ikey.sequence = " << ikey.sequence
-//           << " ikey.type = " << ikey.type << " " 
-//           << " value = " << value.ToString()
-//           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
-//Self Added End
 
       s = meta->UpdateBoundaries(key, value, ikey.sequence, ikey.type);
       if (!s.ok()) {

@@ -729,7 +729,6 @@ Status MemTable::Add(SequenceNumber s, ValueType type,
   Slice key_without_ts = StripTimestampFromUserKey(key, ts_sz);
 
   if (!allow_concurrent) {
-// std::cout  << "MemTable::Add A1 @Not allow concurrent " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // Extract prefix for insert with hint.
     if (insert_with_hint_prefix_extractor_ != nullptr &&
         insert_with_hint_prefix_extractor_->InDomain(key_slice)) {
@@ -740,7 +739,6 @@ std::cout  << "MemTable::Add B1 @InsertKeyWithHint " << __FILE__ << ":" << __LIN
         return Status::TryAgain("key+seq exists");
       }
     } else {
-// std::cout  << "MemTable::Add B2 @InsertKeyWithoutHint " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       bool res = table->InsertKey(handle);
       if (UNLIKELY(!res)) {
         return Status::TryAgain("key+seq exists");
@@ -759,7 +757,6 @@ std::cout  << "MemTable::Add B1 @InsertKeyWithHint " << __FILE__ << ":" << __LIN
                          std::memory_order_relaxed);
     }
 
-// std::cout  << "MemTable::Add B3 @Update bloom_filter_ " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     if (bloom_filter_ && prefix_extractor_ &&
         prefix_extractor_->InDomain(key_without_ts)) {
       bloom_filter_->Add(prefix_extractor_->Transform(key_without_ts));
@@ -780,7 +777,6 @@ std::cout  << "MemTable::Add B1 @InsertKeyWithHint " << __FILE__ << ":" << __LIN
       assert(first_seqno_.load() >= earliest_seqno_.load());
     }
     assert(post_process_info == nullptr);
-// std::cout  << "MemTable::Add B4 @Update flush state " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     UpdateFlushState();
   } else {
 std::cout  << "MemTable::Add A2 @Allow concurrent " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -1264,7 +1260,6 @@ bool MemTable::Get(const LookupKey& key, std::string* value,
                    SequenceNumber* seq, const ReadOptions& read_opts,
                    bool immutable_memtable, ReadCallback* callback,
                    bool* is_blob_index, bool do_merge) {
-// std::cout  << "MemTable::Get A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   // The sequence number is updated synchronously in version_set.h
   if (IsEmpty()) {
     // Avoiding recording stats for speed.
@@ -1297,15 +1292,12 @@ bool MemTable::Get(const LookupKey& key, std::string* value,
   Slice user_key_without_ts = StripTimestampFromUserKey(key.user_key(), ts_sz);
   bool bloom_checked = false;
   if (bloom_filter_) {
-std::cout  << "MemTable::Get A2 @bloom_filter_ " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // when both memtable_whole_key_filtering and prefix_extractor_ are set,
     // only do whole key filtering for Get() to save CPU
     if (moptions_.memtable_whole_key_filtering) {
-std::cout  << "MemTable::Get A2 B1 @whole key filtering " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       may_contain = bloom_filter_->MayContain(user_key_without_ts);
       bloom_checked = true;
     } else {
-std::cout  << "MemTable::Get A2 B2 @prefix key filtering (partial key) " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       assert(prefix_extractor_);
       if (prefix_extractor_->InDomain(user_key_without_ts)) {
         may_contain = bloom_filter_->MayContain(
@@ -1315,7 +1307,6 @@ std::cout  << "MemTable::Get A2 B2 @prefix key filtering (partial key) " << __FI
     }
   }
 
-// std::cout  << "MemTable::Get A3 @filtering by bloom filter " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   if (bloom_filter_ && !may_contain) {
     // iter is null if prefix bloom says the key does not exist
     PERF_COUNTER_ADD(bloom_memtable_miss_count, 1);
@@ -1324,7 +1315,6 @@ std::cout  << "MemTable::Get A2 B2 @prefix key filtering (partial key) " << __FI
     if (bloom_checked) {
       PERF_COUNTER_ADD(bloom_memtable_hit_count, 1);
     }
-std::cout  << "Not blocked by bloom filter  " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     GetFromTable(key, *max_covering_tombstone_seq, do_merge, callback,
                  is_blob_index, value, columns, timestamp, s, merge_context,
                  seq, &found_final_value, &merge_in_progress);
@@ -1347,7 +1337,6 @@ void MemTable::GetFromTable(const LookupKey& key,
                             std::string* timestamp, Status* s,
                             MergeContext* merge_context, SequenceNumber* seq,
                             bool* found_final_value, bool* merge_in_progress) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   Saver saver;
   saver.status = s;
   saver.found_final_value = found_final_value;

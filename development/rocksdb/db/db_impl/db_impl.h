@@ -177,20 +177,12 @@ class Directories {
 // divided in several db_impl_*.cc files, besides db_impl.cc.
 class DBImpl : public DB {
  public:
-
-
-
-
-
     //Self Added start
     Status CleanTableCache(ColumnFamilyHandle* column_family, std::ostream& ofile) override {
       auto *cfd = static_cast_with_check<ColumnFamilyHandleImpl>(column_family)->cfd();
       TableCache* table_cache = cfd->table_cache();
-      // CacheInterface& cache_ = table_cache->GetCache();
       Cache* cache = table_cache->get_cache().get();
       //only for LRUCache
-      //using LRUCache = lru_cache::LRUCache;
-      // std::shared_ptr<LRUCache> cache_lru = std::static_pointer_cast<LRUCache>(cache);
       LRUCache* cache_lru = (LRUCache*) cache;
       ofile << "LRU Name = " << string(cache_lru->Name()) << " " << __FILE__ << ":" << __LINE__ << std::endl;
 
@@ -232,17 +224,7 @@ class DBImpl : public DB {
 
       return Status::OK();
     }
-
     //Self Added end
-
-
-
-
-
-
-
-
-
 
   DBImpl(const DBOptions& options, const std::string& dbname,
          const bool seq_per_batch = false, const bool batch_per_txn = true,
@@ -557,7 +539,6 @@ class DBImpl : public DB {
   const std::vector<t3ll> *getSkylineRDF() override;
   const std::vector<int> *getSkylineNumbersOfRangesInRDFLog() override;
   using DB::setPLRDF;
-  // void setPLRDF( std::vector<int> v) override;
   void setPLRDF( PLRDF *plrdf) override;
   void setSplitPLRDF( PLRDF *plrdf) override;
   void setTopLevelRDF( PLRDF *plrdf) override;

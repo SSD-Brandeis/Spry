@@ -105,7 +105,6 @@ class VectorRep : public MemTableRep {
 };
 
 void VectorRep::Insert(KeyHandle handle) {
-// std::cout  << "VectorRep::Insert  " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   auto* key = static_cast<char*>(handle);
   WriteLock l(&rwlock_);
   assert(!immutable_);
@@ -247,7 +246,6 @@ void VectorRep::Iterator::SeekToLast() {
 
 void VectorRep::Get(const LookupKey& k, void* callback_args,
                     bool (*callback_func)(void* arg, const char* entry)) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   rwlock_.ReadLock();
   VectorRep* vector_rep;
   std::shared_ptr<Bucket> bucket;

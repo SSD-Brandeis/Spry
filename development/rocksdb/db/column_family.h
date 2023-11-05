@@ -20,7 +20,6 @@
 //Self Added Start
 #include <tuple>
 #include <queue>
-// #include "include/rocksdb/sys_rdfilter.h"
 //Self Added End
 
 
@@ -40,10 +39,7 @@
 #include "util/thread_local.h"
 
 //Self Added Start
-// #include "include/rocksdb/sys_rdfilter.h"
-// #include "rocksdb/sys_rdfilter.h"
 #include "../include/rocksdb/sys_rdfilter.h"
-// #include "../include/rocksdb/sys_rdfilter.cc"
 //Self Added End
 
 namespace ROCKSDB_NAMESPACE {
@@ -67,74 +63,6 @@ namespace ROCKSDB_NAMESPACE {
       std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     }
   };
-
-
-  // using pll = std::pair<long long, long long>; //[start, end)
-  // using t3ll = std::tuple<long long, long long, long long>; //([start, end), time)
-
-  // // class PerlevelRangeDeleteFilterByVector {  
-  // class PLRDF {  
-  //   private:
-  //     std::unordered_map<uint64_t, std::vector<pll>> rd_filter_level0; //for level 0, (file_num, RD_list), FileMetaData* -> fd .GetNumber();
-
-  //     std::vector<std::vector<pll>> rd_filter; //for level > 0, list of range delete (start, end), all entries are non-overlapping
-  //     std::vector<int> numbers_of_ranges_in_RDF_log; //for level > 0, number of ranges in RDF
-      
-  //     void addRangeDelete_internal(uint level, std::vector<pll> &range_delete_list_in);
-  //     std::vector<pll> sortAndMerge(std::vector<pll> &range_delete_list_in);
-  //     void addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll> &range_delete_list_in);
-  //     void addRangeDelete(std::vector<pll> &range_delete_list, long long start, long long end);
-  //     void print_internal();
-
-
-  //     /*
-  //      * adjust range deletes as per the compaction
-  //      */
-  //     void adjustRangeDeletesForLevel0Input(uint olevel, std::vector<uint64_t> file_numbers);
-  //     void adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<long long, long long>> one_level_compaction_file_boundaries);
-
-  //   public:
-  //     // std::vector<pll> getRangeDeleteList();
-  //     void insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pll> &range_delete_list_in, std::vector<uint64_t> exist_level0_file_nums);
-
-  //     void addRangeDelete(uint level, long long start, long long end);
-  //     void addRangeDelete(uint level, std::vector<pll> &range_delete_list_in);
-  //     void shiftRDFToOutputLevel(std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors);
-  //     void deleteLastLevelIfEqualsBottomLevel(uint bottom_level);
-  //     // void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data);
-  //     void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, std::vector<pll>, std::vector<uint64_t>> *file_meta_data);
-
-  //     std::vector<pll> getLevelRanges(int outlevel);
-  //     void setLevelRanges(std::vector<pll> level_ranges_in, int outlevel);
-
-  //     int getNumberOfTotalLevels();
-  //     int getNumberOfTotalRanges();
-
-  //     void printLevel0();
-  //     void print();
-
-  //     bool isEntryAlive(uint level, long long key);
-
-
-  //     void splitRangesOnLevel(uint level, std::vector<long long> keys);
-  //     // int getRangeDeleteCount();
-
-  //     void logCurrentTotalNumbersOfRanges();
-  //     std::vector<int> getNumbersOfRangesInRDFLog();
-  // };
-
-  // class SKyLineRDF {
-  //   private:
-  //     std::vector<t3ll> range_delete_list_in;
-
-  //   public:      
-  //     void addRangeDelete(std::vector<t3ll> &range_delete_list_in);
-  //     bool isEntryAlive(long long key);
-  //     void print();
-  // };
-  // //Self Added End
-
-
 
 class Version;
 class VersionSet;
@@ -304,8 +232,6 @@ class ColumnFamilyHandleInternal : public ColumnFamilyHandleImpl {
   ColumnFamilyData* internal_cfd_;
 };
 
-//Self Added
-// using PL_RDF = PLRDF;
 // holds references to memtable, all immutable memtables and version
 struct SuperVersion {
   // Accessing members of this class is not thread-safe and requires external
@@ -344,38 +270,7 @@ struct SuperVersion {
   static void* const kSVInUse;
   static void* const kSVObsolete;
 
-  //Self Added
-
-  // void storeRange2RDFTest(RangeTombstone tombstone){
-  //   RDF_test.push_back(std::make_pair( std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) ));
-  // }
-
-  // void printRDFTest(){
-  //   std::cout << "SuperVision @column_family.h" << std::endl;
-  //   for(auto x: RDF_test){
-  //     std::cout << x.first << " " << x.second << std::endl;
-  //   }
-  //   std::cout << std::endl << std::endl;
-  // }
-
-  // void printRDFTest2(){
-  //   std::cout << "SuperVision @column_family.h" << std::endl;
-  //   for(auto x: RDF_test2){
-  //     std::cout << x.first << " " << x.second << std::endl;
-  //   }
-  //   std::cout << std::endl << std::endl;
-  // }
-
-  // std::vector<std::pair<long long, long long>> getRDFTest(){return this->RDF_test;}
-
-  // void setRDFTest(std::vector<std::pair<long long, long long>> RDF_test_in){this->RDF_test = RDF_test_in;}
-  // void setRDFTest2(std::vector<std::pair<long long, long long>> RDF_test_in){this->RDF_test2 = RDF_test_in;}
-
  private:
-  //Self Added
-  // PL_RDF per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
-  // std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
-
   std::atomic<uint32_t> refs;
   // We need to_delete because during Cleanup(), imm->Unref() returns
   // all memtables that we need to free through this vector. We then
@@ -587,7 +482,6 @@ class ColumnFamilyData {
   void updateRDF2NewVersion(int opt, bool split_flag); // 1: flush, 2: compact, 3: for compaction direcly deleted flie
   // Self Added End
 
-
   // will return a pointer to SuperVersion* if previous SuperVersion
   // if its reference count is zero and needs deletion or nullptr if not
   // As argument takes a pointer to allocated SuperVersion to enable
@@ -683,37 +577,11 @@ class ColumnFamilyData {
   // of its files (if missing)
   void RecoverEpochNumbers();
 
-
   //Self Added
-  // void storeRange2RDFTest(RangeTombstone tombStone){
-  //   RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
-  // }
-  // void storeRange2RDFTest2(RangeTombstone tombStone){
-  //   RDF_test2.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
-  // }
-
-  // void printRDFTest(){
-  //   std::cout << "ColumnFamilyData --- RDF_test1 @column_family.h" << std::endl;
-  //   for(auto x: RDF_test){
-  //     std::cout << x.first << " " << x.second << std::endl;
-  //   }
-  //   std::cout << std::endl << std::endl;
-  // }
-
-  // void printRDFTest2(){
-  //   std::cout << "ColumnFamilyData --- RDF_test2 @column_family.h" << std::endl;
-  //   for(auto x: RDF_test2){
-  //     std::cout << x.first << " " << x.second << std::endl;
-  //   }
-  //   std::cout << std::endl << std::endl;
-  // }
-
-
   void inc_flush_install_count(){
     flush_install_count_clr += 1;
   }
 
-  
   void inc_split__flush_install_count(){
     split__flush_install_count_clr += 1;
   }
@@ -820,7 +688,6 @@ class ColumnFamilyData {
   }
 
   std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  get_compaction_moving_RD_vector(){
-    
     return compaction_moving_RD_vector;
   }
 
@@ -853,12 +720,6 @@ class ColumnFamilyData {
     return split__compaction_direct_delete_RD_vector;
   }
 
-
-  
-
-
-
-
   void set_top_level__trivial_move__delete_RD_vector(std::tuple<int, std::vector<pll>, std::vector<uint64_t>> &compaction_direct_delete_RD_vector_in){
     auto out_lvl = std::get<0>(this->top_level__trivial_move__delete_RD_vector);
     if((int)out_lvl != -1){
@@ -866,24 +727,10 @@ class ColumnFamilyData {
     }
     top_level__trivial_move__delete_RD_vector = compaction_direct_delete_RD_vector_in;
   }
-  
-  // void set_top_level__direct_delete__delete_RD_vector(std::tuple<int, std::vector<pll>, std::vector<uint64_t>> &compaction_direct_delete_RD_vector_in){
-  //   auto out_lvl = std::get<0>(this->top_level__direct_delete__delete_RD_vector);
-  //   if((int)out_lvl != -1){
-  //     std::cerr << "split__compaction_direct_delete_RD_vector is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  //   }
-  //   top_level__direct_delete__delete_RD_vector = compaction_direct_delete_RD_vector_in;
-  // }
 
   std::tuple<int, std::vector<pll>, std::vector<uint64_t>> get_top_level__trivial_move__delete_RD_vector(){
     return top_level__trivial_move__delete_RD_vector;
   }
-
-  // std::tuple<int, std::vector<pll>, std::vector<uint64_t>> get_top_level__direct_delete__delete_RD_vector(){
-  //   return top_level__direct_delete__delete_RD_vector;
-  // }
-
-
 
   const PLRDF *getPLRDF(){
     return &plrdf_prime;
@@ -916,9 +763,6 @@ class ColumnFamilyData {
   void setSkylineNumbersOfRangesInRDFLog(std::vector<int> &skyline__numbers_of_ranges_in_rdf_log_in){
     skyline__numbers_of_ranges_in_rdf_log = skyline__numbers_of_ranges_in_rdf_log_in;
   }
-
-  
-
 
   void printPLRDF(){
     std::cout << "cfd --- PLRDF " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
@@ -982,19 +826,7 @@ class ColumnFamilyData {
 
   void split_range(long long key_in){
     //Top Level RDF
-    // level 0 -> entries are not ordered with time
     top_level__level_points.push_back(key_in);
-
-    // int &idx2 = top_level__level_range_idx;
-    // int len2 = top_level__level_ranges.size();
-    // if(idx2 < len2){
-    //   while(idx2 < len2 && top_level__level_ranges[idx2].second <= key_in){
-    //     idx2 += 1;
-    //   }
-    //   if(idx2 < len2 && top_level__level_ranges[idx2].first <= key_in && top_level__level_ranges[idx2].second  >  key_in){
-    //     top_level__level_points.push_back(key_in);
-    //   }
-    // }
 
     //Split RDF
     split__level_points.push_back(key_in);
@@ -1009,12 +841,6 @@ class ColumnFamilyData {
     if(idx < len && split__level_ranges[idx].first > key_in){
       return;
     }
-
-
-    // if(idx < len && split__level_ranges[idx].first <= key_in && split__level_ranges[idx].second  >  key_in){
-    //   split__level_points.push_back(key_in);
-    // }
-
 
     if(idx < len && split__level_ranges[idx].first == key_in){
       if(key_in + 1 >= split__level_ranges[idx].second){
@@ -1101,15 +927,12 @@ class ColumnFamilyData {
     return split__out_level;
   }
 
-
-
   void set_flush_in_file_num(uint64_t num){
     flush_in_file_num = num;
   }
   uint64_t get_flush_in_file_num(){
     return flush_in_file_num;
   }
-
 
   void logCurrentTotalNumbersOfRangesInSkylineRDF(){
     skyline__numbers_of_ranges_in_rdf_log.push_back(skyline_rdf_prime.size());
@@ -1130,7 +953,6 @@ class ColumnFamilyData {
   std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF(){
     return top_level_rdf_prime.getNumbersOfRangesInRDFLog();
   }
-
 
   std::vector<t3ll> get_RDs_by_fd(u_int64_t fd){
     if(fd_RDs_map.find(fd) == fd_RDs_map.end()){
@@ -1180,19 +1002,15 @@ class ColumnFamilyData {
       auto start = std::get<0>(x);
       auto end = std::get<1>(x);
       auto seq = std::get<2>(x);
-      // if(!pq.empty() && +pq.top().second <= start){
       while(!pq.empty() && +pq.top().second <= start){
         pll p = pq.top();
         pq.pop();
         auto seq2 = +p.first;
         auto end2 = +p.second;
         if(end2 <= t_cur){continue;}
-// std::cout << " t_cur = " << t_cur << " end2 = " << end2 << " seq2 = " << seq2 << " start = " << start << " "
-//           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         out_v.push_back(std::make_tuple(t_cur, end2, seq2));
         t_cur = end2;
       }
-      // }
 
       if(pq.empty()){t_cur = start;}
       else{
@@ -1214,7 +1032,6 @@ class ColumnFamilyData {
       t_cur = end2;
     }
 
-
     std::vector<t3ll> out_v2;
     int len_out_v = out_v.size();
     auto start = std::get<0>(out_v[0]);
@@ -1234,7 +1051,6 @@ class ColumnFamilyData {
     out_v2.push_back(std::make_tuple(start, end, seq));
 
     skyline_rdf_prime = out_v2;
-    // skyline__numbers_of_ranges_in_rdf_log.push_back(out_v2.size());
   }
 
  private:
@@ -1281,12 +1097,7 @@ class ColumnFamilyData {
   std::vector<pll> top_level__level_ranges;
   std::vector<long long> top_level__level_points;
   std::tuple<int, std::vector<pll>, std::vector<uint64_t>> top_level__trivial_move__delete_RD_vector = std::make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
-  // std::tuple<int, std::vector<pll>, std::vector<uint64_t>> top_level__direct_delete__delete_RD_vector = std::make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
   int top_level__level_range_idx = 0;
-  // std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
-  // // std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
-  // //Self Added End
-
 
   friend class ColumnFamilySet;
   ColumnFamilyData(uint32_t id, const std::string& name,

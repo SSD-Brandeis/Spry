@@ -74,11 +74,9 @@
 #include "util/stop_watch.h"
 #include "util/string_util.h"
 
-
-//Self Added Start
+// Self Added Start
 #include "include/rocksdb/system_verifier.h"
-//Self Added End
-
+// Self Added End
 
 namespace ROCKSDB_NAMESPACE {
 namespace {
@@ -769,43 +767,39 @@ Status BlockBasedTable::Open(
       PersistentCacheOptions(rep->table_options.persistent_cache,
                              rep->base_cache_key, rep->ioptions.stats);
 
-
-  //Self Added Start
-  //Notation: file opened only @ compaction, not @ get (so far)
-  checking::SystemVerifier::getSystemVerifier()->increaseBlockBasedTableOpenCount();
+  // Self Added Start
+  // Notation: file opened only @ compaction, not @ get (so far)
+  checking::SystemVerifier::getSystemVerifier()
+      ->increaseBlockBasedTableOpenCount();
 
   bool rdf_skip_range_deletions = false;
-  std::string rdf_type = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
-  // if(rdf_type == "PLRDF"){ //xxx
-  if(checking::SystemVerifier::getSystemVerifier()->isSkipReadingRangeDeleteBlock() &&
-    checking::SystemVerifier::getSystemVerifier()->isRunningPQ()){
-    if(rdf_type == "PLRDF" || rdf_type == "SPLIT_PLRDF" || rdf_type == "TOP_LEVEL_RDF"){
+  std::string rdf_type =
+      checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
+  if (checking::SystemVerifier::getSystemVerifier()
+          ->isSkipReadingRangeDeleteBlock() &&
+      checking::SystemVerifier::getSystemVerifier()->isRunningPQ()) {
+    if (rdf_type == "PLRDF" || rdf_type == "SPLIT_PLRDF" ||
+        rdf_type == "TOP_LEVEL_RDF") {
       rdf_skip_range_deletions = true;
-    }else if(rdf_type == "SKYLINE_RDF"){
+    } else if (rdf_type == "SKYLINE_RDF") {
       rdf_skip_range_deletions = true;
 
-    }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
-      std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+    } else if (rdf_type != "NONE" && rdf_type != "NONE_DUMMY" &&
+               rdf_type != "NONE2" && rdf_type != "PLRDF" &&
+               rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" &&
+               rdf_type != "SKYLINE_RDF") {
+      std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__
+                << " " << __FUNCTION__ << std::endl
                 << "rdf_type = " << rdf_type << std::endl;
     }
   }
 
-// std::cout << "ReadRangeDelBlock pre1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  if(!rdf_skip_range_deletions){
-// std::cout << "ReadRangeDelBlock pre2 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  if (!rdf_skip_range_deletions) {
     s = new_table->ReadRangeDelBlock(ro, prefetch_buffer.get(),
                                      metaindex_iter.get(), internal_comparator,
                                      &lookup_context);
   }
-  //Self Added End
-
-  
-  // s = new_table->ReadRangeDelBlock(ro, prefetch_buffer.get(),
-  //                                  metaindex_iter.get(), internal_comparator,
-  //                                  &lookup_context);
-
-
-
+  // Self Added End
   if (!s.ok()) {
     return s;
   }
@@ -824,19 +818,24 @@ Status BlockBasedTable::Open(
     }
   }
 
-// Self Added Start
-cout << "table_reader_cache_res_mgr: " << table_reader_cache_res_mgr << " " << __FILE__ << ":" << __LINE__ << endl;
-std::size_t mem_usage_self = new_table->ApproximateMemoryUsage();
-cout << "new_table mem_usage: " << mem_usage_self << " " << __FILE__ << ":" << __LINE__ << endl;
-// Self Added End
+  // Self Added Start
+  cout << "table_reader_cache_res_mgr: " << table_reader_cache_res_mgr << " "
+       << __FILE__ << ":" << __LINE__ << endl;
+  std::size_t mem_usage_self = new_table->ApproximateMemoryUsage();
+  cout << "new_table mem_usage: " << mem_usage_self << " " << __FILE__ << ":"
+       << __LINE__ << endl;
+  // Self Added End
   if (s.ok() && table_reader_cache_res_mgr) {
-// Self Added Start
-size_t totalReservedCacheSize = table_reader_cache_res_mgr->GetTotalReservedCacheSize();
-size_t totalMemoryUsed = table_reader_cache_res_mgr->GetTotalMemoryUsed();
-cout << "totalReservedCacheSize: " << totalReservedCacheSize << " " << __FILE__ << ":" << __LINE__ << endl;
-cout << "totalMemoryUsed: " << totalMemoryUsed << " " << __FILE__ << ":" << __LINE__ << endl;
-cout << "Ha Passed ?? " << __FILE__ << ":" << __LINE__ << endl;
-// Self Added End
+    // Self Added Start
+    size_t totalReservedCacheSize =
+        table_reader_cache_res_mgr->GetTotalReservedCacheSize();
+    size_t totalMemoryUsed = table_reader_cache_res_mgr->GetTotalMemoryUsed();
+    cout << "totalReservedCacheSize: " << totalReservedCacheSize << " "
+         << __FILE__ << ":" << __LINE__ << endl;
+    cout << "totalMemoryUsed: " << totalMemoryUsed << " " << __FILE__ << ":"
+         << __LINE__ << endl;
+    cout << "Ha Passed ?? " << __FILE__ << ":" << __LINE__ << endl;
+    // Self Added End
     std::size_t mem_usage = new_table->ApproximateMemoryUsage();
     s = table_reader_cache_res_mgr->MakeCacheReservation(
         mem_usage, &(rep->table_reader_cache_res_handle));
@@ -1024,7 +1023,6 @@ Status BlockBasedTable::ReadRangeDelBlock(
     InternalIterator* meta_iter,
     const InternalKeyComparator& internal_comparator,
     BlockCacheLookupContext* lookup_context) {
-// std::cout << "ReadRangeDelBlock " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   Status s;
   BlockHandle range_del_handle;
   s = FindOptionalMetaBlock(meta_iter, kRangeDelBlockName, &range_del_handle);
@@ -1754,14 +1752,13 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
     CachableEntry<TBlocklike>* out_parsed_block, GetContext* get_context,
     BlockCacheLookupContext* lookup_context, bool for_compaction,
     bool use_cache, bool async_read) const {
-
-  //Self Added Start: timing
+  // Self Added Start: timing
   checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
   // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-  //Self Added End: timing
-  //Self Added Start 
+  // Self Added End: timing
+  // Self Added Start
   checking::SystemVerifier::getSystemVerifier()->start_retrieve_block();
-  //Self Added End
+  // Self Added End
 
   assert(out_parsed_block);
   assert(out_parsed_block->IsEmpty());
@@ -1774,13 +1771,13 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
         /*contents=*/nullptr, async_read);
 
     if (!s.ok()) {
-      //Self Added Start 
+      // Self Added Start
       checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
-      //Self Added End        
-      //Self Added Start: timing
-      // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+      // Self Added End
+      // Self Added Start: timing
+      //  checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
       checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-      //Self Added End: timing
+      // Self Added End: timing
 
       return s;
     }
@@ -1788,14 +1785,14 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
     if (out_parsed_block->GetValue() != nullptr ||
         out_parsed_block->GetCacheHandle() != nullptr) {
       assert(s.ok());
-      
-      //Self Added Start 
+
+      // Self Added Start
       checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
-      //Self Added End        
-      //Self Added Start: timing
-      // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+      // Self Added End
+      // Self Added Start: timing
+      //  checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
       checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-      //Self Added End: timing
+      // Self Added End: timing
 
       return s;
     }
@@ -1805,13 +1802,13 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
 
   const bool no_io = ro.read_tier == kBlockCacheTier;
   if (no_io) {
-    //Self Added Start 
+    // Self Added Start
     checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
-    //Self Added End        
-    //Self Added Start: timing
-    // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    // Self Added End
+    // Self Added Start: timing
+    //  checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
     checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    //Self Added End: timing
+    // Self Added End: timing
 
     return Status::Incomplete("no blocking io");
   }
@@ -1832,82 +1829,33 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
         uncompression_dict, rep_->persistent_cache_options,
         GetMemoryAllocator(rep_->table_options), for_compaction, async_read);
 
-
-    // //Self Added Start: timing
-    // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-    // // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    // //Self Added End: timing
-
-    //Self Added Start 
-    checking::SystemVerifier::getSystemVerifier()->increaseNumTotalBlockReadCount();
-    //Self Added End
-
-    // //Self Added Start: timing
-    // // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-    // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    // //Self Added End: timing
-
-
+    // Self Added Start
+    checking::SystemVerifier::getSystemVerifier()
+        ->increaseNumTotalBlockReadCount();
+    // Self Added End
     if (get_context) {
       switch (TBlocklike::kBlockType) {
         case BlockType::kIndex:
           ++(get_context->get_context_stats_.num_index_read);
-
-          // //Self Added Start: timing
-          // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-          // // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-          // //Self Added End: timing
-
-          //Self Added Start 
-          checking::SystemVerifier::getSystemVerifier()->increaseNumIndexReadCount();
-          //Self Added End
-          
-          // //Self Added Start: timing
-          // // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-          // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-          // //Self Added End: timing
-
+          // Self Added Start
+          checking::SystemVerifier::getSystemVerifier()
+              ->increaseNumIndexReadCount();
+          // Self Added End
           break;
         case BlockType::kFilter:
         case BlockType::kFilterPartitionIndex:
           ++(get_context->get_context_stats_.num_filter_read);
-
-          // //Self Added Start: timing
-          // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-          // // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-          // //Self Added End: timing
-
-          //Self Added Start 
-          checking::SystemVerifier::getSystemVerifier()->increaseNumFilterReadCount();
-          //Self Added End
-
-          // //Self Added Start: timing
-          // // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-          // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-          // //Self Added End: timing
-
+          // Self Added Start
+          checking::SystemVerifier::getSystemVerifier()
+              ->increaseNumFilterReadCount();
+          // Self Added End
           break;
-
-        //Self Added Start
+        // Self Added Start
         case BlockType::kRangeDeletion:
-
-          // //Self Added Start: timing
-          // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-          // // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-          // //Self Added End: timing
-          
-          checking::SystemVerifier::getSystemVerifier()->increaseNumRangeDelReadCount();
-        
-          // //Self Added Start: timing
-          // // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-          // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-          // //Self Added End: timing
-          
+          checking::SystemVerifier::getSystemVerifier()
+              ->increaseNumRangeDelReadCount();
           break;
-        //Self Added End
-        
-        
-
+        // Self Added End
         default:
           break;
       }
@@ -1915,14 +1863,11 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
   }
 
   if (!s.ok()) {
-    //Self Added Start 
+    // Self Added Start
     checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
-    //Self Added End        
-    //Self Added Start: timing
-    // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    // Self Added End
     checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    //Self Added End: timing
-
+    // Self Added End: timing
     return s;
   }
 
@@ -1930,13 +1875,13 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
 
   assert(s.ok());
 
-  //Self Added Start 
+  // Self Added Start
   checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
-  //Self Added End        
-  //Self Added Start: timing
-  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+  // Self Added End
+  // Self Added Start: timing
+  //  checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
   checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-  //Self Added End: timing
+  // Self Added End: timing
 
   return s;
 }

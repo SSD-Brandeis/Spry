@@ -1924,14 +1924,12 @@ ColumnFamilyHandle* DBImpl::PersistentStatsColumnFamily() const {
 Status DBImpl::Get(const ReadOptions& read_options,
                    ColumnFamilyHandle* column_family, const Slice& key,
                    PinnableSlice* value) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   return Get(read_options, column_family, key, value, /*timestamp=*/nullptr);
 }
 
 Status DBImpl::Get(const ReadOptions& read_options,
                    ColumnFamilyHandle* column_family, const Slice& key,
                    PinnableSlice* value, std::string* timestamp) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   assert(value != nullptr);
   value->Reset();
   GetImplOptions get_impl_options;
@@ -2000,8 +1998,6 @@ bool DBImpl::ShouldReferenceSuperVersion(const MergeContext& merge_context) {
 
 Status DBImpl::GetImpl(const ReadOptions& read_options, const Slice& key,
                        GetImplOptions& get_impl_options) {
-
-// std::cout  << "DBImpl::GetImpl A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   assert(get_impl_options.value != nullptr ||
          get_impl_options.merge_operands != nullptr ||
@@ -2086,7 +2082,6 @@ std::cout  << "DBImpl::GetImpl A8 " << __FILE__ << ":" << __LINE__ << " " << __F
           reinterpret_cast<const SnapshotImpl*>(read_options.snapshot)->number_;
     }
   } else {
-// std::cout  << "DBImpl::GetImpl A9 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // Note that the snapshot is assigned AFTER referencing the super
     // version because otherwise a flush happening in between may compact away
     // data for the snapshot, so the reader would see neither data that was be
@@ -2145,10 +2140,8 @@ std::cout  << "DBImpl::GetImpl A10 " << __FILE__ << ":" << __LINE__ << " " << __
   std::string* timestamp =
       ucmp->timestamp_size() > 0 ? get_impl_options.timestamp : nullptr;
   if (!skip_memtable) {
-// std::cout  << "DBImpl::GetImpl A11 @not skip memtable (memtable)" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // Get value associated with key
     if (get_impl_options.get_value) {
-// std::cout  << "DBImpl::GetImpl A11 B1 @get value " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       if (sv->mem->Get(
               lkey,
               get_impl_options.value ? get_impl_options.value->GetSelf()
@@ -2213,27 +2206,6 @@ std::cout  << "DBImpl::GetImpl A11 B2 C2 (sv->imm)" << __FILE__ << ":" << __LINE
   TEST_SYNC_POINT("DBImpl::GetImpl:PostMemTableGet:1");
   PinnedIteratorsManager pinned_iters_mgr;
   if (!done) {
-// std::cout  << "DBImpl::GetImpl A12 @not done yet -> GET (PostMemTableGet / search in disk --) " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//Self Added
-// std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-
-// cfd->current()->printAllFileRanges();
-// sv->current()->storage_info()->printRDFTest();
-
-// std::cout << "(GetImpl) cfd_->current()->storage_info()->printRDFTest() " << std::endl;
-// cfd ->current()->storage_info()->printRDFTest();
-
-// SuperVersion *sv2 = cfd->GetThreadLocalSuperVersion(this);
-// sv2->printRDFTest2();
-
-// std::cout << "(GetImpl) cfd_->current()->printRDFTest() " << std::endl;
-// cfd->current()->printRDFTest();
-// std::cout << "(GetImpl) cfd_->current()->printRDFTest2() " << std::endl;
-// cfd->current()->printRDFTest2();
-// // std::cout << "(GetImpl) cfd->printRDFTest " << std::endl;
-// // cfd->printRDFTest();
-//
-
     PERF_TIMER_GUARD(get_from_output_files_time);
     sv->current->Get(
         read_options, lkey, get_impl_options.value, get_impl_options.columns,
@@ -4746,17 +4718,6 @@ Status DB::DestroyColumnFamilyHandle(ColumnFamilyHandle* column_family) {
 DB::~DB() {}
 
 Status DBImpl::Close() {
-  //Self Added begin
-  // std::cout << "print ALL FILE RANGE @" << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
-  // auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  //     DefaultColumnFamily());
-  // auto cfd = cfh->cfd();
-  // // cfd->GetSuperVersion()->current->printAllFileRanges();
-  // cfd->current()->printAllFileRanges();  //this cause some threading issue 
-  // //Self Added end
-
-  
-  
   InstrumentedMutexLock closing_lock_guard(&closing_mutex_);
   if (closed_) {
     return closing_status_;
@@ -4783,8 +4744,6 @@ Status DBImpl::printAllFileRanges() {
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   sv->current->printAllFileRanges();
-  // cfd->GetSuperVersion()->current->printAllFileRanges();
-  // cfd->current()->printAllFileRanges();
   return Status::OK();
  }
 
@@ -4794,10 +4753,8 @@ Status DBImpl::printPLRDF() {
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   std::cout << "version --- PLRDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
-  // cfd->current()->printPLRDF();
   sv->current->printPLRDF();
 
-  // cfd->printPLRDF();
   std::cout << "version --- Split PLRDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
   sv->current->printSplitPLRDF();
   
@@ -4806,8 +4763,6 @@ Status DBImpl::printPLRDF() {
 
   std::cout << "version --- Skyline RDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
   sv->current->printSkylineRDF();
-
-
 
   return Status::OK();
 }
@@ -4907,7 +4862,6 @@ std::vector<int> DBImpl::getLogOfNumbersOfRangesInSkylineRDF(){
   return sv->current->getLogOfNumbersOfRangesInSkylineRDF();
 }
 
-
 const PLRDF *DBImpl::getPLRDF(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
@@ -4938,12 +4892,6 @@ const std::vector<int> *DBImpl::getSkylineNumbersOfRangesInRDFLog(){
   auto cfd = cfh->cfd();
   return cfd->getSkylineNumbersOfRangesInRDFLog();
 }
-
-// void DBImpl::setPLRDF(std::vector<int> v){
-//   if(v.size() != 0){
-//     std::cout << "" << std::endl;
-//   }
-// }
 
 void DBImpl::setPLRDF( PLRDF *plrdf){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
@@ -4995,20 +4943,7 @@ void DBImpl::setSkylineNumbersOfRangesInRDFLog( std::vector<int> *skyline__numbe
   sv->current->setSkylineNumbersOfRangesInRDFLog(*skyline__numbers_of_ranges_in_rdf_log);
   // return Status::OK();
 }
-
-
 //Self Added End
-
-
-
-
-
-
-
-
-
-
-
 
 Status DB::ListColumnFamilies(const DBOptions& db_options,
                               const std::string& name,

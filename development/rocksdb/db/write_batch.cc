@@ -570,7 +570,6 @@ std::cout  << "B4 Single tombstone insert " << __FILE__ << ":" << __LINE__ << " 
         break;
       case kTypeColumnFamilyRangeDeletion:
       case kTypeRangeDeletion:
-// std::cout  << "B5 range tombstones insert " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         assert(wb->content_flags_.load(std::memory_order_relaxed) &
                (ContentFlags::DEFERRED | ContentFlags::HAS_DELETE_RANGE));
         s = handler->DeleteRangeCF(column_family, key, value);
@@ -2364,8 +2363,6 @@ std::cout  << "PutCFImpl A9 @UpdateStatus::UPDATED not UPDATED_INPLACE" << __FIL
 
   Status DeleteRangeCF(uint32_t column_family_id, const Slice& begin_key,
                        const Slice& end_key) override {
-// std::cout  << "DeleteRangeCF A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout  << "DeleteRangeCF A1 " << " (start, end) = " << begin_key.ToString() << "," << end_key.ToString() << std::endl;
     const auto* kv_prot_info = NextProtectionInfo();
     // optimize for non-recovery mode
     if (UNLIKELY(write_after_commit_ && rebuilding_trx_ != nullptr)) {

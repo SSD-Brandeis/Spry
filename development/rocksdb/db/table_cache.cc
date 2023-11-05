@@ -44,10 +44,8 @@
 #undef WITH_COROUTINES
 // clang-format on
 
-//Self Added
+// Self Added
 #include "include/rocksdb/system_verifier.h"
-// #include "utilities/system_verifier.cc"
-
 
 namespace ROCKSDB_NAMESPACE {
 
@@ -58,13 +56,11 @@ static Slice GetSliceForFileNumber(const uint64_t* file_number) {
                sizeof(*file_number));
 }
 
-
 void AppendVarint64(IterKey* key, uint64_t v) {
   char buf[10];
   auto ptr = EncodeVarint64(buf, v);
   key->TrimAppend(key->Size(), buf, ptr - buf);
 }
-
 
 }  // anonymous namespace
 
@@ -101,7 +97,6 @@ Status TableCache::GetTableReader(
     const std::shared_ptr<const SliceTransform>& prefix_extractor,
     bool skip_filters, int level, bool prefetch_index_and_filter_in_cache,
     size_t max_file_size_for_l0_meta_pin, Temperature file_temperature) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   std::string fname = TableFileName(
       ioptions_.cf_paths, file_meta.fd.GetNumber(), file_meta.fd.GetPathId());
   std::unique_ptr<FSRandomAccessFile> file;
@@ -169,7 +164,6 @@ Status TableCache::FindTable(
     const bool no_io, bool record_read_stats, HistogramImpl* file_read_hist,
     bool skip_filters, int level, bool prefetch_index_and_filter_in_cache,
     size_t max_file_size_for_l0_meta_pin, Temperature file_temperature) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   PERF_TIMER_GUARD_WITH_CLOCK(find_table_nanos, ioptions_.clock);
   uint64_t number = file_meta.fd.GetNumber();
   Slice key = GetSliceForFileNumber(&number);
@@ -202,7 +196,6 @@ Status TableCache::FindTable(
       // or somebody repairs the file, we recover automatically.
     } else {
       s = cache_.Insert(key, table_reader.get(), 1, handle);
-cout << "cache_ size: " << cache_.get()->GetCapacity() << " " << __FILE__ << ":" << __LINE__ << endl; 
       if (s.ok()) {
         // Release ownership of table reader.
         table_reader.release();
@@ -420,12 +413,6 @@ Status TableCache::Get(
     const std::shared_ptr<const SliceTransform>& prefix_extractor,
     HistogramImpl* file_read_hist, bool skip_filters, int level,
     size_t max_file_size_for_l0_meta_pin) {
-// //Self Added Start, Timer
-// std::chrono::_V2::system_clock::time_point  timer_start = std::chrono::high_resolution_clock::now();
-// std::chrono::_V2::system_clock::time_point  timer_1_start = std::chrono::high_resolution_clock::now();
-// // std::chrono::_V2::system_clock::time_point  timer_0_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   auto& fd = file_meta.fd;
   std::string* row_cache_entry = nullptr;
   bool done = false;
@@ -437,31 +424,23 @@ Status TableCache::Get(
   if (ioptions_.row_cache && !get_context->NeedToReadSequence()) {
     auto user_key = ExtractUserKey(k);
 
-    //Self Added Start: timing
+    // Self Added Start: timing
     checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-    // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    //Self Added End: timing
-    //Self Added Start
+    // Self Added End: timing
+    // Self Added Start
     checking::SystemVerifier::getSystemVerifier()->start_get_from_row_cache();
-    //Self Added End
+    // Self Added End
 
     CreateRowCacheKeyPrefix(options, fd, k, get_context, row_cache_key);
     done = GetFromRowCache(user_key, row_cache_key, row_cache_key.Size(),
                            get_context);
 
-    //Self Added Start
+    // Self Added Start
     checking::SystemVerifier::getSystemVerifier()->stop_get_from_row_cache();
-    //Self Added End
-    //Self Added Start: timing
-    // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    // Self Added End
+    // Self Added Start: timing
     checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    //Self Added End: timing
-
-//Self Added
-// if(done == true){
-//   std::cout << " OK in Cache Get " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// }
-
+    // Self Added End: timing
     if (!done) {
       row_cache_entry = &row_cache_entry_buffer;
     }
@@ -469,27 +448,15 @@ Status TableCache::Get(
   Status s;
   TableReader* t = fd.table_reader;
   TypedHandle* handle = nullptr;
-
-
-// //Self Added Start, Timer
-// std::chrono::_V2::system_clock::time_point  timer_1_end = std::chrono::high_resolution_clock::now();
-// std::chrono::nanoseconds
-// duration_1_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_1_end - timer_1_start);
-// std::cout << "(TableCache::Get) timer duration1_1 = " << duration_1_ns.count() << std::endl;
-// // timer_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
   if (!done) {
     assert(s.ok());
     if (t == nullptr) {
-
-      //Self Added Start: timing
+      // Self Added Start: timing
       checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-      // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-      //Self Added End: timing
-      //Self Added Start
+      // Self Added End: timing
+      // Self Added Start
       checking::SystemVerifier::getSystemVerifier()->start_find_table();
-      //Self Added End
+      // Self Added End
 
       s = FindTable(options, file_options_, internal_comparator, file_meta,
                     &handle, block_protection_bytes_per_key, prefix_extractor,
@@ -498,89 +465,53 @@ Status TableCache::Get(
                     level, true /* prefetch_index_and_filter_in_cache */,
                     max_file_size_for_l0_meta_pin, file_meta.temperature);
 
-      //Self Added Start
+      // Self Added Start
       checking::SystemVerifier::getSystemVerifier()->stop_find_table();
-      //Self Added End
-      //Self Added Start: timing
-      // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+      // Self Added End
+      // Self Added Start: timing
       checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-      //Self Added End: timing
+      // Self Added End: timing
 
       if (s.ok()) {
         t = cache_.Value(handle);
-// //Self Added
-// if(s.ok() == true){
-//   std::cout << " OK in FindTable Get " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// }
       }
     }
-    
-// //Self Added Start, Timer
-// timer_1_end = std::chrono::high_resolution_clock::now();
-// duration_1_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_1_end - timer_1_start);
-// std::cout << "(TableCache::Get) timer duration1_2 = " << duration_1_ns.count() << std::endl;
-// // timer_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
     SequenceNumber* max_covering_tombstone_seq =
         get_context->max_covering_tombstone_seq();
 
-// //Self Added Start, Timer
-// timer_1_end = std::chrono::high_resolution_clock::now();
-// duration_1_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_1_end - timer_1_start);
-// std::cout << "(TableCache::Get) timer duration1_3 = " << duration_1_ns.count() << std::endl;
-// // timer_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
-    //Self Added Start: timing
+    // Self Added Start, Timer
     checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-    // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    //Self Added End: timing
+    // Self Added End: timing
 
-    //Self Added Start
-    // *** Also Required to implement in block_based_table_reader.cc ***
+    // Self Added Start
+    //  *** Also Required to implement in block_based_table_reader.cc ***
     bool rdf_skip_range_deletions = false;
-    std::string rdf_type = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
-    if(rdf_type == "PLRDF"){ // xxx
-    // if(rdf_type == "PLRDF" || rdf_type == "SPLIT_PLRDF" || rdf_type == "TOP_LEVEL_RDF"){
+    std::string rdf_type = checking::SystemVerifier::getSystemVerifier()
+                               ->getStringOfRDFTypeChosed();
+    if (rdf_type == "PLRDF") {
       rdf_skip_range_deletions = true;
-      if(checking::SystemVerifier::getSystemVerifier()->get_flag_is_RDF_filtered_entry() == true){
-        // *max_covering_tombstone_seq = ( checking::SystemVerifier::getSystemVerifier()->
-        //                             get_deleted_keys__max_sequnce_number(stoll(ExtractUserKey(k).ToString())) );
-        // xxx
-        // *max_covering_tombstone_seq = 1000000000; //xxx
+      if (checking::SystemVerifier::getSystemVerifier()
+              ->get_flag_is_RDF_filtered_entry() == true) {
       }
 
-    }else if(rdf_type == "SPLIT_PLRDF" || rdf_type == "TOP_LEVEL_RDF"){
+    } else if (rdf_type == "SPLIT_PLRDF" || rdf_type == "TOP_LEVEL_RDF") {
       rdf_skip_range_deletions = true;
 
-    }else if(rdf_type == "SKYLINE_RDF"){
+    } else if (rdf_type == "SKYLINE_RDF") {
       rdf_skip_range_deletions = true;
 
-    }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
-      std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+    } else if (rdf_type != "NONE" && rdf_type != "NONE_DUMMY" &&
+               rdf_type != "NONE2" && rdf_type != "PLRDF" &&
+               rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" &&
+               rdf_type != "SKYLINE_RDF") {
+      std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__
+                << " " << __FUNCTION__ << std::endl
                 << "rdf_type = " << rdf_type << std::endl;
     }
-    //Self Added End
 
-
-// //Self Added Start, Timer
-// timer_1_end = std::chrono::high_resolution_clock::now();
-// duration_1_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_1_end - timer_1_start);
-// std::cout << "(TableCache::Get) timer duration1_4 = " << duration_1_ns.count() << std::endl;
-// // timer_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
-// std::cout << "(pre) *max_covering_tombstone_seq =  " << *max_covering_tombstone_seq 
-//           << " options.ignore_range_deletions = " << options.ignore_range_deletions
-//           << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-
-
-
-    //Self Added Start
-    if(!rdf_skip_range_deletions){
+    if (!rdf_skip_range_deletions) {
       checking::SystemVerifier::getSystemVerifier()->start_get_max_seq();
-      //Self Added End
+      // Self Added End
 
       if (s.ok() && max_covering_tombstone_seq != nullptr &&
           !options.ignore_range_deletions) {
@@ -598,103 +529,48 @@ Status TableCache::Get(
           }
         }
       }
-    //Self Added Start
+      // Self Added Start
       checking::SystemVerifier::getSystemVerifier()->stop_get_max_seq();
     }
-    //Self Added End
-  
-
-// //Self Added Start, Timer
-// timer_1_end = std::chrono::high_resolution_clock::now();
-// duration_1_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_1_end - timer_1_start);
-// std::cout << "(TableCache::Get) timer duration1_5 = " << duration_1_ns.count() << std::endl;
-// // timer_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
-
-  //Self Added Start
-  if(*max_covering_tombstone_seq != 0){
-// std::cout << " *(post) max_covering_tombstone_seq =  " << *max_covering_tombstone_seq 
-//           << " user_key = " << ExtractUserKey(k).ToString()
-//           << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-
-    if(checking::SystemVerifier::getSystemVerifier()->is_enable_log__deleted_keys__max_sequnce_number()){
-      checking::SystemVerifier::getSystemVerifier()->insert_deleted_keys__max_sequnce_number( 
-        stoll(ExtractUserKey(k).ToString()),
-        *max_covering_tombstone_seq);
+    if (*max_covering_tombstone_seq != 0) {
+      if (checking::SystemVerifier::getSystemVerifier()
+              ->is_enable_log__deleted_keys__max_sequnce_number()) {
+        checking::SystemVerifier::getSystemVerifier()
+            ->insert_deleted_keys__max_sequnce_number(
+                stoll(ExtractUserKey(k).ToString()),
+                *max_covering_tombstone_seq);
+      }
     }
+    // Self Added End
 
+    // Self Added Start: timing
+    checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+    // Self Added End: timing
 
-
-  }
-  //Self Added End
-
-  
-
-  //Self Added Start: timing
-  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-  //Self Added End: timing
-
-    
     if (s.ok()) {
-      
-  //Self Added Start: timing
-  checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-  // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-  //Self Added End: timing
+      // Self Added Start: timing
+      checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+      // Self Added End: timing
 
-//Self Added Start
-checking::SystemVerifier *system_verifier = checking::SystemVerifier::getSystemVerifier(); 
-system_verifier->increaseDiskAccessCount();
-// std::cout << " OK in disk Get " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//Self Added End
+      // Self Added Start
+      checking::SystemVerifier* system_verifier =
+          checking::SystemVerifier::getSystemVerifier();
+      system_verifier->increaseDiskAccessCount();
+      // Self Added End
 
-  //Self Added Start: timing
-  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-  //Self Added End: timing
-
-
-// //Self Added Start, Timer
-// timer_1_end = std::chrono::high_resolution_clock::now();
-// duration_1_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_1_end - timer_1_start);
-// std::cout << "(TableCache::Get) timer duration1_6 = " << duration_1_ns.count() << std::endl;
-// // timer_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
+      // Self Added Start: timing
+      checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+      // Self Added End: timing
       get_context->SetReplayLog(row_cache_entry);  // nullptr if no cache.
       s = t->Get(options, k, get_context, prefix_extractor.get(), skip_filters);
       get_context->SetReplayLog(nullptr);
-
-      
-      // //Self Added Start: timing
-      // // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-      // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-      // //Self Added End: timing
     } else if (options.read_tier == kBlockCacheTier && s.IsIncomplete()) {
-// std::cout << " MarkKeyMayExist in disk Get " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       // Couldn't find Table in cache but treat as kFound if no_io set
       get_context->MarkKeyMayExist();
       s = Status::OK();
       done = true;
     }
   }
-
-// //Self Added Start, Timer
-// timer_1_end = std::chrono::high_resolution_clock::now();
-// duration_1_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_1_end - timer_1_start);
-// std::cout << "(TableCache::Get) timer duration1_7 = " << duration_1_ns.count() << std::endl;
-// // timer_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
-
-// //Self Added Start, Timer
-// std::chrono::_V2::system_clock::time_point  timer_end = std::chrono::high_resolution_clock::now();
-// std::chrono::nanoseconds duration_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_end - timer_start);
-// std::cout << "(TableCache::Get) timer duration1 = " << duration_ns.count() << std::endl;
-// timer_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
 
   // Put the replay log in row cache only if something was found.
   if (!done && s.ok() && row_cache_entry && !row_cache_entry->empty()) {
@@ -709,23 +585,6 @@ system_verifier->increaseDiskAccessCount();
   if (handle != nullptr) {
     cache_.Release(handle);
   }
-
-  
-// //Self Added Start, Timer
-// timer_end = std::chrono::high_resolution_clock::now();
-// duration_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_end - timer_start);
-// std::cout << "(TableCache::Get) timer duration2 = " << duration_ns.count() << std::endl;
-// // timer_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
-
-// //Self Added Start, Timer
-// std::chrono::_V2::system_clock::time_point  timer_0_end = std::chrono::high_resolution_clock::now();
-// std::chrono::nanoseconds duration_0_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_0_end - timer_0_start);
-// std::cout << "(TableCache::Get) timer duration0 = " << duration_0_ns.count() << std::endl;
-// // timer_0_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
   return s;
 }
 

@@ -353,23 +353,13 @@ class DB {
   virtual std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() {return {-1, -1, -1};}
-  
 
-
-
-
-
-  // using t3ll = std::tuple<int, int, int>;
   virtual const PLRDF *getPLRDF() {return NULL;}
   virtual const PLRDF *getSplitPLRDF() {return NULL;}
   virtual const PLRDF *getTopLevelRDF() {return NULL;}
   virtual const std::vector<t3ll> *getSkylineRDF() {return NULL;}
   virtual const std::vector<int> *getSkylineNumbersOfRangesInRDFLog() {return NULL;}
-  // virtual void setPLRDF( std::vector<int> v){
-  //   if(v.size() == 0){
-  //     return;
-  //   }
-  // };
+
   virtual void setPLRDF( PLRDF *plrdf){
     if(plrdf == NULL){
       return;
@@ -1952,10 +1942,6 @@ class DB {
     return Status::NotSupported("Supported only by secondary instance");
   }
 
-
-
-  
-
   //Self Added
   virtual Status CleanTableCache(
       ColumnFamilyHandle* /*column_family*/, std::ostream& /*ofile*/) {
@@ -1965,8 +1951,6 @@ class DB {
   Status CleanTableCache(std::ostream& ofile) {
     return CleanTableCache(DefaultColumnFamily(), ofile);
   }
-
-
 };
 
 struct WriteStallStatsMapKeys {
@@ -2040,7 +2024,6 @@ Status RepairDB(const std::string& dbname, const DBOptions& db_options,
 // @param options These options will be used for the database and for ALL column
 //                families encountered during the repair
 Status RepairDB(const std::string& dbname, const Options& options);
-
 
 
 }  // namespace ROCKSDB_NAMESPACE

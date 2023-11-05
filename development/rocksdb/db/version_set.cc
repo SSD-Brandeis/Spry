@@ -13,14 +13,13 @@
 #include <array>
 #include <cinttypes>
 #include <cstdio>
+#include <iostream>
 #include <list>
 #include <map>
 #include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-#include <iostream>
 
 #include "db/blob/blob_fetcher.h"
 #include "db/blob/blob_file_cache.h"
@@ -90,13 +89,11 @@
 #undef WITH_COROUTINES
 // clang-format on
 
-//Self Added
+// Self Added
 #include "include/rocksdb/system_verifier.h"
 // #include "utilities/system_verifier.cc"
 
-
 namespace ROCKSDB_NAMESPACE {
-
 
 namespace {
 
@@ -181,7 +178,6 @@ class FilePicker {
   int GetCurrentLevel() const { return curr_level_; }
 
   FdWithKeyRange* GetNextFile() {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     while (!search_ended_) {  // Loops over different levels.
       while (curr_index_in_curr_level_ < curr_file_level_->num_files) {
         // Loops over all files in current level.
@@ -214,8 +210,6 @@ class FilePicker {
             cmp_largest = user_comparator_->CompareWithoutTimestamp(
                 user_key_, ExtractUserKey(f->largest_key));
           }
-// std::cout << "GetNextFile @cmp_smallest " << cmp_smallest << " cmp_largest " << cmp_largest << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << "GetNextFile @user_key_ " << user_key_.ToString() << " ExtractUserKey(f->smallest_key) " << ExtractUserKey(f->smallest_key).ToString() << " ExtractUserKey(f->largest_key) " << ExtractUserKey(f->largest_key).ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
           // Setup file search bound for the next level based on the
           // comparison results
@@ -230,7 +224,6 @@ class FilePicker {
               ++curr_index_in_curr_level_;
               continue;
             } else {
-// std::cout  << "GetNextFile @Move on to the next level for searching key in the disk " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
               // Search next level.
               break;
             }
@@ -241,7 +234,7 @@ class FilePicker {
         if (curr_level_ > 0 && cmp_largest < 0) {
           // No more files to search in this level.
           search_ended_ = !PrepareNextLevel();
-        } else {          
+        } else {
           ++curr_index_in_curr_level_;
         }
         return f;
@@ -2298,12 +2291,6 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
                   PinnedIteratorsManager* pinned_iters_mgr, bool* value_found,
                   bool* key_exists, SequenceNumber* seq, ReadCallback* callback,
                   bool* is_blob, bool do_merge) {
-
-// //Self Added Start, Timer
-// std::chrono::_V2::system_clock::time_point  timer_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
-// std::cout  << "Version::Get A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   Slice ikey = k.internal_key();
   Slice user_key = k.user_key();
 
@@ -2342,132 +2329,100 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
     pinned_iters_mgr->StartPinning();
   }
 
-//Self Added
-// std::cout << "FilePicker " << __FILE__ << ":" << __LINE__ << std::endl;
-// std::cout << storage_info_.level_files_brief_.size() << std::endl;
-
   FilePicker fp(user_key, ikey, &storage_info_.level_files_brief_,
                 storage_info_.num_non_empty_levels_,
                 &storage_info_.file_indexer_, user_comparator(),
                 internal_comparator());
   FdWithKeyRange* f = fp.GetNextFile();
 
-
-  //Self Added Start: timing
+  // Self Added Start: timing
   checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-  // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-  //Self Added End: timing
+  // Self Added End: timing
 
-  //Self Added Start
-  // bool rdf_debug_flag = false;
+  // Self Added Start
   auto f2 = f;
-  int fp_cur_level = fp.GetCurrentLevel();       // next file's level
+  int fp_cur_level = fp.GetCurrentLevel();        // next file's level
   uint fp_hit_file_level = fp.GetHitFileLevel();  // current file's level
-  // bool is_alive_after_cur_level = cfd_->GetSuperVersion()->current->isAliveAfterRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
-  string rdf_type = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
-  //PLRDF
-  // bool is_alive_after_cur_level = isAliveAfterRDFilter(fp.GetCurrentLevel(), std::stoll(user_key.ToString()));
-  // bool is_alive_after_cur_level = isAliveAfterRDFilter(fp.GetCurrentLevel(), std::stoll(user_key.ToString()));
-  
-  // bool is_alive_after_hit_file_level = isAliveAfterRDFilter(fp_hit_file_level, std::stoll(user_key.ToString()));
+  string rdf_type =
+      checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
+  // PLRDF
   bool is_alive_after_hit_file_level = true;
-  // if(is_alive_after_cur_level == false){
-  //   std::cout << "$$$ (PLRDF) is_alive_after_cur_level = false " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  // }
-  //Split PLRDF 
-  // bool split__is_alive_after_cur_level = isAliveAfterSplitRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
-  // bool split__is_alive_after_hit_file_level = isAliveAfterSplitRDFilter(fp_hit_file_level, std::stoll(user_key.ToString()));
+
+  // Split PLRDF
   bool split__is_alive_after_hit_file_level = true;
-  
-  //Top Level RDF
+
+  // Top Level RDF
   bool top_level__is_alive_after_hit_file_level = true;
 
-  //Skyline RDF
-  // long long skyline__max_seq = -1;
+  // Skyline RDF
+  //  long long skyline__max_seq = -1;
 
-
-  //PLRDF
-  if(rdf_type == "PLRDF"){
+  // PLRDF
+  if (rdf_type == "PLRDF") {
     checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
-    is_alive_after_hit_file_level = isAliveAfterRDFilter(fp_hit_file_level, std::stoll(user_key.ToString()));
+    is_alive_after_hit_file_level = isAliveAfterRDFilter(
+        fp_hit_file_level, std::stoll(user_key.ToString()));
     checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
 
-    checking::SystemVerifier::getSystemVerifier()->reset_flag_is_RDF_filtered_entry();
-    if(is_alive_after_hit_file_level == false){
-      checking::SystemVerifier::getSystemVerifier()->set_flag_is_RDF_filtered_entry();
-      checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+    checking::SystemVerifier::getSystemVerifier()
+        ->reset_flag_is_RDF_filtered_entry();
+    if (is_alive_after_hit_file_level == false) {
+      checking::SystemVerifier::getSystemVerifier()
+          ->set_flag_is_RDF_filtered_entry();
+      checking::SystemVerifier::getSystemVerifier()
+          ->increaseFilteredByRDFCount();
     }
   }
-  //Split PLRDF
-  else if(rdf_type == "SPLIT_PLRDF"){
+  // Split PLRDF
+  else if (rdf_type == "SPLIT_PLRDF") {
     checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
-    split__is_alive_after_hit_file_level = isAliveAfterSplitRDFilter(fp_hit_file_level, std::stoll(user_key.ToString()));
+    split__is_alive_after_hit_file_level = isAliveAfterSplitRDFilter(
+        fp_hit_file_level, std::stoll(user_key.ToString()));
     checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
 
-    if(split__is_alive_after_hit_file_level == false){
+    if (split__is_alive_after_hit_file_level == false) {
       *status = Status::NotFound();
-      checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
-// this->split_plrdf.print();
-// std::cout << "### filtered by SPLIT RDF, level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      checking::SystemVerifier::getSystemVerifier()
+          ->increaseFilteredByRDFCount();
 
-  // Self Added Start: timing
-  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-  // Self Added End: timing
+      // Self Added Start: timing
+      checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+      // Self Added End: timing
       return;
     }
   }
-  //TOP Level RDF
-  else if(rdf_type == "TOP_LEVEL_RDF"){
+  // TOP Level RDF
+  else if (rdf_type == "TOP_LEVEL_RDF") {
     checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
-    top_level__is_alive_after_hit_file_level = isAliveAfterTopLevelRDFilter(std::stoll(user_key.ToString()));
+    top_level__is_alive_after_hit_file_level =
+        isAliveAfterTopLevelRDFilter(std::stoll(user_key.ToString()));
     checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
-    if(top_level__is_alive_after_hit_file_level == false){
+    if (top_level__is_alive_after_hit_file_level == false) {
       *status = Status::NotFound();
-      checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+      checking::SystemVerifier::getSystemVerifier()
+          ->increaseFilteredByRDFCount();
 
-// this->top_level_rdf.print();
-// std::cout << "### filtered by TOP Level RDF, hit_file_level = " << fp.GetHitFileLevel() << " current_level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-
-  // Self Added Start: timing
-  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-  // Self Added End: timing
+      // Self Added Start: timing
+      checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+      // Self Added End: timing
       return;
     }
-  // }
-  // //Skyline RDF
-  // else if(rdf_type != "SKYLINE_RDF"){
-  //   skyline__max_seq = getMaxSeqFromSkylineRDFilter(std::stoll(user_key.ToString()));
 
-  }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
-        std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
-                  << "rdf_type = " << rdf_type << std::endl;
+  } else if (rdf_type != "NONE" && rdf_type != "NONE_DUMMY" &&
+             rdf_type != "NONE2" && rdf_type != "PLRDF" &&
+             rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" &&
+             rdf_type != "SKYLINE_RDF") {
+    std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__
+              << " " << __FUNCTION__ << std::endl
+              << "rdf_type = " << rdf_type << std::endl;
   }
-  // checking::SystemVerifier *system_verifier = checking::SystemVerifier::getSystemVerifier(); 
-  //Self Added End
+  // Self Added End
 
-  
   // Self Added Start: timing
-  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
   checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
   // Self Added End: timing
 
-// //Self Added Start, Timer
-// std::chrono::_V2::system_clock::time_point  timer_end = std::chrono::high_resolution_clock::now();
-// std::chrono::nanoseconds duration_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_end - timer_start);
-// std::cout << "(Version::Get) timer duration1 = " << duration_ns.count() << std::endl;
-// timer_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
-// std::cout  << "A2 @Go through overlapped File loop " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   while (f != nullptr) {
-
-// //Self Added Start, Timer
-// std::chrono::_V2::system_clock::time_point  timer2_start = std::chrono::high_resolution_clock::now();
-// std::chrono::_V2::system_clock::time_point  timer2_0_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
     if (*max_covering_tombstone_seq > 0) {
       // The remaining files we look at will only contain covered keys, so we
       // stop here.
@@ -2482,76 +2437,22 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
         get_perf_context()->per_level_perf_context_enabled;
     StopWatchNano timer(clock_, timer_enabled /* auto_start */);
 
-// //Self Added Start, Timer
-// std::chrono::_V2::system_clock::time_point  timer2_end = std::chrono::high_resolution_clock::now();
-// std::chrono::nanoseconds duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_1 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
+    // //Self Added Start, Timer
+    rocksdb::HistogramImpl* histogram_ptr =
+        cfd_->internal_stats()->GetFileReadHist(fp.GetHitFileLevel());
+    bool is_filter_skipped = IsFilterSkipped(
+        static_cast<int>(fp.GetHitFileLevel()), fp.IsHitFileLastInLevel());
 
-    rocksdb::HistogramImpl *histogram_ptr = cfd_->internal_stats()->GetFileReadHist(fp.GetHitFileLevel());
-
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_2_1 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer    
-
-    bool is_filter_skipped = IsFilterSkipped(static_cast<int>(fp.GetHitFileLevel()), fp.IsHitFileLastInLevel());
-
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_2_2 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
-    //check the cache
+    // check the cache
     *status = table_cache_->Get(
         read_options, *internal_comparator(), *f->file_metadata, ikey,
         &get_context, mutable_cf_options_.block_protection_bytes_per_key,
-        mutable_cf_options_.prefix_extractor,
-        histogram_ptr,
-        is_filter_skipped,
+        mutable_cf_options_.prefix_extractor, histogram_ptr, is_filter_skipped,
         fp.GetHitFileLevel(), max_file_size_for_l0_meta_pin_);
-    // *status = table_cache_->Get(
-    //     read_options, *internal_comparator(), *f->file_metadata, ikey,
-    //     &get_context, mutable_cf_options_.block_protection_bytes_per_key,
-    //     mutable_cf_options_.prefix_extractor,
-    //     cfd_->internal_stats()->GetFileReadHist(fp.GetHitFileLevel()),
-    //     IsFilterSkipped(static_cast<int>(fp.GetHitFileLevel()),
-    //                     fp.IsHitFileLastInLevel()),
-    //     fp.GetHitFileLevel(), max_file_size_for_l0_meta_pin_);
 
-// std::cout << "key: " << std::stoll(user_key.ToString())
-//           << " file fd: " << (f->fd).GetNumber() 
-//           << " level: " << fp.GetHitFileLevel()
-//           << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
-
-checking::SystemVerifier::getSystemVerifier()
-    ->logPQTracingInfo(
-      std::stoll(user_key.ToString()),
-      (f->fd).GetNumber(),
-      fp.GetHitFileLevel()
-    );
-
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_2 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
-// std::cout << "### (Get), hit_file_level = " << fp.GetHitFileLevel() << " current_level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  
-//           << " found = " << (get_context.State() == GetContext::kFound) 
-//           << "value = " << value->ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// if(checking::SystemVerifier::getSystemVerifier()->get_flag_testing_on_currently_deleted_keys() == true){
-// std::cout << "### (Get), hit_file_level = " << fp.GetHitFileLevel() << " current_level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  
-//           << " found = " << (get_context.State() == GetContext::kFound) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// // std::cout << "split-PLRDF:" << std::endl;
-// // this->split_plrdf.print();
-// } // xxx
+    checking::SystemVerifier::getSystemVerifier()->logPQTracingInfo(
+        std::stoll(user_key.ToString()), (f->fd).GetNumber(),
+        fp.GetHitFileLevel());
 
     // TODO: examine the behavior for corrupted key
     if (timer_enabled) {
@@ -2559,28 +2460,11 @@ checking::SystemVerifier::getSystemVerifier()
                                 fp.GetHitFileLevel());
     }
     if (!status->ok()) {
-std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       if (db_statistics_ != nullptr) {
         get_context.ReportCounters();
       }
-
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_3 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
       return;
     }
-
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_3 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
 
     // report the counters before returning
     if (get_context.State() != GetContext::kNotFound &&
@@ -2588,14 +2472,6 @@ std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " <<
         db_statistics_ != nullptr) {
       get_context.ReportCounters();
     }
-
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_4 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
     switch (get_context.State()) {
       case GetContext::kNotFound:
         // Keep searching in other files
@@ -2604,57 +2480,50 @@ std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " <<
         // TODO: update per-level perfcontext user_key_return_count for kMerge
         break;
       case GetContext::kFound:
-// std::cout << "kFound !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << " level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString();
 
-        //Self Added Start: timing
-        checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-        // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-        //Self Added End: timing
+        // Self Added Start: timing
+        checking::SystemVerifier::getSystemVerifier()
+            ->stop_remaining_get_path();
+        // Self Added End: timing
 
-        //Self Added Start
-        if(rdf_type == "SKYLINE_RDF"){
+        // Self Added Start
+        if (rdf_type == "SKYLINE_RDF") {
           std::string val_pre = value->ToString();
           auto separator_pos = val_pre.find("|");
-          long long skyline__get_seq = std::stoll(val_pre.substr(separator_pos + 1));
+          long long skyline__get_seq =
+              std::stoll(val_pre.substr(separator_pos + 1));
           auto val = val_pre.substr(0, separator_pos);
-          
+
           checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
-          long long skyline__max_seq = getMaxSeqFromSkylineRDFilter(std::stoll(user_key.ToString()));
+          long long skyline__max_seq =
+              getMaxSeqFromSkylineRDFilter(std::stoll(user_key.ToString()));
           checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
 
-// std::cout << " key = " << user_key.ToString() << " skyline__get_seq = " << skyline__get_seq << " skyline__max_seq = " << skyline__max_seq << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// printSkylineRDF();
-          if(skyline__get_seq < skyline__max_seq){
+          if (skyline__get_seq < skyline__max_seq) {
             *status = Status::NotFound();
-            checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+            checking::SystemVerifier::getSystemVerifier()
+                ->increaseFilteredByRDFCount();
 
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_5 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
-
-  // Self Added Start: timing
-  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-  // Self Added End: timing
-            return ;   
+            // Self Added Start: timing
+            checking::SystemVerifier::getSystemVerifier()
+                ->start_remaining_get_path();
+            // Self Added End: timing
+            return;
           }
-        }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
-              std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
-                        << "rdf_type = " << rdf_type << std::endl;
+        } else if (rdf_type != "NONE" && rdf_type != "NONE_DUMMY" &&
+                   rdf_type != "NONE2" && rdf_type != "PLRDF" &&
+                   rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" &&
+                   rdf_type != "SKYLINE_RDF") {
+          std::cerr << "Error: condition unchecked. " << __FILE__ << ":"
+                    << __LINE__ << " " << __FUNCTION__ << std::endl
+                    << "rdf_type = " << rdf_type << std::endl;
         }
-        //Self Added End
+        // Self Added End
 
-        //Self Added Start: timing
-        // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-        checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-        //Self Added End: timing
-
-
+        // Self Added Start: timing
+        checking::SystemVerifier::getSystemVerifier()
+            ->start_remaining_get_path();
+        // Self Added End: timing
 
         if (fp.GetHitFileLevel() == 0) {
           RecordTick(db_statistics_, GET_HIT_L0);
@@ -2667,9 +2536,6 @@ std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " <<
         PERF_COUNTER_BY_LEVEL_ADD(user_key_return_count, 1,
                                   fp.GetHitFileLevel());
 
-// std::cout << "@Get (ikey= " << ikey.ToString() << ", user_key = " << user_key.ToString()  << ")  " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << "@Get " << " is_blob_index " << is_blob_index << " do_merge " << do_merge << " value " << value << " columns " << columns  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-        //is blob index is set to false in the beginning
         if (is_blob_index && do_merge && (value || columns)) {
           assert(!columns ||
                  (!columns->columns().empty() &&
@@ -2687,26 +2553,12 @@ std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " <<
 
           constexpr uint64_t* bytes_read = nullptr;
 
-          //Self Added
-// std::cout << "??? get blob file " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// // std::cout << "@Get (ikey= " << ikey.ToString() << ", user_key = " << user_key.ToString()  << ")  " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// // system_verifier->increaseDiskAccessCount();
-          //get blob file  (whete key-value are stored)
           *status = GetBlob(read_options, get_context.ukey_to_get_blob_value(),
                             blob_index, prefetch_buffer, &result, bytes_read);
           if (!status->ok()) {
-// std::cout << "GetBlob !status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
             if (status->IsIncomplete()) {
-// std::cout << "GetBlob status->IsIncomplete()  MarkKeyMayExist !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
               get_context.MarkKeyMayExist();
             }
-
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_5 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
             return;
           }
 
@@ -2718,286 +2570,158 @@ std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " <<
           }
         }
 
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_5 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
         return;
       case GetContext::kDeleted:
 
-        //Self Added Start: timing
-        checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-        // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-        //Self Added End: timing
+        // Self Added Start: timing
+        checking::SystemVerifier::getSystemVerifier()
+            ->stop_remaining_get_path();
+        // Self Added End: timing
 
-        //Self Added Start
-        if(rdf_type == "PLRDF"){
-          checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+        // Self Added Start
+        if (rdf_type == "PLRDF") {
+          checking::SystemVerifier::getSystemVerifier()
+              ->increaseFilteredByRDFCount();
         }
-        //Self Added End
+        // Self Added End
 
-        //Self Added Start: timing
-        // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-        checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-        //Self Added End: timing
+        // Self Added Start: timing
+        checking::SystemVerifier::getSystemVerifier()
+            ->start_remaining_get_path();
+        // Self Added End: timing
 
-
-// std::cout << "kDeleted !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << " level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString();
         // Use empty error message for speed
         *status = Status::NotFound();
-
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_5 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
         return;
       case GetContext::kCorrupt:
-// std::cout << "kCorrupt !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         *status = Status::Corruption("corrupted key for ", user_key);
-
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_5 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
         return;
       case GetContext::kUnexpectedBlobIndex:
-// std::cout << "kUnexpectedBlobIndex !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         ROCKS_LOG_ERROR(info_log_, "Encounter unexpected blob index.");
         *status = Status::NotSupported(
             "Encounter unexpected blob index. Please open DB with "
             "ROCKSDB_NAMESPACE::blob_db::BlobDB instead.");
-
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_5 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
         return;
       case GetContext::kMergeOperatorFailed:
-// std::cout << "kMergeOperatorFailed !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         *status = Status::Corruption(Status::SubCode::kMergeOperatorFailed);
-  
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_5 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
         return;
     }
 
-
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_5 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
-    //Self Added Start: timing
+    // Self Added Start: timing
     checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-    // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    //Self Added End: timing
+    // Self Added End: timing
 
-    //Self Added Start
-    if(fp.GetCurrentLevel() < fp_cur_level){
-std::cerr << "(pre) fp_cur_level = " << fp_cur_level << " (cur) fp.GetCurrentLevel() = " << fp.GetCurrentLevel() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString() <<   " (pre) f2->largest_key.ToString() = " << f2->largest_key.ToString() << std::endl
-          << "(cur) f->smallest_key.ToString() = " << f->smallest_key.ToString() << " (cur) f->largest_key.ToString() = " << f->largest_key.ToString() << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // Self Added Start
+    if (fp.GetCurrentLevel() < fp_cur_level) {
+      std::cerr << "(pre) fp_cur_level = " << fp_cur_level
+                << " (cur) fp.GetCurrentLevel() = " << fp.GetCurrentLevel()
+                << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                << std::endl;
+      std::cerr << "(pre) f2->smallest_key.ToString() = "
+                << f2->smallest_key.ToString()
+                << " (pre) f2->largest_key.ToString() = "
+                << f2->largest_key.ToString() << std::endl
+                << "(cur) f->smallest_key.ToString() = "
+                << f->smallest_key.ToString()
+                << " (cur) f->largest_key.ToString() = "
+                << f->largest_key.ToString() << __FILE__ << ":" << __LINE__
+                << " " << __FUNCTION__ << std::endl;
     }
 
-
-    if(fp_cur_level != fp.GetCurrentLevel()){
-//       PLRDF
-//       if(rdf_type == "PLRDF" && is_alive_after_cur_level == false){
-//         *status = Status::NotFound();
-// // rdf_debug_flag = true;
-// // std::cout << "fp_cur_level = " << fp_cur_level << " fp.GetCurrentLevel() " << fp.GetCurrentLevel() << std::endl;
-// // this->plrdf.print();
-// // this->printAllFileRanges();
-// // std::cout << "### filtered by RDF, level = " << fp_cur_level  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-
-//         checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
-
-//         return;
-//       }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
-//         std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
-//                   << "rdf_type = " << rdf_type << std::endl;
-//       }
-//       is_alive_after_cur_level = isAliveAfterRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
-//       // // is_alive_after_cur_level = cfd_->GetSuperVersion()->current->isAliveAfterRDFilter(fp_cur_level, std::stoll(user_key.ToString()));
-//       // if(is_alive_after_cur_level == false){
-//       //   std::cout << "$$$ (PLRDF) is_alive_after_cur_level = false " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//       //   std::cout << " level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString();
-//       // }
-
-
-//       //Split PLRDF
-//       split__is_alive_after_cur_level = isAliveAfterSplitRDFilter(fp.GetCurrentLevel(), std::stoll(user_key.ToString()));
-
-//       if(rdf_type == "SPLIT_PLRDF" && split__is_alive_after_cur_level == false){
-//         *status = Status::NotFound();
-//         checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
-// // this->split_plrdf.print();
-// // std::cout << "### filtered by SPLIT RDF, level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//         return;
-//       }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
-//         std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
-//                   << "rdf_type = " << rdf_type << std::endl;
-//       }
-    }
-    // if(rdf_debug_flag == true){
-    //   std::cout << "fp_cur_level = " << fp_cur_level << " fp.GetCurrentLevel() " << fp.GetCurrentLevel() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    //   std::cout << "(cur) f->smallest_key.ToString() = " << f->smallest_key.ToString() << " (cur) f->largest_key.ToString() = " << f->largest_key.ToString() << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    //   std::cout << "f->file_metadata->unique_id = " << f->file_metadata->unique_id[0] << " " << f->file_metadata->unique_id[1] << " "  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    // }
     f2 = f;
     fp_cur_level = fp.GetCurrentLevel();
-    //Self Added End
+    // Self Added End
 
-    //Self Added Start: timing
-    // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    // Self Added Start: timing
     checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    //Self Added End: timing
-
+    // Self Added End: timing
 
     f = fp.GetNextFile();
 
-
-
-    //Self Added Start: timing
+    // Self Added Start: timing
     checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-    // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    //Self Added End: timing
+    // Self Added End: timing
 
-    //Self Added Start
-    if(fp_hit_file_level != fp.GetHitFileLevel()){
-      //PLRDF
-      if(rdf_type == "PLRDF"){
-        if(is_alive_after_hit_file_level == false){
+    // Self Added Start
+    if (fp_hit_file_level != fp.GetHitFileLevel()) {
+      // PLRDF
+      if (rdf_type == "PLRDF") {
+        if (is_alive_after_hit_file_level == false) {
           *status = Status::NotFound();
-          checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount();
-  
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_6 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
+          checking::SystemVerifier::getSystemVerifier()
+              ->increaseFilteredByRDFCount();
 
+          // Self Added Start: timing
+          checking::SystemVerifier::getSystemVerifier()
+              ->start_remaining_get_path();
+          // Self Added End: timing
 
-  // Self Added Start: timing
-  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-  // Self Added End: timing
-
-          return ;   
+          return;
         }
 
         checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
-        is_alive_after_hit_file_level = isAliveAfterRDFilter(fp.GetHitFileLevel(), std::stoll(user_key.ToString()));
+        is_alive_after_hit_file_level = isAliveAfterRDFilter(
+            fp.GetHitFileLevel(), std::stoll(user_key.ToString()));
         checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
-        
-        if(is_alive_after_hit_file_level == false){
-          checking::SystemVerifier::getSystemVerifier()->set_flag_is_RDF_filtered_entry();
+
+        if (is_alive_after_hit_file_level == false) {
+          checking::SystemVerifier::getSystemVerifier()
+              ->set_flag_is_RDF_filtered_entry();
         }
 
-      }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
-        std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+      } else if (rdf_type != "NONE" && rdf_type != "NONE_DUMMY" &&
+                 rdf_type != "NONE2" && rdf_type != "PLRDF" &&
+                 rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" &&
+                 rdf_type != "SKYLINE_RDF") {
+        std::cerr << "Error: condition unchecked. " << __FILE__ << ":"
+                  << __LINE__ << " " << __FUNCTION__ << std::endl
                   << "rdf_type = " << rdf_type << std::endl;
       }
 
       fp_hit_file_level = fp.GetHitFileLevel();  // current file's level
 
-      if(rdf_type == "SPLIT_PLRDF"){
-        
+      if (rdf_type == "SPLIT_PLRDF") {
         checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
-        split__is_alive_after_hit_file_level = isAliveAfterSplitRDFilter(fp_hit_file_level, std::stoll(user_key.ToString()));
+        split__is_alive_after_hit_file_level = isAliveAfterSplitRDFilter(
+            fp_hit_file_level, std::stoll(user_key.ToString()));
         checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
 
-        if(split__is_alive_after_hit_file_level == false){
+        if (split__is_alive_after_hit_file_level == false) {
           *status = Status::NotFound();
-          checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
-  // this->split_plrdf.print();
-  // std::cout << "### filtered by SPLIT RDF, level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString()  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_6 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
+          checking::SystemVerifier::getSystemVerifier()
+              ->increaseFilteredByRDFCount();
 
-
-  // Self Added Start: timing
-  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-  // Self Added End: timing
+          // Self Added Start: timing
+          checking::SystemVerifier::getSystemVerifier()
+              ->start_remaining_get_path();
+          // Self Added End: timing
 
           return;
         }
-      }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
-        std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+      } else if (rdf_type != "NONE" && rdf_type != "NONE_DUMMY" &&
+                 rdf_type != "NONE2" && rdf_type != "PLRDF" &&
+                 rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" &&
+                 rdf_type != "SKYLINE_RDF") {
+        std::cerr << "Error: condition unchecked. " << __FILE__ << ":"
+                  << __LINE__ << " " << __FUNCTION__ << std::endl
                   << "rdf_type = " << rdf_type << std::endl;
       }
     }
-    //Self Added End
+    // Self Added End
 
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_6 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-    
-    //Self Added Start: timing
-    // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    // Self Added Start: timing
     checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    //Self Added End: timing
-
-// //Self Added Start, Timer
-// timer2_end = std::chrono::high_resolution_clock::now();
-// duration2_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_end - timer2_start);
-// std::cout << "(Version::Get) timer duration2_7 = " << duration2_ns.count() << std::endl;
-// timer2_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
-// //Self Added Start, Timer
-// std::chrono::_V2::system_clock::time_point  timer2_0_end = std::chrono::high_resolution_clock::now();
-// std::chrono::nanoseconds duration2_0_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer2_0_end - timer2_0_start);
-// std::cout << "(Version::Get) timer duration2_0 = " << duration2_0_ns.count() << std::endl;
-// // timer2_0_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
+    // Self Added End: timing
   }
-
-// //Self Added Start, Timer
-// timer_end = std::chrono::high_resolution_clock::now();
-// duration_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_end - timer_start);
-// std::cout << "(Version::Get) timer duration2 = " << duration_ns.count() << std::endl;
-// timer_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
-
-
   if (db_statistics_ != nullptr) {
     get_context.ReportCounters();
   }
   if (GetContext::kMerge == get_context.State()) {
     if (!do_merge) {
-// std::cout << "!do_merge Status::OK !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       *status = Status::OK();
       return;
     }
     if (!merge_operator_) {
-// std::cout << "!merge_operator_ Status::InvalidArgument !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       *status = Status::InvalidArgument(
           "merge_operator is not properly initialized.");
       return;
@@ -3013,7 +2737,6 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
           &result, info_log_, db_statistics_, clock_,
           /* result_operand */ nullptr, /* update_num_ops_stats */ true,
           /* op_failure_scope */ nullptr);
-// std::cout << "MergeHelper::TimedFullMerge !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       if (status->ok()) {
         if (LIKELY(value != nullptr)) {
           *(value->GetSelf()) = std::move(result);
@@ -3028,17 +2751,8 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
     if (key_exists != nullptr) {
       *key_exists = false;
     }
-// std::cout << "NotFound !! " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << " level = " << fp.GetCurrentLevel()  << " key = "  << user_key.ToString() << std::endl;
     *status = Status::NotFound();  // Use an empty error message for speed
   }
-  
-// //Self Added Start, Timer
-// timer_end = std::chrono::high_resolution_clock::now();
-// duration_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(timer_end - timer_start);
-// std::cout << "(Version::Get) timer duration3 = " << duration_ns.count() << std::endl;
-// timer_start = std::chrono::high_resolution_clock::now();
-// //Self Added End, Timer
 }
 
 void Version::MultiGet(const ReadOptions& read_options, MultiGetRange* range,
@@ -5611,8 +5325,6 @@ Status VersionSet::ProcessManifestWrites(
     FSDirectory* dir_contains_current_file, bool new_descriptor_log,
     const ColumnFamilyOptions* new_cf_options,
     const ReadOptions& read_options) {
-// std::cout  << "VersionSet::ProcessManifestWrites A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   mu->AssertHeld();
   assert(!writers.empty());
   ManifestWriter& first_writer = writers.front();
@@ -5736,7 +5448,6 @@ Status VersionSet::ProcessManifestWrites(
       }
     }
     for (int i = 0; i < static_cast<int>(versions.size()); ++i) {
-// std::cout << "version(s) size : " << versions.size() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       assert(!builder_guards.empty() &&
              builder_guards.size() == versions.size());
       auto* builder = builder_guards[i]->version_builder();
@@ -6178,8 +5889,6 @@ Status VersionSet::LogAndApply(
     InstrumentedMutex* mu, FSDirectory* dir_contains_current_file,
     bool new_descriptor_log, const ColumnFamilyOptions* new_cf_options,
     const std::vector<std::function<void(const Status&)>>& manifest_wcbs) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   mu->AssertHeld();
   int num_edits = 0;
   for (const auto& elist : edit_lists) {
@@ -6859,8 +6568,6 @@ void VersionSet::MarkMinLogNumberToKeep(uint64_t number) {
 Status VersionSet::WriteCurrentStateToManifest(
     const std::unordered_map<uint32_t, MutableCFState>& curr_state,
     const VersionEdit& wal_additions, log::Writer* log, IOStatus& io_s) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   // TODO: Break up into multiple records to reduce memory usage on recovery?
 
   // WARNING: This method doesn't hold a mutex!!

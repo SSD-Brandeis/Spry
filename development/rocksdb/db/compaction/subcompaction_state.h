@@ -208,14 +208,7 @@ class SubcompactionState {
     return s;
   }
 
-
   //Self Added Start
-  // CompactionOutputs getCompactionOutputs(){
-  //   return compaction_outputs_;
-  // }
-  // CompactionOutputs getPenultimateLevelOutputs(){
-  //   return penultimate_level_outputs_;
-  // }
   std::vector<FileMetaData> getCompactionOutputFileMetaData() const {
     std::vector<FileMetaData> files;
     for (const auto& file : compaction_outputs_.outputs_) {
@@ -249,7 +242,6 @@ class SubcompactionState {
     return file_numbers;
   }
   //Self Added End
-
 
  private:
   // State kept for output being generated
