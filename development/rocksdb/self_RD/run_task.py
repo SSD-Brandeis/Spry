@@ -1,8 +1,8 @@
 import os
 params = {
     #"-i": [100000*10],
-    "-i": [100000],
-    "-P": [512],
+    "-i": [64000],
+    "-P": [4],
     "-T": [2],
     "--insert_before_range_delete": [0.9],
     "--gen_workload": [1],
@@ -17,8 +17,8 @@ tasks = ["./simple_example"]
 for key, values in params.items():
     tasks = [" ".join([task, key, str(value)]) for value in values for task in tasks]
 
-B_list: list = [4, 16, 64, 256]
-E_list: list = [1024, 256, 64, 16]
+B_list: list = [256]
+E_list: list = [16]
 
 task_tmp = []
 for i, (B, E) in enumerate(zip(B_list, E_list)):
@@ -48,9 +48,13 @@ def run(
 #run('4', RD_list=[0, 1, 5, 10, 50, 100, 500, 900], sel_list=[0.001])
 #run('5', RD_list=[100], sel_list=[0.0001, 0.0005, 0.001, 0.005, 0.009])
 #run('6', RD_list=[10], sel_list=[0.001, 0.005, 0.009, 0.01, 0.05, 0.09])
-run('7', RD_list=[50], sel_list=[0.001, 0.005, 0.009, 0.01])
-run('8', RD_list=[50], sel_list=[0.001, 0.005, 0.009, 0.01])
-run('9', RD_list=[50], sel_list=[0.001, 0.005, 0.009, 0.01])
+#run('7', RD_list=[50], sel_list=[0.001, 0.005, 0.009, 0.01])
+#run('8', RD_list=[50], sel_list=[0.001, 0.005, 0.009, 0.01])
+#run('9', RD_list=[50], sel_list=[0.001, 0.005, 0.009, 0.01])
 #run('7', RD_list=[0], sel_list=[0.001, 0.005, 0.009, 0.01])
 #run('8', RD_list=[0], sel_list=[0.001, 0.005, 0.009, 0.01])
 #run('9', RD_list=[0], sel_list=[0.001, 0.005, 0.009, 0.01])
+run('10', RD_list=[100], sel_list=[0.001, 0.005, 0.009])
+run('11', RD_list=[100], sel_list=[0.001, 0.005, 0.009])
+run('12', RD_list=[1000], sel_list=[0.0001, 0.0005, 0.0009])
+run('13', RD_list=[1000], sel_list=[0.0001, 0.0005, 0.0009])
