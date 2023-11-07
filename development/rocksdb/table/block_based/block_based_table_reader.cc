@@ -771,6 +771,8 @@ Status BlockBasedTable::Open(
 
 
   //Self Added Start
+  checking::SystemVerifier::getSystemVerifier()->setFlagOpenTable();
+
   //Notation: file opened only @ compaction, not @ get (so far)
   checking::SystemVerifier::getSystemVerifier()->increaseBlockBasedTableOpenCount();
 
