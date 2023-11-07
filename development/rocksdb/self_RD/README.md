@@ -1,8 +1,12 @@
 1. Compile RocksDB first by executing `make static_lib` in parent dir
 2. Compile all examples: `cd examples/; make all`
 Set --gen_workload 1 if the workload hasn't been generated yet
+
 To Run:
 	./simple_example -i 100000 --RD 100 -P 64 -B 4 -E 1024 -T 5 --selectivity 0.001 --workload_filename "workload/workload1.txt" --insert_before_range_delete 0.9 --gen_workload 0 --max_open_files 20 --skip_reading_RD_blocks 0 --number_of_PQ 5000 --bb 0
+	
+Or Run it with script:
+	python run_task.py
 
 #
 ./simple_example -i 100000 --RD 100 -P 64 -B 4 -E 1024 -T 2 --selectivity 0.001 --workload_filename "workload/workload11.txt" --insert_before_range_delete 0.9 --gen_workload 0 > log11

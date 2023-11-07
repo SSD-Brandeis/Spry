@@ -81,9 +81,10 @@ namespace checking {
 
     bool flag_testing_on_currently_deleted_keys = false;
 
+    bool flag_open_table = false;
     bool flag_pq_tracing_on = false;
-    unordered_map<long long, vector<pair<unsigned long long, unsigned int>>> map_pq_tracing_info; // key -> {(fd, LSM level), ...}
-    vector<pair<unsigned long long, unsigned int>> v_pq_tracing_info; // {(fd, LSM level), ...}
+    unordered_map<long long, vector<tuple<unsigned long long, unsigned int, bool>>> map_pq_tracing_info; // key -> {(fd, LSM level, open file), ...}
+    vector<tuple<unsigned long long, unsigned int, bool>> v_pq_tracing_info; // {(fd, LSM level, open file), ...}
   public:
     static SystemVerifier* system_verifier;
 
@@ -107,8 +108,19 @@ namespace checking {
     }
 
 
+
+    void setFlagOpenTable(){
+      flag_open_table = true;
+    }
+    void clearFlagOpenTable(){
+      flag_open_table = false;
+    }
+    bool getFlagOpenTable(){
+      return flag_open_table;
+    }
     void startPQTracing(){
       flag_pq_tracing_on = true;
+      clearFlagOpenTable();
     }
     void endPQTracing(){
       flag_pq_tracing_on = false;
@@ -125,11 +137,14 @@ namespace checking {
       }
 
       if(map_pq_tracing_info.find(key) == map_pq_tracing_info.end()){
-        map_pq_tracing_info[key] = vector<pair<unsigned long long, unsigned int>>();
+        map_pq_tracing_info[key] = vector<tuple<unsigned long long, unsigned int, bool>>();
       }
-      map_pq_tracing_info[key].push_back(make_pair(fd, LSM_level));
 
-      v_pq_tracing_info.push_back(make_pair(fd, LSM_level));
+      bool flag_open_file = getFlagOpenTable();
+      map_pq_tracing_info[key].push_back(make_tuple(fd, LSM_level, flag_open_file));
+      v_pq_tracing_info.push_back(make_tuple(fd, LSM_level, flag_open_file));
+      
+      clearFlagOpenTable();
     }
     std::string getMapPQTracingInfo(std::string sep, std::string bracket, std::string prefix, int i_round){
       std::stringstream result;
@@ -142,9 +157,10 @@ namespace checking {
         sep2 = ", ";
         string sep3 = "";
         for(auto &fd_level: v){
-          auto fd = fd_level.first;
-          auto LSM_level = fd_level.second;
-          result << sep3 << "[" << fd << ", " << LSM_level << "] ";
+          auto fd = std::get<0>(fd_level);
+          auto LSM_level = std::get<1>(fd_level);
+          auto flag_open_file = std::get<2>(fd_level);
+          result << sep3 << "[" << fd << ", " << LSM_level << ", " << flag_open_file << "] ";
           sep3 = ", ";
         }
         result << "] " << "\n";
@@ -160,9 +176,10 @@ namespace checking {
 
       string sep2 = "";
       for(auto &fd_level: v_pq_tracing_info){
-        auto fd = fd_level.first;
-        auto LSM_level = fd_level.second;
-        result << sep2 << "[" << fd << ", " << LSM_level << "] ";
+          auto fd = std::get<0>(fd_level);
+          auto LSM_level = std::get<1>(fd_level);
+          auto flag_open_file = std::get<2>(fd_level);
+        result << sep2 << "[" << fd << ", " << LSM_level << ", " << flag_open_file << "] ";
         sep2 = ", ";
       }
 
