@@ -111,7 +111,7 @@ namespace checking {
 
     void setFlagOpenTable(){
       flag_open_table = true;
-      std::cout << "setFlagOpenTable" << std::endl;
+      std::cout << "setFlagOpenTable " << __FILE__ << ":" << __LINE__ << std::endl;
     }
     void clearFlagOpenTable(){
       flag_open_table = false;
