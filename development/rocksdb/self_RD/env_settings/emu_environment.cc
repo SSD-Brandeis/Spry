@@ -59,7 +59,11 @@ EmuEnv::EmuEnv()
     level0_file_num_compaction_trigger = 1; // TBC
     target_file_size_multiplier = 1; // TBC
     max_background_jobs = 1; // TBC
+
+    level_compaction_dynamic_file_size = false; // TBC
     max_compaction_bytes = 0; // TBC
+    ignore_max_compaction_bytes_for_input = false; // TBC
+
     max_bytes_for_level_base = buffer_size * size_ratio; // TBC
     merge_operator = 0; 
     soft_pending_compaction_bytes_limit = 0;    // No pending compaction anytime, try and see
@@ -219,3 +223,99 @@ EmuEnv* EmuEnv::getInstance()
 // }
 
 
+ostream& operator<<(ostream& os, const EmuEnv& _env) {
+  os << "\n\n########## Environment Settings ##########" << endl;
+  os << "size_ratio: " << _env.size_ratio << endl;
+  os << "buffer_size_in_pages: " << _env.buffer_size_in_pages << endl;
+  os << "entries_per_page: " << _env.entries_per_page << endl;
+  os << "entry_size: " << _env.entry_size << endl;
+  os << "buffer_size: " << _env.buffer_size << endl;
+  os << "file_to_memtable_size_ratio: " << _env.file_to_memtable_size_ratio << endl;
+  os << "file_size: " << _env.file_size << endl;
+  os << "verbosity: " << _env.verbosity << endl;
+  os << "compaction_pri: " << _env.compaction_pri << endl;
+  os << "bits_per_key: " << _env.bits_per_key << endl;
+  os << "max_write_buffer_number: " << _env.max_write_buffer_number << endl;
+  os << "memtable_factory: " << _env.memtable_factory << endl;
+  os << "target_file_size_base: " << _env.target_file_size_base << endl;
+  os << "level_compaction_dynamic_level_bytes: " << _env.level_compaction_dynamic_level_bytes << endl;
+  os << "compaction_style: " << _env.compaction_style << endl;
+  os << "disable_auto_compactions: " << _env.disable_auto_compactions << endl;
+  os << "compaction_filter: " << _env.compaction_filter << endl;
+  os << "compaction_filter_factory: " << _env.compaction_filter_factory << endl;
+  os << "access_hint_on_compaction_start: " << _env.access_hint_on_compaction_start << endl;
+  os << "level0_file_num_compaction_trigger: " << _env.level0_file_num_compaction_trigger << endl;
+  os << "target_file_size_multiplier: " << _env.target_file_size_multiplier << endl;
+  os << "max_background_jobs: " << _env.max_background_jobs << endl;
+  os << "level_compaction_dynamic_file_size: " << _env.level_compaction_dynamic_file_size << endl;
+  os << "max_compaction_bytes: " << _env.max_compaction_bytes << endl;
+  os << "ignore_max_compaction_bytes_for_input: " << _env.ignore_max_compaction_bytes_for_input << endl;
+  os << "max_bytes_for_level_base: " << _env.max_bytes_for_level_base << endl;
+  os << "merge_operator: " << _env.merge_operator << endl;
+  os << "soft_pending_compaction_bytes_limit: " << _env.soft_pending_compaction_bytes_limit << endl;
+  os << "hard_pending_compaction_bytes_limit: " << _env.hard_pending_compaction_bytes_limit << endl;
+  os << "periodic_compaction_seconds: " << _env.periodic_compaction_seconds << endl;
+  os << "use_direct_io_for_flush_and_compaction: " << _env.use_direct_io_for_flush_and_compaction << endl;
+  os << "live_levels: " << _env.live_levels << endl;
+  os << "num_levels: " << _env.num_levels << endl;
+  os << "no_block_cache: " << _env.no_block_cache << endl;
+  os << "block_cache: " << _env.block_cache << endl;
+  os << "block_cache_high_priority_ratio: " << _env.block_cache_high_priority_ratio << endl;
+  os << "cache_index_and_filter_blocks: " << _env.cache_index_and_filter_blocks << endl;
+  os << "cache_index_and_filter_blocks_with_high_priority: " << _env.cache_index_and_filter_blocks_with_high_priority << endl;
+  os << "read_amp_bytes_per_bit: " << _env.read_amp_bytes_per_bit << endl;
+  os << "data_block_index_type: " << _env.data_block_index_type << endl;
+  os << "index_type: " << _env.index_type << endl;
+  os << "partition_filters: " << _env.partition_filters << endl;
+  os << "metadata_block_size: " << _env.metadata_block_size << endl;
+  os << "pin_top_level_index_and_filter: " << _env.pin_top_level_index_and_filter << endl;
+  os << "index_shortening: " << _env.index_shortening << endl;
+  os << "block_size_deviation: " << _env.block_size_deviation << endl;
+  os << "enable_index_compression: " << _env.enable_index_compression << endl;
+  os << "compression: " << _env.compression << endl;
+  os << "verify_checksums: " << _env.verify_checksums << endl;
+  os << "fill_cache: " << _env.fill_cache << endl;
+  os << "iter_start_seqnum: " << _env.iter_start_seqnum << endl;
+  os << "ignore_range_deletions: " << _env.ignore_range_deletions << endl;
+  os << "read_tier: " << _env.read_tier << endl;
+  os << "low_pri: " << _env.low_pri << endl;
+  os << "sync: " << _env.sync << endl;
+  os << "disableWAL: " << _env.disableWAL << endl;
+  os << "no_slowdown: " << _env.no_slowdown << endl;
+  os << "ignore_missing_column_families: " << _env.ignore_missing_column_families << endl;
+  os << "max_open_files: " << _env.max_open_files << endl;
+  os << "max_file_opening_threads: " << _env.max_file_opening_threads << endl;
+  os << "comparator: "  << _env.comparator << endl;
+  os << "max_sequential_skip_in_iterations: " << _env.max_sequential_skip_in_iterations << endl;
+  os << "memtable_prefix_bloom_size_ratio: " << _env.memtable_prefix_bloom_size_ratio << endl;
+  os << "level0_stop_writes_trigger: " << _env.level0_stop_writes_trigger << endl;
+  os << "paranoid_file_checks: " << _env.paranoid_file_checks << endl;
+  os << "optimize_filters_for_hits: " << _env.optimize_filters_for_hits << endl;
+  os << "inplace_update_support: " << _env.inplace_update_support << endl;
+  os << "inplace_update_num_locks: " << _env.inplace_update_num_locks << endl;
+  os << "report_bg_io_stats: " << _env.report_bg_io_stats << endl;
+  os << "max_successive_merges: " << _env.max_successive_merges << endl;
+  os << "create_if_missing: " << _env.create_if_missing << endl;
+  os << "delayed_write_rate: " << _env.delayed_write_rate << endl;
+  os << "bytes_per_sync: " << _env.bytes_per_sync << endl;
+  os << "stats_persist_period_sec: " << _env.stats_persist_period_sec << endl;
+  os << "enable_thread_tracking: " << _env.enable_thread_tracking << endl;
+  os << "stats_history_buffer_size: " << _env.stats_history_buffer_size << endl;
+  os << "allow_concurrent_memtable_write: " << _env.allow_concurrent_memtable_write << endl;
+  os << "dump_malloc_stats: " << _env.dump_malloc_stats << endl;
+  os << "use_direct_reads: " << _env.use_direct_reads << endl;
+  os << "avoid_flush_during_shutdown: " << _env.avoid_flush_during_shutdown << endl;
+  os << "advise_random_on_open: " << _env.advise_random_on_open << endl;
+  os << "delete_obsolete_files_period_micros: " << _env.delete_obsolete_files_period_micros << endl;
+  os << "allow_mmap_reads: " << _env.allow_mmap_reads << endl;
+  os << "allow_mmap_writes: " << _env.allow_mmap_writes << endl;
+  os << "wait: " << _env.wait << endl;
+  os << "allow_write_stall: " << _env.allow_write_stall << endl;
+  os << "num_inserts: " << _env.num_inserts << endl;
+  os << "rd_count: " << _env.rd_count << endl;
+  os << "selectivity: " << _env.selectivity << endl;
+  os << "insert_before_range_delete: " << _env.insert_before_rangeDelete << endl;
+  os << "skip_reading_RD_blocks: " << _env.skip_reading_RD_blocks << endl;
+  os << "############ End of Environment Settings ############" << endl << endl;
+  return os;
+}

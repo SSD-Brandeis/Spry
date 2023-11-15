@@ -1021,6 +1021,7 @@ class Version {
   void printAllFileRanges(){
     std::cout << std::endl << std::endl;
     std::cout << std::setfill('-') << std::setw(60) << " START: Print All File Ranges " << std::setfill('-') << std::setw(60) << "" << std::endl;
+    uint64_t total_entries = 0;
     int l = storage_info_.num_levels();
     for(int i = 0; i < l; i++){
       std::cout << "Level " << i << std::endl;
@@ -1028,10 +1029,11 @@ class Version {
       if(files.size() == 0){continue;}
       for(auto file : files){
         if(file == NULL){continue;}
-        std::cout << "File " << file->fd.GetNumber() << " : " << file->smallest.user_key().ToString() << " - " << file->largest.user_key().ToString() << std::endl;
+        total_entries += file->num_entries;
+        std::cout << "File " << file->fd.GetNumber() << " : " << file->smallest.user_key().ToString() << " - " << file->largest.user_key().ToString() << " = " << file->num_entries << std::endl;
       }
     }
-    std::cout <<  std::setfill('-') << std::setw(60) << " END: Print All File Ranges " << std::setfill('-') << std::setw(60) << "" << std::endl;
+    std::cout <<  std::setfill('-') << std::setw(60) << " END: Print All File Ranges " << " = " << total_entries << std::setfill('-') << std::setw(60) << "" << std::endl;
   }
 
   void printAllLevelSize(){

@@ -99,6 +99,9 @@ void reopen_DB(DB** db_ptr2, Options& op,  WriteOptions& write_op, ReadOptions& 
 void start(DB** db_ptr2, Options& op,  WriteOptions& write_op, ReadOptions& read_op, EmuEnv* _env, string kDBPath){
   string &workload_file_name = _env->workload_file_name;
 
+  op.level_compaction_dynamic_file_size = false;
+  std::cout << "level_compaction_dynamic_file_size: " << op.level_compaction_dynamic_file_size << std::endl;
+
   Status s = DB::Open(op, kDBPath, db_ptr2);
   if (!s.ok()) std::cerr << s.ToString() << std::endl;
   assert(s.ok());
