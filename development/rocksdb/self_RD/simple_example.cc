@@ -50,21 +50,48 @@
 #include "utils/utils_db.h"
 #include "utils/utils_rdf.h"
 
+#include "rocksdb/SuRF/include/surf.hpp"
 // std::mutex rdfilter::PLRDF::init_mutex;
 // rdfilter::PLRDF* rdfilter::PLRDF::plrdf_ptr; 
 
 
 
 using namespace rocksdb;
-// std::string kDBPath = "/tmp/cs561_project1";
+std::string kDBPath = "/tmp/cs561_project1";
 // std::string kDBPath = "/home/tan/cs561_project1";
 
-// void printStats(DB* db, Options& options);
-// void print_perf_iostats_context(std::ostream& ofile, int N_repetitions = 1);
-// void init(DB **db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_op, int max_background_jobs);
-// long long parsing_value_from_string(std::string str, std::string pattern);
-// void reset_perf_iostats_context();
+void printStats(DB* db, Options& options);
+void print_perf_iostats_context(std::ostream& ofile, int N_repetitions = 1);
+void init(DB **db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_op, int max_background_jobs);
+long long parsing_value_from_string(std::string str, std::string pattern);
+void reset_perf_iostats_context();
 
+
+// void test(){
+//       // usage
+//     std::vector<std::pair<std::string, std::string>> ranges = {
+//         {"aa", "abc"},
+//         {"acc", "acdd"},
+//         {"bcde", "bcdef"}
+//     };
+//     int key_len_in_bytes = 5;
+//     surf::level_t hash_suffix_len = 0;
+//     surf::level_t real_suffix_len = 8;
+//     bool include_dense = true;
+//     uint32_t sparse_dense_ratio = 16;
+//     bool flag_build_until_unique = false;
+
+//     // build SuREF from ranges
+//     SuRF* surf_ = SuRF::rangesToSurf(ranges, key_len_in_bytes, surf::SuffixType::kReal, 
+//                             hash_suffix_len, real_suffix_len, include_dense, 
+//                             sparse_dense_ratio, flag_build_until_unique);
+    
+//     //retrieve ranges from SuRf
+//     std::vector<std::pair<std::string, std::string>> ranges2 = SuRF::surfToRanges(surf_);
+//     assert(ranges == ranges2);
+//     std::cout << "testRangesToSurfToRanges passed" << std::endl;
+
+// }
 
 int main(int argc, char *argv[]) {
   // check emu_environment.h for the contents of EmuEnv and also the definitions of the singleton experimental environment 

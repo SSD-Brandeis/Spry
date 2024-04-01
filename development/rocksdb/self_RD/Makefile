@@ -12,19 +12,26 @@ ifneq ($(USE_RTTI), 1)
 	CXXFLAGS += -fno-rtti
 endif
 
-CFLAGS += -Wstrict-prototypes
+CFLAGS += -Wstrict-prototypes -Wno-error=register
 
-# Self Added (YCH)
+# YCH ADDED START
 CFLAGS += -pg
 CXXFLAGS += -pg
+# Source files
+SURF_SOURCE_FILES := $(wildcard ../include/rocksdb/SuRF/include/*.cc)
+# YCH ADDED END
 
 .PHONY: clean librocksdb
+
+out: 
+	echo "hello"
+	echo $(SURF_SOURCE_FILES)
 
 all: simple_example column_families_example compact_files_example c_simple_example optimistic_transaction_example transaction_example compaction_filter_example options_file_example rocksdb_backup_restore_example
 
 simple_example: librocksdb simple_example.cc
-	# $(CXX) $(CXXFLAGS) $@.cc -o$@ ../librocksdb.a -I../include -O2 -std=c++17 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
-	$(CXX) $(CXXFLAGS) $@.cc -o$@ ../librocksdb.a -I../include -I../../db -I../ -O2 -std=c++17 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
+	# $(CXX) $(CXXFLAGS) $(SURF_SOURCE_FILES) $@.cc -o$@ ../librocksdb.a -I../include -O2 -std=c++17 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(SURF_SOURCE_FILES) $@.cc -o$@ ../librocksdb.a -I../include -I../include/SuRF/include -I../../db -I../ -O2 -std=c++17 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
 
 column_families_example: librocksdb column_families_example.cc
 	$(CXX) $(CXXFLAGS) $@.cc -o$@ ../librocksdb.a -I../include -O2 -std=c++17 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)

@@ -90,12 +90,14 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
   testing_result_file << "Split PLRDF Number Of Total Ranges: " << db->getSplitPLRDFNumberOfTotalRanges() << std::endl;
   testing_result_file << "TopLevel RDF Number Of Total Ranges: " << db->getTopLevelRDFNumberOfTotalRanges() << std::endl;
   testing_result_file << "Skyline RDF Number Of Total Ranges: " << db->getSkylineRDFNumberOfTotalRanges() << std::endl;
+  testing_result_file << "SuRF Level File RDF Number Of Total Ranges: " << db->getSuRFLevelFileRDFNumberOfTotalRanges() << std::endl;
   testing_result_file << std::endl;
 
   testing_result_file2 << ",\"PLRDF Number Of Total Ranges\" : " << db->getPLRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"Split PLRDF Number Of Total Ranges\" : " << db->getSplitPLRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"TopLevel RDF Number Of Total Ranges\" : " << db->getTopLevelRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"Skyline RDF Number Of Total Ranges\" : " << db->getSkylineRDFNumberOfTotalRanges() << std::endl;
+  testing_result_file2 << ",\"SuRF Level File RDF Number Of Total Ranges\" : " << db->getSuRFLevelFileRDFNumberOfTotalRanges() << std::endl;
 
   
   
@@ -103,6 +105,7 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
   vector<int> ranges_log_SplitPLRDF = db->getLogOfNumbersOfRangesInSplitPLRDF();
   vector<int> ranges_log_TopLevelRDF = db->getLogOfNumbersOfRangesInTopLevelRDF();
   vector<int> ranges_log_SkylineRDF = db->getLogOfNumbersOfRangesInSkylineRDF();
+  vector<int> ranges_log_SuRFLevelFileRDF = db->getLogOfNumbersOfRangesInSuRFLevelFileRDF();
   testing_result_file2 << ",\"Log Of Numbers Of Ranges In PLRDF\" : [";
   for(int i = 0; i < ranges_log_PLRDF.size(); i++){
     testing_result_file2 << ranges_log_PLRDF[i];
@@ -131,6 +134,14 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
   for(int i = 0; i < ranges_log_SkylineRDF.size(); i++){
     testing_result_file2 << ranges_log_SkylineRDF[i];
     if(i != ranges_log_SkylineRDF.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;\
+  testing_result_file2 << ",\"Log Of Numbers Of Ranges In SuRFLevelFileRDF\" : [";
+  for(int i = 0; i < ranges_log_SuRFLevelFileRDF.size(); i++){
+    testing_result_file2 << ranges_log_SuRFLevelFileRDF[i];
+    if(i != ranges_log_SuRFLevelFileRDF.size() - 1){
       testing_result_file2 << ", ";
     }
   }
