@@ -3666,6 +3666,7 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 
     //Self Added
     std::vector<pll> smallest_largest_boundries{};
+    std::vector<pss> smallest_largest_boundries__str_key{};
     std::vector<uint64_t> file_numbers;
     for (auto file_meta : *(c->inputs(0)))
     {
@@ -3673,10 +3674,16 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
       std::cout << "Pushing file from Current Level: " << c->level(0) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(0) << std::endl << std::flush;
       std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;
       smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+      smallest_largest_boundries__str_key.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), file_meta->largest.user_key().ToString()));
       file_numbers.push_back(file_meta->fd.GetNumber());
     }
 
     std::tuple<int, std::vector<pll>, std::vector<uint64_t>> file_meta_data_vectors = std::make_tuple(c->level(), smallest_largest_boundries, file_numbers);
+    // std::tuple<int, std::vector<pss>, std::vector<uint64_t、>> *surf__file_meta_data_vectors = new std::tuple<int, std::vector<pss>, std::vector<uint64_t>>(); 
+    // surf__file_meta_data_vectors->push_back(std::make_tuple(c->level(), smallest_largest_boundries__str_key, file_numbers));
+    SuRFCompactionDirectRemovalInfo *surf__file_meta_data_vectors = new SuRFCompactionDirectRemovalInfo();
+    surf__file_meta_data_vectors->src_level = c->level();
+    surf__file_meta_data_vectors->src_fd_list = file_numbers;
     // std::cout << "[Compaction]: Calling Direct Delete Compaction .. " << std::endl;
 
     // rdfilter::PLRDF::getRDFilter()->deleteRDFAssociatedWithFilesAtCurrentLevel(&file_meta_data_vectors);
@@ -3684,6 +3691,7 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
     c->column_family_data()->set_compaction_direct_delete_RD_vector(file_meta_data_vectors);
     c->column_family_data()->set_split__compaction_direct_delete_RD_vector(file_meta_data_vectors);
     // c->column_family_data()->set_top_level__direct_delete__delete_RD_vector(file_meta_data_vectors);
+    c->column_family_data()->set_surf__compaction_direct_delete_RD_vector(surf__file_meta_data_vectors);
 
     // c->column_family_data()->GetSuperVersion()->current->deleteRDFAssociatedWithFilesAtCurrentLevel(&file_meta_data_vectors);
     //Self Added
@@ -3727,7 +3735,7 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
     TEST_SYNC_POINT_CALLBACK("DBImpl::BackgroundCompaction:AfterCompaction",
                              c->column_family_data());
   // } else if (!trivial_move_disallowed && c->IsTrivialMove()) {
-  } else if (!trivial_move_disallowed && c->IsTrivialMove() && false) { // <------------------- && false: do this only for top-level RDF behavioral simulation
+  } else if (!trivial_move_disallowed && c->IsTrivialMove() && false) { // <------------------- && false: do this only for top-level RDF behavioral simulation is included
     TEST_SYNC_POINT("DBImpl::BackgroundCompaction:TrivialMove");
     TEST_SYNC_POINT_CALLBACK("DBImpl::BackgroundCompaction:BeforeCompaction",
                              c->column_family_data());
@@ -3743,41 +3751,48 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
     int32_t moved_files = 0;
     int64_t moved_bytes = 0;
 
-    //Self Added
+    //Self Added Start
     std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>();
+    // std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>> *surf__file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>();
+    SuRFCompactionMovingRDInfo *surf__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
     std::tuple<int, std::vector<pll>, std::vector<uint64_t>> delete_RD_vector; 
-
+    //Self Added End
     for (unsigned int l = 0; l < c->num_input_levels(); l++) {
       if (c->level(l) == c->output_level()) {
         continue;
       }
 
-      bool flag = false;
-      
-      for (size_t i = 0; i < c->num_input_files(l); i++) {
-        //Self Added
-        if (!flag)
+
+      //Self Added Start
+      {
+        std::vector<pll> smallest_largest_boundries{};
+        std::vector<pss> smallest_largest_boundries__str_key{};
+        std::vector<uint64_t> file_numbers;
+        for (auto file_meta : *(c->inputs(l)))
         {
-          std::vector<pll> smallest_largest_boundries{};
-          std::vector<uint64_t> file_numbers;
-          for (auto file_meta : *(c->inputs(l)))
-          {
-            // FIXME: ONLY FOR TESTING USE 
-            std::cout << "Pushing file from Current Level: " << c->level(l) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(l) << std::endl << std::flush;
-            std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;
-            smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
-            file_numbers.push_back(file_meta->fd.GetNumber());
-          }
-          file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries, file_numbers));
-          
-          if(c->level(l) == 0){ // coming from level 0
-            delete_RD_vector = std::make_tuple(1, smallest_largest_boundries, file_numbers);
-          }
-
-          flag = true; //why flag?
+          // FIXME: ONLY FOR TESTING USE 
+          std::cout << "Pushing file from Current Level: " << c->level(l) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(l) << std::endl << std::flush;
+          std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;
+          smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+          smallest_largest_boundries__str_key.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), file_meta->largest.user_key().ToString()));
+          file_numbers.push_back(file_meta->fd.GetNumber());
         }
+        file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries, file_numbers));
 
+        // surf__file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries__str_key, file_numbers));
+        SuRFCompactionSourceLevelInfo src_level_info = SuRFCompactionSourceLevelInfo();
+        src_level_info.src_level = c->level(l);
+        // src_level_info.src_file_boundaries = smallest_largest_boundries_str;
+        src_level_info.src_fd_list = file_numbers;
+        surf__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
+        
+        if(c->level(l) == 0){ // coming from level 0
+          delete_RD_vector = std::make_tuple(1, smallest_largest_boundries, file_numbers);
+        }
+      }
+      // Self Added End
 
+      for (size_t i = 0; i < c->num_input_files(l); i++) {
         FileMetaData* f = c->input(l, i);
         c->edit()->DeleteFile(c->level(l), f->fd.GetNumber());
         c->edit()->AddFile(
@@ -3809,16 +3824,19 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
       }
     }
 
-    //Self Added
+    //Self Added Start
     // std::cout << "[Compaction]: Calling Shift RDF To Output Level for Trivial Compaction .. " << std::endl;
-    
+    surf__compaction_moving_RD_vector->dst_level = c->output_level();
+    surf__compaction_moving_RD_vector->flag_direct_move_to_dst_level = true;
+
     //rdfilter::PLRDF::getRDFilter()->shiftRDFToOutputLevel(file_meta_data_vectors);
     c->column_family_data()->set_compaction_moving_RD_vector(*file_meta_data_vectors);
     c->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
     c->column_family_data()->set_top_level__trivial_move__delete_RD_vector(delete_RD_vector); 
+    c->column_family_data()->set_surf__compaction_moving_RD_vector(surf__compaction_moving_RD_vector);
 
     // c->column_family_data()->GetSuperVersion()->current->shiftRDFToOutputLevel(file_meta_data_vectors);
-    
+    //Self Added End
     //Self Added Start
     if(c->column_family_data()->current()->get_compaction_install_count() > 0){
       std::cout << "compaction write to version (current_) happens more than once. times = " 
@@ -3968,7 +3986,7 @@ c->column_family_data()->updateRDF2NewVersion(2, split_flag); // 1 for flush, 2 
 //Self Added Start
 //shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
 bool split_flag = true;
-c->column_family_data()->updateRDF2NewVersion(2, split_flag); // 1 for flush, 2 for compaction
+c->column_family_data()->updateRDF2NewVersion(2, split_flag); // 1 for flush, 2 for compaction, 3 for compaction direcly deleted flie
 //Self Added End
       InstallSuperVersionAndScheduleWork(c->column_family_data(),
                                          &job_context->superversion_contexts[0],

@@ -35,6 +35,7 @@
 // #include "../rocksdb/sys_rdfilter.h"
 // #include "rocksdb/sys_rdfilter.h"
 #include "sys_rdfilter.h"
+#include "SuRF/include/surf.hpp"
 //self added end
 
 
@@ -349,10 +350,12 @@ class DB {
   virtual int getSplitPLRDFNumberOfTotalRanges() {return -1;}
   virtual int getTopLevelRDFNumberOfTotalRanges() {return -1;}
   virtual int getSkylineRDFNumberOfTotalRanges() {return -1;}
+  virtual int getSuRFLevelFileRDFNumberOfTotalRanges() {return -1;}
   virtual std::vector<int> getLogOfNumbersOfRangesInPLRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF() {return {-1, -1, -1};}
   
 
 
@@ -365,6 +368,8 @@ class DB {
   virtual const PLRDF *getTopLevelRDF() {return NULL;}
   virtual const std::vector<t3ll> *getSkylineRDF() {return NULL;}
   virtual const std::vector<int> *getSkylineNumbersOfRangesInRDFLog() {return NULL;}
+  virtual const surf::SuRF_RDF *getSuRFTopLevelRDF() {return NULL;};
+  virtual const surf::SuRF_RDF *getSuRFLevelFileRDF() {return NULL;};
   // virtual void setPLRDF( std::vector<int> v){
   //   if(v.size() == 0){
   //     return;
@@ -395,6 +400,16 @@ class DB {
       return;
     }
   }
+  virtual void setSuRFTopLevelRDF( surf::SuRF_RDF *suRFTopLevelRDF){
+    if(suRFTopLevelRDF == NULL){
+      return;
+    }
+  };
+  virtual void setSuRFLevelFileRDF( surf::SuRF_RDF *suRFLevelFileRDF){
+    if(suRFLevelFileRDF == NULL){
+      return;
+    }
+  };
   //self Added End
 
   // ListColumnFamilies will open the DB specified by argument name

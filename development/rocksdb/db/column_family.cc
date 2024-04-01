@@ -2756,10 +2756,31 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
                                                   range_delete_list_in2, 
                                                   exist_level0_file_nums2);
 
+    // //SuRF top level / level file RDF
+    // auto &file_num__surf = std::get<0>(this->surf__flush_to_level0_RD_vector);
+    // auto &range_delete_list_in__surf = std::get<1>(this->surf__flush_to_level0_RD_vector);
+    // auto &exist_level0_file_nums__surf = std::get<2>(this->surf__flush_to_level0_RD_vector);
+    // (this->surf__flush_to_level0_RD_vector).insertRangeDeleteToLevel0(file_num__surf, 
+    //                                               range_delete_list_in__surf, 
+    //                                               exist_level0_file_nums__surf);
+
 
     //Split PLRDF
     this->split__flush_to_level0_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
 
+    // //SuRF top level / level file RDF
+    // this->surf__flush_to_level0_RD_vector = make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
+
+    //SuRF RDF
+    if(surf__flush_to_level0_RD_vector != nullptr){
+      uint64_t fd_out = surf__flush_to_level0_RD_vector->dst_fd;
+      std::vector<pss> &rd_list = surf__flush_to_level0_RD_vector->rd_list;
+      std::sort(rd_list.begin(), rd_list.end()); 
+      (this->surf__level_file_rdf_prime)->insertRangeDeleteToLevel0(fd_out, rd_list);
+      
+      delete surf__flush_to_level0_RD_vector;
+      this->surf__flush_to_level0_RD_vector = nullptr;
+    }
 
     // if(old_superversion != NULL){
     //   old_superversion->current->clear_flush_install_count_clr();
@@ -2871,8 +2892,125 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
         this->clear_split__level_ranges_updated();
       }
 
+      //SuRF RDF
+      //TODO: surf_flag__allow_range_boundary_overlapped -> get from SystemVerifier , passing as args
+      bool surf_flag__allow_range_boundary_overlapped = false;
+      if(surf__compaction_moving_RD_vector != nullptr){
+        std::vector<SuRFCompactionSourceLevelInfo> &src_level_info_list =
+          surf__compaction_moving_RD_vector->src_level_info_list;
+        uint32_t dst_level = surf__compaction_moving_RD_vector->dst_level;
+        std::vector<SuRFCompactionDstinationLevelInfo> &dst_level_info_list =
+          surf__compaction_moving_RD_vector->dst_level_info_list;
+        bool flag_direct_move_to_dst_level = 
+          surf__compaction_moving_RD_vector->flag_direct_move_to_dst_level;
 
-    }else if(opt == 3){
+        if(flag_direct_move_to_dst_level == true){
+          for(auto &src_level_info: src_level_info_list){
+            uint32_t src_level = src_level_info.src_level;
+            std::vector<uint64_t> src_fd_list = src_level_info.src_fd_list;
+            for(auto &fd: src_fd_list){
+              (this->surf__level_file_rdf_prime)->directMoveFileToLevel(fd, src_level, dst_level);
+            }
+          } 
+        }else{
+          std::vector<pss> range_tombstone_list_agg;
+          for(auto &src_level_info: src_level_info_list){
+            uint32_t src_level = src_level_info.src_level;
+            std::vector<uint64_t> src_fd_list = src_level_info.src_fd_list;
+            for(auto &fd: src_fd_list){
+              std::vector<pss> range_tombstone_list = (this->surf__level_file_rdf_prime)->getRangeTombstonesAtLevelOfFd(src_level, fd);
+              (this->surf__level_file_rdf_prime)->removeSuRFAtLevelOfFd(src_level, fd);
+              for(auto &range_tombstone: range_tombstone_list){
+                range_tombstone_list_agg.push_back(range_tombstone);
+              }
+            }
+          } 
+          sort(range_tombstone_list_agg.begin(), range_tombstone_list_agg.end());
+                  
+          //merge
+          size_t len_rd = range_tombstone_list_agg.size();
+          assert(len_rd > 0);
+          std::vector<pss> rd_merged;
+          rd_merged.push_back(range_tombstone_list_agg[0]);
+          for(size_t i_rd = 1; i_rd < len_rd; i_rd++){
+            pss &rd = range_tombstone_list_agg[i_rd];
+            pss &rd_last = rd_merged.back();
+            if(rd_last.second >= rd.first){
+              rd_last.second = std::max(rd_last.second, rd.second);
+            }else{
+              rd_merged.push_back(rd);
+            }
+          }
+          len_rd = rd_merged.size();
+
+          //check output file ranges are in ascending order
+          int len_dst_level_info = dst_level_info_list.size();
+          for(int i_dst_level_info = 0; i_dst_level_info < len_dst_level_info-1; i_dst_level_info++){
+            auto &a = dst_level_info_list[i_dst_level_info];
+            auto &b = dst_level_info_list[i_dst_level_info+1];
+
+            bool flag_in_ascending_order = surf_flag__allow_range_boundary_overlapped?
+                  (a.file_boundary.second <= b.file_boundary.first) : 
+                  (a.file_boundary.second < b.file_boundary.first);
+
+            if(flag_in_ascending_order == false){
+              std::cerr << "Error: file boundary is not in ascending order" << std::endl
+                        << "a.file_boundary = " << a.file_boundary.first << " " << a.file_boundary.second << std::endl
+                        << "b.file_boundary = " << b.file_boundary.first << " " << b.file_boundary.second << std::endl
+                        << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            }
+            assert(flag_in_ascending_order == true);
+          }
+
+          size_t i_rd = 0;
+          for(auto &dst_level_info: dst_level_info_list){
+            if(i_rd >= len_rd){
+              break;
+            }           
+            uint64_t dst_fd = dst_level_info.fd;
+            pss file_boundary = dst_level_info.file_boundary;
+            //seprarate
+            std::vector<pss> ranges_to_insert;
+            if(surf_flag__allow_range_boundary_overlapped == true){
+              while(i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.first){
+                i_rd++;
+              }
+            }else{
+              while(i_rd < len_rd && rd_merged[i_rd].second < file_boundary.first){
+                i_rd++;
+              }
+            }
+            while(i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.second){
+              pss range_in = std::make_pair(
+                std::max(rd_merged[i_rd].first, file_boundary.first),
+                std::min(rd_merged[i_rd].second, file_boundary.second)
+              );
+              ranges_to_insert.push_back(range_in);
+              i_rd++;
+            }
+            if(i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second){
+              pss range_in = std::make_pair(
+                std::max(rd_merged[i_rd].first, file_boundary.first),
+                std::min(rd_merged[i_rd].second, file_boundary.second)
+              );
+              ranges_to_insert.push_back(range_in);
+              // don't i_rd ++;
+            }
+
+            (this->surf__level_file_rdf_prime)->insertRangesAtLevelOfFd(dst_level, dst_fd, ranges_to_insert, surf_flag__allow_range_boundary_overlapped);
+          }
+          // (this->surf__level_file_rdf_prime)->shiftRDFToOutputLevel(this->surf__compaction_moving_RD_vector);
+        }
+        // src_fd_list = 
+        // std::sort(rd_list.begin(), rd_list.end()); 
+        // (this->surf__level_file_rdf_prime)->shiftRDFToOutputLevel(fd_out, rd_list);
+        
+        delete this->surf__compaction_moving_RD_vector;
+        this->surf__compaction_moving_RD_vector = nullptr;
+      }
+      // surf__compaction_direct_delete_RD_vector
+
+    }else if(opt == 3){ //directly deleted file compaction
       //PLRDF
       (this->plrdf_prime).deleteRDFAssociatedWithFilesAtCurrentLevel(&this->compaction_direct_delete_RD_vector);
       this->compaction_direct_delete_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
@@ -2907,6 +3045,17 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
       //Split PLRDF
       (this->split_plrdf_prime).deleteRDFAssociatedWithFilesAtCurrentLevel(&this->split__compaction_direct_delete_RD_vector);
       this->split__compaction_direct_delete_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
+
+      //SuRF RDF
+      if(this->surf__compaction_direct_delete_RD_vector != nullptr){
+        uint32_t level = surf__compaction_direct_delete_RD_vector->src_level;
+        std::vector<uint64_t> &fd_list = surf__compaction_direct_delete_RD_vector->src_fd_list;
+        for(auto &fd: fd_list){
+          (this->surf__level_file_rdf_prime)->removeSuRFAtLevelOfFd(level, fd);
+        }
+        delete this->surf__compaction_direct_delete_RD_vector;
+        this->surf__compaction_direct_delete_RD_vector = nullptr;
+      }
     }
 
     
@@ -2942,6 +3091,7 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
 
 
   this->logCurrentTotalNumbersOfRangesInEachRDF();
+  this->logCurrentTotalMmeoryUsageInEachRDF();
 }
 //Self Added End
 
@@ -3046,6 +3196,10 @@ void ColumnFamilyData::InstallSuperVersion(
     //Skyline RDF
     current_->setSkylineRDF(this->skyline_rdf_prime);
     current_->setSkylineNumbersOfRangesInRDFLog(this->skyline__numbers_of_ranges_in_rdf_log);
+
+    //SuRF TopLevel/LevelFile RDF
+    // current_->setSuRFTopLevelRDF(this->surf__top_level_rdf_prime);
+    current_->setSuRFLevelFileRDF(this->surf__level_file_rdf_prime);
   }
 
   if(old_superversion != NULL && old_superversion->current != current_){
@@ -3078,8 +3232,12 @@ void ColumnFamilyData::InstallSuperVersion(
     current_->setSkylineRDF(this->skyline_rdf_prime);
     current_->setSkylineNumbersOfRangesInRDFLog(this->skyline__numbers_of_ranges_in_rdf_log);
 
+    //SuRF TopLevel/LevelFile RDF
+    (this->surf__level_file_rdf_prime)->deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
+    // current_->setSuRFTopLevelRDF(this->surf__top_level_rdf);
+    current_->setSuRFLevelFileRDF(this->surf__level_file_rdf_prime);
 
-
+    //checking version update is continguous 
     if(install_version_pre != NULL){
       if(old_superversion != NULL && old_superversion->current != install_version_pre){
         std::cerr << "Error: versions are not contiguously changing. Some versions might have been skipped." << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -3093,6 +3251,8 @@ void ColumnFamilyData::InstallSuperVersion(
                   << "current_ = " << current_ << std::endl
                   << "install_version_pre = " << install_version_pre << std::endl;
       }
+
+        
     }
     install_version_pre = current_;
   }

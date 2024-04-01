@@ -60,6 +60,7 @@
 
 //Self Added Start
 #include "include/rocksdb/sys_rdfilter.h"
+#include "include/rocksdb/SuRF/include/surf.hpp"
 #include "db/column_family.h"
 //Self Added End
 
@@ -1346,9 +1347,9 @@ std::vector<std::tuple<long long, long long, uint64_t>> range_del_vec_self;
 
     if (current_level != sub_compact->compaction->output_level()){
 
-if(current_level ==  sub_compact->compaction->output_level()){
-  std::cerr << "Error: input level == output level (" << current_level << ")" << std::endl;
-}
+// if(current_level ==  sub_compact->compaction->output_level()){
+//   std::cerr << "Error: input level == output level (" << current_level << ")" << std::endl;
+// }
 if( (current_level+1) !=  sub_compact->compaction->output_level()){
   std::cerr << "Error: (input level + 1) != output level" << std::endl;
 }
@@ -2046,7 +2047,9 @@ Status CompactionJob::InstallCompactionResults(
 
   // Self Added Start
   FileInOut* file_in_out_ptr = new FileInOut();
-  
+  // FileInOut* surf__file_in_out_ptr = new FileInOut();
+  SuRFCompactionMovingRDInfo* surf__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
+
   // Push RDF data down to `output_level`
   // std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>>();
   std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>();
@@ -2055,6 +2058,8 @@ Status CompactionJob::InstallCompactionResults(
     int current_level = compaction->level(lvl);
 
     if(current_level ==  compaction->output_level()){
+std::cerr << "(Want to know) (if exist --> go revise compaction update rdf) exist brach (@compaction): input level == output level (" << current_level << ")" << std::endl;
+
       for (auto file_meta : *(compaction->inputs(lvl))){
 // std::cout << file_meta->fd.GetNumber() << " (@out_level) --- smallest file key " << file_meta->smallest.user_key().ToString() << " --- largest file key " << file_meta->largest.user_key().ToString() 
 //           << " current level = " << current_level << " output level = " << compaction->output_level() << " "
@@ -2077,6 +2082,7 @@ if( (current_level+1) !=  compaction->output_level()){
       // std::cout << "Pushing file from Current Level: " << current_level << " output Level: " << compaction->output_level() << " with CompactionInputFiles: " << compaction->inputs(lvl) << std::endl << std::flush;
 
       std::vector<pll> smallest_largest_boundries{};
+      std::vector<pss> smallest_largest_boundries_str{};
       std::vector<uint64_t> flie_numbers;
       for (auto file_meta : *(compaction->inputs(lvl)))
       {
@@ -2084,11 +2090,14 @@ if( (current_level+1) !=  compaction->output_level()){
         auto RDs_seq_vec = compaction->column_family_data()
             ->get_RDs_by_fd((u_int64_t)file_meta->fd.GetNumber());
         long long max_end_key = 0;
+        std::string max_end_key_str = "";
         for(auto RD_seq : RDs_seq_vec){
           // auto start_key = std::get<0>(RD_seq);
           auto end_key = std::get<1>(RD_seq);
           // auto seq = std::get<2>(RD_seq);
           max_end_key = max(max_end_key, end_key);
+          max_end_key_str = max(max_end_key_str, std::to_string(end_key));
+          assert(max_end_key_str == std::to_string(max_end_key));
         }
         //xxx
 
@@ -2098,6 +2107,13 @@ if( (current_level+1) !=  compaction->output_level()){
         }else{
           smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
         }
+
+        // if(max_end_key_str != file_meta->largest.user_key().ToString()){
+        //   smallest_largest_boundries_str.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), max_end_key_str));
+        // }else{
+        //   smallest_largest_boundries_str.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), file_meta->largest.user_key().ToString()));
+        // }
+        
 
         // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
         flie_numbers.push_back(file_meta->fd.GetNumber());
@@ -2117,6 +2133,13 @@ if( (current_level+1) !=  compaction->output_level()){
 
       // file_meta_data_vectors->push_back(std::make_tuple(current_level, compaction->output_level(), compaction->inputs(lvl)));
       file_meta_data_vectors->push_back(std::make_tuple(current_level, compaction->output_level(), smallest_largest_boundries, flie_numbers));
+      
+      SuRFCompactionSourceLevelInfo src_level_info = SuRFCompactionSourceLevelInfo();
+      src_level_info.src_level = current_level;
+      // src_level_info.src_file_boundaries = smallest_largest_boundries_str;
+      src_level_info.src_fd_list = flie_numbers;
+      surf__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
+
     }
   }
   // std::cout << "print ALL FILE RANGE @ " << __FILE__ << ":" << __LINE__ << std::endl << std::flush;
@@ -2146,14 +2169,22 @@ if( (current_level+1) !=  compaction->output_level()){
     // std::cout << "i) ";
     for(const auto &fmeta: compaction_output_file_meta_data) {
       file_in_out_ptr->file_out.push_back(std::make_tuple(fmeta.fd.GetNumber(), std::stoll(fmeta.smallest.user_key().ToString()), std::stoll(fmeta.largest.user_key().ToString())));
-
+      // surf__file_in_out_ptr->file_out_str_key.push_back(std::make_tuple(fmeta.fd.GetNumber(), fmeta.smallest.user_key().ToString(), fmeta.largest.user_key().ToString()));
+      SuRFCompactionDstinationLevelInfo dst_level_info;
+      dst_level_info.fd = fmeta.fd.GetNumber();
+      dst_level_info.file_boundary = std::make_pair(fmeta.smallest.user_key().ToString(), fmeta.largest.user_key().ToString());
+      surf__compaction_moving_RD_vector->dst_level_info_list.push_back(dst_level_info);
       // std::cout << fmeta.fd.GetNumber() << " (" << fmeta.smallest.user_key().ToString() << ", " << fmeta.largest.user_key().ToString() << ") "<<" ";
     }
     // std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // std::cout << "ii) ";
     for(const auto &fmeta: penultimate_level_output_file_meta_data) {
       file_in_out_ptr->file_out.push_back(std::make_tuple(fmeta.fd.GetNumber(), std::stoll(fmeta.smallest.user_key().ToString()), std::stoll(fmeta.largest.user_key().ToString())));
-
+      // surf__file_in_out_ptr->file_out_str_key.push_back(std::make_tuple(fmeta.fd.GetNumber(), fmeta.smallest.user_key().ToString(), fmeta.largest.user_key().ToString()));
+      SuRFCompactionDstinationLevelInfo dst_level_info;
+      dst_level_info.fd = fmeta.fd.GetNumber();
+      dst_level_info.file_boundary = std::make_pair(fmeta.smallest.user_key().ToString(), fmeta.largest.user_key().ToString());
+      surf__compaction_moving_RD_vector->dst_level_info_list.push_back(dst_level_info);
       // std::cout << fmeta.fd.GetNumber() << " (" << fmeta.smallest.user_key().ToString() << ", " << fmeta.largest.user_key().ToString() << ") "<<" ";
     }
     // std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -2167,6 +2198,14 @@ if( (current_level+1) !=  compaction->output_level()){
     exit(1);
   }
   compaction->column_family_data()->set_file_in_out_ptr(file_in_out_ptr);
+  if(compaction->column_family_data()->get_surf__file_in_out_ptr() != nullptr) {
+    std::cout << "compaction->column_family_data()->get_surf_file_int_out_ptr() != nullptr " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    exit(1);
+  }
+  // compaction->column_family_data()->set_surf__file_in_out_ptr(surf__file_in_out_ptr);
+  surf__compaction_moving_RD_vector->dst_level = compaction->output_level();
+  surf__compaction_moving_RD_vector->check_filled();
+  compaction->column_family_data()->set_surf__compaction_moving_RD_vector(surf__compaction_moving_RD_vector);
   //Self Added End
 
   return versions_->LogAndApply(compaction->column_family_data(),

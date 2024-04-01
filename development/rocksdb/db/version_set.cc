@@ -2440,8 +2440,24 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
   // else if(rdf_type != "SKYLINE_RDF"){
   //   skyline__max_seq = getMaxSeqFromSkylineRDFilter(std::stoll(user_key.ToString()));
 
-  }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
-        std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+  }else if("SuRF_LF_RDF"){
+    //SuRF_LEVEL_FILE_RDF
+    checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
+    // TODO: flag_bypass_if_same_key -> get from args
+    bool flag_bypass_if_same_key = false;
+    uint64_t fd = (f->fd).GetNumber();
+    is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileRDFilter(fp_hit_file_level, fd, user_key.ToString(), flag_bypass_if_same_key);
+    checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
+
+    checking::SystemVerifier::getSystemVerifier()->reset_flag_is_RDF_filtered_entry();
+    if(is_alive_after_hit_file_level == false){
+      checking::SystemVerifier::getSystemVerifier()->set_flag_is_RDF_filtered_entry();
+      checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+    }
+  }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" 
+          && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"
+          && rdf_type != "SuRF_LF_RDF"){        
+    std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
                   << "rdf_type = " << rdf_type << std::endl;
   }
   // checking::SystemVerifier *system_verifier = checking::SystemVerifier::getSystemVerifier(); 
@@ -2643,7 +2659,9 @@ std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " <<
   // Self Added End: timing
             return ;   
           }
-        }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
+        }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" 
+                  && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"
+                  && rdf_type != "SuRF_LF_RDF"){
               std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
                         << "rdf_type = " << rdf_type << std::endl;
         }
@@ -2736,6 +2754,9 @@ std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " <<
         //Self Added Start
         if(rdf_type == "PLRDF"){
           checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+        }
+        if(rdf_type == "SuRF_LF_RDF"){
+          checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount();
         }
         //Self Added End
 
@@ -2911,7 +2932,30 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
           checking::SystemVerifier::getSystemVerifier()->set_flag_is_RDF_filtered_entry();
         }
 
-      }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
+      }else if(rdf_type == "SuRF_LF_RDF"){
+        if(is_alive_after_hit_file_level == false){
+          *status = Status::NotFound();
+          checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount();
+  
+  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+
+          return ;   
+        }
+
+        checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
+        // TODO: flag_bypass_if_same_key -> get from args
+        bool flag_bypass_if_same_key = false;
+        uint64_t fd = (f->fd).GetNumber();
+        is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileRDFilter(fp_hit_file_level, fd, user_key.ToString(), flag_bypass_if_same_key);
+        checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
+        
+        if(is_alive_after_hit_file_level == false){
+          checking::SystemVerifier::getSystemVerifier()->set_flag_is_RDF_filtered_entry();
+        }
+
+      }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" 
+                && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"
+                && rdf_type != "SuRF_LF_RDF"){        
         std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
                   << "rdf_type = " << rdf_type << std::endl;
       }
@@ -2945,7 +2989,9 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
 
           return;
         }
-      }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"){
+      }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" 
+                && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"
+                && rdf_type != "SuRF_LF_RDF"){           
         std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
                   << "rdf_type = " << rdf_type << std::endl;
       }

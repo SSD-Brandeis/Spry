@@ -317,6 +317,15 @@ LIB_SOURCES =                                                   \
   utilities/wal_filter.cc                                       \
   utilities/write_batch_with_index/write_batch_with_index.cc    \
   utilities/write_batch_with_index/write_batch_with_index_internal.cc    \
+  # include/rocksdb/SuRF/surf.cc                                \
+  # include/rocksdb/SuRF/surf_builder.cc                         \
+  # include/rocksdb/SuRF/suffix.cc                              \
+  # include/rocksdb/SuRF/louds_sparse.cc                        \
+  # include/rocksdb/SuRF/louds_dense.cc                        \
+  # include/rocksdb/SuRF/label_vector.cc                        \
+  # include/rocksdb/SuRF/config.cc                        \
+  # include/rocksdb/SuRF/bitvector.cc                        \
+  
 
 ifeq (,$(shell $(CXX) -fsyntax-only -maltivec -xc /dev/null 2>&1))
 LIB_SOURCES_ASM =\

@@ -70,6 +70,7 @@
 // #include "self_RD/range_delete_filter/range_delete_filter.h"
 #include "include/rocksdb/system_verifier.h"
 #include "include/rocksdb/sys_rdfilter.h"
+#include "include/rocksdb/SuRF/include/surf.hpp"
 //Self Added End
 
 namespace ROCKSDB_NAMESPACE {
@@ -1134,6 +1135,14 @@ class Version {
     skyline__numbers_of_ranges_in_rdf_log = skyline__numbers_of_ranges_in_rdf_log_in;
   }
 
+  void setSuRFTopLevelRDF(surf::SuRF_RDF *surf__top_level_rdf_in){
+    assert(surf__top_level_rdf_in != NULL);
+    surf__top_level_rdf = surf__top_level_rdf_in;
+  }
+  void setSuRFLevelFileRDF(surf::SuRF_RDF *surf__level_file_rdf_in){
+    assert(surf__level_file_rdf_in != NULL);
+    surf__level_file_rdf = surf__level_file_rdf_in;
+  }
 
 
   bool isAliveAfterRDFilter(uint level, long long key){
@@ -1207,6 +1216,19 @@ class Version {
     return 0;
   }
 
+  // bool isAliveAfterSuRFTopLevelRDFilter(std::string key, bool flag_bypass_if_same_key){
+  //   if(surf__top_level_rdf == NULL){
+  //     return true;
+  //   }
+  //   return (this->surf__top_level_rdf)->isEntryAlive((uint32_t) 1, key, flag_bypass_if_same_key);
+  // }
+  bool isAliveAfterSuRFLevelFileRDFilter(uint level, uint64_t fd, std::string key, bool flag_bypass_if_same_key){
+    if(surf__level_file_rdf == NULL){
+      return true;
+    }
+    return (this->surf__level_file_rdf)->isEntryAliveAtLevelOfFd(level, fd, key, flag_bypass_if_same_key);
+  }
+
   void printPLRDF(){
     plrdf.printLevel0();
     plrdf.print();
@@ -1231,6 +1253,13 @@ class Version {
     std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   }
 
+  // void printSuRFTopLevelRDF(){
+  //   //TODO: pass
+  // }
+  // void printSuRFLevelFileRDF(){
+  //   //TODO: pass
+  // }
+
   int getPLRDFNumberOfTotalRanges(){
     return plrdf.getNumberOfTotalRanges();
   }
@@ -1242,6 +1271,19 @@ class Version {
   }
   int getSkylineRDFNumberOfTotalRanges(){
     return skyline_rdf.size();
+  }
+
+  int getSuRFTopLevelRDFNumberOfTotalRanges(){
+    if(surf__top_level_rdf == NULL){
+      return 0;
+    }
+    return surf__top_level_rdf->getNumberOfTotalRanges();
+  }
+  int getSuRFLevelFileRDFNumberOfTotalRanges(){
+    if(surf__level_file_rdf == NULL){
+      return 0;
+    }
+    return surf__level_file_rdf->getNumberOfTotalRanges();
   }
 
   int getPLRDFNumberOfTotalLevels(){
@@ -1256,6 +1298,19 @@ class Version {
   int getSkylineRDFNumberOfTotalLevels(){
     return 1;
   }
+
+  int getSuRFTopLevelRDFNumberOfTotalLevels(){
+    if(surf__top_level_rdf == NULL){
+      return 0;
+    }
+    return 1;
+  }
+  int getSuRFLevelFileRDFNumberOfTotalLevels(){
+    if(surf__level_file_rdf == NULL){
+      return 0;
+    }        
+    return surf__level_file_rdf->getNumberOfTotalLevels();
+  }
   
   std::vector<int> getLogOfNumbersOfRangesInPLRDF(){
     return plrdf.getNumbersOfRangesInRDFLog();
@@ -1268,6 +1323,71 @@ class Version {
   }
   std::vector<int> getLogOfNumbersOfRangesInSkylineRDF(){
     return skyline__numbers_of_ranges_in_rdf_log;
+  }
+
+  std::vector<int> getLogOfNumbersOfRangesInSuRFTopLevelRDF(){
+    if(surf__top_level_rdf == NULL){
+      return std::vector<int>();
+    }
+    return surf__top_level_rdf->getNumbersOfRangesInRDFLog();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF(){
+    if(surf__level_file_rdf == NULL){
+      return std::vector<int>();
+    }
+    return surf__level_file_rdf->getNumbersOfRangesInRDFLog();
+  }
+  
+  std::vector<int> getLogOfMemoryUsageInRLRDF(){
+    // return plrdf.getMemoryUsageInRDFLog();
+    using pll = std::pair<long long, long long>; //[start, end)
+    std::vector<int> memory_log;
+    for(auto num_range: plrdf.getNumbersOfRangesInRDFLog()){
+      memory_log.push_back(num_range * sizeof(pll));
+    }
+    return memory_log;
+  }
+  std::vector<int> getLogOfMemoryUsageInSplitRDF(){
+    // return split_plrdf.getMemoryUsageInRDFLog();
+    using pll = std::pair<long long, long long>; //[start, end)
+    std::vector<int> memory_log;
+    for(auto num_range: split_plrdf.getNumbersOfRangesInRDFLog()){
+      memory_log.push_back(num_range * sizeof(pll));
+    }
+    return memory_log;
+  }
+  std::vector<int> getLogOfMemoryUsageInTopLevelRDF(){
+    // return top_level_rdf.getMemoryUsageInRDFLog();
+    using pll = std::pair<long long, long long>; //[start, end)
+    std::vector<int> memory_log;
+    for(auto num_range: top_level_rdf.getNumbersOfRangesInRDFLog()){
+      memory_log.push_back(num_range * sizeof(pll));
+    }
+    return memory_log;
+  }
+  std::vector<int> getLogOfMemoryUsageInSkylineRDF(){
+    // skyline__numbers_of_ranges_in_rdf_log
+    using t3ll = std::tuple<long long, long long, long long>; //([start, end), time)
+  
+    std::vector<int> memory_log;
+    for(auto num_range: skyline__numbers_of_ranges_in_rdf_log){
+      // memory_log.push_back(num_range * 24);
+      memory_log.push_back(num_range * sizeof(t3ll));
+    }
+    return memory_log;
+  }
+
+  std::vector<int> getLogOfMemoryUsageInSuRFTopLevelRDF(){
+    if(surf__top_level_rdf == NULL){
+      return std::vector<int>();
+    }
+    return surf__top_level_rdf->getMemoryUsageInRDFLog();
+  }
+  std::vector<int> getLogOfMemoryUsageInSuRFLevelFileRDF(){
+    if(surf__level_file_rdf == NULL){
+      return std::vector<int>();
+    }
+    return surf__level_file_rdf->getMemoryUsageInRDFLog();
   }
 
 
@@ -1438,10 +1558,15 @@ class Version {
   PLRDF top_level_rdf;
   std::vector<t3ll> skyline_rdf;
   std::vector<int> skyline__numbers_of_ranges_in_rdf_log;
+  // surf top_level / level_file rdf
+  surf::SuRF_RDF *surf__top_level_rdf = nullptr;
+  surf::SuRF_RDF *surf__level_file_rdf = nullptr;
+  // surf::SuRF_RDF surf__top_level_rdf;
+  // surf::SuRF_RDF surf__level_file_rdf;
 
   // std::vector<uint64_t file_num, std::vector<pll> &range_delete_list_in, std::vector<uint64_t> exist_level0_file_nums>
   std::pair<uint64_t, std::vector<pll>> flush_to_level0_RD_vector;
-  std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  compaction_moving_RD_vector;
+  std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> compaction_moving_RD_vector;
   std::tuple<int, std::vector<pll>, std::vector<uint64_t>> compaction_direct_delete_RD_vector;
 
   // std::mutex flush_to_level0_RD_vector_mutex;

@@ -52,8 +52,10 @@
 #include "util/mutexlock.h"
 #include "util/stop_watch.h"
 
-//Self Added
+//Self Added Start
 #include "include/rocksdb/sys_rdfilter.h"
+#include "include/rocksdb/SuRF/include/surf.hpp"
+//Self Added End
 
 namespace ROCKSDB_NAMESPACE {
 
@@ -916,6 +918,7 @@ std::pair<u_int64_t, std::vector<t3ll>>* fd_RD_in_ptr = new std::pair<u_int64_t,
 std::vector<t3ll> RD_seq;
 
 std::vector<pll> range_delete_list_in;
+std::vector<pss> range_delete_list_in_str;
 auto* range_del_iter2 = m->NewRangeTombstoneIterator(
           ro, kMaxSequenceNumber, true /* immutable_memtable */);
 if (range_del_iter2 != nullptr) {
@@ -939,6 +942,7 @@ if (range_del_iter2 != nullptr) {
     // // cfd_->current()->storeRange2RDFilter(0, tombstone);
     RD_seq.push_back(std::make_tuple(std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()), tombstone.seq_));
     range_delete_list_in.push_back(std::make_pair( std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) ));
+    range_delete_list_in_str.push_back(std::make_pair(tombstone.start_key_.ToString(), tombstone.end_key_.ToString() ));
     // // cfd_->storeRange2RDFTest(tombstone);
     // // cfd_->storeRange2RDFTest2(tombstone);
   }
@@ -968,6 +972,11 @@ vector<uint64_t> exist_level0_file_nums = cfd_->current()->getLevelFileNumbers(0
 auto level0_RD_vector = std::make_tuple(meta_.fd.GetNumber(), range_delete_list_in, exist_level0_file_nums);
 cfd_->set_flush_to_level0_RD_vector(level0_RD_vector);
 cfd_->set_split__flush_to_level0_RD_vector(level0_RD_vector);
+SuRFFlushToLevel0Info *surf_level0_RD_vector = new SuRFFlushToLevel0Info;
+surf_level0_RD_vector->dst_fd = meta_.fd.GetNumber();
+surf_level0_RD_vector->rd_list = range_delete_list_in_str; 
+surf_level0_RD_vector->check_filled();
+cfd_->set_surf__flush_to_level0_RD_vector(surf_level0_RD_vector);
 
 if(cfd_->get_flush_in_file_num() >= meta_.fd.GetNumber()){
   std::cerr << "flush in file num is not in increasing order" << std::endl

@@ -1,28 +1,27 @@
 
-\textbf{LSM-based Key-Value Stores.} With the arrival and development of 5G, AGI, XR, more and more data are generated and stored on the servers. A bunch of database system adopt LSM as its underlying storing structure for its writing efficiency. Data first write directly into buffer until the buffer is full, then the whole data block is flushed on to the disk as an immutable SSTable with keys sorted. There're several levels in which their size grows larger with ratio T. Once the level reaches its maximum capacity, several SSTable files are gathered and merged-sorted before moving to the next level. \\
-\textbf{Range Delete in LSM Trees.} Typically, range deletes are stored as an range delete tombstones with start and end keys indicating their coverage inside the SSTable files where the file ranges overlapped with the key ranges.  
---> In RocksDB, when compaction happens, these range deletes purge out the obsolete entries across all the compacted files. \\
-\textbf{Problems.} We may waste time searching for deleted items on the disk because range deletes are stored in the SSTable files. To know whether an entry exist, there's a chance we have to open and read the file if not blocked by fencing index and bloom filter. However, there is a huge speed gap between fetching data from disk and from the memory, which ends up slowing our queries. (-->Assumption)  \\
+\textbf{LSM-based Key-Value Stores.} The evolution of technologies like 5G, AGI, and XR has led to an exponential increase in data generation and storage requirements. Many database systems have adopted Log-Structured Merge-tree (LSM) due to its efficiency in write operations. In LSM, data is initially written to a buffer; once the buffer is full, it is flushed to disk as an immutable Sorted String Table (SSTable) with sorted keys. LSM trees feature several levels, with each level being T times larger than the previous one. When a level reaches its capacity, multiple SSTable files are merged and sorted before being moved to the next level.
 
+\textbf{Range Delete in LSM Trees.} Range deletes in LSM trees are handled by storing tombstones that specify the start and end keys, indicating the range of keys to be deleted in overlapping SSTable files. In systems like RocksDB, during compaction, these range delete tombstones can be used to purge obsolete entries across all compacted files.
+
+\textbf{Problems.} 
+A significant challenge in handling range deletes within SSTable files is the potential need to open and read specific files to ascertain the existence of an entry. This process can be slow. If it's possible to establish that a key does not exist in memory before accessing these files, we can expediently return and avoid the time-consuming task of reading files. This disparity in access speeds between disk and memory is a crucial factor that can decelerate query response times. By identifying non-existent keys earlier, unnecessary disk reads can be circumvented, thereby enhancing the overall efficiency of the system.
 
 
 \subsection{Motivation}
+By storing range delete information in the memory,  an RDF offers a streamlined approach for handling queries. It actively filters out queries aimed at keys already marked for deletion, thereby preventing the unnecessary activation of disk-based operations. This approach is particularly beneficial in scenarios where the frequency of range deletions is high, and point queries often intersect with these ranges.
 
-If we can use range delete information to set an filter (RDF) inside the buffer to decrease numbers of IO access, then the speed of data query can be accelerated. (--> Assumption) With RDF, we can directly purge out queries on non-existed keys and prevent unnecessary disk IOs.
+Moreover, this memory-based RDF implementation opens up new possibilities for optimizing the LSM tree's operational dynamics. By allowing for rapid determination of the non-existence of keys, the RDF effectively narrows down the search space for point queries, thus speeding up the overall query response time. This optimization is especially significant in systems with large datasets and frequent read operations, where disk reads constitute a substantial operational bottleneck.
 
-
-
+In summary, it not only reduces the number of disk I/O operations during point queries but also enhances the efficiency of the entire system by enabling quicker and more effective data searching processes.
 
 \subsection{Problem Statement}
-Searching for deleted items on the disk can be time-consuming due to the storage of range deletes in SSTable files. Initially, metadata is read from the file to check for the existence of a specific key. If a key is deleted, a range deletion can be found in an exclusive area within the file, but this requires an additional disk I/O operation to read the page containing range deletes. However, if the range deletion is in the buffer, no extra I/O operations are needed to access the pages containing the range deletes.
+The search for a key, given the presence of range delete data in SSTable files, may be inefficient on LSM storage. Point queries initiate their searching in memory and then progress to disk if necessary. The organizational structure of these files spans multiple levels, and point queries systematically move from the lower to higher levels in this hierarchy. When a query is made, a relevant SSTable file on each level is targeted when its range, spanning from its minimum key to its maximum key, encompasses the queried key. The process involves reading range delete information from the file's metadata to ascertain existence of the key.  However, this approach can lead to inefficiencies, particularly when there's repetitive reading of range delete data or when multiple files across different levels are opened to retrieve this information and search for the key, resulting in unnecessary I/O operations.
 
-Determining the presence of deleted items on the disk can lead to time wastage because range deletes are stored in SSTable files. The process involves first reading metadata from the file to ascertain whether a particular key exists in the file. To determine whether a key is deleted, we need to look for a range deletion in a specific area within the file, which requires an additional disk IO operation to read the page containing the range deletion information. However, if the range deletion is present in the buffer, no additional IO operations are required to access the pages containing the range deletes.
-
-To determine the existence of an entry, there is a possibility of having to open and read the file unless it is blocked by a fencing index and bloom filter. Unfortunately, fetching data from disk is significantly slower than fetching from memory, resulting in a slowdown of query workload. (-->Assumption)
+A more efficient approach would be to store range delete information directly in memory. This method could sidestep the need for opening certain files , thereby reducing I/O operations. Furthermore, considering range delete and point query operations coming in order of their issued sequence, associating sequence numbers with range delete tuples, the pair of start and end keys, becomes redundant because data on the lower level is always newer than the ones on the higher level.  Eliminating the use of sequence numbers in Range Delete Filters (RDFs) allows for the merging of overlapping ranges within the same level, thereby further enhancing system efficiency and reducing the operational overhead.
 
 
 
 \subsection{Contributions}
-(a) discuss and analyze influence of different RDFs (PLRDF, split-PLRDF, toplevel-RDF, Skyline-RDF) and their memory footprint \\
-(b) get rid of the requirement of sequence number for every entry \\
- 
+This study aims to:
+(a) Discuss and analyze the impact of different RDF implementations (PLRDF, split-PLRDF, toplevel-RDF, Skyline-RDF) on system performance and their memory footprints.
+(b) Eliminate the sequence number associated with each range to enable range merging in RDFs to decrease its memory footprint. 

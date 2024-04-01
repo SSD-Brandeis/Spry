@@ -44,6 +44,7 @@
 // #include "rocksdb/sys_rdfilter.h"
 #include "../include/rocksdb/sys_rdfilter.h"
 // #include "../include/rocksdb/sys_rdfilter.cc"
+#include "../include/rocksdb/SuRF/include/surf.hpp"
 //Self Added End
 
 namespace ROCKSDB_NAMESPACE {
@@ -53,6 +54,7 @@ namespace ROCKSDB_NAMESPACE {
   {
     std::vector<uint64_t> fd_in;
     std::vector<std::tuple<uint64_t, long long, long long>> file_out;
+    // std::vector<std::tuple<uint64_t, std::string, std::string>> file_out_str_key;
 
     void print(){
       std::cout << "fd_in: ";
@@ -65,8 +67,73 @@ namespace ROCKSDB_NAMESPACE {
         std::cout << std::get<0>(i) << " (" << std::get<1>(i) << ", " << std::get<2>(i) << ") ";
       }
       std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // std::cout << "file_out_str_key: ";
+      // for (auto i : file_out_str_key){
+      //   std::cout << std::get<0>(i) << " (" << std::get<1>(i) << ", " << std::get<2>(i) << ") ";
+      // }
+      // std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     }
   };
+
+  struct SuRFFlushToLevel0Info{
+    uint64_t dst_fd = 0;
+    std::vector<pss> rd_list;
+    // std::vector<uint64_t> fd_on_level0_list;
+
+    void check_filled(){
+      // assert(fd_out >= 0);
+      assert(rd_list.size() > 0);
+      // assert(fd_on_level0_list.size() > 0);
+    }
+  };
+
+  struct SuRFCompactionSourceLevelInfo{
+    uint32_t src_level;
+    // pss file_boundary;
+    std::vector<uint64_t> src_fd_list;
+
+    void check_filled(){
+      assert(src_fd_list.size() > 0);
+    }
+  };
+  struct SuRFCompactionDstinationLevelInfo{
+    uint64_t fd;
+    pss file_boundary;
+  };
+  struct SuRFCompactionMovingRDInfo{
+    std::vector<SuRFCompactionSourceLevelInfo> src_level_info_list;
+    uint32_t dst_level;
+    std::vector<SuRFCompactionDstinationLevelInfo> dst_level_info_list;
+    bool flag_direct_move_to_dst_level = false;
+    
+    void check_filled(){
+      assert(src_level_info_list.size() > 0);
+      if(flag_direct_move_to_dst_level == false){
+        assert(dst_level_info_list.size() > 0);
+      }
+    }
+  };
+
+  struct SuRFCompactionDirectRemovalInfo{
+    uint32_t src_level;
+    std::vector<uint64_t> src_fd_list;
+    // std::vector<uint64_t> src_file_boundary_list;
+
+    void check_filled(){
+      assert(src_fd_list.size() > 0);
+    }
+  };
+
+  // struct SuRFCompactionInfo{
+  //   std::vector<uint32_t> src_level;
+  //   std::vector<uint32_t> dst_level;
+  //   std::vector<uint64_t> fd_in;
+  //   // std::vector<uint64_t> fd_out;
+  //   // (dst_fd, file_range_start, file_range_end)
+  //   std::vector<std::tuple<uint64_t, std::string, std::string>> file_out_str_key;
+  // };
+
+
 
 
   // using pll = std::pair<long long, long long>; //[start, end)
@@ -795,12 +862,26 @@ class ColumnFamilyData {
     split__flush_to_level0_RD_vector = flush_to_level0_RD_vector_in;
   }
 
+  void set_surf__flush_to_level0_RD_vector(SuRFFlushToLevel0Info *flush_to_level0_RD_vector_in){
+    auto flag_previous_already_updated_into_version = (this->surf__flush_to_level0_RD_vector) == nullptr;
+    // check the previous result is already written into the Version
+    if(flag_previous_already_updated_into_version){
+      std::cerr << "surf__flush_to_level0_RD_vector is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+
+    surf__flush_to_level0_RD_vector = flush_to_level0_RD_vector_in;
+  }
+
   std::tuple<uint64_t, std::vector<pll>, std::vector<uint64_t>> get_flush_to_level0_RD_vector(){
     return flush_to_level0_RD_vector;
   }
 
   std::tuple<uint64_t, std::vector<pll>, std::vector<uint64_t>> get_split__flush_to_level0_RD_vector(){
     return split__flush_to_level0_RD_vector;
+  }
+
+  SuRFFlushToLevel0Info *get_surf__flush_to_level0_RD_vector(){
+    return surf__flush_to_level0_RD_vector;
   }
 
   void set_compaction_moving_RD_vector(std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  &compaction_moving_RD_vector_in){
@@ -819,6 +900,14 @@ class ColumnFamilyData {
     split__compaction_moving_RD_vector = compaction_moving_RD_vector_in;
   }
 
+  void set_surf__compaction_moving_RD_vector(SuRFCompactionMovingRDInfo *compaction_moving_RD_vector_in){
+    auto flag_previous_already_updated_into_version = (this->surf__compaction_moving_RD_vector) == nullptr;
+    if(flag_previous_already_updated_into_version){
+      std::cerr << "surf__compaction_moving_RD_vector is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    surf__compaction_moving_RD_vector = compaction_moving_RD_vector_in;
+  }
+
   std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  get_compaction_moving_RD_vector(){
     
     return compaction_moving_RD_vector;
@@ -827,6 +916,11 @@ class ColumnFamilyData {
   std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  get_split__compaction_moving_RD_vector(){
     
     return split__compaction_moving_RD_vector;
+  }
+
+  SuRFCompactionMovingRDInfo *get_surf__compaction_moving_RD_vector(){
+    
+    return surf__compaction_moving_RD_vector;
   }
 
   void set_compaction_direct_delete_RD_vector(std::tuple<int, std::vector<pll>, std::vector<uint64_t>> &compaction_direct_delete_RD_vector_in){
@@ -845,6 +939,14 @@ class ColumnFamilyData {
     split__compaction_direct_delete_RD_vector = compaction_direct_delete_RD_vector_in;
   }
 
+  void set_surf__compaction_direct_delete_RD_vector(SuRFCompactionDirectRemovalInfo *compaction_direct_delete_RD_vector_in){
+    auto flag_previous_already_updated_into_version = (this->surf__compaction_direct_delete_RD_vector) == nullptr;
+    if(flag_previous_already_updated_into_version){
+      std::cerr << "surf__compaction_direct_delete_RD_vector is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    surf__compaction_direct_delete_RD_vector = compaction_direct_delete_RD_vector_in;
+  }
+
   std::tuple<int, std::vector<pll>, std::vector<uint64_t>> get_compaction_direct_delete_RD_vector(){
     return compaction_direct_delete_RD_vector;
   }
@@ -852,6 +954,12 @@ class ColumnFamilyData {
   std::tuple<int, std::vector<pll>, std::vector<uint64_t>> get_split__compaction_direct_delete_RD_vector(){
     return split__compaction_direct_delete_RD_vector;
   }
+
+  SuRFCompactionDirectRemovalInfo *get_surf__compaction_direct_delete_RD_vector(){
+    return surf__compaction_direct_delete_RD_vector;
+  }
+
+
 
 
   
@@ -900,6 +1008,14 @@ class ColumnFamilyData {
   const std::vector<int> *getSkylineNumbersOfRangesInRDFLog(){
     return &skyline__numbers_of_ranges_in_rdf_log;
   }
+  const surf::SuRF_RDF *getSuRFTopLevelRDF(){
+    init_surf();
+    return surf__top_level_rdf_prime;
+  }
+  const surf::SuRF_RDF *getSuRFLevelFileRDF(){
+    init_surf();
+    return surf__level_file_rdf_prime;
+  }
 
   void setPLRDF(PLRDF &plrdf_in){
     plrdf_prime = plrdf_in;
@@ -916,7 +1032,17 @@ class ColumnFamilyData {
   void setSkylineNumbersOfRangesInRDFLog(std::vector<int> &skyline__numbers_of_ranges_in_rdf_log_in){
     skyline__numbers_of_ranges_in_rdf_log = skyline__numbers_of_ranges_in_rdf_log_in;
   }
-
+  void setSuRFTopLevelRDF(surf::SuRF_RDF *suRF_RDF_in){
+    assert(suRF_RDF_in != nullptr);
+    assert(suRF_RDF_in->getRDFMode() == surf::SuRF_RDF::RDF_MODE::PER_LEVEL);
+    surf__top_level_rdf_prime = suRF_RDF_in;
+  }
+  void setSuRFLevelFileRDF(surf::SuRF_RDF *suRF_RDF_in){
+    assert(suRF_RDF_in != nullptr);
+    assert(suRF_RDF_in->getRDFMode() == surf::SuRF_RDF::RDF_MODE::PER_FILE);
+    surf__level_file_rdf_prime = suRF_RDF_in;
+  }
+  
   
 
 
@@ -947,6 +1073,12 @@ class ColumnFamilyData {
     }
     std::cout << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
   }
+  // void printSuRFTopLevelRDF(){
+  //   //pass
+  // }
+  // void printSuRFSkylineRDF(){
+  //   //pass
+  // }
 
   //split_start --- split_range --- split_end should be called in a sequence
   void split_start(int out_lvl){
@@ -1120,6 +1252,21 @@ class ColumnFamilyData {
     split_plrdf_prime.logCurrentTotalNumbersOfRanges();
     top_level_rdf_prime.logCurrentTotalNumbersOfRanges();
     logCurrentTotalNumbersOfRangesInSkylineRDF();
+
+    init_surf();
+    surf__top_level_rdf_prime->logCurrentTotalNumbersOfRanges();
+    surf__level_file_rdf_prime->logCurrentTotalNumbersOfRanges();
+  }
+  void logCurrentTotalMmeoryUsageInEachRDF(){
+    //TODO: logCurrentTotalMmeoryUsage
+    // plrdf_prime.logCurrentTotalMmeoryUsage();
+    // split_plrdf_prime.logCurrentTotalMmeoryUsage();
+    // top_level_rdf_prime.logCurrentTotalMmeoryUsage();
+    // logCurrentTotalMemoryUsageInSkylineRDF();
+    
+    init_surf();
+    surf__top_level_rdf_prime->logCurrentTotalMemoryUsage();
+    surf__level_file_rdf_prime->logCurrentTotalMemoryUsage();
   }
   std::vector<int> getLogOfNumbersOfRangesInPLRDF(){
     return plrdf_prime.getNumbersOfRangesInRDFLog();
@@ -1130,6 +1277,16 @@ class ColumnFamilyData {
   std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF(){
     return top_level_rdf_prime.getNumbersOfRangesInRDFLog();
   }
+
+  std::vector<int> getLogOfNumbersOfRangesInSuRFTopLevelRDF(){
+    init_surf();
+    return surf__top_level_rdf_prime->getNumbersOfRangesInRDFLog();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF(){
+    init_surf();
+    return surf__level_file_rdf_prime->getNumbersOfRangesInRDFLog();
+  }
+  
 
 
   std::vector<t3ll> get_RDs_by_fd(u_int64_t fd){
@@ -1158,6 +1315,16 @@ class ColumnFamilyData {
   }
   FileInOut* get_file_in_out_ptr(){
     return file_in_out_ptr;
+  }
+
+  void set_surf__file_in_out_ptr(FileInOut* ptr){
+    surf__file_in_out_ptr = ptr;
+  }
+  void reset_surf__file_in_out_ptr(){
+    surf__file_in_out_ptr = nullptr;
+  }
+  FileInOut* get_surf__file_in_out_ptr(){
+    return surf__file_in_out_ptr;
   }
 
   void addRangeToSkylineRDFPrime(std::vector<t3ll> range){
@@ -1250,6 +1417,11 @@ class ColumnFamilyData {
   PLRDF top_level_rdf_prime;
   std::vector<t3ll> skyline_rdf_prime;
   std::vector<int> skyline__numbers_of_ranges_in_rdf_log;
+  // surf
+  // surf::SuRF_RDF surf__top_level_rdf_prime;
+  // surf::SuRF_RDF surf__level_file_rdf_prime;
+  surf::SuRF_RDF *surf__top_level_rdf_prime = new surf::SuRF_RDF(surf::SuRF_RDF::RDF_MODE::PER_LEVEL); // not finished implementing yet
+  surf::SuRF_RDF *surf__level_file_rdf_prime = new surf::SuRF_RDF(surf::SuRF_RDF::RDF_MODE::PER_FILE);
   
   // for plrdf_prime
   std::tuple<uint64_t, std::vector<pll>, std::vector<uint64_t>> flush_to_level0_RD_vector = std::make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
@@ -1277,6 +1449,7 @@ class ColumnFamilyData {
   int split__fin_flag = 0;
   int split__level_range_idx = 0;
 
+  //for top_level_rdf_prime
   uint64_t flush_in_file_num = 0;
   std::vector<pll> top_level__level_ranges;
   std::vector<long long> top_level__level_points;
@@ -1286,6 +1459,57 @@ class ColumnFamilyData {
   // std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
   // // std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
   // //Self Added End
+
+  // //for surf__top_level_rdf_prime
+  // //for surf__level_file_rdf_prime
+  FileInOut *surf__file_in_out_ptr = nullptr; //compaction, currently not used
+  // (dst_fd1, [rd1, rd2, ...])
+  SuRFFlushToLevel0Info *surf__flush_to_level0_RD_vector = nullptr;
+  // (src_lvl, dst_lvl, [rd1, rd2, ...], [src_fd1, src_fd2, ...], [dst_fd1, dst_fd2, ...])
+  SuRFCompactionMovingRDInfo *surf__compaction_moving_RD_vector = nullptr;
+  // (src_lvl, [rd1, rd2, ...], [src_fd1, src_fd2, ...])
+  SuRFCompactionDirectRemovalInfo *surf__compaction_direct_delete_RD_vector = nullptr;
+  
+  
+  // struct SuRFFlushToLevel0Info{
+  //   uint64_t fd_out = 0;
+  //   std::vector<pss> rd_list;
+  // };
+
+  // struct SuRFCompactionSourceLevelInfo{
+  //   uint32_t src_level;
+  //   // uint32_t dst_level;
+  //   // std::vector<pss> src_file_boundaries;
+  //   std::vector<uint64_t> src_fd_list;
+  // };
+  // struct SuRFCompactionDstinationLevelInfo{
+  //   uint64_t fd;
+  //   pss file_boundary;
+  // };
+  // struct SuRFCompactionMovingRDInfo{
+  //   std::vector<SuRFCompactionSourceLevelInfo> src_level_info_list;
+  //   uint32_t dst_level;
+  //   std::vector<SuRFCompactionDstinationLevelInfo> dst_level_info_list;
+  // };
+
+  // struct SuRFCompactionDirectRemovalInfo{
+  //   uint32_t src_level;
+  //   std::vector<uint64_t> src_fd_list;
+  // };
+
+  
+  
+  // YCHUANG ADDED START 
+  void init_surf(){
+    if(surf__top_level_rdf_prime == nullptr){
+      surf__top_level_rdf_prime = new surf::SuRF_RDF(surf::SuRF_RDF::RDF_MODE::PER_LEVEL);
+    }
+    if(surf__level_file_rdf_prime == nullptr){
+      surf__level_file_rdf_prime = new surf::SuRF_RDF(surf::SuRF_RDF::RDF_MODE::PER_FILE);
+    }
+  }
+  // YCHUANG ADDED END
+
 
 
   friend class ColumnFamilySet;

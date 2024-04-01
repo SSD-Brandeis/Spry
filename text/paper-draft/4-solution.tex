@@ -1,41 +1,29 @@
 
 \subsection{Solution Design}
     
-    \begin{figure}
+    \begin{figure*}
         % \centering
-        \includegraphics[width=0.5 \textwidth]{Figures/PQ_flow/PQ_flow.png}
+        \includegraphics[width=0.98 \textwidth]{Figures/PQ_flow/PQ_flow.png}
         \Description[<short description>]{<long description>}
         \caption{\label{fig:PQ_flow} The flow of the PQ in RocksDB.}
-    \end{figure}
+    \end{figure*}
 
     
-    \begin{figure}
+    \begin{figure*}
         % \centering
-        \includegraphics[width=0.5 \textwidth]{Figures/PQ_flow/PQ_flow_types_01.png}
+        \includegraphics[width=0.98 \textwidth]{Figures/PQ_flow/PQ_flow_types_01.png}
         \Description[<short description>]{<long description>}
         \caption{\label{fig:PQ_flow_types} The difference of the PQ flow for each of the RDF.}
-    \end{figure}
+    \end{figure*}
 
-    % \ref{fig:PQ_flow} shows the flow of the point query in RocksDB. First, the key is searched in the memtable. Then, it moves on to the SST searching from level 0 to the bottom level. If first check with the file range metadata on that levl, from which it targets the potential file that may contain the key. If this file is not opened in the buffer, the file is opened with its index block, RD, and bloom filter prefetched into the buffer. The index block and bloom filter are also retrieved from the disk if we lack of the part that target on the searching key. Further on, the key is filtered by the bloom filter and index block before it makes a disk IO and retrieved data block from the SST. In the end, if the data is found we check its existence otherwise we move on to the next level.  
+    \begin{figure*}
+        % \centering
+        \includegraphics[width=0.8 \textwidth]{Figures/PQ_flow/PQ_flow_types_02.png}
+        \Description[<short description>]{<long description>}
+        \caption{\label{fig:PQ_flow_types_02} The difference of the PQ flow for each of the RDF.}
+    \end{figure*}
 
-
-    % For PLRDF, Split-PLRDF and TopLevel-RDF, RD are stored on level aspects without the sequence number so the two overlapped RD can be absorbed into one in the attempt to reduce the memory footprint in the buffer. Without the timetag, it is only support the insertion that comes in after all the previous RD has been already written into the database.  
-
-
-    % % RD can be either stored on each level (PLRDF) or on the top level (TopLevel-RDF). When range deletes flush down to the disk, range deletes are merged and stored on to level 0 vector. Latter, when compaction happens, corresponding range deletes are moved and merged to the next level vector in PLRDF. While in TopLevel-RDF, range deletes are stored in the top level only, and those whose ranges intersects with the newly inserted files are removed. When either flush or compaction happens, range deletes from the topper level which are newer remove the obsolete entries from the files it compacted to on the lower level. In this way, if an entry is overlapped with a range delete tombstone in a file, it must be newer than the range delete tombstone. Sequence numbers are not required because if there are overlapping files across two levels, files on the lower level is newer and if an entry and range deletes co-exist in a file, the entry is sure to exist. \\
-
-    % \ref{fig:PQ_flow_types_02} shows the PQ flow for each of the RDF. There difference lies how they check whether a key is deleted by the RDF. 
-
-    % Their difference lies in following aspects: \\
-    % \begin{itemize}
-    %     \item \textbf{RocksDB(None).} Before the key is searched on a given level, the range deletes that cover the key are first collected from the SST, which cost a disk IO if the data is not in the buffer. These range deletes with their timestamp (sequence number) are then compared with the retrieved data to determine whether the key is deleted. \\
-    %     \item \textbf{PLRDF.} Similar to RocksDB implementation, but now that the range deletes are stored in the buffer, so it doesn't take disk IO to retrieve RD information. The RDF checked after each retrieval from the SST, to validate the retrieved data is not deleted. \\
-    %     \item \textbf{Split-PLRDF.} Because of the splitting of the ranges delete whenever a newer key is added to the SST, the RDF can be applied before the SST block retrieval thus saving more disk IOs. 
-    %     \item \textbf{TopLevel-RDF.} In this setting, the RDF is only stored on the top level, it keep tracks of all the RD on the disk. The splitting functionality is implemented so it won't return false negative for a newly inserted key. 
-    %     \item \textbf{Skyline-RDF.} PQ flow of this one looks the same as PLRDF. The distint difference lies in the way RD is stored and checked.  The RD is stored with timetag for it needs to know whether a key from any level is exist or not. And this RDF is only called when a key is found, instead of being called after each retrieval. Without pruning on the searching branches, this is the worst performance RDF. 
-    % \end{itemize}
-
-    The flow of the point query in RocksDB, as illustrated in \ref{fig:PQ_flow}, involves several steps. Initially, the key is searched in the memtable, followed by a search in the SST from level 0 to the bottom level. The file range metadata on each level is consulted to identify a potential file containing the key. If the file is not present in the buffer, it is opened with its index block, RD, and bloom filter prefetched into the buffer. The RD information forms the RDF that used to filtered out the deleted keys. The key undergoes filtering through the bloom filter and index block before initiating a disk IO to retrieve the data block from the SST. Subsequently, the existence of the data is checked with RDF, and if found, the process concludes; otherwise, it proceeds to the next level.
+    The flow of the point query in RocksDB, as illustrated in \ref{fig:PQ_flow}, involves several steps. Initially, the key is searched in the memtable, followed by a search in the SST from level 0 to the bottom level. The file range metadata on each level is consulted to identify a potential wfile containing the key. If the file is not present in the buffer, it is opened with its index block, RD, and bloom filter prefetched into the buffer. The RD information forms the RDF that used to filtered out the deleted keys. The key undergoes filtering through the bloom filter and index block before initiating a disk IO to retrieve the data block from the SST. Subsequently, the existence of the data is checked with RDF, and if found, the process concludes; otherwise, it proceeds to the next level.
 
     For PLRDF, Split-PLRDF, and TopLevel-RDF, RD is stored on levels without a sequence number. This design allows overlapping RD to be consolidated, reducing the memory footprint in the buffer. However, without a timetag, these RDFs only support PQ that occurs after all previous insertions and RD has been written into the database in order.
 

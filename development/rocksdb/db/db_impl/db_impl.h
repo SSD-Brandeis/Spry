@@ -68,6 +68,7 @@
 
 //Self Added
 #include "cache/lru_cache.h"
+#include "include/rocksdb/SuRF/include/surf.hpp"
 
 
 namespace ROCKSDB_NAMESPACE {
@@ -545,10 +546,12 @@ class DBImpl : public DB {
   virtual int getSplitPLRDFNumberOfTotalRanges() override;
   virtual int getTopLevelRDFNumberOfTotalRanges() override;
   virtual int getSkylineRDFNumberOfTotalRanges() override;
+  virtual int getSuRFLevelFileRDFNumberOfTotalRanges() override;
   std::vector<int> getLogOfNumbersOfRangesInPLRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() override;
+  std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF() override;
   std::mutex self_single_flush_mutex_;
 
   const PLRDF * getPLRDF() override;
@@ -556,6 +559,8 @@ class DBImpl : public DB {
   const PLRDF *getTopLevelRDF() override;
   const std::vector<t3ll> *getSkylineRDF() override;
   const std::vector<int> *getSkylineNumbersOfRangesInRDFLog() override;
+  const surf::SuRF_RDF *getSuRFTopLevelRDF() override;
+  const surf::SuRF_RDF *getSuRFLevelFileRDF() override;
   using DB::setPLRDF;
   // void setPLRDF( std::vector<int> v) override;
   void setPLRDF( PLRDF *plrdf) override;
@@ -563,6 +568,8 @@ class DBImpl : public DB {
   void setTopLevelRDF( PLRDF *plrdf) override;
   void setSkylineRDF( std::vector<t3ll> *skylineRDF) override;
   void setSkylineNumbersOfRangesInRDFLog( std::vector<int> *logOfNumbersOfRangesInPLRDF) override;
+  void setSuRFTopLevelRDF( surf::SuRF_RDF *suRFTopLevelRDF) override;
+  void setSuRFLevelFileRDF( surf::SuRF_RDF *suRFLevelFileRDF) override;
   //Self Added End
 
   virtual Status DisableFileDeletions() override;

@@ -16,8 +16,9 @@
 // } 
 
 using pll = std::pair<long long, long long>; //[start, end)
+using pss = std::pair<std::string, std::string>; //[start, end)
 using t3ll = std::tuple<long long, long long, long long>; //([start, end), time)
-
+  
 using namespace ROCKSDB_NAMESPACE;
 // namespace ROCKSDB_NAMESPACE{
   class PLRDF;
