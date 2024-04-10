@@ -2769,16 +2769,16 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
     this->split__flush_to_level0_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
 
     // //SuRF top level / level file RDF
-    // this->surf__flush_to_level0_RD_vector = make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
-
     //SuRF RDF
     if(surf__flush_to_level0_RD_vector != nullptr){
       uint64_t fd_out = surf__flush_to_level0_RD_vector->dst_fd;
       std::vector<pss> &rd_list = surf__flush_to_level0_RD_vector->rd_list;
-      std::sort(rd_list.begin(), rd_list.end()); 
-      (this->surf__level_file_rdf_prime)->insertRangeDeleteToLevel0(fd_out, rd_list);
-      
-      delete surf__flush_to_level0_RD_vector;
+      if(rd_list.size() != 0){
+        std::sort(rd_list.begin(), rd_list.end()); 
+        (this->surf__level_file_rdf_prime)->insertRangeDeleteToLevel0(fd_out, rd_list);
+        
+        delete surf__flush_to_level0_RD_vector;
+      }
       this->surf__flush_to_level0_RD_vector = nullptr;
     }
 
@@ -2893,8 +2893,10 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
       }
 
       //SuRF RDF
-      //TODO: surf_flag__allow_range_boundary_overlapped -> get from SystemVerifier , passing as args
-      bool surf_flag__allow_range_boundary_overlapped = false;
+      surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
+      bool surf_flag__allow_range_boundary_overlapped = _surf_env->getFlagAllowRangeBoundaryOverlapped();
+      //bool surf_flag__allow_range_boundary_overlapped = false;
+      
       if(surf__compaction_moving_RD_vector != nullptr){
         std::vector<SuRFCompactionSourceLevelInfo> &src_level_info_list =
           surf__compaction_moving_RD_vector->src_level_info_list;
@@ -2919,8 +2921,12 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
             std::vector<uint64_t> src_fd_list = src_level_info.src_fd_list;
             for(auto &fd: src_fd_list){
               std::vector<pss> range_tombstone_list = (this->surf__level_file_rdf_prime)->getRangeTombstonesAtLevelOfFd(src_level, fd);
+
               (this->surf__level_file_rdf_prime)->removeSuRFAtLevelOfFd(src_level, fd);
               for(auto &range_tombstone: range_tombstone_list){
+#ifdef DEBUG_SURF_COMPACTION 
+std::cout << "range_tombstone = " << range_tombstone.first << " " << range_tombstone.second << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;  
+#endif
                 range_tombstone_list_agg.push_back(range_tombstone);
               }
             }
@@ -2929,81 +2935,100 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
                   
           //merge
           size_t len_rd = range_tombstone_list_agg.size();
-          assert(len_rd > 0);
-          std::vector<pss> rd_merged;
-          rd_merged.push_back(range_tombstone_list_agg[0]);
-          for(size_t i_rd = 1; i_rd < len_rd; i_rd++){
-            pss &rd = range_tombstone_list_agg[i_rd];
-            pss &rd_last = rd_merged.back();
-            if(rd_last.second >= rd.first){
-              rd_last.second = std::max(rd_last.second, rd.second);
-            }else{
-              rd_merged.push_back(rd);
-            }
-          }
-          len_rd = rd_merged.size();
-
-          //check output file ranges are in ascending order
-          int len_dst_level_info = dst_level_info_list.size();
-          for(int i_dst_level_info = 0; i_dst_level_info < len_dst_level_info-1; i_dst_level_info++){
-            auto &a = dst_level_info_list[i_dst_level_info];
-            auto &b = dst_level_info_list[i_dst_level_info+1];
-
-            bool flag_in_ascending_order = surf_flag__allow_range_boundary_overlapped?
-                  (a.file_boundary.second <= b.file_boundary.first) : 
-                  (a.file_boundary.second < b.file_boundary.first);
-
-            if(flag_in_ascending_order == false){
-              std::cerr << "Error: file boundary is not in ascending order" << std::endl
-                        << "a.file_boundary = " << a.file_boundary.first << " " << a.file_boundary.second << std::endl
-                        << "b.file_boundary = " << b.file_boundary.first << " " << b.file_boundary.second << std::endl
-                        << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-            }
-            assert(flag_in_ascending_order == true);
-          }
-
-          size_t i_rd = 0;
-          for(auto &dst_level_info: dst_level_info_list){
-            if(i_rd >= len_rd){
-              break;
-            }           
-            uint64_t dst_fd = dst_level_info.fd;
-            pss file_boundary = dst_level_info.file_boundary;
-            //seprarate
-            std::vector<pss> ranges_to_insert;
-            if(surf_flag__allow_range_boundary_overlapped == true){
-              while(i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.first){
-                i_rd++;
-              }
-            }else{
-              while(i_rd < len_rd && rd_merged[i_rd].second < file_boundary.first){
-                i_rd++;
+//std::cout << "len_rd (range_tombstone_list_agg.size()): " << len_rd << " len_rd > 0: " << (len_rd > 0) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          assert(len_rd > 0ULL);
+          if(len_rd > 0){
+            std::vector<pss> rd_merged;
+//std::cout << range_tombstone_list_agg[0].first << " " << range_tombstone_list_agg[0].second << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            rd_merged.push_back(range_tombstone_list_agg[0]);
+            for(size_t i_rd = 1; i_rd < len_rd; i_rd++){
+              pss &rd = range_tombstone_list_agg[i_rd];
+              pss &rd_last = rd_merged.back();
+              if(rd_last.second >= rd.first){
+                rd_last.second = std::max(rd_last.second, rd.second);
+              }else{
+                rd_merged.push_back(rd);
               }
             }
-            while(i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.second){
-              pss range_in = std::make_pair(
-                std::max(rd_merged[i_rd].first, file_boundary.first),
-                std::min(rd_merged[i_rd].second, file_boundary.second)
-              );
-              ranges_to_insert.push_back(range_in);
-              i_rd++;
-            }
-            if(i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second){
-              pss range_in = std::make_pair(
-                std::max(rd_merged[i_rd].first, file_boundary.first),
-                std::min(rd_merged[i_rd].second, file_boundary.second)
-              );
-              ranges_to_insert.push_back(range_in);
-              // don't i_rd ++;
-            }
+            len_rd = rd_merged.size();
 
-            (this->surf__level_file_rdf_prime)->insertRangesAtLevelOfFd(dst_level, dst_fd, ranges_to_insert, surf_flag__allow_range_boundary_overlapped);
+
+#ifdef DEBUG_SURF_COMPACTION
+            //check output file ranges are in ascending order
+            int len_dst_level_info = dst_level_info_list.size();
+
+            for(int i_dst_level_info = 0; i_dst_level_info < len_dst_level_info-1; i_dst_level_info++){
+              auto &a = dst_level_info_list[i_dst_level_info];
+              auto &b = dst_level_info_list[i_dst_level_info+1];
+              bool flag_in_ascending_order = surf_flag__allow_range_boundary_overlapped?
+                    (a.file_boundary.second <= b.file_boundary.first) : 
+                    (a.file_boundary.second < b.file_boundary.first);
+
+              if(flag_in_ascending_order == false){
+                if(a.file_boundary.second == b.file_boundary.first){
+                  std::cout << "Warning: file boundary is not in ascending order" << std::endl
+                            << "a.file_boundary = " << a.file_boundary.first << " " << a.file_boundary.second << std::endl
+                            << "b.file_boundary = " << b.file_boundary.first << " " << b.file_boundary.second << std::endl
+                            << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                }else{
+                  std::cerr << "Error: file boundary is not in ascending order" << std::endl
+                          << "a.file_boundary = " << a.file_boundary.first << " " << a.file_boundary.second << std::endl
+                          << "b.file_boundary = " << b.file_boundary.first << " " << b.file_boundary.second << std::endl
+                          << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                }
+              }
+              assert(flag_in_ascending_order == true);
+            }
+#endif
+
+            size_t i_rd = 0;
+            for(auto &dst_level_info: dst_level_info_list){
+              if(i_rd >= len_rd){
+                break;
+              }           
+              uint64_t dst_fd = dst_level_info.fd;
+              pss file_boundary = dst_level_info.file_boundary;
+              //seprarate
+              std::vector<pss> ranges_to_insert;
+              if(surf_flag__allow_range_boundary_overlapped == true){
+                while(i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.first){
+                  i_rd++;
+                }
+              }else{
+                while(i_rd < len_rd && rd_merged[i_rd].second < file_boundary.first){
+                  i_rd++;
+                }
+              }
+              //TODO: check this part 
+              while(i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.second){
+              //while(i_rd < len_rd && rd_merged[i_rd].second < file_boundary.second){
+                pss range_in = std::make_pair(
+                  std::max(rd_merged[i_rd].first, file_boundary.first),
+                  std::min(rd_merged[i_rd].second, file_boundary.second)
+                );
+                ranges_to_insert.push_back(range_in);
+                i_rd++;
+              }
+              if(i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second){
+                pss range_in = std::make_pair(
+                  std::max(rd_merged[i_rd].first, file_boundary.first),
+                  std::min(rd_merged[i_rd].second, file_boundary.second)
+                );
+                ranges_to_insert.push_back(range_in);
+                // don't i_rd ++;
+              }
+
+              if(ranges_to_insert.size() > 0){
+                (this->surf__level_file_rdf_prime)->insertRangesAtLevelOfFd(dst_level, dst_fd, ranges_to_insert, surf_flag__allow_range_boundary_overlapped);
+              }
+              // (this->surf__level_file_rdf_prime)->insertRangesAtLevelOfFd(dst_level, dst_fd, ranges_to_insert, surf_flag__allow_range_boundary_overlapped);
+            }
+            // (this->surf__level_file_rdf_prime)->shiftRDFToOutputLevel(this->surf__compaction_moving_RD_vector);
           }
-          // (this->surf__level_file_rdf_prime)->shiftRDFToOutputLevel(this->surf__compaction_moving_RD_vector);
+          // src_fd_list = 
+          // std::sort(rd_list.begin(), rd_list.end()); 
+          // (this->surf__level_file_rdf_prime)->shiftRDFToOutputLevel(fd_out, rd_list);
         }
-        // src_fd_list = 
-        // std::sort(rd_list.begin(), rd_list.end()); 
-        // (this->surf__level_file_rdf_prime)->shiftRDFToOutputLevel(fd_out, rd_list);
         
         delete this->surf__compaction_moving_RD_vector;
         this->surf__compaction_moving_RD_vector = nullptr;
@@ -3195,7 +3220,7 @@ void ColumnFamilyData::InstallSuperVersion(
 
     //Skyline RDF
     current_->setSkylineRDF(this->skyline_rdf_prime);
-    current_->setSkylineNumbersOfRangesInRDFLog(this->skyline__numbers_of_ranges_in_rdf_log);
+    // current_->setSkylineNumbersOfRangesInRDFLog(this->skyline__numbers_of_ranges_in_rdf_log);
 
     //SuRF TopLevel/LevelFile RDF
     // current_->setSuRFTopLevelRDF(this->surf__top_level_rdf_prime);
@@ -3230,7 +3255,7 @@ void ColumnFamilyData::InstallSuperVersion(
 
     //Skyline RDF
     current_->setSkylineRDF(this->skyline_rdf_prime);
-    current_->setSkylineNumbersOfRangesInRDFLog(this->skyline__numbers_of_ranges_in_rdf_log);
+    // current_->setSkylineNumbersOfRangesInRDFLog(this->skyline__numbers_of_ranges_in_rdf_log);
 
     //SuRF TopLevel/LevelFile RDF
     (this->surf__level_file_rdf_prime)->deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());

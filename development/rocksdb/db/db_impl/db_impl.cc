@@ -4922,6 +4922,49 @@ std::vector<int> DBImpl::getLogOfNumbersOfRangesInSuRFLevelFileRDF(){
 }
 
 
+std::vector<int> DBImpl::getLogOfMemoryUsageInRLRDF() {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfNumbersOfRangesInSuRFLevelFileRDF();
+}
+std::vector<int> DBImpl::getLogOfMemoryUsageInSplitRDF() {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfMemoryUsageInSplitRDF();
+}
+std::vector<int> DBImpl::getLogOfMemoryUsageInTopLevelRDF() {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfMemoryUsageInTopLevelRDF();
+}
+std::vector<int> DBImpl::getLogOfMemoryUsageInSkylineRDF() {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfMemoryUsageInSkylineRDF();
+}
+std::vector<int> DBImpl::getLogOfMemoryUsageInSuRFLevelFileRDF() {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfMemoryUsageInSuRFLevelFileRDF();
+}
+// std::vector<int> DBImpl::getLogOfMemoryUsageInSuRFTopLevelRDF() {
+//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+//   DefaultColumnFamily());
+//   auto cfd = cfh->cfd();
+//   SuperVersion* sv = GetAndRefSuperVersion(cfd);
+//   return sv->current->getLogOfMemoryUsageInSuRFTopLevelRDF();
+// }
+
 const PLRDF *DBImpl::getPLRDF(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
@@ -4940,18 +4983,19 @@ const PLRDF *DBImpl::getTopLevelRDF(){
   auto cfd = cfh->cfd();
   return cfd->getTopLevelRDF();
 }
-const std::vector<t3ll> *DBImpl::getSkylineRDF(){
+// const std::vector<t3ll> *DBImpl::getSkylineRDF(){
+const SkyLineRDF *DBImpl::getSkylineRDF(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
   auto cfd = cfh->cfd();
   return cfd->getSkylineRDF();
 }
-const std::vector<int> *DBImpl::getSkylineNumbersOfRangesInRDFLog(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
-  auto cfd = cfh->cfd();
-  return cfd->getSkylineNumbersOfRangesInRDFLog();
-}
+// const std::vector<int> *DBImpl::getSkylineNumbersOfRangesInRDFLog(){
+//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+//   DefaultColumnFamily());
+//   auto cfd = cfh->cfd();
+//   return cfd->getSkylineNumbersOfRangesInRDFLog();
+// }
 
 const surf::SuRF_RDF *DBImpl::getSuRFTopLevelRDF() {
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
@@ -5002,7 +5046,8 @@ void DBImpl::setTopLevelRDF( PLRDF *plrdf){
   sv->current->setTopLevelRDF(*plrdf);
   // return Status::OK();
 }
-void DBImpl::setSkylineRDF( std::vector<t3ll> *skyline_rdf){
+// void DBImpl::setSkylineRDF( std::vector<t3ll> *skyline_rdf){
+void DBImpl::setSkylineRDF( SkyLineRDF *skyline_rdf){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
   auto cfd = cfh->cfd();
@@ -5012,16 +5057,16 @@ void DBImpl::setSkylineRDF( std::vector<t3ll> *skyline_rdf){
   sv->current->setSkylineRDF(*skyline_rdf);
   // return Status::OK();
 }
-void DBImpl::setSkylineNumbersOfRangesInRDFLog( std::vector<int> *skyline__numbers_of_ranges_in_rdf_log){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
-  auto cfd = cfh->cfd();
+// void DBImpl::setSkylineNumbersOfRangesInRDFLog( std::vector<int> *skyline__numbers_of_ranges_in_rdf_log){
+//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+//   DefaultColumnFamily());
+//   auto cfd = cfh->cfd();
 
-  cfd->setSkylineNumbersOfRangesInRDFLog(*skyline__numbers_of_ranges_in_rdf_log);
-  SuperVersion* sv = GetAndRefSuperVersion(cfd);
-  sv->current->setSkylineNumbersOfRangesInRDFLog(*skyline__numbers_of_ranges_in_rdf_log);
-  // return Status::OK();
-}
+//   cfd->setSkylineNumbersOfRangesInRDFLog(*skyline__numbers_of_ranges_in_rdf_log);
+//   SuperVersion* sv = GetAndRefSuperVersion(cfd);
+//   sv->current->setSkylineNumbersOfRangesInRDFLog(*skyline__numbers_of_ranges_in_rdf_log);
+//   // return Status::OK();
+// }
 
 void DBImpl::setSuRFTopLevelRDF( surf::SuRF_RDF *suRFTopLevelRDF){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(

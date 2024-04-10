@@ -46,7 +46,7 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
 
   Iterator* it = db->NewIterator(read_op);  // for range reads
   uint64_t counter = 0;                     // for progress bar
-  int KEY_SIZE = checking::SystemVerifier::getKeySize();
+  int KEY_SIZE = checking::SystemVerifier::getSystemVerifier()->getKeySize();
   int TIME_STAMP_SIZE = 7;  // shall == rocksdb sequence num 
   long long i_instruction = 0;
 

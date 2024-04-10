@@ -1128,12 +1128,13 @@ class Version {
     top_level_rdf = top_level_rdf_in;
   }
 
-  void setSkylineRDF( std::vector<t3ll> &skyline_rdf_in){
+  // void setSkylineRDF( std::vector<t3ll> &skyline_rdf_in){
+  void setSkylineRDF( SkyLineRDF &skyline_rdf_in){
     skyline_rdf = skyline_rdf_in;
   }
-  void setSkylineNumbersOfRangesInRDFLog(std::vector<int> &skyline__numbers_of_ranges_in_rdf_log_in){
-    skyline__numbers_of_ranges_in_rdf_log = skyline__numbers_of_ranges_in_rdf_log_in;
-  }
+  // void setSkylineNumbersOfRangesInRDFLog(std::vector<int> &skyline__numbers_of_ranges_in_rdf_log_in){
+  //   skyline__numbers_of_ranges_in_rdf_log = skyline__numbers_of_ranges_in_rdf_log_in;
+  // }
 
   void setSuRFTopLevelRDF(surf::SuRF_RDF *surf__top_level_rdf_in){
     assert(surf__top_level_rdf_in != NULL);
@@ -1204,16 +1205,20 @@ class Version {
   //   }
   //   return true;
   // }
-  long long getMaxSeqFromSkylineRDFilter(long long key){
-    // auto it = std::upper_bound(skyline_rdf.begin(), skyline_rdf.end(), std::make_tuple(key, key, (long long) 0));
-    auto it = std::lower_bound(skyline_rdf.begin(), skyline_rdf.end(), key, [](auto &a, long long b){return get<1>(a) <= b;} );
-    if(it == skyline_rdf.end()){return 0;}
-// std::cout << " min = " << std::get<0>(*it) << " max = " << std::get<1>(*it) << " seq = " << std::get<2>(*it) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+//   long long getMaxSeqFromSkylineRDFilter(long long key){
+//     return skyline_rdf.getMaxSeq(key);
+// //     // auto it = std::upper_bound(skyline_rdf.begin(), skyline_rdf.end(), std::make_tuple(key, key, (long long) 0));
+// //     auto it = std::lower_bound(skyline_rdf.begin(), skyline_rdf.end(), key, [](auto &a, long long b){return get<1>(a) <= b;} );
+// //     if(it == skyline_rdf.end()){return 0;}
+// // // std::cout << " min = " << std::get<0>(*it) << " max = " << std::get<1>(*it) << " seq = " << std::get<2>(*it) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
-    if(std::get<0>(*it) <= key && key < std::get<1>(*it)){
-      return std::get<2>(*it);
-    }
-    return 0;
+// //     if(std::get<0>(*it) <= key && key < std::get<1>(*it)){
+// //       return std::get<2>(*it);
+// //     }
+// //     return 0;
+//   }
+  bool isAliveAfterSkylineRDFilter(long long key, long long seq){
+    return skyline_rdf.isEntryAlive(key, seq);
   }
 
   // bool isAliveAfterSuRFTopLevelRDFilter(std::string key, bool flag_bypass_if_same_key){
@@ -1246,11 +1251,12 @@ class Version {
   }
 
   void printSkylineRDF(){
-    std::cout << "Skyline RDF" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    for(auto it = skyline_rdf.begin(); it != skyline_rdf.end(); it++){
-      std::cout << " [" << std::get<0>(*it) << ", " << std::get<1>(*it) << ") --(" << std::get<2>(*it) << ") ";
-    }
-    std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    skyline_rdf.print();
+    // std::cout << "Skyline RDF" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // for(auto it = skyline_rdf.begin(); it != skyline_rdf.end(); it++){
+    //   std::cout << " [" << std::get<0>(*it) << ", " << std::get<1>(*it) << ") --(" << std::get<2>(*it) << ") ";
+    // }
+    // std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   }
 
   // void printSuRFTopLevelRDF(){
@@ -1270,7 +1276,8 @@ class Version {
     return top_level_rdf.getNumberOfTotalRanges();
   }
   int getSkylineRDFNumberOfTotalRanges(){
-    return skyline_rdf.size();
+    // return skyline_rdf.size();
+    return skyline_rdf.getNumberOfTotalRanges();
   }
 
   int getSuRFTopLevelRDFNumberOfTotalRanges(){
@@ -1322,7 +1329,8 @@ class Version {
     return top_level_rdf.getNumbersOfRangesInRDFLog();
   }
   std::vector<int> getLogOfNumbersOfRangesInSkylineRDF(){
-    return skyline__numbers_of_ranges_in_rdf_log;
+    // return skyline__numbers_of_ranges_in_rdf_log;
+    return skyline_rdf.getNumbersOfRangesInRDFLog();
   }
 
   std::vector<int> getLogOfNumbersOfRangesInSuRFTopLevelRDF(){
@@ -1339,42 +1347,43 @@ class Version {
   }
   
   std::vector<int> getLogOfMemoryUsageInRLRDF(){
-    // return plrdf.getMemoryUsageInRDFLog();
-    using pll = std::pair<long long, long long>; //[start, end)
-    std::vector<int> memory_log;
-    for(auto num_range: plrdf.getNumbersOfRangesInRDFLog()){
-      memory_log.push_back(num_range * sizeof(pll));
-    }
-    return memory_log;
+    return plrdf.getMemoryUsageInRDFLog();
+    // using pll = std::pair<long long, long long>; //[start, end)
+    // std::vector<int> memory_log;
+    // for(auto num_range: plrdf.getNumbersOfRangesInRDFLog()){
+    //   memory_log.push_back(num_range * sizeof(pll));
+    // }
+    // return memory_log;
   }
   std::vector<int> getLogOfMemoryUsageInSplitRDF(){
-    // return split_plrdf.getMemoryUsageInRDFLog();
-    using pll = std::pair<long long, long long>; //[start, end)
-    std::vector<int> memory_log;
-    for(auto num_range: split_plrdf.getNumbersOfRangesInRDFLog()){
-      memory_log.push_back(num_range * sizeof(pll));
-    }
-    return memory_log;
+    return split_plrdf.getMemoryUsageInRDFLog();
+    // using pll = std::pair<long long, long long>; //[start, end)
+    // std::vector<int> memory_log;
+    // for(auto num_range: split_plrdf.getNumbersOfRangesInRDFLog()){
+    //   memory_log.push_back(num_range * sizeof(pll));
+    // }
+    // return memory_log;
   }
   std::vector<int> getLogOfMemoryUsageInTopLevelRDF(){
-    // return top_level_rdf.getMemoryUsageInRDFLog();
-    using pll = std::pair<long long, long long>; //[start, end)
-    std::vector<int> memory_log;
-    for(auto num_range: top_level_rdf.getNumbersOfRangesInRDFLog()){
-      memory_log.push_back(num_range * sizeof(pll));
-    }
-    return memory_log;
+    return top_level_rdf.getMemoryUsageInRDFLog();
+    // using pll = std::pair<long long, long long>; //[start, end)
+    // std::vector<int> memory_log;
+    // for(auto num_range: top_level_rdf.getNumbersOfRangesInRDFLog()){
+    //   memory_log.push_back(num_range * sizeof(pll));
+    // }
+    // return memory_log;
   }
   std::vector<int> getLogOfMemoryUsageInSkylineRDF(){
+    return skyline_rdf.getMemoryUsageInRDFLog();
     // skyline__numbers_of_ranges_in_rdf_log
-    using t3ll = std::tuple<long long, long long, long long>; //([start, end), time)
+    // using t3ll = std::tuple<long long, long long, long long>; //([start, end), time)
   
-    std::vector<int> memory_log;
-    for(auto num_range: skyline__numbers_of_ranges_in_rdf_log){
-      // memory_log.push_back(num_range * 24);
-      memory_log.push_back(num_range * sizeof(t3ll));
-    }
-    return memory_log;
+    // std::vector<int> memory_log;
+    // for(auto num_range: skyline__numbers_of_ranges_in_rdf_log){
+    //   // memory_log.push_back(num_range * 24);
+    //   memory_log.push_back(num_range * sizeof(t3ll));
+    // }
+    // return memory_log;
   }
 
   std::vector<int> getLogOfMemoryUsageInSuRFTopLevelRDF(){
@@ -1556,8 +1565,9 @@ class Version {
   // rdfilter::PLRDF *per_level_RDF = rdfilter::PLRDF::getRDFilter();
   PLRDF plrdf, split_plrdf;
   PLRDF top_level_rdf;
-  std::vector<t3ll> skyline_rdf;
-  std::vector<int> skyline__numbers_of_ranges_in_rdf_log;
+  SkyLineRDF skyline_rdf;
+  // std::vector<t3ll> skyline_rdf;
+  // std::vector<int> skyline__numbers_of_ranges_in_rdf_log;
   // surf top_level / level_file rdf
   surf::SuRF_RDF *surf__top_level_rdf = nullptr;
   surf::SuRF_RDF *surf__level_file_rdf = nullptr;

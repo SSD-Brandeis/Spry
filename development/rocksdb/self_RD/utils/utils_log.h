@@ -205,6 +205,13 @@ void io_timing_test(DB* db){
   vector<int> ranges_log_SplitPLRDF = db->getLogOfNumbersOfRangesInSplitPLRDF();
   vector<int> ranges_log_TopLevelRDF = db->getLogOfNumbersOfRangesInTopLevelRDF();
   vector<int> ranges_log_SkylineRDF = db->getLogOfNumbersOfRangesInSkylineRDF();
+  vector<int> ranges_log_SuRFLevelFileRDF = db->getLogOfNumbersOfRangesInSuRFLevelFileRDF();
+
+  vector<int> memory_usage_log_PLRDF = db->getLogOfMemoryUsageInRLRDF();
+  vector<int> memory_usage_log_SplitPLRDF = db->getLogOfMemoryUsageInSplitRDF();
+  vector<int> memory_usage_log_TopLevelRDF = db->getLogOfMemoryUsageInTopLevelRDF();
+  vector<int> memory_usage_log_SkylineRDF = db->getLogOfMemoryUsageInSkylineRDF();
+  vector<int> memory_usage_log_SuRFLevelFileRDF = db->getLogOfMemoryUsageInSuRFLevelFileRDF();
 
   std::cout << "Ranges Log Of PLRDF: " << std::endl;
   for (int i = 0; i < ranges_log_PLRDF.size(); i++) {
@@ -224,6 +231,38 @@ void io_timing_test(DB* db){
   std::cout << "Ranges Log Of SkylineRDF: " << std::endl;
   for (int i = 0; i < ranges_log_SkylineRDF.size(); i++) {
     std::cout << ranges_log_SkylineRDF[i] << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "Ranges Log Of SuRF_LF_RDF: " << std::endl;
+  for (int i = 0; i < ranges_log_SuRFLevelFileRDF.size(); i++) {
+    std::cout << ranges_log_SuRFLevelFileRDF[i] << " ";
+  }
+  std::cout << std::endl;
+
+  
+  std::cout << "Memory Usage Log Of PLRDF: " << std::endl;
+  for (int i = 0; i < memory_usage_log_PLRDF.size(); i++) {
+    std::cout << memory_usage_log_PLRDF[i] << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "Memory Usage Log Of SplitPLRDF: " << std::endl;
+  for (int i = 0; i < memory_usage_log_SplitPLRDF.size(); i++) {
+    std::cout << memory_usage_log_SplitPLRDF[i] << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "Memory Usage Log Of TopLevelRDF: " << std::endl;
+  for (int i = 0; i < memory_usage_log_TopLevelRDF.size(); i++) {
+    std::cout << memory_usage_log_TopLevelRDF[i] << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "Memory Usage Log Of SkylineRDF: " << std::endl;
+  for (int i = 0; i < memory_usage_log_SkylineRDF.size(); i++) {
+    std::cout << memory_usage_log_SkylineRDF[i] << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "Memory Usage Log Of SuRF_LF_RDF: " << std::endl;
+  for (int i = 0; i < memory_usage_log_SuRFLevelFileRDF.size(); i++) {
+    std::cout << memory_usage_log_SuRFLevelFileRDF[i] << " ";
   }
   std::cout << std::endl;
 

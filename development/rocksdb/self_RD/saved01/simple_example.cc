@@ -1711,6 +1711,7 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
   vector<int> ranges_log_SplitPLRDF = db->getLogOfNumbersOfRangesInSplitPLRDF();
   vector<int> ranges_log_TopLevelRDF = db->getLogOfNumbersOfRangesInTopLevelRDF();
   vector<int> ranges_log_SkylineRDF = db->getLogOfNumbersOfRangesInSkylineRDF();
+  vector<int> ranges_log_SuRFLevelFileRDF = db->getLogOfNumbersOfRangesInSuRFLevelFileRDF();
 
   std::cout << "Ranges Log Of PLRDF: " << std::endl;
   for (int i = 0; i < ranges_log_PLRDF.size(); i++) {
@@ -1730,6 +1731,11 @@ void runWorkload(DB* db, Options& op, WriteOptions& write_op, ReadOptions& read_
   std::cout << "Ranges Log Of SkylineRDF: " << std::endl;
   for (int i = 0; i < ranges_log_SkylineRDF.size(); i++) {
     std::cout << ranges_log_SkylineRDF[i] << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "Ranges Log Of SuRF_LF_RDF: " << std::endl;
+  for (int i = 0; i < ranges_log_SuRFLevelFileRDF.size(); i++) {
+    std::cout << ranges_log_SuRFLevelFileRDF[i] << " ";
   }
   std::cout << std::endl;
 

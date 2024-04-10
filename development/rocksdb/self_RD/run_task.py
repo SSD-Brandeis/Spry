@@ -12,6 +12,11 @@ params = {
     #"--number_of_PQ": [5000*100],
     "--number_of_PQ": [5000],
     "--bb": [0],
+    "surf__key_len_in_bytes": [12],
+    "surf__hash_suffix_len": [0],
+    "surf__real_suffix_len": [0],
+    "surf__include_dense": [1],    # 1: true, 0: false
+    "surf__sparse_dense_ratio": [16],
 }
 tasks = ["./simple_example"]
 for key, values in params.items():

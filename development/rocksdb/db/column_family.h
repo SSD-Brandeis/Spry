@@ -863,10 +863,10 @@ class ColumnFamilyData {
   }
 
   void set_surf__flush_to_level0_RD_vector(SuRFFlushToLevel0Info *flush_to_level0_RD_vector_in){
-    auto flag_previous_already_updated_into_version = (this->surf__flush_to_level0_RD_vector) == nullptr;
+    auto flag_previous_already_updated_into_version = (this->surf__flush_to_level0_RD_vector) != nullptr;
     // check the previous result is already written into the Version
     if(flag_previous_already_updated_into_version){
-      std::cerr << "surf__flush_to_level0_RD_vector is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      std::cerr << "surf__flush_to_level0_RD_vector is not empty" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     }
 
     surf__flush_to_level0_RD_vector = flush_to_level0_RD_vector_in;
@@ -901,7 +901,7 @@ class ColumnFamilyData {
   }
 
   void set_surf__compaction_moving_RD_vector(SuRFCompactionMovingRDInfo *compaction_moving_RD_vector_in){
-    auto flag_previous_already_updated_into_version = (this->surf__compaction_moving_RD_vector) == nullptr;
+    auto flag_previous_already_updated_into_version = (this->surf__compaction_moving_RD_vector) != nullptr;
     if(flag_previous_already_updated_into_version){
       std::cerr << "surf__compaction_moving_RD_vector is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     }
@@ -940,7 +940,7 @@ class ColumnFamilyData {
   }
 
   void set_surf__compaction_direct_delete_RD_vector(SuRFCompactionDirectRemovalInfo *compaction_direct_delete_RD_vector_in){
-    auto flag_previous_already_updated_into_version = (this->surf__compaction_direct_delete_RD_vector) == nullptr;
+    auto flag_previous_already_updated_into_version = (this->surf__compaction_direct_delete_RD_vector) != nullptr;
     if(flag_previous_already_updated_into_version){
       std::cerr << "surf__compaction_direct_delete_RD_vector is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     }
@@ -1002,12 +1002,12 @@ class ColumnFamilyData {
   const PLRDF *getTopLevelRDF(){
     return &top_level_rdf_prime;
   }
-  const std::vector<t3ll> *getSkylineRDF(){
+  const SkyLineRDF *getSkylineRDF(){
     return &skyline_rdf_prime;
   }
-  const std::vector<int> *getSkylineNumbersOfRangesInRDFLog(){
-    return &skyline__numbers_of_ranges_in_rdf_log;
-  }
+  // const std::vector<int> *getSkylineNumbersOfRangesInRDFLog(){
+  //   return &skyline__numbers_of_ranges_in_rdf_log;
+  // }
   const surf::SuRF_RDF *getSuRFTopLevelRDF(){
     init_surf();
     return surf__top_level_rdf_prime;
@@ -1026,12 +1026,13 @@ class ColumnFamilyData {
   void setTopLevelRDF(PLRDF &plrdf_in){
     top_level_rdf_prime = plrdf_in;
   }
-  void setSkylineRDF(std::vector<t3ll> &skyline_rdf_in){
+  // void setSkylineRDF(std::vector<t3ll> &skyline_rdf_in){
+  void setSkylineRDF(SkyLineRDF &skyline_rdf_in){
     skyline_rdf_prime = skyline_rdf_in;
   }
-  void setSkylineNumbersOfRangesInRDFLog(std::vector<int> &skyline__numbers_of_ranges_in_rdf_log_in){
-    skyline__numbers_of_ranges_in_rdf_log = skyline__numbers_of_ranges_in_rdf_log_in;
-  }
+  // void setSkylineNumbersOfRangesInRDFLog(std::vector<int> &skyline__numbers_of_ranges_in_rdf_log_in){
+  //   skyline__numbers_of_ranges_in_rdf_log = skyline__numbers_of_ranges_in_rdf_log_in;
+  // }
   void setSuRFTopLevelRDF(surf::SuRF_RDF *suRF_RDF_in){
     assert(suRF_RDF_in != nullptr);
     assert(suRF_RDF_in->getRDFMode() == surf::SuRF_RDF::RDF_MODE::PER_LEVEL);
@@ -1065,12 +1066,13 @@ class ColumnFamilyData {
   }
   void printSkylineRDF(){
     std::cout << "cfd --- skyline_RDF " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
-    for(auto &x: skyline_rdf_prime){
-      auto start = std::get<0>(x);
-      auto end = std::get<1>(x);
-      auto seq = std::get<2>(x);
-      std::cout << " [" << start << ", " << end << " ) --( " << seq << ") ";
-    }
+    skyline_rdf_prime.print();
+    // for(auto &x: skyline_rdf_prime){
+    //   auto start = std::get<0>(x);
+    //   auto end = std::get<1>(x);
+    //   auto seq = std::get<2>(x);
+    //   std::cout << " [" << start << ", " << end << " ] --( " << seq << ") ";
+    // }
     std::cout << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
   }
   // void printSuRFTopLevelRDF(){
@@ -1243,15 +1245,16 @@ class ColumnFamilyData {
   }
 
 
-  void logCurrentTotalNumbersOfRangesInSkylineRDF(){
-    skyline__numbers_of_ranges_in_rdf_log.push_back(skyline_rdf_prime.size());
-  }
+  // void logCurrentTotalNumbersOfRangesInSkylineRDF(){
+  //   skyline__numbers_of_ranges_in_rdf_log.push_back(skyline_rdf_prime.size());
+  // }
 
   void logCurrentTotalNumbersOfRangesInEachRDF(){
     plrdf_prime.logCurrentTotalNumbersOfRanges();
     split_plrdf_prime.logCurrentTotalNumbersOfRanges();
     top_level_rdf_prime.logCurrentTotalNumbersOfRanges();
-    logCurrentTotalNumbersOfRangesInSkylineRDF();
+    // logCurrentTotalNumbersOfRangesInSkylineRDF();
+    skyline_rdf_prime.logCurrentTotalNumbersOfRanges();
 
     init_surf();
     surf__top_level_rdf_prime->logCurrentTotalNumbersOfRanges();
@@ -1259,10 +1262,11 @@ class ColumnFamilyData {
   }
   void logCurrentTotalMmeoryUsageInEachRDF(){
     //TODO: logCurrentTotalMmeoryUsage
-    // plrdf_prime.logCurrentTotalMmeoryUsage();
-    // split_plrdf_prime.logCurrentTotalMmeoryUsage();
-    // top_level_rdf_prime.logCurrentTotalMmeoryUsage();
+    plrdf_prime.logCurrentTotalMemoryUsage();
+    split_plrdf_prime.logCurrentTotalMemoryUsage();
+    top_level_rdf_prime.logCurrentTotalMemoryUsage();
     // logCurrentTotalMemoryUsageInSkylineRDF();
+    skyline_rdf_prime.logCurrentTotalMemoryUsage();
     
     init_surf();
     surf__top_level_rdf_prime->logCurrentTotalMemoryUsage();
@@ -1276,6 +1280,9 @@ class ColumnFamilyData {
   }
   std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF(){
     return top_level_rdf_prime.getNumbersOfRangesInRDFLog();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInSkyLineRDF(){
+    return skyline_rdf_prime.getNumbersOfRangesInRDFLog();
   }
 
   std::vector<int> getLogOfNumbersOfRangesInSuRFTopLevelRDF(){
@@ -1328,80 +1335,81 @@ class ColumnFamilyData {
   }
 
   void addRangeToSkylineRDFPrime(std::vector<t3ll> range){
-    if(range.size() == 0){return;}
+    skyline_rdf_prime.addRangeTombstones(range);
+//     if(range.size() == 0){return;}
 
-    std::vector<t3ll> tmp_v; //start, end, seq
-    for(auto &r: range){
-      tmp_v.push_back(r);
-    }
-    for(auto &r: skyline_rdf_prime){
-      tmp_v.push_back(r);
-    }
+//     std::vector<t3ll> tmp_v; //start, end, seq
+//     for(auto &r: range){
+//       tmp_v.push_back(r);
+//     }
+//     for(auto &r: skyline_rdf_prime){
+//       tmp_v.push_back(r);
+//     }
 
-    std::sort(tmp_v.begin(), tmp_v.end());
-    std::priority_queue<pll> pq; // seq, end
-    std::vector<t3ll> out_v; // start, end, seq
+//     std::sort(tmp_v.begin(), tmp_v.end());
+//     std::priority_queue<pll> pq; // seq, end
+//     std::vector<t3ll> out_v; // start, end, seq
 
-    auto t_cur = std::get<0>(tmp_v[0]);
-    for(auto &x: tmp_v){
-      auto start = std::get<0>(x);
-      auto end = std::get<1>(x);
-      auto seq = std::get<2>(x);
-      // if(!pq.empty() && +pq.top().second <= start){
-      while(!pq.empty() && +pq.top().second <= start){
-        pll p = pq.top();
-        pq.pop();
-        auto seq2 = +p.first;
-        auto end2 = +p.second;
-        if(end2 <= t_cur){continue;}
-// std::cout << " t_cur = " << t_cur << " end2 = " << end2 << " seq2 = " << seq2 << " start = " << start << " "
-//           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-        out_v.push_back(std::make_tuple(t_cur, end2, seq2));
-        t_cur = end2;
-      }
-      // }
+//     auto t_cur = std::get<0>(tmp_v[0]);
+//     for(auto &x: tmp_v){
+//       auto start = std::get<0>(x);
+//       auto end = std::get<1>(x);
+//       auto seq = std::get<2>(x);
+//       // if(!pq.empty() && +pq.top().second <= start){
+//       while(!pq.empty() && +pq.top().second <= start){
+//         pll p = pq.top();
+//         pq.pop();
+//         auto seq2 = +p.first;
+//         auto end2 = +p.second;
+//         if(end2 <= t_cur){continue;}
+// // std::cout << " t_cur = " << t_cur << " end2 = " << end2 << " seq2 = " << seq2 << " start = " << start << " "
+// //           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+//         out_v.push_back(std::make_tuple(t_cur, end2, seq2));
+//         t_cur = end2;
+//       }
+//       // }
 
-      if(pq.empty()){t_cur = start;}
-      else{
-        auto seq2 = +pq.top().first;
-        out_v.push_back(std::make_tuple(t_cur, start, seq2));
-        t_cur = start;
-      }
+//       if(pq.empty()){t_cur = start;}
+//       else{
+//         auto seq2 = +pq.top().first;
+//         out_v.push_back(std::make_tuple(t_cur, start, seq2));
+//         t_cur = start;
+//       }
 
-      pq.push(std::make_pair(+seq, +end));
-    }
-    while(!pq.empty()){
-      pll p = pq.top();
-      pq.pop();
-      auto seq2 = +p.first;
-      auto end2 = +p.second;
-      if(end2 <= t_cur){continue;}
+//       pq.push(std::make_pair(+seq, +end));
+//     }
+//     while(!pq.empty()){
+//       pll p = pq.top();
+//       pq.pop();
+//       auto seq2 = +p.first;
+//       auto end2 = +p.second;
+//       if(end2 <= t_cur){continue;}
 
-      out_v.push_back(std::make_tuple(t_cur, end2, seq2));
-      t_cur = end2;
-    }
+//       out_v.push_back(std::make_tuple(t_cur, end2, seq2));
+//       t_cur = end2;
+//     }
 
 
-    std::vector<t3ll> out_v2;
-    int len_out_v = out_v.size();
-    auto start = std::get<0>(out_v[0]);
-    auto end = std::get<1>(out_v[0]);
-    auto seq = std::get<2>(out_v[0]);
-    for(int i = 1; i < len_out_v; i++){
-      if(std::get<1>(out_v[i-1]) == std::get<0>(out_v[i]) && 
-        std::get<2>(out_v[i-1]) == std::get<2>(out_v[i])){
-        end = std::get<1>(out_v[i]);
-      }else{
-        out_v2.push_back(std::make_tuple(start, end, seq));
-        start = std::get<0>(out_v[i]);
-        end = std::get<1>(out_v[i]);
-        seq = std::get<2>(out_v[i]);
-      }
-    }
-    out_v2.push_back(std::make_tuple(start, end, seq));
+//     std::vector<t3ll> out_v2;
+//     int len_out_v = out_v.size();
+//     auto start = std::get<0>(out_v[0]);
+//     auto end = std::get<1>(out_v[0]);
+//     auto seq = std::get<2>(out_v[0]);
+//     for(int i = 1; i < len_out_v; i++){
+//       if(std::get<1>(out_v[i-1]) == std::get<0>(out_v[i]) && 
+//         std::get<2>(out_v[i-1]) == std::get<2>(out_v[i])){
+//         end = std::get<1>(out_v[i]);
+//       }else{
+//         out_v2.push_back(std::make_tuple(start, end, seq));
+//         start = std::get<0>(out_v[i]);
+//         end = std::get<1>(out_v[i]);
+//         seq = std::get<2>(out_v[i]);
+//       }
+//     }
+//     out_v2.push_back(std::make_tuple(start, end, seq));
 
-    skyline_rdf_prime = out_v2;
-    // skyline__numbers_of_ranges_in_rdf_log.push_back(out_v2.size());
+//     skyline_rdf_prime = out_v2;
+//     // skyline__numbers_of_ranges_in_rdf_log.push_back(out_v2.size());
   }
 
  private:
@@ -1415,8 +1423,9 @@ class ColumnFamilyData {
   
   PLRDF plrdf_prime, split_plrdf_prime;
   PLRDF top_level_rdf_prime;
-  std::vector<t3ll> skyline_rdf_prime;
-  std::vector<int> skyline__numbers_of_ranges_in_rdf_log;
+  SkyLineRDF skyline_rdf_prime;
+  // std::vector<t3ll> skyline_rdf_prime;
+  // std::vector<int> skyline__numbers_of_ranges_in_rdf_log;
   // surf
   // surf::SuRF_RDF surf__top_level_rdf_prime;
   // surf::SuRF_RDF surf__level_file_rdf_prime;

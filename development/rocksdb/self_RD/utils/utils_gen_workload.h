@@ -12,7 +12,7 @@
 #include "../env_settings/emu_environment.h"
 #include "rocksdb/system_verifier.h"
 
-
+#include "rocksdb/SuRF/include/surf.hpp"
 
 
 
@@ -41,7 +41,7 @@ void gen_workload(EmuEnv* _env){
       + string(" --insert=") + to_string(num_inserts) 
       + string(" --range_delete=") + to_string(rd_count)  
       + string(" --range_delete_selectivity=") + to_string(selectivity) 
-      + string(" --entry_size=") + to_string(entry_size - checking::SystemVerifier::getKeySize() + sizeof(uint32_t));
+      + string(" --entry_size=") + to_string(entry_size - checking::SystemVerifier::getSystemVerifier()->getKeySize() + sizeof(uint32_t));
 
   string move_workload_command = string(" mv workload.txt ./K-V-Workload-Generator-master/ ");
 
@@ -102,7 +102,7 @@ void gen_workload(EmuEnv* _env){
 }
 
 
-int parse_arguments2(int argc, char *argv[], EmuEnv* _env) {
+int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf_env, checking::SystemVerifier *system_verifier ) {
   args::ArgumentParser parser("RocksDB_parser.", "");
 
   args::Group group1(parser, "This group is all exclusive:", args::Group::Validators::DontCare);
@@ -136,8 +136,9 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env) {
 
 
 
-
   //YuCheng Added Start
+  args::ValueFlag<double> key_size_to_insert_cmd(group1, "key_size_to_insert", "key_size_to_insert [def: 12]", {"key_size_to_insert"});
+
   // args::ValueFlag<int> entry_size_cmd(group1, "E", "Entry size in bytes [def: 128 B]", {'E', "entry_size"});
   args::ValueFlag<double> cor_cmd(group1, "#correlation", "Correlation between sort key and delete key [def: 0]", {"correlation"});
   // args::ValueFlag<long long> num_inserts_cmd(group1, "#inserts", "The number of unique inserts to issue in the experiment [def: 0]", {'i', "num_inserts"});
@@ -149,6 +150,12 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env) {
   args::ValueFlag<int> max_open_files_cmd(group1, "max_open_files", "maximum number of opened SST [def:1]", {"max_open_files"});
   args::ValueFlag<int> skip_reading_RD_blocks_cmd(group1, "skip_reading_RD_blocks", "skip_reading_RD_blocks [def:0 (false)]", {"skip_reading_RD_blocks"});
   args::ValueFlag<int> number_of_PQ_cmd(group1, "number_of_PQ", "number_of_PQ [def:5000]", {"number_of_PQ"});
+
+  args::ValueFlag<int> surf__key_len_in_bytes_cmd(group1, "surf__key_len_in_bytes", "surf__key_len_in_bytes [def:12]", {"surf__key_len_in_bytes"});
+  args::ValueFlag<uint32_t> surf__hash_suffix_len_cmd(group1, "surf__hash_suffix_len", "surf__hash_suffix_len [def:0]", {"surf__hash_suffix_len"});
+  args::ValueFlag<uint32_t> surf__real_suffix_len_cmd(group1, "surf__real_suffix_len", "surf__real_suffix_len [def:0]", {"surf__real_suffix_len"});
+  args::ValueFlag<bool> surf__include_dense_cmd(group1, "surf__include_dense", "surf__include_dense [def:1 (true)]", {"surf__include_dense"});
+  args::ValueFlag<uint32_t> surf__sparse_dense_ratio_cmd(group1, "surf__sparse_dense_ratio", "surf__sparse_dense_ratio [def:16]", {"surf__sparse_dense_ratio"});
   //YuCheng Added End
 
 
@@ -203,6 +210,9 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env) {
 
 
   //YuCheng Added Start
+  int key_size_to_insert = key_size_to_insert_cmd ? args::get(key_size_to_insert_cmd) : 12;
+  system_verifier->setKeySize(key_size_to_insert);
+
   // int entry_size = entry_size_cmd ? args::get(entry_size_cmd) : 128;
   double correlation = cor_cmd ? args::get(cor_cmd) : 0;
   // long long num_inserts = num_inserts_cmd ? args::get(num_inserts_cmd) : 0;
@@ -225,6 +235,21 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env) {
   _env->max_open_files = max_open_files;
   _env->skip_reading_RD_blocks = skip_reading_RD_blocks;
   _env->number_of_PQ = number_of_PQ;
+
+  int surf__key_len_in_bytes = surf__key_len_in_bytes_cmd ? args::get(surf__key_len_in_bytes_cmd) : 12;
+  uint32_t surf__hash_suffix_len = surf__hash_suffix_len_cmd ? args::get(surf__hash_suffix_len_cmd) : 0;
+  uint32_t surf__real_suffix_len = surf__real_suffix_len_cmd ? args::get(surf__real_suffix_len_cmd) : 0;
+  bool surf__include_dense = surf__include_dense_cmd ? args::get(surf__include_dense_cmd) : true;
+  uint32_t surf__sparse_dense_ratio = surf__sparse_dense_ratio_cmd ? args::get(surf__sparse_dense_ratio_cmd) : 16;
+  bool surf__flag_bypass_if_same_key = surf__key_len_in_bytes < key_size_to_insert; // whether to skip RDF checking if searding key is the same as the next greater key in the SuRF
+  bool surf__flag_allow_range_boundary_overlapped = surf__key_len_in_bytes < key_size_to_insert;
+  _surf_env->setSuRFKeyLenInBytes(surf__key_len_in_bytes);
+  _surf_env->setSuRFHashSuffixLen(surf__hash_suffix_len);
+  _surf_env->setSuRFRealSuffixLen(surf__real_suffix_len);
+  _surf_env->setSuRFIncludeDense(surf__include_dense);
+  _surf_env->setSuRFSparseDenseRatio(surf__sparse_dense_ratio);
+  _surf_env->setFlagBypassIfSameKey(surf__flag_bypass_if_same_key);
+  _surf_env->setFlagAllowRangeBoundaryOverlapped(surf__flag_allow_range_boundary_overlapped);
   //YuCheng Added End
   return 0;
 }

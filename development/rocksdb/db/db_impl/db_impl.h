@@ -552,13 +552,20 @@ class DBImpl : public DB {
   std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF() override;
+  std::vector<int> getLogOfMemoryUsageInRLRDF() override;
+  std::vector<int> getLogOfMemoryUsageInSplitRDF() override;
+  std::vector<int> getLogOfMemoryUsageInTopLevelRDF() override;
+  std::vector<int> getLogOfMemoryUsageInSkylineRDF() override;
+  std::vector<int> getLogOfMemoryUsageInSuRFLevelFileRDF() override;
+  // std::vector<int> getLogOfMemoryUsageInSuRFTopLevelRDF() override;
   std::mutex self_single_flush_mutex_;
 
   const PLRDF * getPLRDF() override;
   const PLRDF *getSplitPLRDF() override;
   const PLRDF *getTopLevelRDF() override;
-  const std::vector<t3ll> *getSkylineRDF() override;
-  const std::vector<int> *getSkylineNumbersOfRangesInRDFLog() override;
+  const SkyLineRDF *getSkylineRDF() override;
+  // const std::vector<t3ll> *getSkylineRDF() override;
+  // const std::vector<int> *getSkylineNumbersOfRangesInRDFLog() override;
   const surf::SuRF_RDF *getSuRFTopLevelRDF() override;
   const surf::SuRF_RDF *getSuRFLevelFileRDF() override;
   using DB::setPLRDF;
@@ -566,8 +573,9 @@ class DBImpl : public DB {
   void setPLRDF( PLRDF *plrdf) override;
   void setSplitPLRDF( PLRDF *plrdf) override;
   void setTopLevelRDF( PLRDF *plrdf) override;
-  void setSkylineRDF( std::vector<t3ll> *skylineRDF) override;
-  void setSkylineNumbersOfRangesInRDFLog( std::vector<int> *logOfNumbersOfRangesInPLRDF) override;
+  void setSkylineRDF( SkyLineRDF *skylineRDF) override;
+  // void setSkylineRDF( std::vector<t3ll> *skylineRDF) override;
+  // void setSkylineNumbersOfRangesInRDFLog( std::vector<int> *logOfNumbersOfRangesInPLRDF) override;
   void setSuRFTopLevelRDF( surf::SuRF_RDF *suRFTopLevelRDF) override;
   void setSuRFLevelFileRDF( surf::SuRF_RDF *suRFLevelFileRDF) override;
   //Self Added End

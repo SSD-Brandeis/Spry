@@ -22,7 +22,7 @@ using t3ll = std::tuple<long long, long long, long long>; //([start, end), time)
 using namespace ROCKSDB_NAMESPACE;
 // namespace ROCKSDB_NAMESPACE{
   class PLRDF;
-  class SKyLineRDF;
+  class SkyLineRDF;
 // }
 
 #include <iostream>
@@ -37,7 +37,7 @@ using namespace ROCKSDB_NAMESPACE;
 #include <iomanip>
 #include <chrono>
 #include <utility>
-
+#include <queue>
 
 #include <string>
 #include <chrono>
@@ -116,14 +116,135 @@ using namespace ROCKSDB_NAMESPACE;
   // };
 
 
-  class SKyLineRDF {
+  class SkyLineRDF {
     private:
-      std::vector<t3ll> range_delete_list_in;
-
+      std::vector<t3ll> rd_list;
+      std::vector<int> numbers_of_ranges_in_RDF_log;
+      std::vector<int> memory_usage_in_RDF_log;
     public:      
-      void addRangeDelete(std::vector<t3ll> &range_delete_list_in);
-      bool isEntryAlive(long long key);
-      void print();
+      // void addRangeDelete(std::vector<t3ll> &range_delete_list_in);
+      void addRangeTombstones(std::vector<t3ll> range){
+        if(range.size() == 0){return;}
+
+        std::vector<t3ll> tmp_v; //start, end, seq
+        for(auto &r: range){
+          tmp_v.push_back(r);
+        }
+        for(auto &r: rd_list){
+          tmp_v.push_back(r);
+        }
+
+        std::sort(tmp_v.begin(), tmp_v.end());
+        std::priority_queue<pll> pq; // seq, end
+        std::vector<t3ll> out_v; // start, end, seq
+
+        auto t_cur = std::get<0>(tmp_v[0]);
+        for(auto &x: tmp_v){
+          auto start = std::get<0>(x);
+          auto end = std::get<1>(x);
+          auto seq = std::get<2>(x);
+          // if(!pq.empty() && +pq.top().second <= start){
+          while(!pq.empty() && +pq.top().second <= start){
+            pll p = pq.top();
+            pq.pop();
+            auto seq2 = +p.first;
+            auto end2 = +p.second;
+            if(end2 <= t_cur){continue;}
+    // std::cout << " t_cur = " << t_cur << " end2 = " << end2 << " seq2 = " << seq2 << " start = " << start << " "
+    //           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            out_v.push_back(std::make_tuple(t_cur, end2, seq2));
+            t_cur = end2;
+          }
+          // }
+
+          if(pq.empty()){t_cur = start;}
+          else{
+            auto seq2 = +pq.top().first;
+            out_v.push_back(std::make_tuple(t_cur, start, seq2));
+            t_cur = start;
+          }
+
+          pq.push(std::make_pair(+seq, +end));
+        }
+        while(!pq.empty()){
+          pll p = pq.top();
+          pq.pop();
+          auto seq2 = +p.first;
+          auto end2 = +p.second;
+          if(end2 <= t_cur){continue;}
+
+          out_v.push_back(std::make_tuple(t_cur, end2, seq2));
+          t_cur = end2;
+        }
+
+
+        std::vector<t3ll> out_v2;
+        int len_out_v = out_v.size();
+        auto start = std::get<0>(out_v[0]);
+        auto end = std::get<1>(out_v[0]);
+        auto seq = std::get<2>(out_v[0]);
+        for(int i = 1; i < len_out_v; i++){
+          if(std::get<1>(out_v[i-1]) == std::get<0>(out_v[i]) && 
+            std::get<2>(out_v[i-1]) == std::get<2>(out_v[i])){
+            end = std::get<1>(out_v[i]);
+          }else{
+            out_v2.push_back(std::make_tuple(start, end, seq));
+            start = std::get<0>(out_v[i]);
+            end = std::get<1>(out_v[i]);
+            seq = std::get<2>(out_v[i]);
+          }
+        }
+        out_v2.push_back(std::make_tuple(start, end, seq));
+
+        rd_list = out_v2;
+        // skyline__numbers_of_ranges_in_rdf_log.push_back(out_v2.size());
+      }
+
+      bool isEntryAlive(long long key, long long seq){
+          long long skyline__max_seq = getMaxSeq(key);
+          return seq >= skyline__max_seq;
+      }
+      // void print();
+      void logCurrentTotalNumbersOfRanges(){
+        numbers_of_ranges_in_RDF_log.push_back(rd_list.size());
+      }
+      std::vector<int> getNumbersOfRangesInRDFLog(){
+        return numbers_of_ranges_in_RDF_log;
+      }
+      void logCurrentTotalMemoryUsage(){
+        memory_usage_in_RDF_log.push_back(rd_list.size()*sizeof(t3ll));
+      }
+      std::vector<int> getMemoryUsageInRDFLog(){
+        return memory_usage_in_RDF_log;
+      }
+
+      int getNumberOfTotalRanges(){
+        return rd_list.size();
+      }
+
+      long long getMaxSeq(long long key){
+        auto it = std::lower_bound(rd_list.begin(), rd_list.end(), key, [](auto &a, long long b){return get<1>(a) <= b;} );
+        if(it == rd_list.end()){return 0;}
+    // std::cout << " min = " << std::get<0>(*it) << " max = " << std::get<1>(*it) << " seq = " << std::get<2>(*it) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+        if(std::get<0>(*it) <= key && key < std::get<1>(*it)){
+          return std::get<2>(*it);
+        }
+        return 0;
+      }
+      
+      void print(){
+        std::cout << "Skyline RDF" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        // for(auto it = rd_list.begin(); it != rd_list.end(); it++){
+        for(auto &x: rd_list){
+          auto start = std::get<0>(x);
+          auto end = std::get<1>(x);
+          auto seq = std::get<2>(x);
+          std::cout << " [" << start << ", " << end << "] --(" << seq << ") ";
+        }
+        std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      }
+
   };
 // }
 
@@ -133,7 +254,7 @@ class PLRDF{
 
     std::vector<std::vector<pll>> rd_filter; //for level > 0, list of range delete (start, end), all entries are non-overlapping
     std::vector<int> numbers_of_ranges_in_RDF_log; //for level > 0, number of ranges in RDF
-      
+    std::vector<int> memory_usage_in_RDF_log;
 
 
     void addRangeDelete_internal(uint level, std::vector<pll> &range_delete_list_in){
@@ -966,7 +1087,13 @@ class PLRDF{
     std::vector<int> getNumbersOfRangesInRDFLog(){
       return numbers_of_ranges_in_RDF_log;
     }
-
+    
+    void logCurrentTotalMemoryUsage(){
+      memory_usage_in_RDF_log.push_back(getNumberOfTotalRanges()*sizeof(pll));
+    }
+    std::vector<int> getMemoryUsageInRDFLog(){
+      return memory_usage_in_RDF_log;
+    }
 };
 
 

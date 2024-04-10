@@ -356,6 +356,12 @@ class DB {
   virtual std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfMemoryUsageInRLRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfMemoryUsageInSplitRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfMemoryUsageInTopLevelRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfMemoryUsageInSkylineRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfMemoryUsageInSuRFLevelFileRDF() {return {-1, -1, -1};}
+  // virtual std::vector<int> getLogOfMemoryUsageInSuRFTopLevelRDF() {return {-1, -1, -1};}
   
 
 
@@ -366,8 +372,9 @@ class DB {
   virtual const PLRDF *getPLRDF() {return NULL;}
   virtual const PLRDF *getSplitPLRDF() {return NULL;}
   virtual const PLRDF *getTopLevelRDF() {return NULL;}
-  virtual const std::vector<t3ll> *getSkylineRDF() {return NULL;}
-  virtual const std::vector<int> *getSkylineNumbersOfRangesInRDFLog() {return NULL;}
+  virtual const SkyLineRDF *getSkylineRDF() {return NULL;}
+  // virtual const std::vector<t3ll> *getSkylineRDF() {return NULL;}
+  // virtual const std::vector<int> *getSkylineNumbersOfRangesInRDFLog() {return NULL;}
   virtual const surf::SuRF_RDF *getSuRFTopLevelRDF() {return NULL;};
   virtual const surf::SuRF_RDF *getSuRFLevelFileRDF() {return NULL;};
   // virtual void setPLRDF( std::vector<int> v){
@@ -390,16 +397,17 @@ class DB {
       return;
     }
   }
-  virtual void setSkylineRDF( std::vector<t3ll> *skyline_rdf){
+  // virtual void setSkylineRDF( std::vector<t3ll> *skyline_rdf){
+  virtual void setSkylineRDF( SkyLineRDF *skyline_rdf){
     if(skyline_rdf == NULL){
       return;
     }
   }
-  virtual void setSkylineNumbersOfRangesInRDFLog( std::vector<int> *v){
-    if(v == NULL){
-      return;
-    }
-  }
+  // virtual void setSkylineNumbersOfRangesInRDFLog( std::vector<int> *v){
+  //   if(v == NULL){
+  //     return;
+  //   }
+  // }
   virtual void setSuRFTopLevelRDF( surf::SuRF_RDF *suRFTopLevelRDF){
     if(suRFTopLevelRDF == NULL){
       return;

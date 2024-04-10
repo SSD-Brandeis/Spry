@@ -335,6 +335,7 @@ IOStatus BlockFetcher::ReadBlockContents() {
     //Self Added Start xxx
     checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumTotalBlockReadCount();
   // std::cout << "block_type_ = "  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+#ifdef DEBUG_BLOCK_FETCHER
   switch (block_type_) {
     case BlockType::kData:
       // std::cout << "block_type_ = " << "kData" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -383,6 +384,7 @@ IOStatus BlockFetcher::ReadBlockContents() {
       std::cout << "block_type_ = " << "kInvalid" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       break;
   }
+#endif
     //Self Added End
     
     // //Self Added Start: timing

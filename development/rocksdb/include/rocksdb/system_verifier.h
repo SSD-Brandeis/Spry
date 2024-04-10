@@ -48,7 +48,8 @@ namespace checking {
 
   class SystemVerifier {
   private:
-    static const int KEY_SIZE = 12;
+    //static const int KEY_SIZE = 12;
+    int KEY_SIZE = 12;
 
     int CurrentlyNonInsertedKeysNum = 1000;
 
@@ -103,7 +104,12 @@ namespace checking {
       return system_verifier;
     }
 
-    static int getKeySize(){
+    void setKeySize(int key_size){
+      this->KEY_SIZE = key_size;
+    }
+
+    //static int getKeySize(){
+    int getKeySize(){
       return KEY_SIZE;
     }
 
@@ -111,7 +117,9 @@ namespace checking {
 
     void setFlagOpenTable(){
       flag_open_table = true;
+#ifdef DEBUG_OPEN_SST_TABLE
       std::cout << "setFlagOpenTable " << __FILE__ << ":" << __LINE__ << std::endl;
+#endif
     }
     void clearFlagOpenTable(){
       flag_open_table = false;

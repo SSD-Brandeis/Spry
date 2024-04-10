@@ -18,7 +18,7 @@ CFLAGS += -Wstrict-prototypes -Wno-error=register
 CFLAGS += -pg
 CXXFLAGS += -pg
 # Source files
-SURF_SOURCE_FILES := $(wildcard ../include/rocksdb/SuRF/include/*.cc)
+# SURF_SOURCE_FILES := $(wildcard ../include/rocksdb/SuRF/include/*.cc)
 # YCH ADDED END
 
 .PHONY: clean librocksdb
@@ -31,6 +31,7 @@ all: simple_example column_families_example compact_files_example c_simple_examp
 
 simple_example: librocksdb simple_example.cc
 	# $(CXX) $(CXXFLAGS) $(SURF_SOURCE_FILES) $@.cc -o$@ ../librocksdb.a -I../include -O2 -std=c++17 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
+	# $(CXX) $(CXXFLAGS) $(SURF_SOURCE_FILES) $@.cc -o$@ ../librocksdb.a -I../include -I../include/SuRF/include -I../../db -I../ -O2 -std=c++17 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS) -DDEBUG_SURF_GET_PATH -DDEBUG_SURF_COMPACTION -DDEBUG_OPEN_SST_TABLE
 	$(CXX) $(CXXFLAGS) $(SURF_SOURCE_FILES) $@.cc -o$@ ../librocksdb.a -I../include -I../include/SuRF/include -I../../db -I../ -O2 -std=c++17 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
 
 column_families_example: librocksdb column_families_example.cc

@@ -317,14 +317,14 @@ LIB_SOURCES =                                                   \
   utilities/wal_filter.cc                                       \
   utilities/write_batch_with_index/write_batch_with_index.cc    \
   utilities/write_batch_with_index/write_batch_with_index_internal.cc    \
-  # include/rocksdb/SuRF/surf.cc                                \
-  # include/rocksdb/SuRF/surf_builder.cc                         \
-  # include/rocksdb/SuRF/suffix.cc                              \
-  # include/rocksdb/SuRF/louds_sparse.cc                        \
-  # include/rocksdb/SuRF/louds_dense.cc                        \
-  # include/rocksdb/SuRF/label_vector.cc                        \
-  # include/rocksdb/SuRF/config.cc                        \
-  # include/rocksdb/SuRF/bitvector.cc                        \
+  include/rocksdb/SuRF/include/surf.cc                                  \
+  include/rocksdb/SuRF/include/surf_builder.cc                          \
+  include/rocksdb/SuRF/include/suffix.cc                                \
+  include/rocksdb/SuRF/include/louds_sparse.cc                          \
+  include/rocksdb/SuRF/include/louds_dense.cc                           \
+  include/rocksdb/SuRF/include/label_vector.cc                          \
+  include/rocksdb/SuRF/include/config.cc                                \
+  include/rocksdb/SuRF/include/bitvector.cc                             \
   
 
 ifeq (,$(shell $(CXX) -fsyntax-only -maltivec -xc /dev/null 2>&1))
@@ -717,4 +717,4 @@ JNI_NATIVE_SOURCES =                                          \
   java/rocksjni/writebatchhandlerjnicallback.cc               \
   java/rocksjni/write_batch_test.cc                           \
   java/rocksjni/write_batch_with_index.cc                     \
-  java/rocksjni/write_buffer_manager.cc
+  java/rocksjni/write_buffer_manager.cc                        \

@@ -51,6 +51,7 @@
 #include "utils/utils_rdf.h"
 
 #include "rocksdb/SuRF/include/surf.hpp"
+#include "rocksdb/system_verifier.h"
 // std::mutex rdfilter::PLRDF::init_mutex;
 // rdfilter::PLRDF* rdfilter::PLRDF::plrdf_ptr; 
 
@@ -95,9 +96,11 @@ void reset_perf_iostats_context();
 
 int main(int argc, char *argv[]) {
   // check emu_environment.h for the contents of EmuEnv and also the definitions of the singleton experimental environment 
-  EmuEnv* _env = EmuEnv::getInstance();
+  EmuEnv *_env = EmuEnv::getInstance();
+  surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
+  checking::SystemVerifier *system_verifier = checking::SystemVerifier::getSystemVerifier();
   //parse the command line arguments
-  if (parse_arguments2(argc, argv, _env)){
+  if (parse_arguments2(argc, argv, _env, _surf_env, system_verifier)){
     exit(1);
   }
 // setSkipReadingRangeDeleteBlock
@@ -134,8 +137,9 @@ int main(int argc, char *argv[]) {
   
   PLRDF plrdf_prime, split_plrdf_prime;
   PLRDF top_level_rdf_prime;
-  std::vector<t3ll> skyline_rdf_prime;
-  std::vector<int> skyline__numbers_of_ranges_in_rdf_log;
+  SkyLineRDF skyline_rdf_prime;
+  // std::vector<t3ll> skyline_rdf_prime;
+  // std::vector<int> skyline__numbers_of_ranges_in_rdf_log;
   // retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
   // {
   //   retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
@@ -175,7 +179,8 @@ int main(int argc, char *argv[]) {
     verification_runner::endPQVerification();
   }
 
-  set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+  // set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+  set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
 
   std::cout << "!!! runQPVerification done " << std::endl;
   

@@ -2056,17 +2056,29 @@ Status CompactionJob::InstallCompactionResults(
   for (size_t lvl = 0; lvl < compaction->num_input_levels(); lvl++)
   {
     int current_level = compaction->level(lvl);
-
-    if(current_level ==  compaction->output_level()){
-std::cerr << "(Want to know) (if exist --> go revise compaction update rdf) exist brach (@compaction): input level == output level (" << current_level << ")" << std::endl;
-
+#ifdef DEBUG_SURF_COMPACTION 
+std::cout << "current_level = " << current_level << " compaction->output_level() = " << compaction->output_level() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+#endif
+    if(current_level == compaction->output_level()){
+#ifdef DEBUG_SURF_COMPACTION 
+std::cerr << "(Want to know) (if exist --> go revise compaction update rdf) exist brach (@compaction): input level == output level (" << current_level << ")" << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+#endif
+      std::vector<uint64_t> flie_numbers;
       for (auto file_meta : *(compaction->inputs(lvl))){
 // std::cout << file_meta->fd.GetNumber() << " (@out_level) --- smallest file key " << file_meta->smallest.user_key().ToString() << " --- largest file key " << file_meta->largest.user_key().ToString() 
 //           << " current level = " << current_level << " output level = " << compaction->output_level() << " "
 //           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
 //           << std::endl << std::flush;  //xxx
         file_in_out_ptr->fd_in.push_back(file_meta->fd.GetNumber());
+        flie_numbers.push_back(file_meta->fd.GetNumber());
       }
+
+      //SuRF
+      SuRFCompactionSourceLevelInfo src_level_info = SuRFCompactionSourceLevelInfo();
+      src_level_info.src_level = current_level;
+      // src_level_info.src_file_boundaries = smallest_largest_boundries_str;
+      src_level_info.src_fd_list = flie_numbers;
+      surf__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
     }
 
     if (current_level != compaction->output_level()){

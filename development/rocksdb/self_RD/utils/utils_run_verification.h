@@ -15,6 +15,7 @@
 #include "rocksdb/system_verifier.h"
 #include "utils_rdf.h"
 #include "utils_db.h"
+#include "rocksdb/SuRF/include/surf.hpp"
 
 
 class verification_runner{
@@ -26,8 +27,9 @@ private:
 
     static PLRDF plrdf_prime, split_plrdf_prime;
     static PLRDF top_level_rdf_prime;
-    static std::vector<t3ll> skyline_rdf_prime;
-    static std::vector<int> skyline__numbers_of_ranges_in_rdf_log;
+    static SkyLineRDF skyline_rdf_prime;
+    // static std::vector<t3ll> skyline_rdf_prime;
+    // static std::vector<int> skyline__numbers_of_ranges_in_rdf_log;
 
 public:
     static void initPQVerification(DB** db_ptr2, ReadOptions& read_op, EmuEnv* _env);
@@ -46,8 +48,9 @@ bool verification_runner::flag_reopen_db_for_each_RDF_testing = false;
 
 PLRDF verification_runner::plrdf_prime, verification_runner::split_plrdf_prime;
 PLRDF verification_runner::top_level_rdf_prime;
-std::vector<t3ll> verification_runner::skyline_rdf_prime;
-std::vector<int> verification_runner::skyline__numbers_of_ranges_in_rdf_log;
+SkyLineRDF verification_runner::skyline_rdf_prime;
+// std::vector<t3ll> verification_runner::skyline_rdf_prime;
+// std::vector<int> verification_runner::skyline__numbers_of_ranges_in_rdf_log;
 
 
 
@@ -56,7 +59,7 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
   Status s;
 
   checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
-  int KEY_SIZE = checking::SystemVerifier::getKeySize();
+  int KEY_SIZE = checking::SystemVerifier::getSystemVerifier()->getKeySize();
 
   system_verifier->setRunningPQ();
 
@@ -147,6 +150,53 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
   }
   testing_result_file2 << "]" << std::endl;
 
+  vector<int> memory_usage_log_PLRDF = db->getLogOfMemoryUsageInRLRDF();
+  vector<int> memory_usage_log_SplitPLRDF = db->getLogOfMemoryUsageInSplitRDF();
+  vector<int> memory_usage_log_TopLevelRDF = db->getLogOfMemoryUsageInTopLevelRDF();
+  vector<int> memory_usage_log_SkylineRDF = db->getLogOfMemoryUsageInSkylineRDF();
+  vector<int> memory_usage_log_SuRFLevelFileRDF = db->getLogOfMemoryUsageInSuRFLevelFileRDF();
+ testing_result_file2 << ",\"Log Of Memory Usage Of PLRDF\" : [";
+  for(int i = 0; i < memory_usage_log_PLRDF.size(); i++){
+    testing_result_file2 << memory_usage_log_PLRDF[i];
+    if(i != memory_usage_log_PLRDF.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;
+  testing_result_file2 << ",\"Log Of Memory Usage Of SplitPLRDF\" : [";
+  for(int i = 0; i < memory_usage_log_SplitPLRDF.size(); i++){
+    testing_result_file2 << memory_usage_log_SplitPLRDF[i];
+    if(i != memory_usage_log_SplitPLRDF.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;
+  testing_result_file2 << ",\"Log Of Memory Usage Of TopLevelRDF\" : [";
+  for(int i = 0; i < memory_usage_log_TopLevelRDF.size(); i++){
+    testing_result_file2 << memory_usage_log_TopLevelRDF[i];
+    if(i != memory_usage_log_TopLevelRDF.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;;
+  testing_result_file2 << ",\"Log Of Memory Usage Of SkylineRDF\" : [";
+  for(int i = 0; i < memory_usage_log_SkylineRDF.size(); i++){
+    testing_result_file2 << memory_usage_log_SkylineRDF[i];
+    if(i != memory_usage_log_SkylineRDF.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;\
+  testing_result_file2 << ",\"Log Of Memory Usage Of SuRFLevelFileRDF\" : [";
+  for(int i = 0; i < memory_usage_log_SuRFLevelFileRDF.size(); i++){
+    testing_result_file2 << memory_usage_log_SuRFLevelFileRDF[i];
+    if(i != memory_usage_log_SuRFLevelFileRDF.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;
+
+
 
   const long long N_repetitions = checking::SystemVerifier::EXPERIMENT_REPETITION_TIMES;
   testing_result_file << "N_repetitions = " << N_repetitions << std::endl << std::endl;
@@ -183,7 +233,7 @@ std::cout << "number_of_PQ = " << number_of_PQs <<  std::endl;
   Status s;
   
   checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
-  int KEY_SIZE = checking::SystemVerifier::getKeySize();
+  int KEY_SIZE = checking::SystemVerifier::getSystemVerifier()->getKeySize();
 
   long long total_read_count = 0;
   long long total_read_bytes = 0;
@@ -242,9 +292,11 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 
 
       if(flag_reopen_db_for_each_RDF_testing == true){
-        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+        // retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
         reopen_DB(db_ptr2, op, write_op, read_op, _env, kDBPath);
-        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+        // set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
       }
     //   for(auto &x: system_verifier->getAllExistingKeys()){
       for(auto x: system_verifier->getAllExistingKeysAtNRound(i)){
@@ -355,9 +407,11 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
 
 
       if(flag_reopen_db_for_each_RDF_testing == true){
-        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+        // retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
         reopen_DB(db_ptr2, op, write_op, read_op, _env, kDBPath);
-        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+        // set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
       }
     //   for(auto &x: system_verifier->getHistoricExistingKeys()){
       for(auto x: system_verifier->getHistoricExistingKeysAtNRound(i)){
@@ -473,9 +527,11 @@ system_verifier->startPQTracing();
 
 
       if(flag_reopen_db_for_each_RDF_testing == true){
-        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+        // retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
         reopen_DB(db_ptr2, op, write_op, read_op, _env, kDBPath);
-        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+        // set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
       }
     //   for(auto &x: system_verifier->getCurrentlyDeletedKeys()){
       for(auto x: system_verifier->getCurrentlyDeletedKeysAtNRound(i)){
@@ -598,9 +654,11 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 
 
       if(flag_reopen_db_for_each_RDF_testing == true){
-        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+        // retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
         reopen_DB(db_ptr2, op, write_op, read_op, _env, kDBPath);
-        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+        // set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
+        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
       }
     //   for(auto &x: system_verifier->getCurrentlyNonInsertedKeys()){ // test on 1000 keys
       for(auto x: system_verifier->getCurrentlyNonInsertedKeysAtNRound(i)){ // test on 1000 keys
