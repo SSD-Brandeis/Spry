@@ -150,7 +150,7 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
   }
   testing_result_file2 << "]" << std::endl;
 
-  vector<int> memory_usage_log_PLRDF = db->getLogOfMemoryUsageInRLRDF();
+  vector<int> memory_usage_log_PLRDF = db->getLogOfMemoryUsageInPLRDF();
   vector<int> memory_usage_log_SplitPLRDF = db->getLogOfMemoryUsageInSplitRDF();
   vector<int> memory_usage_log_TopLevelRDF = db->getLogOfMemoryUsageInTopLevelRDF();
   vector<int> memory_usage_log_SkylineRDF = db->getLogOfMemoryUsageInSkylineRDF();
@@ -324,10 +324,16 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
         value = value.substr(0, separator_pos);
 
         if(s.ok() != gt_is_exist){
+          #ifdef DEBUG_VERIFICATION
+            std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
+          #endif  
           testing_result_file << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
         }
         if(gt_is_exist == false){continue;}
         if(value != gt_value){
+          #ifdef DEBUG_VERIFICATION
+              std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
+          #endif
           testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
         }
       }
@@ -439,10 +445,16 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
         value = value.substr(0, separator_pos);
 
         if(s.ok() != gt_is_exist){
+          #ifdef DEBUG_VERIFICATION
+            std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
+          #endif
           testing_result_file << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
         }
         if(gt_is_exist == false){continue;}
         if(value != gt_value){
+          #ifdef DEBUG_VERIFICATION
+            std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
+          #endif
           testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
         }
       }
@@ -560,10 +572,16 @@ system_verifier->startPQTracing();
         value = value.substr(0, separator_pos);
 
         if(s.ok() != gt_is_exist){
+          #ifdef DEBUG_VERIFICATION
+            std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
+          #endif
           testing_result_file << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
         }
         if(gt_is_exist == false){continue;}
         if(value != gt_value){
+          #ifdef DEBUG_VERIFICATION
+            std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
+          #endif
           testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
         }
       }
@@ -684,10 +702,16 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
         time_stamp = value.substr(separator_pos + 1);
         value = value.substr(0, separator_pos);
         if(s.ok() != gt_is_exist){
+          #ifdef DEBUG_VERIFICATION
+            std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
+          #endif
           testing_result_file << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
         }
         if(gt_is_exist == false){continue;}
         if(value != gt_value){
+          #ifdef DEBUG_VERIFICATION
+            std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
+          #endif
           testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
         }
       }

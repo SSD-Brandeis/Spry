@@ -340,7 +340,7 @@ class DB {
 
   //self Added Start
   virtual Status printAllFileRanges() { return Status::NotSupported(); }
-  virtual Status printPLRDF() { return Status::NotSupported(); }
+  virtual Status printRDF() { return Status::NotSupported(); }
   virtual uint getFlushQueueSize() { return -1; }
   virtual uint getCompactionQueueSize() { return -1; }
   virtual bool existFlushJob() {return false;}
@@ -351,16 +351,19 @@ class DB {
   virtual int getTopLevelRDFNumberOfTotalRanges() {return -1;}
   virtual int getSkylineRDFNumberOfTotalRanges() {return -1;}
   virtual int getSuRFLevelFileRDFNumberOfTotalRanges() {return -1;}
+  virtual int getSuRFLevelFileSplitRDFNumberOfTotalRanges() {return -1;}
   virtual std::vector<int> getLogOfNumbersOfRangesInPLRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF() {return {-1, -1, -1};}
-  virtual std::vector<int> getLogOfMemoryUsageInRLRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfMemoryUsageInPLRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSplitRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInTopLevelRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSkylineRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSuRFLevelFileRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfMemoryUsageInSuRFLevelFileSplitRDF() {return {-1, -1, -1};}
   // virtual std::vector<int> getLogOfMemoryUsageInSuRFTopLevelRDF() {return {-1, -1, -1};}
   
 
@@ -375,8 +378,9 @@ class DB {
   virtual const SkyLineRDF *getSkylineRDF() {return NULL;}
   // virtual const std::vector<t3ll> *getSkylineRDF() {return NULL;}
   // virtual const std::vector<int> *getSkylineNumbersOfRangesInRDFLog() {return NULL;}
-  virtual const surf::SuRF_RDF *getSuRFTopLevelRDF() {return NULL;};
+  // virtual const surf::SuRF_RDF *getSuRFTopLevelRDF() {return NULL;};
   virtual const surf::SuRF_RDF *getSuRFLevelFileRDF() {return NULL;};
+  virtual const surf::SuRF_RDF *getSuRFLevelFileSplitRDF() {return NULL;};
   // virtual void setPLRDF( std::vector<int> v){
   //   if(v.size() == 0){
   //     return;
@@ -408,13 +412,18 @@ class DB {
   //     return;
   //   }
   // }
-  virtual void setSuRFTopLevelRDF( surf::SuRF_RDF *suRFTopLevelRDF){
-    if(suRFTopLevelRDF == NULL){
+  // virtual void setSuRFTopLevelRDF( surf::SuRF_RDF *suRFTopLevelRDF){
+  //   if(suRFTopLevelRDF == NULL){
+  //     return;
+  //   }
+  // };
+  virtual void setSuRFLevelFileRDF( surf::SuRF_RDF *suRFLevelFileRDF){
+    if(suRFLevelFileRDF == NULL){
       return;
     }
   };
-  virtual void setSuRFLevelFileRDF( surf::SuRF_RDF *suRFLevelFileRDF){
-    if(suRFLevelFileRDF == NULL){
+  virtual void setSuRFLevelFileSplitRDF( surf::SuRF_RDF *suRFLevelFileSplitRDF){
+    if(suRFLevelFileSplitRDF == NULL){
       return;
     }
   };

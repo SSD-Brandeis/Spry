@@ -2302,6 +2302,9 @@ void Version::MultiGetBlob(
   }
 }
 
+// YCHuang Added Start
+#define DEBUG_SURF_GET_PATH
+// YCHuang Added End
 void Version::Get(const ReadOptions& read_options, const LookupKey& k,
                   PinnableSlice* value, PinnableWideColumns* columns,
                   std::string* timestamp, Status* status,
@@ -2467,14 +2470,14 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
     //std::cout << " f_cur->smallest_key = " << ExtractUserKey(f_cur->smallest_key).ToString() << " f_cur->largest_key = " << ExtractUserKey(f_cur->largest_key).ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     //std::cout << " user_key = " << user_key.ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     if(f!= nullptr){
+      uint64_t fd = (f->fd).GetNumber();
 #ifdef DEBUG_SURF_GET_PATH
-      std::cout << "pre get " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-      std::cout << " f->fd.GetNumber() = " << (f->fd).GetNumber() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-      std::cout << " fp_cur_level = " << fp_cur_level << " fp_hit_file_level = " << fp_hit_file_level << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-      std::cout << " f->smallest_key = " << ExtractUserKey(f->smallest_key).ToString() << " f->largest_key = " << ExtractUserKey(f->largest_key).ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // std::cout << "pre get " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // std::cout << " f->fd.GetNumber() = " << (f->fd).GetNumber() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // std::cout << " fp_cur_level = " << fp_cur_level << " fp_hit_file_level = " << fp_hit_file_level << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      std::cout << " fp_hit_file_level = " << fp_hit_file_level << " fd = " << (f->fd).GetNumber() << " f->smallest_key = " << ExtractUserKey(f->smallest_key).ToString() << " f->largest_key = " << ExtractUserKey(f->largest_key).ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       std::cout << " f = " << user_key.ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
-      uint64_t fd = (f->fd).GetNumber();
       surf_level_file__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileRDFilter(fp_hit_file_level, fd, user_key.ToString(), flag_bypass_if_same_key);
       checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
 
@@ -2979,14 +2982,16 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
         //bool flag_bypass_if_same_key = false;
         bool flag_bypass_if_same_key = _surf_env->getFlagBypassIfSameKey();
         if(f != nullptr){  
+          uint64_t fd = (f->fd).GetNumber();
 #ifdef DEBUG_SURF_GET_PATH  
-          std::cout << "get looping " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;  
-          std::cout << " f->fd.GetNumber() = " << (f->fd).GetNumber() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-          std::cout << " f->smallest_key = " << ExtractUserKey(f->smallest_key).ToString() << " f->largest_key = " << ExtractUserKey(f->largest_key).ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          // std::cout << "get looping " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;  
+          // std::cout << " f->fd.GetNumber() = " << (f->fd).GetNumber() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          // std::cout << " f->smallest_key = " << ExtractUserKey(f->smallest_key).ToString() << " f->largest_key = " << ExtractUserKey(f->largest_key).ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          // std::cout << " f = " << user_key.ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          std::cout << " fp_hit_file_level = " << fp.GetHitFileLevel() << " fd = " << (f->fd).GetNumber() << " f->smallest_key = " << ExtractUserKey(f->smallest_key).ToString() << " f->largest_key = " << ExtractUserKey(f->largest_key).ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
           std::cout << " f = " << user_key.ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
-          uint64_t fd = (f->fd).GetNumber();
-          surf_level_file__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileRDFilter(fp_hit_file_level, fd, user_key.ToString(), flag_bypass_if_same_key);
+          surf_level_file__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileRDFilter(fp.GetHitFileLevel(), fd, user_key.ToString(), flag_bypass_if_same_key);
           checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
           
           if(surf_level_file__is_alive_after_hit_file_level == false){

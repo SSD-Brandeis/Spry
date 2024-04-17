@@ -80,6 +80,11 @@ position_t Bitvector::totalNumBits(const std::vector<position_t>& num_bits_per_l
 			     const level_t start_level, 
 			     const level_t end_level/* non-inclusive */) {
     position_t num_bits = 0;
+
+	// // YCHUANG_ADDED START
+	// if(num_bits_per_level.size() == 0) return 0;
+	// // YCHUANG_ADDED END
+
     for (level_t level = start_level; level < end_level; level++)
 	num_bits += num_bits_per_level[level];
     return num_bits;
@@ -120,6 +125,11 @@ void Bitvector::concatenateBitvectors(const std::vector<std::vector<word_t> >& b
 				      const level_t end_level/* non-inclusive */) {
     position_t bit_shift = 0;
     position_t word_id = 0;
+
+	// YCHUANG_ADDED START
+	// if(num_bits_per_level.size() == 0) return;
+	// YCHUANG_ADDED END
+
     for (level_t level = start_level; level < end_level; level++) {
 	if (num_bits_per_level[level] == 0) continue;
 	position_t num_complete_words = num_bits_per_level[level] / kWordSize;

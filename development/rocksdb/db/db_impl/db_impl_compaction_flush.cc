@@ -3684,6 +3684,10 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
     SuRFCompactionDirectRemovalInfo *surf__file_meta_data_vectors = new SuRFCompactionDirectRemovalInfo();
     surf__file_meta_data_vectors->src_level = c->level();
     surf__file_meta_data_vectors->src_fd_list = file_numbers;
+    
+    SuRFCompactionDirectRemovalInfo *surf_level_file_split__file_meta_data_vectors = new SuRFCompactionDirectRemovalInfo();
+    surf_level_file_split__file_meta_data_vectors->src_level = c->level();
+    surf_level_file_split__file_meta_data_vectors->src_fd_list = file_numbers;
     // std::cout << "[Compaction]: Calling Direct Delete Compaction .. " << std::endl;
 
     // rdfilter::PLRDF::getRDFilter()->deleteRDFAssociatedWithFilesAtCurrentLevel(&file_meta_data_vectors);
@@ -3692,6 +3696,7 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
     c->column_family_data()->set_split__compaction_direct_delete_RD_vector(file_meta_data_vectors);
     // c->column_family_data()->set_top_level__direct_delete__delete_RD_vector(file_meta_data_vectors);
     c->column_family_data()->set_surf__compaction_direct_delete_RD_vector(surf__file_meta_data_vectors);
+    c->column_family_data()->set_surf_level_file_split__compaction_direct_delete_RD_vector(surf_level_file_split__file_meta_data_vectors);
 
     // c->column_family_data()->GetSuperVersion()->current->deleteRDFAssociatedWithFilesAtCurrentLevel(&file_meta_data_vectors);
     //Self Added
@@ -3755,6 +3760,7 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
     std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>();
     // std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>> *surf__file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>();
     SuRFCompactionMovingRDInfo *surf__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
+    SuRFCompactionMovingRDInfo *surf_level_file_split__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
     std::tuple<int, std::vector<pll>, std::vector<uint64_t>> delete_RD_vector; 
     //Self Added End
     for (unsigned int l = 0; l < c->num_input_levels(); l++) {
@@ -3785,6 +3791,7 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
         // src_level_info.src_file_boundaries = smallest_largest_boundries_str;
         src_level_info.src_fd_list = file_numbers;
         surf__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
+        surf_level_file_split__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
         
         if(c->level(l) == 0){ // coming from level 0
           delete_RD_vector = std::make_tuple(1, smallest_largest_boundries, file_numbers);
@@ -3828,12 +3835,16 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
     // std::cout << "[Compaction]: Calling Shift RDF To Output Level for Trivial Compaction .. " << std::endl;
     surf__compaction_moving_RD_vector->dst_level = c->output_level();
     surf__compaction_moving_RD_vector->flag_direct_move_to_dst_level = true;
+    
+    surf_level_file_split__compaction_moving_RD_vector->dst_level = c->output_level();
+    surf_level_file_split__compaction_moving_RD_vector->flag_direct_move_to_dst_level = true;
 
     //rdfilter::PLRDF::getRDFilter()->shiftRDFToOutputLevel(file_meta_data_vectors);
     c->column_family_data()->set_compaction_moving_RD_vector(*file_meta_data_vectors);
     c->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
     c->column_family_data()->set_top_level__trivial_move__delete_RD_vector(delete_RD_vector); 
     c->column_family_data()->set_surf__compaction_moving_RD_vector(surf__compaction_moving_RD_vector);
+    c->column_family_data()->set_surf_level_file_split__compaction_moving_RD_vector(surf_level_file_split__compaction_moving_RD_vector);
 
     // c->column_family_data()->GetSuperVersion()->current->shiftRDFToOutputLevel(file_meta_data_vectors);
     //Self Added End

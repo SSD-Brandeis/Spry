@@ -4788,7 +4788,7 @@ Status DBImpl::printAllFileRanges() {
   return Status::OK();
  }
 
-Status DBImpl::printPLRDF() {  
+Status DBImpl::printRDF() {  
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
   auto cfd = cfh->cfd();
@@ -4806,6 +4806,12 @@ Status DBImpl::printPLRDF() {
 
   std::cout << "version --- Skyline RDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
   sv->current->printSkylineRDF();
+
+  std::cout << "version --- SuRF Level File RDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  sv->current->printSuRFLevelFileRDF();
+
+  std::cout << "version --- SuRF Level File Split RDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  sv->current->printSuRFLevelFileSplitRDF();
 
 
 
@@ -4885,6 +4891,13 @@ int DBImpl::getSuRFLevelFileRDFNumberOfTotalRanges(){
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getSuRFLevelFileRDFNumberOfTotalRanges();
 }
+int DBImpl::getSuRFLevelFileSplitRDFNumberOfTotalRanges(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getSuRFLevelFileSplitRDFNumberOfTotalRanges();
+}
 std::vector<int> DBImpl::getLogOfNumbersOfRangesInPLRDF(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
@@ -4920,14 +4933,21 @@ std::vector<int> DBImpl::getLogOfNumbersOfRangesInSuRFLevelFileRDF(){
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfNumbersOfRangesInSuRFLevelFileRDF();
 }
-
-
-std::vector<int> DBImpl::getLogOfMemoryUsageInRLRDF() {
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
-  return sv->current->getLogOfNumbersOfRangesInSuRFLevelFileRDF();
+  return sv->current->getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF();
+}
+
+
+std::vector<int> DBImpl::getLogOfMemoryUsageInPLRDF() {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfMemoryUsageInPLRDF();
 }
 std::vector<int> DBImpl::getLogOfMemoryUsageInSplitRDF() {
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
@@ -4956,6 +4976,13 @@ std::vector<int> DBImpl::getLogOfMemoryUsageInSuRFLevelFileRDF() {
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfMemoryUsageInSuRFLevelFileRDF();
+}
+std::vector<int> DBImpl::getLogOfMemoryUsageInSuRFLevelFileSplitRDF() {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfMemoryUsageInSuRFLevelFileSplitRDF();
 }
 // std::vector<int> DBImpl::getLogOfMemoryUsageInSuRFTopLevelRDF() {
 //   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
@@ -4997,17 +5024,23 @@ const SkyLineRDF *DBImpl::getSkylineRDF(){
 //   return cfd->getSkylineNumbersOfRangesInRDFLog();
 // }
 
-const surf::SuRF_RDF *DBImpl::getSuRFTopLevelRDF() {
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
-  auto cfd = cfh->cfd();
-  return cfd->getSuRFTopLevelRDF();
-}
+// const surf::SuRF_RDF *DBImpl::getSuRFTopLevelRDF() {
+//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+//   DefaultColumnFamily());
+//   auto cfd = cfh->cfd();
+//   return cfd->getSuRFTopLevelRDF();
+// }
 const surf::SuRF_RDF *DBImpl::getSuRFLevelFileRDF() {
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
   auto cfd = cfh->cfd();
   return cfd->getSuRFLevelFileRDF();
+}
+const surf::SuRF_RDF *DBImpl::getSuRFLevelFileSplitRDF() {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  return cfd->getSuRFLevelFileSplitRDF();
 }
 
 // void DBImpl::setPLRDF(std::vector<int> v){
@@ -5068,16 +5101,16 @@ void DBImpl::setSkylineRDF( SkyLineRDF *skyline_rdf){
 //   // return Status::OK();
 // }
 
-void DBImpl::setSuRFTopLevelRDF( surf::SuRF_RDF *suRFTopLevelRDF){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
-  auto cfd = cfh->cfd();
+// void DBImpl::setSuRFTopLevelRDF( surf::SuRF_RDF *suRFTopLevelRDF){
+//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+//   DefaultColumnFamily());
+//   auto cfd = cfh->cfd();
 
-  cfd->setSuRFTopLevelRDF(suRFTopLevelRDF);
-  SuperVersion* sv = GetAndRefSuperVersion(cfd);
-  sv->current->setSuRFTopLevelRDF(suRFTopLevelRDF);
-  // return Status::OK();
-}
+//   cfd->setSuRFTopLevelRDF(suRFTopLevelRDF);
+//   SuperVersion* sv = GetAndRefSuperVersion(cfd);
+//   sv->current->setSuRFTopLevelRDF(suRFTopLevelRDF);
+//   // return Status::OK();
+// }
 void DBImpl::setSuRFLevelFileRDF( surf::SuRF_RDF *suRFLevelFileRDF){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
@@ -5086,6 +5119,16 @@ void DBImpl::setSuRFLevelFileRDF( surf::SuRF_RDF *suRFLevelFileRDF){
   cfd->setSuRFLevelFileRDF(suRFLevelFileRDF);
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   sv->current->setSuRFLevelFileRDF(suRFLevelFileRDF);
+  // return Status::OK();
+}
+void DBImpl::setSuRFLevelFileSplitRDF( surf::SuRF_RDF *suRFLevelFileSplitRDF){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+
+  cfd->setSuRFLevelFileSplitRDF(suRFLevelFileSplitRDF);
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  sv->current->setSuRFLevelFileSplitRDF(suRFLevelFileSplitRDF);
   // return Status::OK();
 }
 //Self Added End

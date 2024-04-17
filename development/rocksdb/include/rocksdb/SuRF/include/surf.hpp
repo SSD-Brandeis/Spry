@@ -424,6 +424,19 @@ class SuRF_RDF {
         // }
 
 
+        std::vector<pss>  gatherSortedRangeTombstonesAndRemoveSuRF(std::vector<uint32_t> &src_level_list, 
+                                                                    std::vector<std::vector<uint64_t>> &src_fd_list2d, 
+                                                                    bool surf_flag__allow_range_boundary_overlapped);
+
+        // void shiftRDFToOutputLevel(std::vector<ROCKSDB_NAMESPACE::SuRFCompactionSourceLevelInfo> &src_level_info_list, 
+        //                             uint32_t dst_level, 
+        //                             std::vector<ROCKSDB_NAMESPACE::SuRFCompactionDestinationLevelInfo> &dst_level_info_list, 
+        //                             bool surf_flag__allow_range_boundary_overlapped);
+        void shiftRDFToOutputLevel(std::vector<pss> &rd_merged, uint32_t dst_level, 
+                                    std::vector<uint64_t> &dst_fd_list, std::vector<pss> &file_boundary_list, 
+                                    bool surf_flag__allow_range_boundary_overlapped);
+
+
 
         std::vector<int> getNumbersOfRangesInRDFLog();
         // {
@@ -491,6 +504,8 @@ class SuRF_RDF {
         //     }
         //     return overlapping;
         // }
+
+        void print();
 
     private:
         // SuRF* surf_ = nullptr;

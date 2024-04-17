@@ -972,11 +972,20 @@ vector<uint64_t> exist_level0_file_nums = cfd_->current()->getLevelFileNumbers(0
 auto level0_RD_vector = std::make_tuple(meta_.fd.GetNumber(), range_delete_list_in, exist_level0_file_nums);
 cfd_->set_flush_to_level0_RD_vector(level0_RD_vector);
 cfd_->set_split__flush_to_level0_RD_vector(level0_RD_vector);
+
 SuRFFlushToLevel0Info *surf_level0_RD_vector = new SuRFFlushToLevel0Info;
 surf_level0_RD_vector->dst_fd = meta_.fd.GetNumber();
 surf_level0_RD_vector->rd_list = range_delete_list_in_str; 
 surf_level0_RD_vector->check_filled();
 cfd_->set_surf__flush_to_level0_RD_vector(surf_level0_RD_vector);
+
+
+SuRFFlushToLevel0Info *surf_level_file_split__level0_RD_vector = new SuRFFlushToLevel0Info;
+surf_level_file_split__level0_RD_vector->dst_fd = meta_.fd.GetNumber();
+surf_level_file_split__level0_RD_vector->rd_list = range_delete_list_in_str; 
+surf_level_file_split__level0_RD_vector->check_filled();
+cfd_->set_surf_level_file_split__flush_to_level0_RD_vector(surf_level_file_split__level0_RD_vector);
+
 
 if(cfd_->get_flush_in_file_num() >= meta_.fd.GetNumber()){
   std::cerr << "flush in file num is not in increasing order" << std::endl

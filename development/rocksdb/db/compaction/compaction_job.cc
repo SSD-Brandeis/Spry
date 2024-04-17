@@ -1588,10 +1588,11 @@ if(flag_delete_current_entry){
   continue;
 }
 
+std::string key_in_str = c_iter->user_key().ToString();
 long long key_in = std::stoll(c_iter->user_key().ToString());
 if(flag_split_RDF && c_iter->ikey().type == 1){
 // if(c_iter->ikey().type == 1){ // == ValueType::kTypeValue
-  sub_compact->compaction->column_family_data()->split_range(key_in);
+  sub_compact->compaction->column_family_data()->split_range(key_in, key_in_str);
 }
 //Self Added End
 
@@ -2049,6 +2050,7 @@ Status CompactionJob::InstallCompactionResults(
   FileInOut* file_in_out_ptr = new FileInOut();
   // FileInOut* surf__file_in_out_ptr = new FileInOut();
   SuRFCompactionMovingRDInfo* surf__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
+  SuRFCompactionMovingRDInfo* surf_level_file_split__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
 
   // Push RDF data down to `output_level`
   // std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, const std::vector<FileMetaData*>*>>();
@@ -2079,6 +2081,7 @@ std::cerr << "(Want to know) (if exist --> go revise compaction update rdf) exis
       // src_level_info.src_file_boundaries = smallest_largest_boundries_str;
       src_level_info.src_fd_list = flie_numbers;
       surf__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
+      surf_level_file_split__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
     }
 
     if (current_level != compaction->output_level()){
@@ -2151,6 +2154,7 @@ if( (current_level+1) !=  compaction->output_level()){
       // src_level_info.src_file_boundaries = smallest_largest_boundries_str;
       src_level_info.src_fd_list = flie_numbers;
       surf__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
+      surf_level_file_split__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
 
     }
   }
@@ -2186,6 +2190,7 @@ if( (current_level+1) !=  compaction->output_level()){
       dst_level_info.fd = fmeta.fd.GetNumber();
       dst_level_info.file_boundary = std::make_pair(fmeta.smallest.user_key().ToString(), fmeta.largest.user_key().ToString());
       surf__compaction_moving_RD_vector->dst_level_info_list.push_back(dst_level_info);
+      surf_level_file_split__compaction_moving_RD_vector->dst_level_info_list.push_back(dst_level_info);
       // std::cout << fmeta.fd.GetNumber() << " (" << fmeta.smallest.user_key().ToString() << ", " << fmeta.largest.user_key().ToString() << ") "<<" ";
     }
     // std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -2197,6 +2202,7 @@ if( (current_level+1) !=  compaction->output_level()){
       dst_level_info.fd = fmeta.fd.GetNumber();
       dst_level_info.file_boundary = std::make_pair(fmeta.smallest.user_key().ToString(), fmeta.largest.user_key().ToString());
       surf__compaction_moving_RD_vector->dst_level_info_list.push_back(dst_level_info);
+      surf_level_file_split__compaction_moving_RD_vector->dst_level_info_list.push_back(dst_level_info);
       // std::cout << fmeta.fd.GetNumber() << " (" << fmeta.smallest.user_key().ToString() << ", " << fmeta.largest.user_key().ToString() << ") "<<" ";
     }
     // std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -2218,6 +2224,10 @@ if( (current_level+1) !=  compaction->output_level()){
   surf__compaction_moving_RD_vector->dst_level = compaction->output_level();
   surf__compaction_moving_RD_vector->check_filled();
   compaction->column_family_data()->set_surf__compaction_moving_RD_vector(surf__compaction_moving_RD_vector);
+
+  surf_level_file_split__compaction_moving_RD_vector->dst_level = compaction->output_level();
+  surf_level_file_split__compaction_moving_RD_vector->check_filled();
+  compaction->column_family_data()->set_surf_level_file_split__compaction_moving_RD_vector(surf_level_file_split__compaction_moving_RD_vector);
   //Self Added End
 
   return versions_->LogAndApply(compaction->column_family_data(),

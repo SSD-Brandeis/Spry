@@ -536,7 +536,7 @@ class DBImpl : public DB {
 
   //Self Added Start
   virtual Status printAllFileRanges() override;
-  virtual Status printPLRDF() override;
+  virtual Status printRDF() override;
   virtual uint getFlushQueueSize() override;
   virtual uint getCompactionQueueSize() override;
   virtual bool existFlushJob() override;
@@ -547,16 +547,19 @@ class DBImpl : public DB {
   virtual int getTopLevelRDFNumberOfTotalRanges() override;
   virtual int getSkylineRDFNumberOfTotalRanges() override;
   virtual int getSuRFLevelFileRDFNumberOfTotalRanges() override;
+  virtual int getSuRFLevelFileSplitRDFNumberOfTotalRanges() override;
   std::vector<int> getLogOfNumbersOfRangesInPLRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF() override;
-  std::vector<int> getLogOfMemoryUsageInRLRDF() override;
+  std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF() override;
+  std::vector<int> getLogOfMemoryUsageInPLRDF() override;
   std::vector<int> getLogOfMemoryUsageInSplitRDF() override;
   std::vector<int> getLogOfMemoryUsageInTopLevelRDF() override;
   std::vector<int> getLogOfMemoryUsageInSkylineRDF() override;
   std::vector<int> getLogOfMemoryUsageInSuRFLevelFileRDF() override;
+  std::vector<int> getLogOfMemoryUsageInSuRFLevelFileSplitRDF() override;
   // std::vector<int> getLogOfMemoryUsageInSuRFTopLevelRDF() override;
   std::mutex self_single_flush_mutex_;
 
@@ -566,8 +569,9 @@ class DBImpl : public DB {
   const SkyLineRDF *getSkylineRDF() override;
   // const std::vector<t3ll> *getSkylineRDF() override;
   // const std::vector<int> *getSkylineNumbersOfRangesInRDFLog() override;
-  const surf::SuRF_RDF *getSuRFTopLevelRDF() override;
+  // const surf::SuRF_RDF *getSuRFTopLevelRDF() override;
   const surf::SuRF_RDF *getSuRFLevelFileRDF() override;
+  const surf::SuRF_RDF *getSuRFLevelFileSplitRDF() override;
   using DB::setPLRDF;
   // void setPLRDF( std::vector<int> v) override;
   void setPLRDF( PLRDF *plrdf) override;
@@ -576,8 +580,9 @@ class DBImpl : public DB {
   void setSkylineRDF( SkyLineRDF *skylineRDF) override;
   // void setSkylineRDF( std::vector<t3ll> *skylineRDF) override;
   // void setSkylineNumbersOfRangesInRDFLog( std::vector<int> *logOfNumbersOfRangesInPLRDF) override;
-  void setSuRFTopLevelRDF( surf::SuRF_RDF *suRFTopLevelRDF) override;
+  // void setSuRFTopLevelRDF( surf::SuRF_RDF *suRFTopLevelRDF) override;
   void setSuRFLevelFileRDF( surf::SuRF_RDF *suRFLevelFileRDF) override;
+  void setSuRFLevelFileSplitRDF( surf::SuRF_RDF *suRFLevelFileRDF) override;
   //Self Added End
 
   virtual Status DisableFileDeletions() override;

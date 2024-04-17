@@ -1136,13 +1136,17 @@ class Version {
   //   skyline__numbers_of_ranges_in_rdf_log = skyline__numbers_of_ranges_in_rdf_log_in;
   // }
 
-  void setSuRFTopLevelRDF(surf::SuRF_RDF *surf__top_level_rdf_in){
-    assert(surf__top_level_rdf_in != NULL);
-    surf__top_level_rdf = surf__top_level_rdf_in;
-  }
+  // void setSuRFTopLevelRDF(surf::SuRF_RDF *surf__top_level_rdf_in){
+  //   assert(surf__top_level_rdf_in != NULL);
+  //   surf__top_level_rdf = surf__top_level_rdf_in;
+  // }
   void setSuRFLevelFileRDF(surf::SuRF_RDF *surf__level_file_rdf_in){
     assert(surf__level_file_rdf_in != NULL);
     surf__level_file_rdf = surf__level_file_rdf_in;
+  }
+  void setSuRFLevelFileSplitRDF(surf::SuRF_RDF *surf__level_file_rdf_in){
+    assert(surf__level_file_rdf_in != NULL);
+    surf__level_file_split_rdf = surf__level_file_rdf_in;
   }
 
 
@@ -1233,6 +1237,12 @@ class Version {
     }
     return (this->surf__level_file_rdf)->isEntryAliveAtLevelOfFd(level, fd, key, flag_bypass_if_same_key);
   }
+  bool isAliveAfterSuRFLevelFileSplitRDFilter(uint level, uint64_t fd, std::string key, bool flag_bypass_if_same_key){
+    if(surf__level_file_split_rdf == NULL){
+      return true;
+    }
+    return (this->surf__level_file_split_rdf)->isEntryAliveAtLevelOfFd(level, fd, key, flag_bypass_if_same_key);
+  }
 
   void printPLRDF(){
     plrdf.printLevel0();
@@ -1262,9 +1272,14 @@ class Version {
   // void printSuRFTopLevelRDF(){
   //   //TODO: pass
   // }
-  // void printSuRFLevelFileRDF(){
-  //   //TODO: pass
-  // }
+  void printSuRFLevelFileRDF(){
+    if(surf__level_file_rdf == NULL){return;}
+    surf__level_file_rdf->print();
+  }
+  void printSuRFLevelFileSplitRDF(){
+    if(surf__level_file_split_rdf == NULL){return;}
+    surf__level_file_split_rdf->print();
+  }
 
   int getPLRDFNumberOfTotalRanges(){
     return plrdf.getNumberOfTotalRanges();
@@ -1280,17 +1295,23 @@ class Version {
     return skyline_rdf.getNumberOfTotalRanges();
   }
 
-  int getSuRFTopLevelRDFNumberOfTotalRanges(){
-    if(surf__top_level_rdf == NULL){
-      return 0;
-    }
-    return surf__top_level_rdf->getNumberOfTotalRanges();
-  }
+  // int getSuRFTopLevelRDFNumberOfTotalRanges(){
+  //   if(surf__top_level_rdf == NULL){
+  //     return 0;
+  //   }
+  //   return surf__top_level_rdf->getNumberOfTotalRanges();
+  // }
   int getSuRFLevelFileRDFNumberOfTotalRanges(){
     if(surf__level_file_rdf == NULL){
       return 0;
     }
     return surf__level_file_rdf->getNumberOfTotalRanges();
+  }
+  int getSuRFLevelFileSplitRDFNumberOfTotalRanges(){
+    if(surf__level_file_split_rdf == NULL){
+      return 0;
+    }
+    return surf__level_file_split_rdf->getNumberOfTotalRanges();
   }
 
   int getPLRDFNumberOfTotalLevels(){
@@ -1306,17 +1327,24 @@ class Version {
     return 1;
   }
 
-  int getSuRFTopLevelRDFNumberOfTotalLevels(){
-    if(surf__top_level_rdf == NULL){
-      return 0;
-    }
-    return 1;
-  }
+  // int getSuRFTopLevelRDFNumberOfTotalLevels(){
+  //   if(surf__top_level_rdf == NULL){
+  //     return 0;
+  //   }
+  //   return 1;
+  // }
   int getSuRFLevelFileRDFNumberOfTotalLevels(){
     if(surf__level_file_rdf == NULL){
       return 0;
     }        
     return surf__level_file_rdf->getNumberOfTotalLevels();
+  }
+  
+  int getSuRFLevelFileSplitRDFNumberOfTotalLevels(){
+    if(surf__level_file_split_rdf == NULL){
+      return 0;
+    }        
+    return surf__level_file_split_rdf->getNumberOfTotalLevels();
   }
   
   std::vector<int> getLogOfNumbersOfRangesInPLRDF(){
@@ -1333,20 +1361,26 @@ class Version {
     return skyline_rdf.getNumbersOfRangesInRDFLog();
   }
 
-  std::vector<int> getLogOfNumbersOfRangesInSuRFTopLevelRDF(){
-    if(surf__top_level_rdf == NULL){
-      return std::vector<int>();
-    }
-    return surf__top_level_rdf->getNumbersOfRangesInRDFLog();
-  }
+  // std::vector<int> getLogOfNumbersOfRangesInSuRFTopLevelRDF(){
+  //   if(surf__top_level_rdf == NULL){
+  //     return std::vector<int>();
+  //   }
+  //   return surf__top_level_rdf->getNumbersOfRangesInRDFLog();
+  // }
   std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF(){
     if(surf__level_file_rdf == NULL){
       return std::vector<int>();
     }
     return surf__level_file_rdf->getNumbersOfRangesInRDFLog();
   }
+  std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF(){
+    if(surf__level_file_split_rdf == NULL){
+      return std::vector<int>();
+    }
+    return surf__level_file_split_rdf->getNumbersOfRangesInRDFLog();
+  }
   
-  std::vector<int> getLogOfMemoryUsageInRLRDF(){
+  std::vector<int> getLogOfMemoryUsageInPLRDF(){
     return plrdf.getMemoryUsageInRDFLog();
     // using pll = std::pair<long long, long long>; //[start, end)
     // std::vector<int> memory_log;
@@ -1386,17 +1420,23 @@ class Version {
     // return memory_log;
   }
 
-  std::vector<int> getLogOfMemoryUsageInSuRFTopLevelRDF(){
-    if(surf__top_level_rdf == NULL){
-      return std::vector<int>();
-    }
-    return surf__top_level_rdf->getMemoryUsageInRDFLog();
-  }
+  // std::vector<int> getLogOfMemoryUsageInSuRFTopLevelRDF(){
+  //   if(surf__top_level_rdf == NULL){
+  //     return std::vector<int>();
+  //   }
+  //   return surf__top_level_rdf->getMemoryUsageInRDFLog();
+  // }
   std::vector<int> getLogOfMemoryUsageInSuRFLevelFileRDF(){
     if(surf__level_file_rdf == NULL){
       return std::vector<int>();
     }
     return surf__level_file_rdf->getMemoryUsageInRDFLog();
+  }
+  std::vector<int> getLogOfMemoryUsageInSuRFLevelFileSplitRDF(){
+    if(surf__level_file_split_rdf == NULL){
+      return std::vector<int>();
+    }
+    return surf__level_file_split_rdf->getMemoryUsageInRDFLog();
   }
 
 
@@ -1569,8 +1609,9 @@ class Version {
   // std::vector<t3ll> skyline_rdf;
   // std::vector<int> skyline__numbers_of_ranges_in_rdf_log;
   // surf top_level / level_file rdf
-  surf::SuRF_RDF *surf__top_level_rdf = nullptr;
+  // surf::SuRF_RDF *surf__top_level_rdf = nullptr;
   surf::SuRF_RDF *surf__level_file_rdf = nullptr;
+  surf::SuRF_RDF *surf__level_file_split_rdf = nullptr;
   // surf::SuRF_RDF surf__top_level_rdf;
   // surf::SuRF_RDF surf__level_file_rdf;
 

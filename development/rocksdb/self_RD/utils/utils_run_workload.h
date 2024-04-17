@@ -221,6 +221,8 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
 
   db->printAllFileRanges();
 
+  db->printRDF();
+
   printStats(db, op);
 
   uint num_SST_files = db->getTotalNumberOfSSTFiles();
