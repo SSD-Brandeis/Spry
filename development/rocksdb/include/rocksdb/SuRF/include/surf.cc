@@ -515,7 +515,7 @@ std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(SuRF* surf_)
 
     std::vector<std::pair<std::string, std::string>> ranges;
     int len = keys.size();
-    std::string start;
+    // std::string start;
     for(int i = 0; i < len-1; i++){
         if(left_parentheses[i]){
             assert(left_parentheses[i] == true && right_parentheses[i+1] == true);
