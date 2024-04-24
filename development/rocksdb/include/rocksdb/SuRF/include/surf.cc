@@ -497,6 +497,161 @@ SuRF* SuRF::rangesToSurf(std::vector<std::pair<std::string, std::string>> ranges
     return surf_;
 }
 
+
+
+std::pair<SuRF*, size_t> SuRF::rangesWithPointKeysToSurf(std::vector<pss> ranges, std::vector<std::string> point_keys, 
+                size_t surf_key_length_in_bytes, surf::SuffixType kSuffixType, 
+                surf::level_t hash_suffix_len, surf::level_t real_suffix_len,
+                bool include_dense, uint32_t sparse_dense_ratio, bool flag_allow_boundary_overlapped){
+
+    std::sort(ranges.begin(), ranges.end());
+    size_t len = ranges.size();
+    assert(len > 0);
+    bool flag_merge = false;
+    if(len > 1){
+        for(size_t i = 0; i < len-1; i++){
+            // std::cout << "i = " << i << " len=" << len << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+            // assert(("cannot have overlapped, ranges[i].second shall <= ranges[i+1].first", ranges[i].second <= ranges[i+1].first));
+            flag_merge = (flag_allow_boundary_overlapped == true)? 
+                (ranges[i].second > ranges[i+1].first):(ranges[i].second >= ranges[i+1].first);
+            if(flag_merge){break;}
+        }
+    }
+    if(flag_merge){
+        //doing merging
+        std::vector<pss> ranges_merged;
+        ranges_merged.push_back(ranges[0]);
+        for (size_t i = 1; i < len; i++)
+        {   
+            bool flag_shall_be_merged = (flag_allow_boundary_overlapped == true)?
+                (ranges_merged.back().second > ranges[i].first):
+                (ranges_merged.back().second >= ranges[i].first);
+
+            if(flag_shall_be_merged){
+                ranges_merged.back().second = std::max(ranges_merged.back().second, ranges[i].second);
+            }else{
+                ranges_merged.push_back(ranges[i]);
+            }
+        }
+        ranges = ranges_merged;
+    }
+
+    len = ranges.size();
+    assert(len > 0);
+    if(len > 1){
+        for(size_t i = 0; i < len-1; i++){
+            assert(("cannot have overlapped, ranges[i].second shall <= ranges[i+1].first", ranges[i].second <= ranges[i+1].first));
+        }
+    }
+
+    size_t len_point_keys = point_keys.size();
+    size_t j_point_keys = 0;
+    size_t split_count = 0;
+
+    std::vector<std::string> keys;
+    std::vector<bool> left_parentheses;
+    std::vector<bool> right_parentheses;
+    for(size_t i = 0; i < len; i++){
+        // std::string key_start = int_to_bytes(ranges[i].first, surf_key_length_in_bytes);
+        // std::string key_end = int_to_bytes(ranges[i].second, surf_key_length_in_bytes);
+        std::string key_start = ranges[i].first;
+        std::string key_end = ranges[i].second;
+
+        while(j_point_keys < len_point_keys && point_keys[j_point_keys] < key_start){
+            j_point_keys++;
+        }
+        // std::string point_key = "";
+        // if(j_point_keys < len_point_keys && point_keys[j_point_keys] < key_end){
+        //     point_key = point_keys[j_point_keys];
+        //     // j_point_keys++;
+        // }
+
+        if(key_start.size() > surf_key_length_in_bytes){
+            key_start = key_start.substr(0, surf_key_length_in_bytes);
+        }
+        if(key_end.size() > surf_key_length_in_bytes){
+            key_end = key_end.substr(0, surf_key_length_in_bytes);
+        }
+        // if(point_key.size() > surf_key_length_in_bytes){
+        //     point_key = point_key.substr(0, surf_key_length_in_bytes);
+        // }
+
+        if(keys.size() > 0 && keys.back() == key_start){
+            left_parentheses.back() = true;
+        }else{
+            keys.push_back(key_start);
+            left_parentheses.push_back(true);
+            right_parentheses.push_back(false);
+        }
+        
+        // splitting ranges by incoming point keys
+        while(j_point_keys < len_point_keys){
+            std::string point_key = point_keys[j_point_keys];
+            if(point_key.size() > surf_key_length_in_bytes){
+                point_key = point_key.substr(0, surf_key_length_in_bytes);
+            }
+            if(point_key >= key_end){break;}
+
+            if(point_key == key_start){
+                if(flag_allow_boundary_overlapped == false){
+                    right_parentheses.back() = true;
+                }
+            }else{
+                keys.push_back(point_key);
+                left_parentheses.push_back(false);
+                right_parentheses.push_back(true);
+
+                split_count++;
+            }
+
+            j_point_keys++;
+        }
+        // std::string point_key = "";
+        // if(j_point_keys < len_point_keys && point_keys[j_point_keys] < key_end){
+        //     point_key = point_keys[j_point_keys];
+        //     // j_point_keys++;
+        // }
+
+        keys.push_back(key_end);
+        left_parentheses.push_back(false);
+        right_parentheses.push_back(true);
+    }
+    assert(keys.size() == left_parentheses.size());
+    assert(keys.size() == right_parentheses.size());
+
+
+    // string_length
+    size_t string_len = 0;
+    for(auto &key: keys){
+        if(key.length() > string_len){
+            string_len = key.length();
+        }
+    }
+    
+
+    // bool flag_build_until_unique = false;
+    //One shall clip the key into the prefix of length "max_num_level"
+    // must >= max([len(key) for key in keys])  --- maximum key length
+    // uint16_t max_num_level = 5; 
+    uint16_t max_num_level = string_len; 
+    // bool include_dense = true;
+    // uint32_t sparse_dense_ratio = 16;
+    // uint32_t sparse_dense_ratio = 1;
+    // SuRF* surf_ = new SuRF(keys, left_parentheses, right_parentheses, 
+     //                             include_dense, sparse_dense_ratio,
+    //                             // surf::kHash, 8, 0,
+    //                             kSuffixType, hash_suffix_len, real_suffix_len,
+    //                             flag_build_until_unique, max_num_level);
+    SuRF* surf_ = new SuRF(keys, left_parentheses, right_parentheses, 
+                                include_dense, sparse_dense_ratio,
+                                // surf::kHash, 8, 0,
+                                kSuffixType, hash_suffix_len, real_suffix_len,
+                                max_num_level);
+
+    return std::make_pair(surf_, split_count);
+}
+
+
 std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(SuRF* surf_){
     std::vector<std::string> keys;
     std::vector<bool> left_parentheses;
@@ -850,6 +1005,50 @@ void SuRF_RDF::insertRangesAtLevelOfFd(uint32_t level, uint64_t fd, std::vector<
     level_file_surf_rdf[level][fd] = std::make_pair(ranges.size(), surf_);
 }
 
+
+void SuRF_RDF::insertRangesWithPointKeysAtLevelOfFd(uint32_t level, uint64_t fd, std::vector<pss> &ranges, std::vector<std::string> &point_keys, bool flag_allow_boundary_overlapped){
+    assert(ranges.size() > 0);
+    if(ranges.size() <= 0){
+        std::cout << "Error: ranges.size() = " << ranges.size() << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+    }
+
+    //TODO:  init SuRF_RDF with following parameters set
+    //int key_len_in_bytes = 12;
+    //surf::level_t hash_suffix_len = 0;
+    //surf::level_t real_suffix_len = 0;
+    //bool include_dense = true;
+    //uint32_t sparse_dense_ratio = 16;
+    surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
+    int key_len_in_bytes = _surf_env->getSuRFKeyLenInBytes();
+    surf::level_t hash_suffix_len = _surf_env->getSuRFHashSuffixLen();
+    surf::level_t real_suffix_len = _surf_env->getSuRFRealSuffixLen();
+    bool include_dense = _surf_env->getSuRFIncludeDense();
+    uint32_t sparse_dense_ratio = _surf_env->getSuRFSparseDenseRatio();
+    // bool flag_build_until_unique = false;
+    //
+
+    assert(rdf_mode == surf::SuRF_RDF::RDF_MODE::PER_FILE);
+    // if(level == level_file_surf_rdf.size()){
+    while(level >= level_file_surf_rdf.size()){
+        std::unordered_map<uint64_t,std::pair<int, SuRF*>> tmp;
+        level_file_surf_rdf.push_back(tmp);
+    }
+    assert(level < level_file_surf_rdf.size());
+    assert(level_file_surf_rdf[level].count(fd) == 0);
+
+    // bool flag_allow_boundary_overlapped = false;
+    auto rtn = SuRF::rangesWithPointKeysToSurf(ranges, point_keys,  
+                            key_len_in_bytes, surf::SuffixType::kReal, 
+                            hash_suffix_len, real_suffix_len, include_dense, 
+                            sparse_dense_ratio, flag_allow_boundary_overlapped);
+    SuRF* surf_ = rtn.first;
+    size_t split_count = rtn.second;
+
+    //std::cout << level << " " << fd << " " << " " << level_file_surf_rdf.size() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    assert(ranges.size() > 0);
+    level_file_surf_rdf[level][fd] = std::make_pair(ranges.size()+split_count, surf_);
+}
+
 void SuRF_RDF::deleteLastLevelIfEqualsBottomLevel(uint bottom_level){
 // init();
 // std::lock_guard<std::mutex> guard(update_mutex);
@@ -994,9 +1193,88 @@ for(auto &rd: ranges_to_insert){
     // (this->surf__level_file_rdf_prime)->shiftRDFToOutputLevel(fd_out, rd_list);
 }
 
+#define DEBUG_SURF_COMPACTION
+void SuRF_RDF::shiftRDFWithPointKeysToOutputLevel(std::vector<pss> &rd_merged, std::vector<std::string> &point_keys, uint32_t dst_level, std::vector<uint64_t> &dst_fd_list, std::vector<pss> &file_boundary_list, bool surf_flag__allow_range_boundary_overlapped){
+#ifdef DEBUG_SURF_COMPACTION
+    //check point_keys are sorted and unique
+    for(size_t i = 1; i < point_keys.size(); i++){
+        assert(point_keys[i-1] < point_keys[i]);
+        if(point_keys[i-1] > point_keys[i]){
+            std::cout << "Error: point_keys[i-1] "
+                     << point_keys[i-1] << " shall be smaller than point_keys[i] " << point_keys[i] 
+                     << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+        }else if(point_keys[i-1] == point_keys[i]){
+            std::cout << "Error: point_keys[i-1] "
+                     << point_keys[i-1] << " shall be unique from point_keys[i] " << point_keys[i] 
+                     << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+        }
 
+    }
+#endif
+    //merge
+    size_t len_rd = rd_merged.size();
+//std::cout << "len_rd (range_tombstone_list_agg.size()): " << len_rd << " len_rd > 0: " << (len_rd > 0) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    assert(len_rd > 0ULL);
+    if(len_rd > 0){
 
+        size_t i_rd = 0;
+        assert(dst_fd_list.size() == file_boundary_list.size());
+        size_t len_dst = dst_fd_list.size();
+        // for(auto &dst_level_info: dst_level_info_list){
+        for(size_t i_dst = 0; i_dst < len_dst; i_dst++){
+            if(i_rd >= len_rd){
+                break;
+            }           
+            // uint64_t dst_fd = dst_level_info.fd;
+            // pss file_boundary = dst_level_info.file_boundary;
+            uint64_t dst_fd = dst_fd_list[i_dst];
+            pss file_boundary = file_boundary_list[i_dst];
+            //separate
+            std::vector<pss> ranges_to_insert;
+            if(surf_flag__allow_range_boundary_overlapped == true){
+                while(i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.first){
+                    i_rd++;
+                }
+            }else{
+                while(i_rd < len_rd && rd_merged[i_rd].second < file_boundary.first){
+                    i_rd++;
+                }
+            }
+            //TODO: check this part 
+            while(i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.second){
+                //while(i_rd < len_rd && rd_merged[i_rd].second < file_boundary.second){
+                pss range_in = std::make_pair(
+                    std::max(rd_merged[i_rd].first, file_boundary.first),
+                    std::min(rd_merged[i_rd].second, file_boundary.second)
+                );
+                ranges_to_insert.push_back(range_in);
+                i_rd++;
+            }
+            if(i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second){
+                pss range_in = std::make_pair(
+                    std::max(rd_merged[i_rd].first, file_boundary.first),
+                    std::min(rd_merged[i_rd].second, file_boundary.second)
+                );
+                ranges_to_insert.push_back(range_in);
+                // don't i_rd ++;
+            }
 
+            if(ranges_to_insert.size() > 0){
+std::cout << "within SuRF:" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+for(auto &rd: ranges_to_insert){
+    std::cout << rd.first << " " << rd.second << std::endl;
+}
+                // (this->surf__level_file_rdf_prime)->insertRangesAtLevelOfFd(dst_level, dst_fd, ranges_to_insert, surf_flag__allow_range_boundary_overlapped);
+                this->insertRangesWithPointKeysAtLevelOfFd(dst_level, dst_fd, ranges_to_insert, point_keys, surf_flag__allow_range_boundary_overlapped);
+            }
+            // (this->surf__level_file_rdf_prime)->insertRangesAtLevelOfFd(dst_level, dst_fd, ranges_to_insert, surf_flag__allow_range_boundary_overlapped);
+        }
+    // (this->surf__level_file_rdf_prime)->shiftRDFToOutputLevel(this->surf__compaction_moving_RD_vector);
+    }
+    // src_fd_list = 
+    // std::sort(rd_list.begin(), rd_list.end()); 
+    // (this->surf__level_file_rdf_prime)->shiftRDFToOutputLevel(fd_out, rd_list);
+}
 
 int SuRF_RDF::getNumberOfRangesAtIthLevel(int level){
     if(rdf_mode == PER_LEVEL){
@@ -1244,10 +1522,10 @@ std::cout << "key_found = " << key_found << " key_searched = " << key << " " << 
         // [a, b), [c, d)
         // 1. flag_bypass_if_same_key == 0
         //         [       ) 
-        //                 [      )
-        // Alive:  X  xxx  X xxxx O
-        // left :  1       1      0
-        // right:  0       1      1
+        //                    [      )
+        // Alive:  X  xxx  0  X xxxx O
+        // left :  1       0  1      0
+        // right:  0       1  0      1
         // 2. flag_bypass_if_same_key == 1
         //         (       ) 
         //                 (      )
@@ -1255,7 +1533,26 @@ std::cout << "key_found = " << key_found << " key_searched = " << key << " " << 
         // left :  1       1      0
         // right:  0       1      1
         else if(key_found == key){
-            non_overlapping = flag_bypass_if_same_key? true: (iter.getLeftParenthesis() != true);
+            // non_overlapping = flag_bypass_if_same_key? true: (iter.getLeftParenthesis() != true);
+            // non_overlapping = flag_bypass_if_same_key? true: (iter.getLeftParenthesis() != true);
+            if(flag_bypass_if_same_key == true){
+                // flag_allow_boundary_overlapped = true
+                non_overlapping = true;
+            }else{
+                // flag_allow_boundary_overlapped = false
+                if(iter.getRightParenthesis() == true){
+                    non_overlapping = true;
+                }else{
+                    non_overlapping = false; 
+                }
+                // if(iter.getLeftParenthesis() == true && iter.getRightParenthesis() == true){
+                //     non_overlapping = true;
+                // }else if(iter.getLeftParenthesis() == false){
+                //     non_overlapping = true;
+                // }else{
+                //     non_overlapping = false;
+                // }
+            }
         }
 
         // if(key_found.size() < key_len_in_bytes){ //suppose max(len(inserted_keys)) == max(len(searching_keys))

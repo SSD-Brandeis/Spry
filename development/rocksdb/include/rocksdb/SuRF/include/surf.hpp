@@ -72,9 +72,17 @@ class SuRF_Env {
             return surf__sparse_dense_ratio;
         }
         bool getFlagBypassIfSameKey() const {
+            if(surf__flag_bypass_if_same_key != surf__flag_allow_range_boundary_overlapped){
+                assert(surf__flag_bypass_if_same_key == surf__flag_allow_range_boundary_overlapped);
+                std::cerr << "Error: flag_bypass_if_same_key and flag_allow_range_boundary_overlapped are not consistent" << " " << __FILE__ << " " << __LINE__ << std::endl;
+            }
             return surf__flag_bypass_if_same_key;
         }
         bool getFlagAllowRangeBoundaryOverlapped() const {
+            if(surf__flag_bypass_if_same_key != surf__flag_allow_range_boundary_overlapped){
+                assert(surf__flag_bypass_if_same_key == surf__flag_allow_range_boundary_overlapped);
+                std::cerr << "Error: flag_bypass_if_same_key and flag_allow_range_boundary_overlapped are not consistent" << " " << __FILE__ << " " << __LINE__ << std::endl;
+            }
             return surf__flag_allow_range_boundary_overlapped;
         }
         
@@ -281,6 +289,8 @@ class SuRF_RDF {
         void removeSuRFAtLevelOfFd(uint32_t src_level, uint64_t fd);
 
         void insertRangesAtLevelOfFd(uint32_t level, uint64_t fd, std::vector<pss> &ranges, bool flag_allow_boundary_overlapped);
+        
+        void insertRangesWithPointKeysAtLevelOfFd(uint32_t level, uint64_t fd, std::vector<pss> &ranges, std::vector<std::string> &point_keys, bool flag_allow_boundary_overlapped);
 
         // void shiftRDFToOutputLevel(SuRFCompactionMovingRDInfo *surf__compaction_moving_RD_vector);
 
@@ -436,7 +446,9 @@ class SuRF_RDF {
                                     std::vector<uint64_t> &dst_fd_list, std::vector<pss> &file_boundary_list, 
                                     bool surf_flag__allow_range_boundary_overlapped);
 
-
+        void shiftRDFWithPointKeysToOutputLevel(std::vector<pss> &rd_merged, std::vector<std::string> &point_keys, 
+                                                            uint32_t dst_level, std::vector<uint64_t> &dst_fd_list, std::vector<pss> &file_boundary_list, 
+                                                            bool surf_flag__allow_range_boundary_overlapped);
 
         std::vector<int> getNumbersOfRangesInRDFLog();
         // {
@@ -688,11 +700,18 @@ public:
     //                 surf::level_t hash_suffix_len = 0, surf::level_t real_suffix_len = 8,
     //                 bool include_dense = true, uint32_t sparse_dense_ratio = 16, bool flag_allow_boundary_overlapped = false
     //                 );
-    static SuRF* rangesToSurf(std::vector<std::pair<std::string, std::string>> ranges, size_t surf_key_length_in_bytes, 
+    static SuRF* rangesToSurf(std::vector<pss> ranges, size_t surf_key_length_in_bytes, 
                     surf::SuffixType kSuffixType, 
                     surf::level_t hash_suffix_len, surf::level_t real_suffix_len,
                     bool include_dense, uint32_t sparse_dense_ratio, bool flag_allow_boundary_overlapped
                     );
+    
+    static std::pair<SuRF*, size_t> rangesWithPointKeysToSurf(std::vector<pss> ranges, std::vector<std::string> point_keys, 
+                size_t surf_key_length_in_bytes, surf::SuffixType kSuffixType, 
+                surf::level_t hash_suffix_len, surf::level_t real_suffix_len,
+                bool include_dense, uint32_t sparse_dense_ratio, bool flag_allow_boundary_overlapped);
+
+
     static std::vector<std::pair<std::string, std::string>> surfToRanges(SuRF* surf_);
     // YCHUANG ADDED END
 

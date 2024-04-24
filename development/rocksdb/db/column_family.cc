@@ -3183,8 +3183,10 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
               }
             }
 
-            (this->surf__level_file_split_rdf_prime)->shiftRDFToOutputLevel(
-              range_tombstone_merged, dst_level, 
+            (this->surf__level_file_split_rdf_prime)->shiftRDFWithPointKeysToOutputLevel(
+              range_tombstone_merged, 
+              this->surf_level_file_split__in_coming_point_keys,
+              dst_level, 
               dst_fd_list, file_boundary_list,
               surf_flag__allow_range_boundary_overlapped);
           }
@@ -3220,6 +3222,7 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
         
         delete this->surf_level_file_split__compaction_moving_RD_vector;
         this->surf_level_file_split__compaction_moving_RD_vector = nullptr;
+        this->surf_level_file_split__in_coming_point_keys.clear();
       }
 
     }else if(opt == 3){ //directly deleted file compaction
