@@ -94,6 +94,7 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
   testing_result_file << "TopLevel RDF Number Of Total Ranges: " << db->getTopLevelRDFNumberOfTotalRanges() << std::endl;
   testing_result_file << "Skyline RDF Number Of Total Ranges: " << db->getSkylineRDFNumberOfTotalRanges() << std::endl;
   testing_result_file << "SuRF Level File RDF Number Of Total Ranges: " << db->getSuRFLevelFileRDFNumberOfTotalRanges() << std::endl;
+  testing_result_file << "SuRF Level File Split RDF Number Of Total Ranges: " << db->getSuRFLevelFileSplitRDFNumberOfTotalRanges() << std::endl;
   testing_result_file << std::endl;
 
   testing_result_file2 << ",\"PLRDF Number Of Total Ranges\" : " << db->getPLRDFNumberOfTotalRanges() << std::endl;
@@ -101,6 +102,7 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
   testing_result_file2 << ",\"TopLevel RDF Number Of Total Ranges\" : " << db->getTopLevelRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"Skyline RDF Number Of Total Ranges\" : " << db->getSkylineRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"SuRF Level File RDF Number Of Total Ranges\" : " << db->getSuRFLevelFileRDFNumberOfTotalRanges() << std::endl;
+  testing_result_file2 << ",\"SuRF Level File Split RDF Number Of Total Ranges\" : " << db->getSuRFLevelFileSplitRDFNumberOfTotalRanges() << std::endl;
 
   
   
@@ -109,6 +111,7 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
   vector<int> ranges_log_TopLevelRDF = db->getLogOfNumbersOfRangesInTopLevelRDF();
   vector<int> ranges_log_SkylineRDF = db->getLogOfNumbersOfRangesInSkylineRDF();
   vector<int> ranges_log_SuRFLevelFileRDF = db->getLogOfNumbersOfRangesInSuRFLevelFileRDF();
+  vector<int> ranges_log_SuRFLevelFileSplitRDF = db->getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF();
   testing_result_file2 << ",\"Log Of Numbers Of Ranges In PLRDF\" : [";
   for(int i = 0; i < ranges_log_PLRDF.size(); i++){
     testing_result_file2 << ranges_log_PLRDF[i];
@@ -140,11 +143,19 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
       testing_result_file2 << ", ";
     }
   }
-  testing_result_file2 << "]" << std::endl;\
+  testing_result_file2 << "]" << std::endl;
   testing_result_file2 << ",\"Log Of Numbers Of Ranges In SuRFLevelFileRDF\" : [";
   for(int i = 0; i < ranges_log_SuRFLevelFileRDF.size(); i++){
     testing_result_file2 << ranges_log_SuRFLevelFileRDF[i];
     if(i != ranges_log_SuRFLevelFileRDF.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;
+  testing_result_file2 << ",\"Log Of Numbers Of Ranges In SuRFLevelFileSplitRDF\" : [";
+  for(int i = 0; i < ranges_log_SuRFLevelFileSplitRDF.size(); i++){
+    testing_result_file2 << ranges_log_SuRFLevelFileSplitRDF[i];
+    if(i != ranges_log_SuRFLevelFileSplitRDF.size() - 1){
       testing_result_file2 << ", ";
     }
   }
@@ -155,6 +166,7 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
   vector<int> memory_usage_log_TopLevelRDF = db->getLogOfMemoryUsageInTopLevelRDF();
   vector<int> memory_usage_log_SkylineRDF = db->getLogOfMemoryUsageInSkylineRDF();
   vector<int> memory_usage_log_SuRFLevelFileRDF = db->getLogOfMemoryUsageInSuRFLevelFileRDF();
+  vector<int> memory_usage_log_SuRFLevelFileSplitRDF = db->getLogOfMemoryUsageInSuRFLevelFileSplitRDF();
  testing_result_file2 << ",\"Log Of Memory Usage Of PLRDF\" : [";
   for(int i = 0; i < memory_usage_log_PLRDF.size(); i++){
     testing_result_file2 << memory_usage_log_PLRDF[i];
@@ -186,11 +198,19 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
       testing_result_file2 << ", ";
     }
   }
-  testing_result_file2 << "]" << std::endl;\
+  testing_result_file2 << "]" << std::endl; 
   testing_result_file2 << ",\"Log Of Memory Usage Of SuRFLevelFileRDF\" : [";
   for(int i = 0; i < memory_usage_log_SuRFLevelFileRDF.size(); i++){
     testing_result_file2 << memory_usage_log_SuRFLevelFileRDF[i];
     if(i != memory_usage_log_SuRFLevelFileRDF.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;
+  testing_result_file2 << ",\"Log Of Memory Usage Of SuRFLevelFileSplitRDF\" : [";
+  for(int i = 0; i < memory_usage_log_SuRFLevelFileSplitRDF.size(); i++){
+    testing_result_file2 << memory_usage_log_SuRFLevelFileSplitRDF[i];
+    if(i != memory_usage_log_SuRFLevelFileSplitRDF.size() - 1){
       testing_result_file2 << ", ";
     }
   }

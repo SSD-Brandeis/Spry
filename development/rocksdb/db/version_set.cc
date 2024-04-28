@@ -3053,7 +3053,7 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
 #ifdef DEBUG_SURF_GET_PATH
       std::cout << " fp_cur_level = " << fp_cur_level << " fp_hit_file_level = " << fp_hit_file_level << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
-      if(rdf_type == "SPLIT_PLRDF"){
+      if(rdf_type == "SuRF_LF_SPLIT_RDF"){
         surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
         bool flag_bypass_if_same_key = _surf_env->getFlagBypassIfSameKey();
         if(f!= nullptr){
@@ -3080,7 +3080,7 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
             return;
           }
         }
-      }if(rdf_type == "SuRF_LF_SPLIT_RDF"){
+      }else if(rdf_type == "SPLIT_PLRDF"){
         
         checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
         split__is_alive_after_hit_file_level = isAliveAfterSplitRDFilter(fp_hit_file_level, std::stoll(user_key.ToString()));
