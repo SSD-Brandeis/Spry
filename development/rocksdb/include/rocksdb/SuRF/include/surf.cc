@@ -8,6 +8,7 @@
 #include <unordered_map>
 
 #include "surf.hpp"
+#include "louds_sparse.hpp"
 
 namespace surf {
 
@@ -40,6 +41,14 @@ void SuRF::create(const std::vector<std::string>& keys, std::vector<bool> &left_
           const level_t hash_suffix_len, const level_t real_suffix_len,
           const uint16_t max_num_level) {
 
+    if(include_dense == false){
+        if(suffix_type != surf::SuffixType::kNone){
+            assert(suffix_type == surf::SuffixType::kNone);
+            std::cout << "Error: include_dense == false, but suffix_type != surf::SuffixType::kNone" << std::endl;
+            std::cerr << "Error: include_dense == false, but suffix_type != surf::SuffixType::kNone" << std::endl;
+        }
+    }
+
     builder_ = new SuRFBuilder(include_dense, sparse_dense_ratio,
                               suffix_type, hash_suffix_len, real_suffix_len);
     // builder_->build(keys);
@@ -58,6 +67,15 @@ void SuRF::create(const std::vector<std::string>& keys,
 		  const bool include_dense, const uint32_t sparse_dense_ratio,
 		  const SuffixType suffix_type,
                   const level_t hash_suffix_len, const level_t real_suffix_len) {
+    
+    if(include_dense == false){
+        if(suffix_type != surf::SuffixType::kNone){
+            assert(suffix_type == surf::SuffixType::kNone);
+            std::cout << "Error: include_dense == false, but suffix_type != surf::SuffixType::kNone" << std::endl;
+            std::cerr << "Error: include_dense == false, but suffix_type != surf::SuffixType::kNone" << std::endl;
+        }
+    }
+
     builder_ = new SuRFBuilder(include_dense, sparse_dense_ratio,
                               suffix_type, hash_suffix_len, real_suffix_len);
     builder_->build(keys);
@@ -86,6 +104,15 @@ bool SuRF::lookupKey(const std::string& key) const {
 // YCHUANG ADDED START
 SuRF::Iter SuRF::moveToNextCommonPrefixKey(const std::string& key) const {
     SuRF::Iter iter(this);
+    
+    if(louds_dense_->getHeight() == 0){
+        iter.passToSparse();
+        iter.could_be_fp_ = louds_sparse_->moveToNextCommonPrefixKey(key, iter.sparse_iter_);
+        // if (!iter.sparse_iter_.isValid())
+        //     iter.incrementDenseIter();
+	    return iter;
+    }
+
     iter.could_be_fp_ = louds_dense_->moveToNextCommonPrefixKey(key, iter.dense_iter_);
 
     if (!iter.dense_iter_.isValid())
@@ -247,6 +274,14 @@ uint64_t SuRF::getMemoryUsage() const {
     return (sizeof(SuRF) + louds_dense_->getMemoryUsage() + louds_sparse_->getMemoryUsage());
 }
 
+uint64_t SuRF::getMemoryUsageInBitsSelf() const {
+    std::cout << "SuRF::getMemoryUsageInBitsSelf() " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    std::cout << "sparse start level " << louds_sparse_->getStartLevel() << " " << "louds_sparse_=>getHeight " << louds_sparse_->getHeight() << std::endl;
+    std::cout << "sizeof(SuRF) " << sizeof(SuRF) << "  " << "louds_dense_->getMemoryUsage() " << louds_dense_->getMemoryUsage() << "  " << "louds_sparse_->getMemoryUsage() " << louds_sparse_->getMemoryUsageInBitsSelf() << std::endl;
+    // return (sizeof(SuRF) + louds_dense_->getMemoryUsage() + louds_sparse_->getMemoryUsage());
+    return (louds_dense_->getMemoryUsageInBitsSelf() + louds_sparse_->getMemoryUsageInBitsSelf());
+}
+
 level_t SuRF::getHeight() const {
     return louds_sparse_->getHeight();
 }
@@ -397,6 +432,14 @@ SuRF* SuRF::rangesToSurf(std::vector<std::pair<std::string, std::string>> ranges
                 surf::level_t hash_suffix_len, surf::level_t real_suffix_len,
                 bool include_dense, uint32_t sparse_dense_ratio, bool flag_allow_boundary_overlapped){
 
+    if(include_dense == false){
+        if(kSuffixType != surf::SuffixType::kNone){
+            assert(kSuffixType == surf::SuffixType::kNone);
+            std::cout << "Error: include_dense == false, but kSuffixType != surf::SuffixType::kNone" << std::endl;
+            std::cerr << "Error: include_dense == false, but kSuffixType != surf::SuffixType::kNone" << std::endl;
+        }
+    }
+
     std::sort(ranges.begin(), ranges.end());
     size_t len = ranges.size();
     assert(len > 0);
@@ -504,6 +547,14 @@ std::pair<SuRF*, size_t> SuRF::rangesWithPointKeysToSurf(std::vector<pss> ranges
                 surf::level_t hash_suffix_len, surf::level_t real_suffix_len,
                 bool include_dense, uint32_t sparse_dense_ratio, bool flag_allow_boundary_overlapped){
 
+    if(include_dense == false){
+        if(kSuffixType != surf::SuffixType::kNone){
+            assert(kSuffixType == surf::SuffixType::kNone);
+            std::cout << "Error: include_dense == false, but kSuffixType != surf::SuffixType::kNone" << std::endl;
+            std::cerr << "Error: include_dense == false, but kSuffixType != surf::SuffixType::kNone" << std::endl;
+        }
+    }
+    
     std::sort(ranges.begin(), ranges.end());
     size_t len = ranges.size();
     assert(len > 0);
@@ -658,14 +709,27 @@ std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(SuRF* surf_)
     std::vector<bool> right_parentheses;
 
     SuRF::Iter iter = surf_->moveToFirst();
-    while(iter.isValid()){
-        std::string key = iter.getKey();
-        bool left_parenthesis = iter.getLeftParenthesis();
-        bool right_parenthesis = iter.getRightParenthesis();
-        keys.push_back(key);
-        left_parentheses.push_back(left_parenthesis);
-        right_parentheses.push_back(right_parenthesis);
-        iter++;
+    
+    if(surf_->louds_dense_->getHeight() == 0){
+        while(iter.sparse_iter_.isValid()){
+            std::string key = iter.sparse_iter_.getKey();
+            bool left_parenthesis = iter.sparse_iter_.getLeftParenthesis();
+            bool right_parenthesis = iter.sparse_iter_.getRightParenthesis();
+            keys.push_back(key);
+            left_parentheses.push_back(left_parenthesis);
+            right_parentheses.push_back(right_parenthesis);
+            iter.sparse_iter_++;
+        }
+    }else{
+        while(iter.isValid()){
+            std::string key = iter.getKey();
+            bool left_parenthesis = iter.getLeftParenthesis();
+            bool right_parenthesis = iter.getRightParenthesis();
+            keys.push_back(key);
+            left_parentheses.push_back(left_parenthesis);
+            right_parentheses.push_back(right_parenthesis);
+            iter++;
+        }
     }
 
     std::vector<std::pair<std::string, std::string>> ranges;
@@ -835,7 +899,8 @@ void SuRF_RDF::insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pss> &ra
 
             bool flag_allow_boundary_overlapped = false;
             //
-            SuRF* surf = SuRF::rangesToSurf(range_delete_list_in, key_len_in_bytes, surf::SuffixType::kReal, 
+            // SuRF* surf = SuRF::rangesToSurf(range_delete_list_in, key_len_in_bytes, surf::SuffixType::kReal, 
+            SuRF* surf = SuRF::rangesToSurf(range_delete_list_in, key_len_in_bytes, surf::SuffixType::kNone, 
                             hash_suffix_len, real_suffix_len, include_dense, 
                             sparse_dense_ratio, flag_allow_boundary_overlapped);
 
@@ -856,7 +921,8 @@ void SuRF_RDF::insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pss> &ra
             
             bool flag_allow_boundary_overlapped = false;
             //
-            SuRF* surf_next = SuRF::rangesToSurf(range_delete_list_in, key_len_in_bytes, surf::SuffixType::kReal, 
+            // SuRF* surf_next = SuRF::rangesToSurf(range_delete_list_in, key_len_in_bytes, surf::SuffixType::kReal, 
+            SuRF* surf_next = SuRF::rangesToSurf(range_delete_list_in, key_len_in_bytes, surf::SuffixType::kNone, 
                             hash_suffix_len, real_suffix_len, include_dense, 
                             sparse_dense_ratio, flag_allow_boundary_overlapped);
 
@@ -996,7 +1062,8 @@ void SuRF_RDF::insertRangesAtLevelOfFd(uint32_t level, uint64_t fd, std::vector<
     assert(level_file_surf_rdf[level].count(fd) == 0);
 
     // bool flag_allow_boundary_overlapped = false;
-    SuRF* surf_ = SuRF::rangesToSurf(ranges, key_len_in_bytes, surf::SuffixType::kReal, 
+    // SuRF* surf_ = SuRF::rangesToSurf(ranges, key_len_in_bytes, surf::SuffixType::kReal, 
+    SuRF* surf_ = SuRF::rangesToSurf(ranges, key_len_in_bytes, surf::SuffixType::kNone, 
                             hash_suffix_len, real_suffix_len, include_dense, 
                             sparse_dense_ratio, flag_allow_boundary_overlapped);
 
@@ -1038,7 +1105,8 @@ void SuRF_RDF::insertRangesWithPointKeysAtLevelOfFd(uint32_t level, uint64_t fd,
 
     // bool flag_allow_boundary_overlapped = false;
     auto rtn = SuRF::rangesWithPointKeysToSurf(ranges, point_keys,  
-                            key_len_in_bytes, surf::SuffixType::kReal, 
+                            // key_len_in_bytes, surf::SuffixType::kReal, 
+                            key_len_in_bytes, surf::SuffixType::kNone, 
                             hash_suffix_len, real_suffix_len, include_dense, 
                             sparse_dense_ratio, flag_allow_boundary_overlapped);
     SuRF* surf_ = rtn.first;
@@ -1312,11 +1380,12 @@ int SuRF_RDF::getNumberOfTotalRanges(){
     // }
     return num;
 }
+// in bits
 uint64_t SuRF_RDF::getMemoryUsageAtIthLevel(int level){
     if(rdf_mode == PER_LEVEL){
         assert(level < level_surf_rdf.size());
         assert(level_surf_rdf[level].second != NULL);
-        return level_surf_rdf[level].second->getMemoryUsage();
+        return level_surf_rdf[level].second->getMemoryUsageInBitsSelf();
     }else if(rdf_mode == PER_FILE){
         assert(level < level_file_surf_rdf.size());
         assert(level_file_surf_rdf[level].size() != 0);
@@ -1324,7 +1393,7 @@ uint64_t SuRF_RDF::getMemoryUsageAtIthLevel(int level){
         auto it = level_file_surf_rdf[level].begin();
         while(it != level_file_surf_rdf[level].end()){
             auto rd_surf = it->second;
-            mem += (rd_surf.second)->getMemoryUsage();
+            mem += (rd_surf.second)->getMemoryUsageInBitsSelf();
             it++;
         }
         return mem;
@@ -1332,6 +1401,7 @@ uint64_t SuRF_RDF::getMemoryUsageAtIthLevel(int level){
     assert(false);
     return -1;
 }
+// in bits
 uint64_t SuRF_RDF::getNumberOfTotalMemoryUsage(){
     uint64_t num = 0;
     int level = getNumberOfTotalLevels();
@@ -1356,7 +1426,7 @@ void SuRF_RDF::logCurrentTotalNumbersOfRanges() {
 }
 void SuRF_RDF::logCurrentTotalMemoryUsage(){
     // std::cout << "Current total memory usage: " << surf_->getMemoryUsage() << std::endl;
-    uint64_t num = getNumberOfTotalMemoryUsage();
+    uint64_t num = getNumberOfTotalMemoryUsage() / 8; //bits --> bytes
     memory_usage_in_RDF_log.push_back(num);
 }
 
@@ -1505,63 +1575,119 @@ bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string k
         std::cout << "Error: key_len_in_bytes should not be 0 " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
     }
 
+
     SuRF::Iter iter = surf->moveToNextCommonPrefixKey(key);
-
     bool non_overlapping = true;
-    if(iter.isValid()){
-        non_overlapping = false;
-        std::string key_found = iter.getKey();
-#ifdef DEBUG_SURF_GET_PATH  
-std::cout << "key_found = " << key_found << " key_searched = " << key << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-#endif
-        if(key_found < key){
-            assert(false);
-            std::cout << "Error: key_found < key " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-        }
 
-        // [a, b), [c, d)
-        // 1. flag_bypass_if_same_key == 0
-        //         [       ) 
-        //                    [      )
-        // Alive:  X  xxx  0  X xxxx O
-        // left :  1       0  1      0
-        // right:  0       1  0      1
-        // 2. flag_bypass_if_same_key == 1
-        //         (       ) 
-        //                 (      )
-        // Alive:  O  xxx  O xxxx O
-        // left :  1       1      0
-        // right:  0       1      1
-        else if(key_found == key){
-            // non_overlapping = flag_bypass_if_same_key? true: (iter.getLeftParenthesis() != true);
-            // non_overlapping = flag_bypass_if_same_key? true: (iter.getLeftParenthesis() != true);
-            if(flag_bypass_if_same_key == true){
-                // flag_allow_boundary_overlapped = true
-                non_overlapping = true;
-            }else{
-                // flag_allow_boundary_overlapped = false
-                if(iter.getRightParenthesis() == true){
+    if(surf->getLoudsDenseHeight() > 0){
+        if(iter.isValid()){
+            non_overlapping = false;
+            std::string key_found = iter.getKey();
+    #ifdef DEBUG_SURF_GET_PATH  
+    std::cout << "key_found = " << key_found << " key_searched = " << key << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+    #endif
+            if(key_found < key){
+                assert(false);
+                std::cout << "Error: key_found < key " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+            }
+
+            // [a, b), [c, d)
+            // 1. flag_bypass_if_same_key == 0
+            //         [       ) 
+            //                    [      )
+            // Alive:  X  xxx  0  X xxxx O
+            // left :  1       0  1      0
+            // right:  0       1  0      1
+            // 2. flag_bypass_if_same_key == 1
+            //         (       ) 
+            //                 (      )
+            // Alive:  O  xxx  O xxxx O
+            // left :  1       1      0
+            // right:  0       1      1
+            else if(key_found == key){
+                // non_overlapping = flag_bypass_if_same_key? true: (iter.getLeftParenthesis() != true);
+                // non_overlapping = flag_bypass_if_same_key? true: (iter.getLeftParenthesis() != true);
+                if(flag_bypass_if_same_key == true){
+                    // flag_allow_boundary_overlapped = true
                     non_overlapping = true;
                 }else{
-                    non_overlapping = false; 
+                    // flag_allow_boundary_overlapped = false
+                    if(iter.getRightParenthesis() == true){
+                        non_overlapping = true;
+                    }else{
+                        non_overlapping = false; 
+                    }
+                    // if(iter.getLeftParenthesis() == true && iter.getRightParenthesis() == true){
+                    //     non_overlapping = true;
+                    // }else if(iter.getLeftParenthesis() == false){
+                    //     non_overlapping = true;
+                    // }else{
+                    //     non_overlapping = false;
+                    // }
                 }
-                // if(iter.getLeftParenthesis() == true && iter.getRightParenthesis() == true){
-                //     non_overlapping = true;
-                // }else if(iter.getLeftParenthesis() == false){
-                //     non_overlapping = true;
-                // }else{
-                //     non_overlapping = false;
-                // }
+            }
+
+            // if(key_found.size() < key_len_in_bytes){ //suppose max(len(inserted_keys)) == max(len(searching_keys))
+            //     non_overlapping = (iter.getRightParenthesis() != true);
+            // }else if(key_found.size() == key_len_in_bytes){
+            //     return flag_bypass_if_same_key? true: (iter.getRightParenthesis() != true);
+            // }
+            else{
+                non_overlapping = (iter.getRightParenthesis() != true);
             }
         }
+    }else{
+        if(iter.getSparseIter()->isValid()){
+            non_overlapping = false;
+            std::string key_found = iter.getSparseIter()->getKey();
+    #ifdef DEBUG_SURF_GET_PATH  
+    std::cout << "key_found = " << key_found << " key_searched = " << key << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+    #endif
+            if(key_found < key){
+                assert(false);
+                std::cout << "Error: key_found < key " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+            }
 
-        // if(key_found.size() < key_len_in_bytes){ //suppose max(len(inserted_keys)) == max(len(searching_keys))
-        //     non_overlapping = (iter.getRightParenthesis() != true);
-        // }else if(key_found.size() == key_len_in_bytes){
-        //     return flag_bypass_if_same_key? true: (iter.getRightParenthesis() != true);
-        // }
-        else{
-            non_overlapping = (iter.getRightParenthesis() != true);
+            // [a, b), [c, d)
+            // 1. flag_bypass_if_same_key == 0
+            //         [       ) 
+            //                    [      )
+            // Alive:  X  xxx  0  X xxxx O
+            // left :  1       0  1      0
+            // right:  0       1  0      1
+            // 2. flag_bypass_if_same_key == 1
+            //         (       ) 
+            //                 (      )
+            // Alive:  O  xxx  O xxxx O
+            // left :  1       1      0
+            // right:  0       1      1
+            else if(key_found == key){
+                // non_overlapping = flag_bypass_if_same_key? true: (iter.getSparseIter()->getLeftParenthesis() != true);
+                // non_overlapping = flag_bypass_if_same_key? true: (iter.getSparseIter()->getLeftParenthesis() != true);
+                if(flag_bypass_if_same_key == true){
+                    // flag_allow_boundary_overlapped = true
+                    non_overlapping = true;
+                }else{
+                    // flag_allow_boundary_overlapped = false
+                    if(iter.getSparseIter()->getRightParenthesis() == true){
+                        non_overlapping = true;
+                    }else{
+                        non_overlapping = false; 
+                    }
+                    // if(iter.getSparseIter()->getLeftParenthesis() == true && iter.getSparseIter()->getRightParenthesis() == true){
+                    //     non_overlapping = true;
+                    // }else if(iter.getSparseIter()->getLeftParenthesis() == false){
+                    //     non_overlapping = true;
+                    // }else{
+                    //     non_overlapping = false;
+                    // }
+                }
+            }
+
+            // if(key_found.size() < key_len_in_bytes){ //suppose max(len(inserted_keys)) == max(len(searching_keys))
+            //     non_overlapping = (iter.getSparseIter()->getRightParenthesis() != true);
+            // }else if(key_found.size() == key_len_in_bytes){
+            //     return flag_bypass_if_same_key? true: (iter.getSparseIter()->getRightParenthesis() != true);
         }
     }
     return non_overlapping;
@@ -1603,17 +1729,34 @@ bool  SuRF_RDF::isEntryAlive(level_t level, std::string key, uint64_t fd, bool f
     if(it_level_file_surf != level_file_surf_rdf[level].end()){
         SuRF* surf = it_level_file_surf->second.second;
         SuRF::Iter iter = surf->moveToNextCommonPrefixKey(key);
-        auto key_len_in_bytes = key.size();
-        assert(key_len_in_bytes > 0);
 
-        if(iter.isValid()){
-            std::string key_found = iter.getKey();
-            if(key_found.size() < key_len_in_bytes){
-                overlapping = (iter.getRightParenthesis() != true);
-            }else if(key_found.size() == key_len_in_bytes){
-                overlapping = flag_bypass_if_same_key? true: (iter.getRightParenthesis() != true);
-            }else{
-                overlapping = (key_found != key) && (iter.getRightParenthesis() != true);
+        if(surf->getLoudsDenseHeight() > 0){
+            auto key_len_in_bytes = key.size();
+            assert(key_len_in_bytes > 0);
+
+            if(iter.isValid()){
+                std::string key_found = iter.getKey();
+                if(key_found.size() < key_len_in_bytes){
+                    overlapping = (iter.getRightParenthesis() != true);
+                }else if(key_found.size() == key_len_in_bytes){
+                    overlapping = flag_bypass_if_same_key? true: (iter.getRightParenthesis() != true);
+                }else{
+                    overlapping = (key_found != key) && (iter.getRightParenthesis() != true);
+                }
+            }
+        }else{
+            auto key_len_in_bytes = key.size();
+            assert(key_len_in_bytes > 0);
+
+            if(iter.getSparseIter()->isValid()){
+                std::string key_found = iter.getSparseIter()->getKey();
+                if(key_found.size() < key_len_in_bytes){
+                    overlapping = (iter.getSparseIter()->getRightParenthesis() != true);
+                }else if(key_found.size() == key_len_in_bytes){
+                    overlapping = flag_bypass_if_same_key? true: (iter.getSparseIter()->getRightParenthesis() != true);
+                }else{
+                    overlapping = (key_found != key) && (iter.getSparseIter()->getRightParenthesis() != true);
+                }
             }
         }
     }

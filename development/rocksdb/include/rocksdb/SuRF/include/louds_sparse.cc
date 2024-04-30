@@ -479,20 +479,31 @@ uint64_t LoudsSparse::serializedSize() const {
 }
 
 uint64_t LoudsSparse::getMemoryUsage() const {
-    // return (sizeof(this)
-	//     + labels_->size()
-	//     + child_indicator_bits_->size()
-	//     + louds_bits_->size()
-	//     + suffixes_->size());
-
-	return (sizeof(this)
+    return (sizeof(this)
 	    + labels_->size()
 	    + child_indicator_bits_->size()
 	    + louds_bits_->size()
-	    + suffixes_->size()
+	    + suffixes_->size());
+}
+
+uint64_t LoudsSparse::getMemoryUsageInBitsSelf() const {
+	std::cout << "getMemoryUsageInBitsSelf" << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+	std::cout << "labels_->getNumBytes() * 8: " << labels_->getNumBytes() * 8 << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+	std::cout << "child_indicator_bits_->numBits(): " << child_indicator_bits_->numBits() << " " << "child_indicator_bits_->rankLutSize(): " << child_indicator_bits_->rankLutSize() << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+	std::cout << "louds_bits_->numBits(): " << louds_bits_->numBits() << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+	std::cout << "suffixes_->numBits(): " << suffixes_->numBits() << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+	std::cout << "left_parentheses_->numBits(): " << left_parentheses_->numBits() << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+	std::cout << "right_parentheses_->numBits(): " << right_parentheses_->numBits() << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+	
+	return (sizeof(this)
+	    + labels_->getNumBytes() * 8
+	    + child_indicator_bits_->numBits()
+	    + child_indicator_bits_->rankLutSize()
+	    + louds_bits_->numBits()
+	    + suffixes_->numBits()
 		// YCHUANG_ADDED START
-		+ left_parentheses_->size()
-		+ right_parentheses_->size()
+		+ left_parentheses_->numBits()
+		+ right_parentheses_->numBits()
 		// YCHUANG_ADDED END
 		);
 }

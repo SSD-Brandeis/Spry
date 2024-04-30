@@ -552,6 +552,9 @@ public:
     // YCHUANG ADDED START
     bool getLeftParenthesis() const;
     bool getRightParenthesis() const;
+    LoudsSparse::Iter *getSparseIter() {
+        return &sparse_iter_;
+    }
     // YCHUANG ADDED END
 	std::string getKeyWithSuffix(unsigned* bitlen) const;
 
@@ -663,6 +666,7 @@ public:
 
     uint64_t serializedSize() const;
     uint64_t getMemoryUsage() const;
+    uint64_t getMemoryUsageInBitsSelf() const;
     level_t getHeight() const;
     level_t getSparseStartLevel() const;
 
@@ -713,6 +717,12 @@ public:
 
 
     static std::vector<std::pair<std::string, std::string>> surfToRanges(SuRF* surf_);
+    int getLoudsDenseHeight() const {
+        return louds_dense_->getHeight();
+    }
+    LoudsSparse* getLoudsSparse() const {
+        return louds_sparse_;
+    }
     // YCHUANG ADDED END
 
 private:

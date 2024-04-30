@@ -116,6 +116,7 @@ public:
     uint64_t getHeight() const { return height_; };
     uint64_t serializedSize() const;
     uint64_t getMemoryUsage() const;
+    uint64_t getMemoryUsageInBitsSelf() const;
 
     void serialize(char*& dst) const {
 	memcpy(dst, &height_, sizeof(height_));

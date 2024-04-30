@@ -20,7 +20,7 @@ params = {
     "--surf__key_len_in_bytes": [13],
     "--surf__hash_suffix_len": [0],
     "--surf__real_suffix_len": [0],
-    "--surf__include_dense": [1],    # 1: true, 0: false
+    "--surf__include_dense": [0],    # 1: true, 0: false
     "--surf__sparse_dense_ratio": [16],
 }
 tasks = ["./simple_example"]
