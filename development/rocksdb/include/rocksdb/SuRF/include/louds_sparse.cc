@@ -187,7 +187,7 @@ bool LoudsSparse::moveToNextCommonPrefixKey(const std::string& key,
 					LoudsSparse::Iter& iter) const {
 	bool could_be_fp_ = false;
     position_t node_num = iter.getStartNodeNum();
-	// std::cout << "***** " << "node num: " << node_num << " " << " key: " << key << " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+	std::cout << "***** " << "node num: " << node_num << " " << " key: " << key << " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
     position_t pos = getFirstLabelPos(node_num);
 	// std::cout << "****** " << "sparse start node_num: " << node_num << " pos: " << pos << " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
 
@@ -195,10 +195,10 @@ bool LoudsSparse::moveToNextCommonPrefixKey(const std::string& key,
     for (level = start_level_; level < key.length(); level++) {
 		position_t node_size = nodeSize(pos);
 
-		// std::cout << "****** " << "sparse level: " << level << " key[level]: " << key[level] << " key:" << key << "\t"
-		// 		<< " pos: " << pos << " node_num: " << node_num
-		// 		<< " node_size: " << node_size
-		// 		<< " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+		std::cout << "****** " << "sparse level: " << level << " key[level]: " << key[level] << " key:" << key << "\t"
+				<< " pos: " << pos << " node_num: " << node_num
+				<< " node_size: " << node_size
+				<< " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
 		
 		// if no exact match
 		position_t pos_search = pos;

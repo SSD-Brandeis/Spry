@@ -3426,6 +3426,9 @@ void ColumnFamilyData::InstallSuperVersion(
     //SuRF TopLevel/LevelFile RDF
     // current_->setSuRFTopLevelRDF(this->surf__top_level_rdf_prime);
     current_->setSuRFLevelFileRDF(this->surf__level_file_rdf_prime);
+
+    //LevelFileSplit RDF
+    current_->setSuRFLevelFileSplitRDF(this->surf__level_file_split_rdf_prime);
   }
 
   if(old_superversion != NULL && old_superversion->current != current_){
@@ -3462,6 +3465,10 @@ void ColumnFamilyData::InstallSuperVersion(
     (this->surf__level_file_rdf_prime)->deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
     // current_->setSuRFTopLevelRDF(this->surf__top_level_rdf);
     current_->setSuRFLevelFileRDF(this->surf__level_file_rdf_prime);
+    
+    //LevelFileSplit RDF
+    (this->surf__level_file_split_rdf_prime)->deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
+    current_->setSuRFLevelFileSplitRDF(this->surf__level_file_split_rdf_prime);
 
     //checking version update is continguous 
     if(install_version_pre != NULL){

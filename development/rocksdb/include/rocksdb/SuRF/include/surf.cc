@@ -357,6 +357,7 @@ std::string SuRF::Iter::getKeyWithSuffix(unsigned* bitlen) const {
 }
 
 void SuRF::Iter::passToSparse() {
+    std::cout << "send out node num = " << dense_iter_.getSendOutNodeNum() << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
     sparse_iter_.setStartNodeNum(dense_iter_.getSendOutNodeNum());
 }
 
@@ -1420,13 +1421,13 @@ uint64_t SuRF_RDF::getNumberOfTotalMemoryUsage(){
     return num;
 }
 void SuRF_RDF::logCurrentTotalNumbersOfRanges() {
-    // std::cout << "Current total number of ranges: " << ranges.size() << std::endl;
     int num = getNumberOfTotalRanges();
+    std::cout << "Current total number of ranges: " << num << std::endl;
     numbers_of_ranges_in_RDF_log.push_back(num);
 }
 void SuRF_RDF::logCurrentTotalMemoryUsage(){
-    // std::cout << "Current total memory usage: " << surf_->getMemoryUsage() << std::endl;
     uint64_t num = getNumberOfTotalMemoryUsage() / 8; //bits --> bytes
+    std::cout << "Current total memory usage: " << num << std::endl;
     memory_usage_in_RDF_log.push_back(num);
 }
 
@@ -1685,9 +1686,13 @@ bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string k
             }
 
             // if(key_found.size() < key_len_in_bytes){ //suppose max(len(inserted_keys)) == max(len(searching_keys))
-            //     non_overlapping = (iter.getSparseIter()->getRightParenthesis() != true);
+            //     non_overlapping = (iter.getRightParenthesis() != true);
             // }else if(key_found.size() == key_len_in_bytes){
-            //     return flag_bypass_if_same_key? true: (iter.getSparseIter()->getRightParenthesis() != true);
+            //     return flag_bypass_if_same_key? true: (iter.getRightParenthesis() != true);
+            // }
+            else{
+                non_overlapping = (iter.getSparseIter()->getRightParenthesis() != true);
+            }
         }
     }
     return non_overlapping;
