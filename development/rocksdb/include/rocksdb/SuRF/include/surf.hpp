@@ -248,7 +248,8 @@ class SuRF_RDF {
         // }
 
         // void insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pss> &range_delete_list_in, std::vector<uint64_t> exist_level0_file_nums);
-        void insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pss> &range_delete_list_in);
+        // void insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pss> &range_delete_list_in);
+        void insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pss> &range_delete_list_in, bool flag_allow_boundary_overlapped);
         // {
         //     if(rdf_mode == PER_LEVEL){
         //         if(level_surf_rdf.size() == 0){
@@ -284,7 +285,8 @@ class SuRF_RDF {
 
         void directMoveFileToLevel(uint64_t fd, uint32_t src_level, uint32_t dst_level);
 
-        std::vector<pss> getRangeTombstonesAtLevelOfFd(uint32_t src_level, uint64_t fd);
+        // std::vector<pss> getRangeTombstonesAtLevelOfFd(uint32_t src_level, uint64_t fd);
+        std::vector<pss> getRangeTombstonesAtLevelOfFd(uint32_t src_level, uint64_t fd, bool flag_allow_boundary_overlapped);
 
         void removeSuRFAtLevelOfFd(uint32_t src_level, uint64_t fd);
 
@@ -517,7 +519,8 @@ class SuRF_RDF {
         //     return overlapping;
         // }
 
-        void print();
+        // void print();
+        void print(bool flag_allow_boundary_overlapped);
 
     private:
         // SuRF* surf_ = nullptr;
@@ -716,7 +719,9 @@ public:
                 bool include_dense, uint32_t sparse_dense_ratio, bool flag_allow_boundary_overlapped);
 
 
-    static std::vector<std::pair<std::string, std::string>> surfToRanges(SuRF* surf_);
+    // static std::vector<std::pair<std::string, std::string>> surfToRanges(SuRF* surf_);
+    static std::vector<std::pair<std::string, std::string>> surfToRanges(SuRF* surf_, bool flag_allow_boundary_overlapped);
+
     int getLoudsDenseHeight() const {
         return louds_dense_->getHeight();
     }

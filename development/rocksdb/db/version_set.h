@@ -1274,11 +1274,17 @@ class Version {
   // }
   void printSuRFLevelFileRDF(){
     if(surf__level_file_rdf == NULL){return;}
-    surf__level_file_rdf->print();
+    
+    surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
+    bool surf_flag__allow_range_boundary_overlapped = _surf_env->getFlagAllowRangeBoundaryOverlapped();
+    surf__level_file_rdf->print(surf_flag__allow_range_boundary_overlapped);
   }
   void printSuRFLevelFileSplitRDF(){
     if(surf__level_file_split_rdf == NULL){return;}
-    surf__level_file_split_rdf->print();
+    
+    surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
+    bool surf_flag__allow_range_boundary_overlapped = _surf_env->getFlagAllowRangeBoundaryOverlapped();
+    surf__level_file_split_rdf->print(surf_flag__allow_range_boundary_overlapped);
   }
 
   int getPLRDFNumberOfTotalRanges(){

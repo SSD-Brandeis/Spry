@@ -1131,6 +1131,20 @@ class ColumnFamilyData {
   // void printSuRFSkylineRDF(){
   //   //pass
   // }
+  void printSuRFLevelFileRDF(){
+    if(surf__level_file_rdf_prime == NULL){return;}
+    
+    surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
+    bool surf_flag__allow_range_boundary_overlapped = _surf_env->getFlagAllowRangeBoundaryOverlapped();
+    surf__level_file_rdf_prime->print(surf_flag__allow_range_boundary_overlapped);
+  }
+  void printSuRFLevelFileSplitRDF(){
+    if(surf__level_file_split_rdf_prime == NULL){return;}
+    
+    surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
+    bool surf_flag__allow_range_boundary_overlapped = _surf_env->getFlagAllowRangeBoundaryOverlapped();
+    surf__level_file_split_rdf_prime->print(surf_flag__allow_range_boundary_overlapped);
+  }
 
   //split_start --- split_range --- split_end should be called in a sequence
   void split_start(int out_lvl){

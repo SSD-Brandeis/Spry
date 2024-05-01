@@ -2768,14 +2768,18 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
     //Split PLRDF
     this->split__flush_to_level0_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
 
-    // //SuRF top level / level file RDF
+
+    // //SuRF top level / level file RDF / level file Split RDF
+    surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
+    bool surf_flag__allow_range_boundary_overlapped = _surf_env->getFlagAllowRangeBoundaryOverlapped();
     //SuRF level file RDF
     if(surf__flush_to_level0_RD_vector != nullptr){
       uint64_t fd_out = surf__flush_to_level0_RD_vector->dst_fd;
       std::vector<pss> &rd_list = surf__flush_to_level0_RD_vector->rd_list;
       if(rd_list.size() != 0){
         std::sort(rd_list.begin(), rd_list.end()); 
-        (this->surf__level_file_rdf_prime)->insertRangeDeleteToLevel0(fd_out, rd_list);
+        // (this->surf__level_file_rdf_prime)->insertRangeDeleteToLevel0(fd_out, rd_list);
+        (this->surf__level_file_rdf_prime)->insertRangeDeleteToLevel0(fd_out, rd_list, surf_flag__allow_range_boundary_overlapped);
         
         delete surf__flush_to_level0_RD_vector;
       }
@@ -2791,7 +2795,8 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
 
         //TODO: insert incoming point keys to the ranges
 
-        (this->surf__level_file_split_rdf_prime)->insertRangeDeleteToLevel0(fd_out, rd_list);
+        // (this->surf__level_file_split_rdf_prime)->insertRangeDeleteToLevel0(fd_out, rd_list);
+        (this->surf__level_file_split_rdf_prime)->insertRangeDeleteToLevel0(fd_out, rd_list, surf_flag__allow_range_boundary_overlapped);
         
         delete surf_level_file_split__flush_to_level0_RD_vector;
       }

@@ -2303,7 +2303,7 @@ void Version::MultiGetBlob(
 }
 
 // YCHuang Added Start
-#define DEBUG_SURF_GET_PATH
+// #define DEBUG_SURF_GET_PATH
 // YCHuang Added End
 void Version::Get(const ReadOptions& read_options, const LookupKey& k,
                   PinnableSlice* value, PinnableWideColumns* columns,
@@ -2461,7 +2461,7 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
   // else if(rdf_type != "SKYLINE_RDF"){
   //   skyline__max_seq = getMaxSeqFromSkylineRDFilter(std::stoll(user_key.ToString()));
 
-  }else if("SuRF_LF_RDF"){
+  }else if(rdf_type == "SuRF_LF_RDF"){
     //SuRF_LEVEL_FILE_RDF
     surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
     //bool flag_bypass_if_same_key = false;
@@ -2515,7 +2515,9 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
       surf_level_file_split__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileSplitRDFilter(fp_hit_file_level, fd, user_key.ToString(), flag_bypass_if_same_key);
       checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
-
+#ifdef DEBUG_SURF_GET_PATH
+      std::cout << "0 surf_level_file_split__is_alive_after_hit_file_level = " << surf_level_file_split__is_alive_after_hit_file_level << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+#endif
       if(surf_level_file_split__is_alive_after_hit_file_level == false){
         *status = Status::NotFound();
         checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
@@ -3068,7 +3070,9 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
           checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
           surf_level_file_split__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileSplitRDFilter(fp_hit_file_level, fd, user_key.ToString(), flag_bypass_if_same_key);
           checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
-
+    #ifdef DEBUG_SURF_GET_PATH
+          std::cout << "1 surf_level_file_split__is_alive_after_hit_file_level = " << surf_level_file_split__is_alive_after_hit_file_level << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    #endif
           if(surf_level_file_split__is_alive_after_hit_file_level == false){
             *status = Status::NotFound();
             checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
