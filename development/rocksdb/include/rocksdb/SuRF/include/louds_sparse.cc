@@ -160,16 +160,16 @@ bool LoudsSparse::lookupKey(const std::string& key, const position_t in_node_num
 		if (!labels_->search((label_t)key[level], pos, nodeSize(pos)))
 			return false;
 
-		std::cout << "****** " << "sparse level: " << level << " key[level]: " << key[level] << "\t"
-				<< " pos: " << pos << " node_num: " << node_num
-				<< " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+		// std::cout << "****** " << "sparse level: " << level << " key[level]: " << key[level] << "\t"
+		// 		<< " pos: " << pos << " node_num: " << node_num
+		// 		<< " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
 
 		// if trie branch terminates
 		if (!child_indicator_bits_->readBit(pos)){
 			bool termination_rst = suffixes_->checkEquality(getSuffixPos(pos), key, level + 1);
-			std::cout << "****** " << "sparse termination_rst: " << termination_rst << "\n"
-					<< " " << "key: " << key << " level: " << level << " pos: " << pos << " node_num: " << node_num
-					<< " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+			// std::cout << "****** " << "sparse termination_rst: " << termination_rst << "\n"
+			// 		<< " " << "key: " << key << " level: " << level << " pos: " << pos << " node_num: " << node_num
+			// 		<< " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
 			return termination_rst;
 		}
 
