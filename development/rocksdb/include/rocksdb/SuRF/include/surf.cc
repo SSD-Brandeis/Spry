@@ -753,12 +753,12 @@ std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(SuRF* surf_,
         if(flag_allow_boundary_overlapped == false){
             for(int i = 0; i < len; i++){
                 if(left_parentheses[i]){
-                  //assert(left_parentheses[i] == true && right_parentheses[i] == true);
-                  if(flag_first_key != true){
-                    ranges.push_back(std::make_pair(start, end));
-                  }
-                  start = keys[i];
-                  // end = keys[i];
+                    //assert(left_parentheses[i] == true && right_parentheses[i] == true);
+                    if(flag_first_key != true){
+                        ranges.push_back(std::make_pair(start, end));
+                    }
+                    start = keys[i];
+                    // end = keys[i];
                 }else{
                     end = keys[i];
                 }
@@ -1384,10 +1384,12 @@ void SuRF_RDF::shiftRDFWithPointKeysToOutputLevel(std::vector<pss> &rd_merged, s
             }
 
             if(ranges_to_insert.size() > 0){
+#ifdef DEBUG_SURF_COMPACTION
 std::cout << "within SuRF:" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 for(auto &rd: ranges_to_insert){
     std::cout << rd.first << " " << rd.second << std::endl;
 }
+#endif
                 // (this->surf__level_file_rdf_prime)->insertRangesAtLevelOfFd(dst_level, dst_fd, ranges_to_insert, surf_flag__allow_range_boundary_overlapped);
                 this->insertRangesWithPointKeysAtLevelOfFd(dst_level, dst_fd, ranges_to_insert, point_keys, surf_flag__allow_range_boundary_overlapped);
             }
@@ -1612,7 +1614,98 @@ vpss SuRF_RDF::mergeRanges(vpss ranges_1, vpss ranges_2, bool allow_boundary_ove
     return ranges_out;
 }
 
-// #define DEBUG_SURF_GET_PATH
+// [a, b), [c, d)
+// 1. flag_bypass_if_same_key (== allow_boundary_overlapped) == 0
+//         [       ) 
+//                    [      )
+// Alive:  X  xxx  0  X xxxx O
+// left :  1       0  1      0
+// right:  0       1  0      1
+// 2. flag_bypass_if_same_key (== allow_boundary_overlapped)  == 1
+//         (       ) 
+//                 (      )
+// Alive:  O  xxx  O xxxx O
+// left :  1       1      0
+// right:  0       1      1
+//
+//
+// @insertion i) if inserted keys != boundary keys: add right bracket
+// 1. flag_bypass_if_same_key (== allow_boundary_overlapped) == 0
+//  inserted_key--          
+//               |
+//         [     )  ) 
+//                     [      )
+// Alive:  X  xxx   0  X xxxx O
+// left :  1        0  1      0
+// right:  0        1  0      1
+// 2. flag_bypass_if_same_key (== allow_boundary_overlapped)  == 1
+//  inserted_key--          
+//               |
+//         (     )  ) 
+//                  (      )
+// Alive:  O  xxx   O xxxx O
+// left :  1        1      0
+// right:  0        1      1
+//
+// @insertion ii) if inserted keys == boundary left key: 2 cases
+// 1. flag_bypass_if_same_key (== allow_boundary_overlapped) == 0
+//  inserted_key--------        (add right key)
+//                     |
+//                     |        
+//         [        )  )
+//                     [      )
+// Alive:  X  xxx   0  X xxxx O
+// left :  1        0  1      0
+// right:  0        1  1      1
+// 2. flag_bypass_if_same_key (== allow_boundary_overlapped)  == 1
+//  inserted_key-----           (doing nothing)
+//                  |
+//                  x        
+//         (        ) 
+//                  (      )
+// Alive:  O  xxx   O xxxx O
+// left :  1        1      0
+// right:  0        1      1
+//
+//
+// @checking is covered by a range i) if searched key != boundary keys: 2 cases
+// 1. flag_bypass_if_same_key (== allow_boundary_overlapped) == 0
+//  searched_key--  ---        (look right, if left & right parentheses -> not covered, else if right parentheses -> covered, else left parentheses -> not covered)
+//               |    |
+//         [        ) 
+//                     [      )
+// Alive:  X  xxx   0  X xxxx O
+// left :  1        0  1      0
+// right:  0        1  0      1
+// 2. flag_bypass_if_same_key (== allow_boundary_overlapped)  == 1
+//  searched_key-- ---        (look right, if right parentheses -> covered, else left parentheses -> not covered)
+//               |   |
+//         (        ) 
+//                    (      )
+// Alive:  O  xxx   O O xxxx O
+// left :  1        0 1      0
+// right:  0        1 0      1
+//
+// @checking is covered by a range ii) if searched key == boundary left key: 2 cases
+// 1. flag_bypass_if_same_key (== allow_boundary_overlapped) == 0
+//  searched_key--------      (look right (current key), if has right parentheses -> not covered, else covered)
+//                  |  |
+//                  |  |        
+//         [        )  )
+//                     [      )
+// Alive:  X  xxx   0  X xxxx O
+// left :  1        0  1      0
+// right:  0        1  1      1
+// 2. flag_bypass_if_same_key (== allow_boundary_overlapped)  == 1
+//  searched_key-----           (look right (current key), -> not covered)
+//                  |
+//                  x        
+//         (        ) 
+//                  (      )
+// Alive:  O  xxx   O xxxx O
+// left :  1        1      0
+// right:  0        1      1
+#define DEBUG_SURF_GET_PATH
 bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string key, bool flag_bypass_if_same_key) const {
     assert(rdf_mode == PER_FILE);
     assert(level < level_file_surf_rdf.size());
@@ -1689,7 +1782,15 @@ bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string k
             //     return flag_bypass_if_same_key? true: (iter.getRightParenthesis() != true);
             // }
             else{
-                non_overlapping = (iter.getRightParenthesis() != true);
+                if(flag_bypass_if_same_key == true){
+                    non_overlapping = (iter.getRightParenthesis() != true);
+                }else{
+                    if(iter.getLeftParenthesis() == true && iter.getRightParenthesis() == true){
+                        non_overlapping = true;
+                    }else{
+                        non_overlapping = (iter.getRightParenthesis() != true);
+                    }
+                }
             }
         }
     }else{
@@ -1752,7 +1853,17 @@ bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string k
             //     return flag_bypass_if_same_key? true: (iter.getRightParenthesis() != true);
             // }
             else{
-                non_overlapping = (iter.getSparseIter()->getRightParenthesis() != true);
+                // non_overlapping = (iter.getSparseIter()->getRightParenthesis() != true);
+                if(flag_bypass_if_same_key == true){
+                    non_overlapping = (iter.getSparseIter()->getRightParenthesis() != true);
+                }else{
+                    if(iter.getSparseIter()->getLeftParenthesis() == true && iter.getSparseIter()->getRightParenthesis() == true){
+                        non_overlapping = true;
+                    }else{
+                        non_overlapping = (iter.getSparseIter()->getRightParenthesis() != true);
+                    }
+                }
+
 #ifdef DEBUG_SURF_GET_PATH  
                 std::cout << "key_found != key" << std::endl;
                 std::cout << "non_overlapping = " << non_overlapping << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
