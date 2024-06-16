@@ -1324,7 +1324,7 @@ std::cout  << "MemTable::Get A2 B2 @prefix key filtering (partial key) " << __FI
     if (bloom_checked) {
       PERF_COUNTER_ADD(bloom_memtable_hit_count, 1);
     }
-std::cout  << "Not blocked by bloom filter  " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "Not blocked by bloom filter  " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     GetFromTable(key, *max_covering_tombstone_seq, do_merge, callback,
                  is_blob_index, value, columns, timestamp, s, merge_context,
                  seq, &found_final_value, &merge_in_progress);

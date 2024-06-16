@@ -2157,7 +2157,7 @@ std::cout  << "DBImpl::GetImpl A10 " << __FILE__ << ":" << __LINE__ << " " << __
               &max_covering_tombstone_seq, read_options,
               false /* immutable_memtable */, get_impl_options.callback,
               get_impl_options.is_blob_index)) {
-std::cout  << "DBImpl::GetImpl A11 B1 C1 (sv->mem) " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout  << "DBImpl::GetImpl A11 B1 C1 (sv->mem) " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         done = true;
 
         if (get_impl_options.value) {

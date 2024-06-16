@@ -1479,12 +1479,12 @@ uint64_t SuRF_RDF::getNumberOfTotalMemoryUsage(){
 }
 void SuRF_RDF::logCurrentTotalNumbersOfRanges() {
     int num = getNumberOfTotalRanges();
-    std::cout << "Current total number of ranges: " << num << std::endl;
+    // std::cout << "Current total number of ranges: " << num << std::endl;
     numbers_of_ranges_in_RDF_log.push_back(num);
 }
 void SuRF_RDF::logCurrentTotalMemoryUsage(){
     uint64_t num = getNumberOfTotalMemoryUsage() / 8; //bits --> bytes
-    std::cout << "Current total memory usage: " << num << std::endl;
+    // std::cout << "Current total memory usage: " << num << std::endl;
     memory_usage_in_RDF_log.push_back(num);
 }
 
@@ -1705,7 +1705,7 @@ vpss SuRF_RDF::mergeRanges(vpss ranges_1, vpss ranges_2, bool allow_boundary_ove
 // Alive:  O  xxx   O xxxx O
 // left :  1        1      0
 // right:  0        1      1
-#define DEBUG_SURF_GET_PATH
+// #define DEBUG_SURF_GET_PATH
 bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string key, bool flag_bypass_if_same_key) const {
     assert(rdf_mode == PER_FILE);
     assert(level < level_file_surf_rdf.size());

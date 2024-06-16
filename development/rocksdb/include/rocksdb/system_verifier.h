@@ -795,12 +795,18 @@ namespace checking {
     }
 
     vector<long long> getCurrentlyDeletedKeys(){
+// std::cout << "f1 " << __FILE__ << " " << __LINE__ << " " << __func__ << std::endl;
+      if(historicExistingKeys.size() == 0){
+        return vector<long long>();
+      }
+      
       vector<long long> result;
       for(auto it = historicExistingKeys.begin(); it != historicExistingKeys.end(); it++){
         if(groundTruth.count(*it) == 0){
           result.push_back(*it);
         }
       }
+// std::cout << "f2 " << __FILE__ << " " << __LINE__ << " " << __func__ << std::endl;
       return result;
     }
 
@@ -892,7 +898,7 @@ namespace checking {
 
 
 
-     std::string getCurrentlyDeletedKeysVec2dString(std::string sep, std::string bracket, std::string prefix){
+    std::string getCurrentlyDeletedKeysVec2dString(std::string sep, std::string bracket, std::string prefix){
       std::stringstream result;
 
       vector<vector<long long>> &vec2d = workload_currently_deleted_keys;

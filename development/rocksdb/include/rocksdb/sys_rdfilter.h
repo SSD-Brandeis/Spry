@@ -1085,7 +1085,11 @@ class PLRDF{
     }
 
     std::vector<int> getNumbersOfRangesInRDFLog(){
-      return numbers_of_ranges_in_RDF_log;
+      if(numbers_of_ranges_in_RDF_log.size() == 0){
+        return {};
+      }else{
+        return numbers_of_ranges_in_RDF_log;
+      }
     }
     
     void logCurrentTotalMemoryUsage(){
