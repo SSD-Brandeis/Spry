@@ -166,6 +166,8 @@ void LoggerDuringInsertion::start(EmuEnv* _env){
 void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   DB* db = *db_ptr2;
   // Status s;
+  running_log_during_insertion << "recordCurrentMemoryFootprint Start " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
 
   // checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
   // int KEY_SIZE = checking::SystemVerifier::getSystemVerifier()->getKeySize();
@@ -244,11 +246,15 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }else{
     memory_usage_log_SuRFLevelFileSplitRDF.push_back(0);
   }
+
+  running_log_during_insertion << "recordCurrentMemoryFootprint End " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 }
 
 void LoggerDuringInsertion::writeRecord(DB** db_ptr2){
   DB* db = *db_ptr2;
   Status s;
+
+  running_log_during_insertion << "writeRecord Start " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   // checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
   // int KEY_SIZE = checking::SystemVerifier::getSystemVerifier()->getKeySize();
@@ -362,6 +368,8 @@ void LoggerDuringInsertion::writeRecord(DB** db_ptr2){
     }
   }
   testing_result_file_during_insertion << "]" << std::endl;
+
+  running_log_during_insertion << "writeRecord End " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
 }
 
