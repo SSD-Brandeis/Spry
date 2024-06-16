@@ -15,6 +15,7 @@
 #include "rocksdb/system_verifier.h"
 #include "utils_rdf.h"
 #include "utils_db.h"
+#include "utils_log.h"
 #include "rocksdb/SuRF/include/surf.hpp"
 
 

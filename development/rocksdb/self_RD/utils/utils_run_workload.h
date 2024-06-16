@@ -15,6 +15,7 @@
 #include "rocksdb/advanced_options.h"
 #include "rocksdb/system_verifier.h"
 // #include "utils_run_verification.h"
+#include "utils_logger_during_insertion.h"
 
 
 void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_op, 
@@ -43,6 +44,8 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
 
   checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
   system_verifier->resetRunningPQ();
+
+  LoggerDuringInsertion *logger_during_insertion = LoggerDuringInsertion::getInstance(_env);
 
   Iterator* it = db->NewIterator(read_op);  // for range reads
   uint64_t counter = 0;                     // for progress bar
@@ -92,6 +95,8 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
         if (!s.ok()) std::cerr << s.ToString() << std::endl;
         assert(s.ok());
         counter++;
+
+        logger_during_insertion->recordCurrentMemoryFootprint(db_ptr2);
         break;
 
       case 'Q':  // probe: point query
@@ -177,8 +182,34 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
     }
 
     if (workload_size < 100) workload_size = 100;
-    if (counter % (workload_size / 100) == 0) {
+    if (counter % (workload_size / 100) == 0) {  
       showProgress(workload_size, counter);
+    }
+
+    // run PQ and log memory footprint during insertion
+    vector<long long> currently_deleted_keys = system_verifier->getCurrentlyDeletedKeys();
+    // if (counter % 100 == 0 && currently_deleted_keys.size() > 0){    
+
+    if (counter % 200 == 0 && currently_deleted_keys.size() > 100){    
+    // if (counter % 100 == 0 && currently_deleted_keys.size() > 100){    
+// std::cout << "@M1 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+      // s = db->SetOptions({{"disable_auto_compactions", "true"}}); 
+      // if (!s.ok()) std::cerr << s.ToString() << std::endl;
+      // assert(s.ok());
+      // std::cout << "!!! Disable auto compaction" << std::endl; 
+      
+      std::this_thread::sleep_for(std::chrono::seconds(30));  // Sleep for 10 second
+// std::cout << "@M2 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+      logger_during_insertion->runPQonCurrentlyDeletedKeys(
+        counter, db_ptr2, op, write_op, read_op, _env, 500, kDBPath);
+// std::cout << "@M3 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+      // s = db->SetOptions({{"disable_auto_compactions", "false"}}); 
+      // if (!s.ok()) std::cerr << s.ToString() << std::endl;
+      // assert(s.ok());
+      // std::cout << "!!! Enable auto compaction" << std::endl; 
     }
   }
 
@@ -194,12 +225,17 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
   if (!s.ok()) std::cerr << s.ToString() << std::endl;
   assert(s.ok());
   // Status s = db->Flush(flush_opts, {db->DefaultColumnFamily()});
+  
 
   std::cout << "!!! Insertion Workload Ends." << std::endl;
 
   std::this_thread::sleep_for(std::chrono::seconds(10));  // Sleep for 10 second
 
   std::cout << "!!! After sleep." << std::endl;
+
+  logger_during_insertion->recordCurrentMemoryFootprint(db_ptr2);
+  logger_during_insertion->writeRecord(db_ptr2);
+  logger_during_insertion->end();
 
 
   db->printAllFileRanges();
