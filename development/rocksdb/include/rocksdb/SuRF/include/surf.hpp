@@ -6,6 +6,10 @@
 #include <algorithm>
 #include <unordered_map>
 
+#include <climits>
+#include <cmath>
+#include <iomanip>
+
 #include "config.hpp"
 #include "louds_dense.hpp"
 #include "louds_sparse.hpp"
@@ -99,6 +103,125 @@ class SuRF_Env {
         bool surf__flag_allow_range_boundary_overlapped = false;
 };
 
+
+
+class SuRF_Utils {
+    public:
+        // static std::string encode_digit_string_to_byte_string(std::string digit_string);
+        static std::string encode_digit_string_to_byte_string(const std::string &digit_string){
+
+            uint32_t base = 256;
+            int32_t spacing =  std::log(ULONG_LONG_MAX) / std::log(10); //19
+            spacing -= (std::log(base)/std::log(10)+1); //16
+            //std::cout << spacing << std::endl;
+            std::vector<unsigned long long> digits; 
+            // uint64_t num2 = 0;
+            for(int32_t i = digit_string.size(); i > 0; i-=spacing){
+                int32_t start = std::max((int32_t)0, (int32_t)i-spacing);
+                std::string sub = digit_string.substr(start, i-start);
+                uint64_t a = std::stoull(sub);
+                digits.push_back(a);
+            }
+            reverse(digits.begin(), digits.end());
+
+            // for(auto d: digits){
+            //     std::cout  << d << " ";
+            // }
+            // std::cout << std::endl;
+
+            std::string out;
+            for(uint32_t i = 0; i < digits.size(); ){
+                
+                uint64_t carry_on = 0, tmp = 0;
+                for(uint32_t j = i; j < digits.size(); j++){
+                    tmp *= pow(10, spacing);
+                    tmp += digits[j];
+                    
+                    carry_on = tmp % base;
+                    digits[j] = tmp / base;
+
+                    tmp = carry_on;
+                }
+
+                out.push_back( (char) (((int32_t)carry_on)));
+
+                while(i < digits.size() && digits[i] == 0){
+                    i++;
+                }
+            }
+
+            reverse(out.begin(), out.end());
+
+            return out;
+        }
+
+
+        // static std::string decode_byte_string_to_digit_string(std::string &byte_string);
+        static std::string decode_byte_string_to_digit_string(const std::string &byte_string){
+            std::string digit_string;
+            //int base = 256;
+            int32_t spacing = 7;
+            std::vector<uint64_t> digits;
+            for(int32_t i = byte_string.size(); i > 0; i-=spacing){
+                uint32_t start = std::max(i-spacing, 0);
+                uint32_t end = i;
+                unsigned long long tmp = 0;
+                for(uint32_t j = start; j < end; j++){
+                    tmp <<= 8;
+                    tmp += (unsigned)(unsigned char)byte_string[j];
+                } 
+                digits.push_back(tmp);
+            }
+            reverse(digits.begin(), digits.end());
+
+            // for(auto d: digits){
+            //     std::cout << d << " ";
+            // }
+            // std::cout << endl;
+            std::string out;
+            for(uint64_t i = 0; i < digits.size(); ){
+                uint64_t carry_on = 0, num = 0;
+                for(uint64_t j = i; j < digits.size(); j++){
+                    // num <<= (8 * spacing);
+                    num *= std::pow(256, spacing);
+                    num += digits[j];
+
+                    carry_on = num % 10;
+                    digits[j] = num / 10;
+                    
+                    num = carry_on;
+                }
+                out.push_back(carry_on + '0');
+
+                while(i < digits.size() && digits[i] == 0){
+                    i++;
+                }
+            }
+
+            reverse(out.begin(), out.end());
+
+            return out;
+        }
+
+        static std::string extend_string_to_length(std::string str, uint32_t len, char c = (char)0){
+            std::stringstream ss_key;
+            ss_key << std::setfill(c) << std::setw(len) << str;
+            return ss_key.str();
+        }
+
+
+        static void print_byte_string(std::string byte_string){
+            for(auto c: byte_string){
+                std::cout << (unsigned)(unsigned char)(c) << " ";
+            }
+            std::cout << std::endl;
+        }
+
+        static void print_digit_string(std::string digit_string){
+            std::cout << digit_string << std::endl;
+        }
+    private:
+};
 
 class SuRF_RDF {
     public:

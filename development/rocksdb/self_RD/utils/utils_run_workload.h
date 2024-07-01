@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <cmath>
 
 #include "../workload/args.hxx"
 // #include "workload/workload_generator.h"
@@ -16,6 +17,7 @@
 #include "rocksdb/system_verifier.h"
 // #include "utils_run_verification.h"
 #include "utils_logger_during_insertion.h"
+#include "rocksdb/SuRF/include/surf.hpp"
 
 
 void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_op, 
@@ -50,6 +52,7 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
   Iterator* it = db->NewIterator(read_op);  // for range reads
   uint64_t counter = 0;                     // for progress bar
   int KEY_SIZE = checking::SystemVerifier::getSystemVerifier()->getKeySize();
+  // KEY_SIZE = KEY_SIZE * log(10) / log(256) + 1;
   int TIME_STAMP_SIZE = 7;  // shall == rocksdb sequence num 
   long long i_instruction = 0;
 
@@ -96,7 +99,9 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
         assert(s.ok());
         counter++;
 
-        logger_during_insertion->recordCurrentMemoryFootprint(db_ptr2);
+        if(_env->log_during_insertion == true){
+          logger_during_insertion->recordCurrentMemoryFootprint(db_ptr2);
+        }
         break;
 
       case 'Q':  // probe: point query
@@ -120,7 +125,6 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
       case 'S':  // scan: range query
         workload_file >> start_key >> end_key;
 
-
         it->Refresh();
         assert(it->status().ok());
         ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
@@ -139,6 +143,7 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
 
       case 'D':  // delete
         workload_file >> type >> start_key >> end_key;
+        
         if (type == "Range") {
           
           // FlushOptions flush_opts;
@@ -202,8 +207,10 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
       std::this_thread::sleep_for(std::chrono::seconds(30));  // Sleep for 10 second
 // std::cout << "@M2 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
-      logger_during_insertion->runPQonCurrentlyDeletedKeys(
-        counter, db_ptr2, op, write_op, read_op, _env, 500, kDBPath);
+      if(_env->log_during_insertion == true){
+        logger_during_insertion->runPQonCurrentlyDeletedKeys(
+          counter, db_ptr2, op, write_op, read_op, _env, 500, kDBPath);
+      }
 // std::cout << "@M3 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
       // s = db->SetOptions({{"disable_auto_compactions", "false"}}); 

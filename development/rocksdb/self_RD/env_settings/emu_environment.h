@@ -293,6 +293,7 @@ public:
   bool gen_workload = true;
   bool skip_reading_RD_blocks = false;
   int number_of_PQ = 5000;
+  bool log_during_insertion = false;
   //YuCheng Added End
 
 // old options

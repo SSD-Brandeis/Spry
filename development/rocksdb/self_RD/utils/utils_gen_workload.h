@@ -156,6 +156,8 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   args::ValueFlag<uint32_t> surf__real_suffix_len_cmd(group1, "surf__real_suffix_len", "surf__real_suffix_len [def:0]", {"surf__real_suffix_len"});
   args::ValueFlag<bool> surf__include_dense_cmd(group1, "surf__include_dense", "surf__include_dense [def:1 (true)]", {"surf__include_dense"});
   args::ValueFlag<uint32_t> surf__sparse_dense_ratio_cmd(group1, "surf__sparse_dense_ratio", "surf__sparse_dense_ratio [def:16]", {"surf__sparse_dense_ratio"});
+
+  args::ValueFlag<bool> log_during_insertion_cmd(group1, "log_during_insertion", "log_during_insertion [def:0 (false)]", {"log_during_insertion"});
   //YuCheng Added End
 
 
@@ -236,6 +238,9 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   _env->skip_reading_RD_blocks = skip_reading_RD_blocks;
   _env->number_of_PQ = number_of_PQ;
 
+  bool log_during_insertion = log_during_insertion_cmd ? (args::get(log_during_insertion_cmd) != 0) : false;
+  _env->log_during_insertion = log_during_insertion;
+  
   int surf__key_len_in_bytes = surf__key_len_in_bytes_cmd ? args::get(surf__key_len_in_bytes_cmd) : 12;
   uint32_t surf__hash_suffix_len = surf__hash_suffix_len_cmd ? args::get(surf__hash_suffix_len_cmd) : 0;
   uint32_t surf__real_suffix_len = surf__real_suffix_len_cmd ? args::get(surf__real_suffix_len_cmd) : 0;

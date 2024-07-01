@@ -1301,10 +1301,10 @@ void SuRF_RDF::shiftRDFToOutputLevel(std::vector<pss> &rd_merged, uint32_t dst_l
             }
 
             if(ranges_to_insert.size() > 0){
-std::cout << "within SuRF:" << std::endl;
-for(auto &rd: ranges_to_insert){
-    std::cout << rd.first << " " << rd.second << std::endl;
-}
+// std::cout << "within SuRF:" << std::endl;
+// for(auto &rd: ranges_to_insert){
+//     std::cout << rd.first << " " << rd.second << std::endl;
+// }
                 // (this->surf__level_file_rdf_prime)->insertRangesAtLevelOfFd(dst_level, dst_fd, ranges_to_insert, surf_flag__allow_range_boundary_overlapped);
                 this->insertRangesAtLevelOfFd(dst_level, dst_fd, ranges_to_insert, surf_flag__allow_range_boundary_overlapped);
             }
@@ -1320,7 +1320,7 @@ for(auto &rd: ranges_to_insert){
 #define DEBUG_SURF_COMPACTION
 void SuRF_RDF::shiftRDFWithPointKeysToOutputLevel(std::vector<pss> &rd_merged, std::vector<std::string> &point_keys, uint32_t dst_level, std::vector<uint64_t> &dst_fd_list, std::vector<pss> &file_boundary_list, bool surf_flag__allow_range_boundary_overlapped){
 #ifdef DEBUG_SURF_COMPACTION
-    //check point_keys are sorted and unique
+    //check point_keys are sorted and unique-*665
     for(size_t i = 1; i < point_keys.size(); i++){
         assert(point_keys[i-1] < point_keys[i]);
         if(point_keys[i-1] > point_keys[i]){

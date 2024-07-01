@@ -2776,6 +2776,14 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
     if(surf__flush_to_level0_RD_vector != nullptr){
       uint64_t fd_out = surf__flush_to_level0_RD_vector->dst_fd;
       std::vector<pss> &rd_list = surf__flush_to_level0_RD_vector->rd_list;
+      
+      for(auto &x: rd_list){
+        x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+        x.first = surf::SuRF_Utils::extend_string_to_length(x.first, 5, (char)0);
+        x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+        x.second = surf::SuRF_Utils::extend_string_to_length(x.second, 5, (char)0);
+      }
+      
       if(rd_list.size() != 0){
         std::sort(rd_list.begin(), rd_list.end()); 
         // (this->surf__level_file_rdf_prime)->insertRangeDeleteToLevel0(fd_out, rd_list);
@@ -2790,6 +2798,14 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
     if(surf_level_file_split__flush_to_level0_RD_vector != nullptr){
       uint64_t fd_out = surf_level_file_split__flush_to_level0_RD_vector->dst_fd;
       std::vector<pss> &rd_list = surf_level_file_split__flush_to_level0_RD_vector->rd_list;
+      
+      for(auto &x: rd_list){
+        x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+        x.first = surf::SuRF_Utils::extend_string_to_length(x.first, 5, (char)0);
+        x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+        x.second = surf::SuRF_Utils::extend_string_to_length(x.second, 5, (char)0);
+      }
+
       if(rd_list.size() != 0){
         std::sort(rd_list.begin(), rd_list.end()); 
 
@@ -2968,6 +2984,14 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
                 }
               }
             }
+
+            for(auto &x: file_boundary_list){
+              x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+              x.first = surf::SuRF_Utils::extend_string_to_length(x.first, 5, (char)0);
+              x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+              x.second = surf::SuRF_Utils::extend_string_to_length(x.second, 5, (char)0);
+            }
+
             (this->surf__level_file_rdf_prime)->shiftRDFToOutputLevel(
               range_tombstone_merged, dst_level, 
               dst_fd_list, file_boundary_list,
@@ -3186,6 +3210,48 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
                             << " " << __FUNCTION__ << std::endl;
                 }
               }
+            }
+#define CHECK_SPLITTING_POINT_KEY_IN_ASCENDING_ORDER
+#ifdef CHECK_SPLITTING_POINT_KEY_IN_ASCENDING_ORDER
+std::vector<std::string> tmp_point_keys(this->surf_level_file_split__in_coming_point_keys);
+for(uint32_t i_pk = 1; i_pk < this->surf_level_file_split__in_coming_point_keys.size(); i_pk++){
+  auto x0 = this->surf_level_file_split__in_coming_point_keys[i_pk-1];
+  auto x1 = this->surf_level_file_split__in_coming_point_keys[i_pk];
+  // std::cout  << "@A1  x0 <= x1" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+  if (x0 > x1){
+    std::cout  << "Error @A1  x0 > x1" << " " << "x0 = " << x0 << " x1 = " << x1 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  }
+}
+#endif
+
+            for(uint32_t i_pk = 0; i_pk < this->surf_level_file_split__in_coming_point_keys.size(); i_pk++){
+              auto x = this->surf_level_file_split__in_coming_point_keys[i_pk];
+              x = surf::SuRF_Utils::encode_digit_string_to_byte_string(x);
+              x = surf::SuRF_Utils::extend_string_to_length(x, 5, (char)0);
+              this->surf_level_file_split__in_coming_point_keys[i_pk] = x;
+            }
+#ifdef CHECK_SPLITTING_POINT_KEY_IN_ASCENDING_ORDER      
+for(uint32_t i_pk = 1; i_pk < this->surf_level_file_split__in_coming_point_keys.size(); i_pk++){
+  auto x0 = this->surf_level_file_split__in_coming_point_keys[i_pk-1];
+  auto x1 = this->surf_level_file_split__in_coming_point_keys[i_pk];
+  if (x0 > x1){
+    std::cout  << "Error @A2  x0 > x1" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    std::cout << "x0 = " << x0 << " x1 = " << x1 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    x0 = surf::SuRF_Utils::decode_byte_string_to_digit_string(x0);
+    x1 = surf::SuRF_Utils::decode_byte_string_to_digit_string(x1);
+    std::cout << "x0 = " << x0 << " x1 = " << x1 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+    x0 = tmp_point_keys[i_pk-1];
+    x1 = tmp_point_keys[i_pk];
+    std::cout << "x0 = " << x0 << " x1 = " << x1 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+  }
+}
+#endif
+            for(auto &x: file_boundary_list){
+              x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+              x.first = surf::SuRF_Utils::extend_string_to_length(x.first, 5, (char)0);
+              x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+              x.second = surf::SuRF_Utils::extend_string_to_length(x.second, 5, (char)0);
             }
 
             (this->surf__level_file_split_rdf_prime)->shiftRDFWithPointKeysToOutputLevel(

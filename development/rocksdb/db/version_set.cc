@@ -2481,8 +2481,12 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       std::cout << " f = " << user_key.ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
 
+      string user_key2 = surf::SuRF_Utils::encode_digit_string_to_byte_string(user_key.ToString());
+      user_key2 = surf::SuRF_Utils::extend_string_to_length(user_key2, 5, (char)0);
+
       checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
-      surf_level_file__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileRDFilter(fp_hit_file_level, fd, user_key.ToString(), flag_bypass_if_same_key);
+      // surf_level_file__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileRDFilter(fp_hit_file_level, fd, user_key.ToString(), flag_bypass_if_same_key);
+      surf_level_file__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileRDFilter(fp_hit_file_level, fd, user_key2, flag_bypass_if_same_key);
       checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
 
       checking::SystemVerifier::getSystemVerifier()->reset_flag_is_RDF_filtered_entry();
@@ -2512,8 +2516,13 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       std::cout << " fp_hit_file_level = " << fp_hit_file_level << " fd = " << (f->fd).GetNumber() << " f->smallest_key = " << ExtractUserKey(f->smallest_key).ToString() << " f->largest_key = " << ExtractUserKey(f->largest_key).ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       std::cout << " f = " << user_key.ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
+
+      string user_key2 = surf::SuRF_Utils::encode_digit_string_to_byte_string(user_key.ToString());
+      user_key2 = surf::SuRF_Utils::extend_string_to_length(user_key2, 5, (char)0);
+
       checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
-      surf_level_file_split__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileSplitRDFilter(fp_hit_file_level, fd, user_key.ToString(), flag_bypass_if_same_key);
+      // surf_level_file_split__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileSplitRDFilter(fp_hit_file_level, fd, user_key.ToString(), flag_bypass_if_same_key);
+      surf_level_file_split__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileSplitRDFilter(fp_hit_file_level, fd, user_key2, flag_bypass_if_same_key);
       checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
 #ifdef DEBUG_SURF_GET_PATH
       std::cout << "0 surf_level_file_split__is_alive_after_hit_file_level = " << surf_level_file_split__is_alive_after_hit_file_level << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -3035,8 +3044,12 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
           std::cout << " fp_hit_file_level = " << fp.GetHitFileLevel() << " fd = " << (f->fd).GetNumber() << " f->smallest_key = " << ExtractUserKey(f->smallest_key).ToString() << " f->largest_key = " << ExtractUserKey(f->largest_key).ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
           std::cout << " f = " << user_key.ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
+          string user_key2 = surf::SuRF_Utils::encode_digit_string_to_byte_string(user_key.ToString());
+      user_key2 = surf::SuRF_Utils::extend_string_to_length(user_key2, 5, (char)0);
+
           checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
-          surf_level_file__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileRDFilter(fp.GetHitFileLevel(), fd, user_key.ToString(), flag_bypass_if_same_key);
+          // surf_level_file__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileRDFilter(fp.GetHitFileLevel(), fd, user_key.ToString(), flag_bypass_if_same_key);
+          surf_level_file__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileRDFilter(fp.GetHitFileLevel(), fd, user_key2, flag_bypass_if_same_key);
           checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
           
           if(surf_level_file__is_alive_after_hit_file_level == false){
@@ -3067,8 +3080,13 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
           std::cout << " fp_hit_file_level = " << fp_hit_file_level << " fd = " << (f->fd).GetNumber() << " f->smallest_key = " << ExtractUserKey(f->smallest_key).ToString() << " f->largest_key = " << ExtractUserKey(f->largest_key).ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
           std::cout << " f = " << user_key.ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     #endif
+          
+          string user_key2 = surf::SuRF_Utils::encode_digit_string_to_byte_string(user_key.ToString());
+      user_key2 = surf::SuRF_Utils::extend_string_to_length(user_key2, 5, (char)0);
+
           checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
-          surf_level_file_split__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileSplitRDFilter(fp_hit_file_level, fd, user_key.ToString(), flag_bypass_if_same_key);
+          // surf_level_file_split__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileSplitRDFilter(fp_hit_file_level, fd, user_key.ToString(), flag_bypass_if_same_key);
+          surf_level_file_split__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileSplitRDFilter(fp_hit_file_level, fd, user_key2, flag_bypass_if_same_key);
           checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
     #ifdef DEBUG_SURF_GET_PATH
           std::cout << "1 surf_level_file_split__is_alive_after_hit_file_level = " << surf_level_file_split__is_alive_after_hit_file_level << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
