@@ -158,6 +158,7 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   args::ValueFlag<uint32_t> surf__sparse_dense_ratio_cmd(group1, "surf__sparse_dense_ratio", "surf__sparse_dense_ratio [def:16]", {"surf__sparse_dense_ratio"});
 
   args::ValueFlag<bool> log_during_insertion_cmd(group1, "log_during_insertion", "log_during_insertion [def:0 (false)]", {"log_during_insertion"});
+  args::ValueFlag<bool> surf_use_condensed_digit_key_cmd(group1, "surf_use_condensed_digit_key", "surf_use_condensed_digit_key [def:1 (true)]", {"surf_use_condensed_digit_key"});
   //YuCheng Added End
 
 
@@ -248,6 +249,8 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   uint32_t surf__sparse_dense_ratio = surf__sparse_dense_ratio_cmd ? args::get(surf__sparse_dense_ratio_cmd) : 16;
   bool surf__flag_bypass_if_same_key = surf__key_len_in_bytes < key_size_to_insert; // whether to skip RDF checking if searding key is the same as the next greater key in the SuRF
   bool surf__flag_allow_range_boundary_overlapped = surf__key_len_in_bytes < key_size_to_insert;
+  bool surf_use_condensed_digit_key = surf_use_condensed_digit_key_cmd ? (args::get(surf_use_condensed_digit_key_cmd) != 0) : false;
+  uint32_t length_of_condensed_digit_key = 1.0 * key_size_to_insert * log(10) / log(256) + 1;
   _surf_env->setSuRFKeyLenInBytes(surf__key_len_in_bytes);
   _surf_env->setSuRFHashSuffixLen(surf__hash_suffix_len);
   _surf_env->setSuRFRealSuffixLen(surf__real_suffix_len);
@@ -255,6 +258,10 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   _surf_env->setSuRFSparseDenseRatio(surf__sparse_dense_ratio);
   _surf_env->setFlagBypassIfSameKey(surf__flag_bypass_if_same_key);
   _surf_env->setFlagAllowRangeBoundaryOverlapped(surf__flag_allow_range_boundary_overlapped);
+  _surf_env->setFlagSurfUseCondensedDigitKey(surf_use_condensed_digit_key);
+  if(surf_use_condensed_digit_key == true){
+    _surf_env->setLengthOfCondensedDigitKey(length_of_condensed_digit_key);
+  }
   //YuCheng Added End
   return 0;
 }

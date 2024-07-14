@@ -20,6 +20,11 @@
 #include "port/lang.h"
 #include "util/distributed_mutex.h"
 
+// YCHuang Added Start
+#include <iostream>  // Include the iostream header for std::cout
+// YCHuang Added End
+
+
 namespace ROCKSDB_NAMESPACE {
 namespace lru_cache {
 
@@ -73,6 +78,7 @@ LRUHandle* LRUHandleTable::Remove(const Slice& key, uint32_t hash) {
 }
 
 LRUHandle** LRUHandleTable::FindPointer(const Slice& key, uint32_t hash) {
+// std::cout << "LRUHandleTable FindPointer " << " " << __FILE__ << ":" << __LINE__ << std::endl;
   LRUHandle** ptr = &list_[hash >> (32 - length_bits_)];
   while (*ptr != nullptr && ((*ptr)->hash != hash || key != (*ptr)->key())) {
     ptr = &(*ptr)->next_hash;

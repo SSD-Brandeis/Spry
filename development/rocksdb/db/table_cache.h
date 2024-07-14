@@ -236,6 +236,31 @@ class TableCache {
       immortal_tables_ = true;
     }
   }
+    
+  // YCHuang Added Start
+  bool get_ych__flag_tombstone_read(){
+     return ych__flag_tombstone_read;
+  }
+  void reset_ych__flag_tombstone_read(){
+    ych__flag_tombstone_read = 0;
+    ych__total_tombstone_payload_bytes = 0;
+    ych__num_unfragmented_tombstones = 0;
+    ych__table_reader_ptr = 0;
+    ych__file_number = 0;
+  }
+  uint64_t get_ych__total_tombstone_payload_bytes(){
+    return ych__total_tombstone_payload_bytes;
+  }
+  uint64_t get_ych__num_unfragmented_tombstones(){
+    return ych__num_unfragmented_tombstones;
+  }
+  uint64_t get_ych__file_number(){
+    return ych__file_number;
+  }
+  uint64_t get_ych__table_reader_ptr(){
+    return ych__table_reader_ptr;
+  }
+  // YCHuang Added End
 
  private:
   // Build a table reader
@@ -278,6 +303,14 @@ class TableCache {
   Striped<port::Mutex, Slice> loader_mutex_;
   std::shared_ptr<IOTracer> io_tracer_;
   std::string db_session_id_;
+
+  // YCHuang Added Start
+  bool ych__flag_tombstone_read = false; //used in TableCache::FindTable
+  uint64_t ych__total_tombstone_payload_bytes = 0; //used in TableCache::FindTable
+  uint64_t ych__num_unfragmented_tombstones = 0; //used in TableCache::FindTable
+  uint64_t ych__table_reader_ptr = 0; //used in TableCache::FindTable
+  uint64_t ych__file_number = 0; //used in TableCache::FindTable
+  // YCHuang Added End
 };
 
 }  // namespace ROCKSDB_NAMESPACE

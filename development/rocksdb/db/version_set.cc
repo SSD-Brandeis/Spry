@@ -90,9 +90,10 @@
 #undef WITH_COROUTINES
 // clang-format on
 
-//Self Added
+//Self Added Start
 #include "include/rocksdb/system_verifier.h"
 // #include "utilities/system_verifier.cc"
+//Self Added End
 
 
 namespace ROCKSDB_NAMESPACE {
@@ -2406,7 +2407,10 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
 
   //SuRF_LEVEL_FILE_SPLIT_RDF
   bool surf_level_file_split__is_alive_after_hit_file_level = true;
-
+if(rdf_type == "NONE"){
+  uint32_t bytes = getSizeOfTablesRangeTombstonesInCache();
+  std::cout << "\n\n" << "bytes:" << bytes << " " << __FILE__ << ":" << __LINE__ << std::endl;
+}
   //PLRDF
   if(rdf_type == "PLRDF"){
     checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
@@ -2481,8 +2485,12 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       std::cout << " f = " << user_key.ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
 
-      string user_key2 = surf::SuRF_Utils::encode_digit_string_to_byte_string(user_key.ToString());
-      user_key2 = surf::SuRF_Utils::extend_string_to_length(user_key2, 5, (char)0);
+      string user_key2 = user_key.ToString();
+      if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+        uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+        user_key2 = surf::SuRF_Utils::encode_digit_string_to_byte_string(user_key2);
+        user_key2 = surf::SuRF_Utils::extend_string_to_length(user_key2, len_condensed_key, (char)0);
+      }
 
       checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
       // surf_level_file__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileRDFilter(fp_hit_file_level, fd, user_key.ToString(), flag_bypass_if_same_key);
@@ -2517,8 +2525,12 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       std::cout << " f = " << user_key.ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
 
-      string user_key2 = surf::SuRF_Utils::encode_digit_string_to_byte_string(user_key.ToString());
-      user_key2 = surf::SuRF_Utils::extend_string_to_length(user_key2, 5, (char)0);
+      string user_key2 = user_key.ToString();
+      if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+        uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+        user_key2 = surf::SuRF_Utils::encode_digit_string_to_byte_string(user_key2);
+        user_key2 = surf::SuRF_Utils::extend_string_to_length(user_key2, len_condensed_key, (char)0);
+      }
 
       checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
       // surf_level_file_split__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileSplitRDFilter(fp_hit_file_level, fd, user_key.ToString(), flag_bypass_if_same_key);
@@ -2541,7 +2553,7 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       }
     }
    
-  }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" 
+  }else if(rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" && rdf_type != "NONE2" && rdf_type != "PLRDF" 
           && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"
           && rdf_type != "SuRF_LF_RDF" && rdf_type != "SuRF_LF_SPLIT_RDF"){        
     std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
@@ -2638,6 +2650,18 @@ checking::SystemVerifier::getSystemVerifier()
       (f->fd).GetNumber(),
       fp.GetHitFileLevel()
     );
+
+    // if(table_cache_->get_ych__flag_tombstone_read() == true){
+    //   // bool get_ych__flag_tombstone_read();
+    //   // void reset_ych__flag_tombstone_read();
+    //   // uint64_t get_ych__total_tombstone_payload_bytes();
+    //   // uint64_t get_ych__num_unfragmented_tombstones();
+    //   // uint64_t get_ych__file_number();
+    //   // uint64_t get_ych__table_reader_ptr();
+    //   uint64_t k = table_cache_->get_ych__table_reader_ptr();
+    //   uint64_t bytes = table_cache_->get_ych__total_tombstone_payload_bytes();
+    //   checking::CacheTombstoneTracer::getInstance()->insertMapTombstoneBytes(k, bytes);
+    // }
 
 // //Self Added Start, Timer
 // timer2_end = std::chrono::high_resolution_clock::now();
@@ -2748,7 +2772,7 @@ std::cout << "!status->ok() !! " << " " << __FILE__ << ":" << __LINE__ << " " <<
   // Self Added End: timing
             return ;   
           }
-        }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" 
+        }else if(rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" && rdf_type != "NONE2" && rdf_type != "PLRDF" 
                   && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"
                   && rdf_type != "SuRF_LF_RDF" && rdf_type != "SuRF_LF_SPLIT_RDF"){
               std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
@@ -2991,6 +3015,11 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
 
     //Self Added Start
     if(fp_hit_file_level != fp.GetHitFileLevel()){
+      
+if(rdf_type == "NONE"){
+  uint32_t bytes = getSizeOfTablesRangeTombstonesInCache();
+  std::cout << "bytes:" << bytes << " " << __FILE__ << ":" << __LINE__ << std::endl;
+}
       //PLRDF
       if(rdf_type == "PLRDF"){
         if(is_alive_after_hit_file_level == false){
@@ -3044,8 +3073,13 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
           std::cout << " fp_hit_file_level = " << fp.GetHitFileLevel() << " fd = " << (f->fd).GetNumber() << " f->smallest_key = " << ExtractUserKey(f->smallest_key).ToString() << " f->largest_key = " << ExtractUserKey(f->largest_key).ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
           std::cout << " f = " << user_key.ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
-          string user_key2 = surf::SuRF_Utils::encode_digit_string_to_byte_string(user_key.ToString());
-      user_key2 = surf::SuRF_Utils::extend_string_to_length(user_key2, 5, (char)0);
+          
+          string user_key2 = user_key.ToString();
+          if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+            uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+            user_key2 = surf::SuRF_Utils::encode_digit_string_to_byte_string(user_key2);
+            user_key2 = surf::SuRF_Utils::extend_string_to_length(user_key2, len_condensed_key, (char)0);
+          }
 
           checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
           // surf_level_file__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileRDFilter(fp.GetHitFileLevel(), fd, user_key.ToString(), flag_bypass_if_same_key);
@@ -3056,7 +3090,7 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
             checking::SystemVerifier::getSystemVerifier()->set_flag_is_RDF_filtered_entry();
           }
         }
-      }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" 
+      }else if(rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" && rdf_type != "NONE2" && rdf_type != "PLRDF" 
                 && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"
                 && rdf_type != "SuRF_LF_RDF" && rdf_type != "SuRF_LF_SPLIT_RDF"){        
         std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
@@ -3081,9 +3115,13 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
           std::cout << " f = " << user_key.ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     #endif
           
-          string user_key2 = surf::SuRF_Utils::encode_digit_string_to_byte_string(user_key.ToString());
-      user_key2 = surf::SuRF_Utils::extend_string_to_length(user_key2, 5, (char)0);
-
+          string user_key2 = user_key.ToString();
+          if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+            uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+            user_key2 = surf::SuRF_Utils::encode_digit_string_to_byte_string(user_key2);
+            user_key2 = surf::SuRF_Utils::extend_string_to_length(user_key2, len_condensed_key, (char)0);
+          }
+          
           checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
           // surf_level_file_split__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileSplitRDFilter(fp_hit_file_level, fd, user_key.ToString(), flag_bypass_if_same_key);
           surf_level_file_split__is_alive_after_hit_file_level = isAliveAfterSuRFLevelFileSplitRDFilter(fp_hit_file_level, fd, user_key2, flag_bypass_if_same_key);
@@ -3129,7 +3167,7 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
 
           return;
         }
-      }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" && rdf_type != "PLRDF" 
+      }else if(rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" && rdf_type != "NONE2" && rdf_type != "PLRDF" 
                 && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "SKYLINE_RDF"
                 && rdf_type != "SuRF_LF_RDF" && rdf_type != "SuRF_LF_SPLIT_RDF"){           
         std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl

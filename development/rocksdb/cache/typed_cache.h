@@ -32,6 +32,11 @@
 #include "rocksdb/advanced_cache.h"
 #include "rocksdb/advanced_options.h"
 
+//YCHuang Added Start
+#include "malloc.h"
+#include "include/rocksdb/system_verifier.h"
+//YCHuang Added End
+
 namespace ROCKSDB_NAMESPACE {
 
 // For future consideration:
@@ -55,9 +60,13 @@ class BaseCacheInterface {
 
   /*implicit*/ BaseCacheInterface(CachePtr cache) : cache_(std::move(cache)) {}
 
-  inline void Release(Handle* handle) { cache_->Release(handle); }
+  inline void Release(Handle* handle) { 
+// std::cout << "cache_->Release " << " " << __FILE__ << ":" << __LINE__ << std::endl;
+    cache_->Release(handle); 
+  }
 
   inline void ReleaseAndEraseIfLastRef(Handle* handle) {
+std::cout << "cache_->ReleaseAndEraseIfLastRef " << " " << __FILE__ << ":" << __LINE__ << std::endl;
     cache_->Release(handle, /*erase_if_last_ref*/ true);
   }
 
@@ -83,6 +92,7 @@ class PlaceholderCacheInterface : public BaseCacheInterface<CachePtr> {
   using BaseCacheInterface<CachePtr>::BaseCacheInterface;
 
   inline Status Insert(const Slice& key, size_t charge, Handle** handle) {
+std::cout << "cache_->insert " << " " << __FILE__ << ":" << __LINE__ << std::endl;
     return this->cache_->Insert(key, /*value=*/nullptr, GetHelper(), charge,
                                 handle);
   }
@@ -111,6 +121,29 @@ class BasicTypedCacheHelperFns {
   }
 
   static void Delete(ObjectPtr value, MemoryAllocator* allocator) {
+    // YCHuang Added Start
+    if(checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed() == "NONE_CACHE_TOMBSTONE_TRACING"){
+      uint64_t k = reinterpret_cast<uint64_t>(value);
+      checking::CacheTombstoneTracer::getInstance()->removeTombstoneByAddressKey(k);
+    }
+// std::cout << "cache_->Delete " << " " << __FILE__ << ":" << __LINE__ << std::endl;
+// std::cout << "ObjectPtr value " << value << " " << __FILE__ << ":" << __LINE__ << std::endl;
+// // TValuePtr value2 = DownCastValue(value);
+// // auto slice = value2->ContentSlice();
+// // std::cout << "slice.size = " << slice.size() << " " << __FILE__ << ":" << __LINE__ << std::endl;
+// std::cout << "malloc_usable_size(value) = " << malloc_usable_size(value) << " " << __FILE__ << ":" << __LINE__ << std::endl;
+// // size_t cache_capicity = this->cache_->GetCapacity();
+// // size_t cache_usage = this->cache_->GetUsage();
+// // size_t cache_occupancy_count = this->cache_->GetOccupancyCount();
+// // size_t cache_table_address_count = this->cache_->GetTableAddressCount();
+// // std::cout << "cache_capicity = " << cache_capicity 
+// //           << " cache_usage = " << cache_usage
+// //           << " cache_occupancy_count = " << cache_occupancy_count
+// //           << " cache_table_address_count = " << cache_table_address_count
+// //           << " " << __FILE__ << ":" << __LINE__ << std::endl;
+//     // TableReader* t = Value(value);
+    // YCHuang Added End
+
     // FIXME: Currently, no callers actually allocate the ObjectPtr objects
     // using the custom allocator, just subobjects that keep a reference to
     // the allocator themselves (with CacheAllocationPtr).
@@ -159,9 +192,39 @@ class BasicTypedCacheInterface : public BaseCacheInterface<CachePtr>,
     }
   };
 
+  // // YCHuang Added Start
+  // inline void insert_map_tombstone_bytes(uint64_t k, uint64_t bytes){
+  //   if(ych_map_tombstone_bytes.count(k) != 0){
+  //     std::cerr << "Error. Key already in map_tombstone_bytes" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  //   }
+  //   ych__map_tombstone_bytes[k] = bytes;
+  //   ych__total_tombstone_bytes += bytes;
+  // }
+  // inline uint64_t get_total_tombstone_bytes(){
+  //   return ych__total_tombstone_bytes;
+  // }
+  // // YCHuang Added End
+
   inline Status Insert(const Slice& key, TValuePtr value, size_t charge,
                        TypedHandle** handle = nullptr,
                        Priority priority = Priority::LOW) {
+    // YCHuang Added Start
+// std::cout << "cache_->insert " << " " << __FILE__ << ":" << __LINE__ << std::endl;
+// std::cout << "TValuePtr value " << value << " " << __FILE__ << ":" << __LINE__ << std::endl;
+// TValuePtr value = DownCastValue(v);
+// auto slice = value->ContentSlice();
+// std::cout << "slice.size = " << slice.size() << " " << __FILE__ << ":" << __LINE__ << std::endl;
+// TableReader* t = Value(handle);
+// size_t cache_capicity = this->cache_->GetCapacity();
+// size_t cache_usage = this->cache_->GetUsage();
+// size_t cache_occupancy_count = this->cache_->GetOccupancyCount();
+// size_t cache_table_address_count = this->cache_->GetTableAddressCount();
+// std::cout << "cache_capicity = " << cache_capicity 
+//           << " cache_usage = " << cache_usage
+//           << " cache_occupancy_count = " << cache_occupancy_count
+//           << " cache_table_address_count = " << cache_table_address_count
+//           << " " << __FILE__ << ":" << __LINE__ << std::endl;
+    // YCHuang Added End
     auto untyped_handle = reinterpret_cast<Handle**>(handle);
     return this->cache_->Insert(
         key, BasicTypedCacheHelperFns<TValue>::UpCastValue(value),
@@ -198,6 +261,10 @@ class BasicTypedCacheInterface : public BaseCacheInterface<CachePtr>,
     return BasicTypedCacheHelperFns<TValue>::DownCastValue(
         this->cache_->Value(handle));
   }
+
+  // private:
+  //   std::unordered_map<uint64_t, uint64_t> ych__map_tombstone_bytes;
+  //   uint64_t ych__total_tombstone_bytes = 0;
 };
 
 // BasicTypedSharedCacheInterface - Like BasicTypedCacheInterface but with a

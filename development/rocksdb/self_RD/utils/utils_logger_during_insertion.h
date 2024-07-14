@@ -34,6 +34,7 @@ private:
     // static std::vector<t3ll> skyline_rdf_prime;
     // static std::vector<int> skyline__numbers_of_ranges_in_rdf_log;
 
+    vector<int> ranges_log_Origin;
     vector<int> ranges_log_PLRDF;
     vector<int> ranges_log_SplitPLRDF;
     vector<int> ranges_log_TopLevelRDF;
@@ -41,6 +42,7 @@ private:
     vector<int> ranges_log_SuRFLevelFileRDF;
     vector<int> ranges_log_SuRFLevelFileSplitRDF;
     
+    vector<int> memory_usage_log_Origin;
     vector<int> memory_usage_log_PLRDF;
     vector<int> memory_usage_log_SplitPLRDF;
     vector<int> memory_usage_log_TopLevelRDF;
@@ -169,11 +171,26 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   // Status s;
   running_log_during_insertion << "recordCurrentMemoryFootprint Start " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
-
   // checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
   // int KEY_SIZE = checking::SystemVerifier::getSystemVerifier()->getKeySize();
 
   vector<int> tmp;
+  tmp = db->getLogOfNumbersOfRangesInOrigin();
+  if(tmp.size() > 0){
+    ranges_log_Origin.push_back(tmp.back());
+  }else{
+    ranges_log_Origin.push_back(0);
+  }
+  running_log_during_insertion << "recordCurrentMemoryFootprint A0B0 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+  tmp = db->getLogOfMemoryUsageInOrigin();
+  if(tmp.size() > 0){
+    memory_usage_log_Origin.push_back(tmp.back());
+  }else{
+    memory_usage_log_Origin.push_back(0);
+  }
+  running_log_during_insertion << "recordCurrentMemoryFootprint A0B1 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
   tmp = db->getLogOfNumbersOfRangesInPLRDF();
   if(tmp.size() > 0){
     ranges_log_PLRDF.push_back(tmp.back());
@@ -293,6 +310,14 @@ void LoggerDuringInsertion::writeRecord(DB** db_ptr2){
   
   
   /*Numbers of Range Tombstones*/
+  testing_result_file_during_insertion << ",\"Log Of Numbers Of Ranges In Origin\" : [";
+  for(int i = 0; i < ranges_log_Origin.size(); i++){
+    testing_result_file_during_insertion << ranges_log_Origin[i];
+    if(i != ranges_log_Origin.size() - 1){
+      testing_result_file_during_insertion << ", ";
+    }
+  }
+  testing_result_file_during_insertion << "]" << std::endl;
   testing_result_file_during_insertion << ",\"Log Of Numbers Of Ranges In PLRDF\" : [";
   for(int i = 0; i < ranges_log_PLRDF.size(); i++){
     testing_result_file_during_insertion << ranges_log_PLRDF[i];
@@ -344,6 +369,14 @@ void LoggerDuringInsertion::writeRecord(DB** db_ptr2){
 
 
  /*memory usage*/
+ testing_result_file_during_insertion << ",\"Log Of Memory Usage Of Origin\" : [";
+  for(int i = 0; i < memory_usage_log_Origin.size(); i++){
+    testing_result_file_during_insertion << memory_usage_log_Origin[i];
+    if(i != memory_usage_log_Origin.size() - 1){
+      testing_result_file_during_insertion << ", ";
+    }
+  }
+  testing_result_file_during_insertion << "]" << std::endl;
  testing_result_file_during_insertion << ",\"Log Of Memory Usage Of PLRDF\" : [";
   for(int i = 0; i < memory_usage_log_PLRDF.size(); i++){
     testing_result_file_during_insertion << memory_usage_log_PLRDF[i];
@@ -420,6 +453,7 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
   checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
   int KEY_SIZE = checking::SystemVerifier::getSystemVerifier()->getKeySize();
 
+
   running_log_during_insertion << "!!! Testing On Currently Deleted Keys " << std::endl;
   
   const long long N_repetitions = checking::SystemVerifier::EXPERIMENT_REPETITION_TIMES;
@@ -490,6 +524,7 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
       //   set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
       // }
     //   for(auto &x: system_verifier->getHistoricExistingKeys()){
+      std::vector<uint64_t> cache_tombstone_bytes;
       for(auto x: system_verifier->getHistoricExistingKeysAtNRound(i)){
         bool gt_is_exist = system_verifier->isKeyExist(x);
         std::string gt_value = system_verifier->get(x);
@@ -509,6 +544,10 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
         point_query_time += duration_pq.count();
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
           continue;
+        }
+        if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_TOMBSTONE_TRACING"){
+          uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
+          cache_tombstone_bytes.push_back(bytes);
         }
         size_t separator_pos = value.find("|");
         time_stamp = value.substr(separator_pos + 1);
@@ -531,6 +570,15 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
         continue;
       }
+      if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_TOMBSTONE_TRACING"){
+        string i_round_str = "i_round="+std::to_string(i)+" ";
+        std::string prefix = " (Historcially Exist Keys " + i_insertion_str + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        testing_result_file_during_insertion << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
+        for(auto &x: cache_tombstone_bytes){
+          testing_result_file_during_insertion << x << ", ";
+        }
+        testing_result_file_during_insertion << "]" << std::endl;
+      }
       disk_access_count += system_verifier->getDiskAccessCount();
 
       running_log_during_insertion << " Disk Access count = " << system_verifier->getDiskAccessCount() << std::endl;
@@ -540,7 +588,7 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
       continue;
     }
     double block_read_cpu_time = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), ".*block_read_cpu_time = ([0-9.]+)");
-  running_log_during_insertion << "@A4 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+running_log_during_insertion << "@A4 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
     running_log_during_insertion << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
     running_log_during_insertion << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e6 << " (ms) " << std::endl << std::endl;

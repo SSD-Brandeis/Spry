@@ -548,12 +548,14 @@ class DBImpl : public DB {
   virtual int getSkylineRDFNumberOfTotalRanges() override;
   virtual int getSuRFLevelFileRDFNumberOfTotalRanges() override;
   virtual int getSuRFLevelFileSplitRDFNumberOfTotalRanges() override;
+  std::vector<int> getLogOfNumbersOfRangesInOrigin() override;
   std::vector<int> getLogOfNumbersOfRangesInPLRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF() override;
+  std::vector<int> getLogOfMemoryUsageInOrigin() override;
   std::vector<int> getLogOfMemoryUsageInPLRDF() override;
   std::vector<int> getLogOfMemoryUsageInSplitRDF() override;
   std::vector<int> getLogOfMemoryUsageInTopLevelRDF() override;

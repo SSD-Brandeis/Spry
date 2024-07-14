@@ -4898,6 +4898,13 @@ int DBImpl::getSuRFLevelFileSplitRDFNumberOfTotalRanges(){
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getSuRFLevelFileSplitRDFNumberOfTotalRanges();
 }
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInOrigin(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfNumbersOfRangesInOrigin();
+}
 std::vector<int> DBImpl::getLogOfNumbersOfRangesInPLRDF(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
@@ -4942,6 +4949,13 @@ std::vector<int> DBImpl::getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF(){
 }
 
 
+std::vector<int> DBImpl::getLogOfMemoryUsageInOrigin() {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfMemoryUsageInOrigin();
+}
 std::vector<int> DBImpl::getLogOfMemoryUsageInPLRDF() {
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());

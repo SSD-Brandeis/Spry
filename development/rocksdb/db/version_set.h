@@ -71,6 +71,7 @@
 #include "include/rocksdb/system_verifier.h"
 #include "include/rocksdb/sys_rdfilter.h"
 #include "include/rocksdb/SuRF/include/surf.hpp"
+#include "db/column_family.h"
 //Self Added End
 
 namespace ROCKSDB_NAMESPACE {
@@ -1088,6 +1089,97 @@ class Version {
     return total;
   }
 
+
+
+  uint32_t getNumberOfTablesRangeTombstonesInCache() {
+    uint32_t count = 0;
+
+    const ReadOptions read_options;
+    for (int level = 0; level < storage_info_.num_levels_; level++) {
+      for (const auto& file_meta : storage_info_.files_[level]) {
+        // auto fname =
+        //     TableFileName(cfd_->ioptions()->cf_paths, file_meta->fd.GetNumber(),
+        //                   file_meta->fd.GetPathId());
+
+        // TableCache* table_cache = cfd_->table_cache();
+        // std::unique_ptr<FragmentedRangeTombstoneIterator> tombstone_iter;
+
+        // Status s = table_cache->GetRangeTombstoneIterator(
+        //     read_options, cfd_->internal_comparator(), *file_meta,
+        //     cfd_->GetLatestMutableCFOptions()->block_protection_bytes_per_key,
+        //     &tombstone_iter);
+        // if (!s.ok()) {
+        //   return s;
+        // }
+
+        
+        const FileDescriptor& fd = file_meta->fd;
+        Status s;
+        TableReader* t = fd.table_reader;
+        if (t == nullptr) {continue;}
+        FragmentedRangeTombstoneIterator* tombstone_iter = t->NewRangeTombstoneIterator(read_options);
+
+        if (tombstone_iter) {
+          tombstone_iter->SeekToFirst();
+          // TODO: print timestamp
+          while (tombstone_iter->Valid()) {
+            count += 1;
+            tombstone_iter->Next();
+          }
+        }
+      }
+    }
+    return count;
+  }
+
+
+  uint32_t getSizeOfTablesRangeTombstonesInCache() {
+    uint32_t size = 0;
+
+    const ReadOptions read_options;
+    for (int level = 0; level < storage_info_.num_levels_; level++) {
+      for (const auto& file_meta : storage_info_.files_[level]) {
+        // auto fname =
+        //     TableFileName(cfd_->ioptions()->cf_paths, file_meta->fd.GetNumber(),
+        //                   file_meta->fd.GetPathId());
+
+        // TableCache* table_cache = cfd_->table_cache();
+        // std::unique_ptr<FragmentedRangeTombstoneIterator> tombstone_iter;
+
+        // Status s = table_cache->GetRangeTombstoneIterator(
+        //     read_options, cfd_->internal_comparator(), *file_meta,
+        //     cfd_->GetLatestMutableCFOptions()->block_protection_bytes_per_key,
+        //     &tombstone_iter);
+        // if (!s.ok()) {
+        //   return s;
+        // }
+
+        
+        const FileDescriptor& fd = file_meta->fd;
+        Status s;
+        TableReader* t = fd.table_reader;
+        if (t == nullptr) {continue;}
+        FragmentedRangeTombstoneIterator* tombstone_iter = t->NewRangeTombstoneIterator(read_options);
+
+        if (tombstone_iter) {
+          tombstone_iter->SeekToFirst();
+          // TODO: print timestamp
+          while (tombstone_iter->Valid()) {
+            std::cout << "start: " << tombstone_iter->start_key().ToString(true)
+              << " end: " << tombstone_iter->end_key().ToString(true)
+              << " seq: " << tombstone_iter->seq() 
+              << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<'\n';
+            size += tombstone_iter->start_key().ToString(true).size();
+            size += tombstone_iter->end_key().ToString(true).size();
+            size += sizeof(tombstone_iter->seq());
+            tombstone_iter->Next();
+          }
+        }
+      }
+    }
+    return size;
+  }
+
   // //Self Added
   // void storeRange2RDFilter(uint level, RangeTombstone tombstone){
   //   assert(is_RDF_updated == false);
@@ -1115,6 +1207,10 @@ class Version {
   //   std::cout << "RDF Updated" << std::endl;
   //   per_level_RDF_updated.print();
   // }
+
+  void setOriginInfo(OriginInfo origin_info_in){
+    origin_info = origin_info_in;
+  }
 
   void setPLRDF(PLRDF plrdf_in){
     plrdf = plrdf_in;
@@ -1353,6 +1449,9 @@ class Version {
     return surf__level_file_split_rdf->getNumberOfTotalLevels();
   }
   
+  std::vector<int> getLogOfNumbersOfRangesInOrigin(){
+    return origin_info.getNumbersOfRanges();
+  }
   std::vector<int> getLogOfNumbersOfRangesInPLRDF(){
     return plrdf.getNumbersOfRangesInRDFLog();
   }
@@ -1386,6 +1485,9 @@ class Version {
     return surf__level_file_split_rdf->getNumbersOfRangesInRDFLog();
   }
   
+  std::vector<int> getLogOfMemoryUsageInOrigin(){
+    return origin_info.getMemoryUsageOnRanges();
+  }
   std::vector<int> getLogOfMemoryUsageInPLRDF(){
     return plrdf.getMemoryUsageInRDFLog();
     // using pll = std::pair<long long, long long>; //[start, end)
@@ -1609,6 +1711,7 @@ class Version {
  private:
   //Self Added start
   // rdfilter::PLRDF *per_level_RDF = rdfilter::PLRDF::getRDFilter();
+  OriginInfo origin_info;
   PLRDF plrdf, split_plrdf;
   PLRDF top_level_rdf;
   SkyLineRDF skyline_rdf;

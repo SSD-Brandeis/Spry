@@ -44,9 +44,10 @@
 #undef WITH_COROUTINES
 // clang-format on
 
-//Self Added
+//Self Added Start
 #include "include/rocksdb/system_verifier.h"
 // #include "utilities/system_verifier.cc"
+//Self Added End
 
 
 namespace ROCKSDB_NAMESPACE {
@@ -173,6 +174,9 @@ Status TableCache::FindTable(
   PERF_TIMER_GUARD_WITH_CLOCK(find_table_nanos, ioptions_.clock);
   uint64_t number = file_meta.fd.GetNumber();
   Slice key = GetSliceForFileNumber(&number);
+  // // YCHuang Added Start
+  // std::cout << "Lookup table from Cache_ " << " "<< __FILE__ << ":" << __LINE__ << std::endl;
+  // // YCHuang Added End
   *handle = cache_.Lookup(key);
   TEST_SYNC_POINT_CALLBACK("TableCache::FindTable:0",
                            const_cast<bool*>(&no_io));
@@ -182,6 +186,9 @@ Status TableCache::FindTable(
       return Status::Incomplete("Table not found in table_cache, no_io is set");
     }
     MutexLock load_lock(loader_mutex_.get(key));
+    // YCHuang Added Start
+    std::cout << "Lookup table from Cache_ again under loading mutex " << " "<< __FILE__ << ":" << __LINE__ << std::endl;
+    // YCHuang Added End
     // We check the cache again under loading mutex
     *handle = cache_.Lookup(key);
     if (*handle != nullptr) {
@@ -201,8 +208,37 @@ Status TableCache::FindTable(
       // We do not cache error results so that if the error is transient,
       // or somebody repairs the file, we recover automatically.
     } else {
+      // // YCHuang Added Start
+      // std::cout << "insert (key, table_reader) into cache_ " << " "<< __FILE__ << ":" << __LINE__ << std::endl;
+      // // YCHuang Added End
+      // ych__flag_tombstone_read = true;
+      // ych__total_tombstone_payload_bytes = table_reader->get_ych__total_tombstone_payload_bytes();
+      // ych__num_unfragmented_tombstones = table_reader->get_ych__num_unfragmented_tombstones();
+      // ych__table_reader_ptr = table_reader.get();
+      // ych__file_number = file_meta.fd.GetNumber();
+      if(checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed() == "NONE_CACHE_TOMBSTONE_TRACING"){
+        uint64_t k = reinterpret_cast<uint64_t>(table_reader.get());
+        uint64_t bytes = table_reader->get_ych__total_tombstone_payload_bytes();
+        checking::CacheTombstoneTracer::getInstance()->insertMapTombstoneBytes(k, bytes);
+      }
+
+      //YCHuang Added Start
+      // size_t ych__cache_capicity = cache_.get()->GetCapacity();
+      // size_t ych__cache_usage = cache_.get()->GetUsage();
+      // size_t ych__cache_occupancy_count = cache_.get()->GetOccupancyCount();
+      // size_t ych__cache_table_address_count = cache_.get()->GetTableAddressCount();
+      // std::cout << "cache_" << cache_.get()
+      //           << " table_reader " << table_reader.get()
+      //           << " file_number = " << ych__file_number
+      //           << " cache_capicity = " << ych__cache_capicity 
+      //           << " cache_usage = " << ych__cache_usage
+      //           << " cache_occupancy_count = " << ych__cache_occupancy_count
+      //           << " cache_table_address_count = " << ych__cache_table_address_count
+      //           << " " << __FILE__ << ":" << __LINE__ << std::endl;
+      //YCHuang Added End
+
       s = cache_.Insert(key, table_reader.get(), 1, handle);
-// cout << "cache_ size: " << cache_.get()->GetCapacity() << " " << __FILE__ << ":" << __LINE__ << endl; 
+
       if (s.ok()) {
         // Release ownership of table reader.
         table_reader.release();
@@ -210,6 +246,7 @@ Status TableCache::FindTable(
     }
     return s;
   }
+
   return Status::OK();
 }
 
@@ -432,6 +469,9 @@ Status TableCache::Get(
   IterKey row_cache_key;
   std::string row_cache_entry_buffer;
 
+  // Self Added Start
+  // std::cout << "ioptions_.row_cache = " << ioptions_.row_cache << " " << __FILE__ << ":" << __LINE__ << std::endl;
+  // Self Added End
   // Check row cache if enabled. Since row cache does not currently store
   // sequence numbers, we cannot use it if we need to fetch the sequence.
   if (ioptions_.row_cache && !get_context->NeedToReadSequence()) {
@@ -560,7 +600,7 @@ Status TableCache::Get(
     }else if(rdf_type == "SuRF_LF_RDF"){
       rdf_skip_range_deletions = true;
 
-    }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" 
+    }else if(rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" && rdf_type != "NONE2" 
             && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" 
             && rdf_type != "SKYLINE_RDF" && rdf_type != "SuRF_LF_RDF" && rdf_type != "SuRF_LF_SPLIT_RDF"){
       std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
@@ -888,7 +928,22 @@ size_t TableCache::GetMemoryUsageByTableReader(
 }
 
 void TableCache::Evict(Cache* cache, uint64_t file_number) {
+  std::cout << "Evict fd from cache" << " " << __FILE__ << ":" << __LINE__ << std::endl;
   cache->Erase(GetSliceForFileNumber(&file_number));
+
+  //YCHuang Added Start
+  size_t cache_capicity = cache->GetCapacity();
+  size_t cache_usage = cache->GetUsage();
+  size_t cache_occupancy_count = cache->GetOccupancyCount();
+  size_t cache_table_address_count = cache->GetTableAddressCount();
+  std::cout << "cache = " << cache
+            << " file_number = " << file_number
+            << " cache_capicity = " << cache_capicity 
+            << " cache_usage = " << cache_usage
+            << " cache_occupancy_count = " << cache_occupancy_count
+            << " cache_table_address_count = " << cache_table_address_count
+            << " " << __FILE__ << ":" << __LINE__ << std::endl;
+  //YCHuang Added End
 }
 
 uint64_t TableCache::ApproximateOffsetOf(

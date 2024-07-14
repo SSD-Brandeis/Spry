@@ -435,13 +435,13 @@ uint64_t LoudsDense::getMemoryUsage() const {
 }
 
 uint64_t LoudsDense::getMemoryUsageInBitsSelf() const {
-	std::cout << "getMemoryUsageInBitsSelf" << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-	std::cout << "label_bitmaps_->nmBits(): " << label_bitmaps_->numBits() << " label_bitmaps_->rankLutSize(): " << label_bitmaps_->rankLutSize() << std::endl;
-	std::cout << "child_indicator_bitmaps_->nmBits(): " << child_indicator_bitmaps_->numBits() << " child_indicator_bitmaps_->rankLutSize(): " << child_indicator_bitmaps_->rankLutSize() << std::endl;
-	std::cout << "prefixkey_indicator_bits_->nmBits(): " << prefixkey_indicator_bits_->numBits() << " prefixkey_indicator_bits_->rankLutSize(): " << prefixkey_indicator_bits_->rankLutSize() << std::endl;
-	std::cout << "suffixes_->numBits(): " << suffixes_->numBits() << std::endl;
-	std::cout << "left_parentheses_->numBits(): " << left_parentheses_->numBits() << std::endl;
-	std::cout << "right_parentheses_->numBits(): " << right_parentheses_->numBits() << std::endl;
+	// std::cout << "getMemoryUsageInBitsSelf" << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+	// std::cout << "label_bitmaps_->nmBits(): " << label_bitmaps_->numBits() << " label_bitmaps_->rankLutSize(): " << label_bitmaps_->rankLutSize() << std::endl;
+	// std::cout << "child_indicator_bitmaps_->nmBits(): " << child_indicator_bitmaps_->numBits() << " child_indicator_bitmaps_->rankLutSize(): " << child_indicator_bitmaps_->rankLutSize() << std::endl;
+	// std::cout << "prefixkey_indicator_bits_->nmBits(): " << prefixkey_indicator_bits_->numBits() << " prefixkey_indicator_bits_->rankLutSize(): " << prefixkey_indicator_bits_->rankLutSize() << std::endl;
+	// std::cout << "suffixes_->numBits(): " << suffixes_->numBits() << std::endl;
+	// std::cout << "left_parentheses_->numBits(): " << left_parentheses_->numBits() << std::endl;
+	// std::cout << "right_parentheses_->numBits(): " << right_parentheses_->numBits() << std::endl;
 	return (sizeof(LoudsDense)
 		+ label_bitmaps_->numBits()
 		+ label_bitmaps_->rankLutSize()

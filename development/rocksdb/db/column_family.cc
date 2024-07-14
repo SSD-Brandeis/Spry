@@ -2777,11 +2777,14 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
       uint64_t fd_out = surf__flush_to_level0_RD_vector->dst_fd;
       std::vector<pss> &rd_list = surf__flush_to_level0_RD_vector->rd_list;
       
-      for(auto &x: rd_list){
-        x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
-        x.first = surf::SuRF_Utils::extend_string_to_length(x.first, 5, (char)0);
-        x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
-        x.second = surf::SuRF_Utils::extend_string_to_length(x.second, 5, (char)0);
+      if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+        for(auto &x: rd_list){
+          uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+          x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+          x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
+          x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+          x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+        }
       }
       
       if(rd_list.size() != 0){
@@ -2799,11 +2802,14 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
       uint64_t fd_out = surf_level_file_split__flush_to_level0_RD_vector->dst_fd;
       std::vector<pss> &rd_list = surf_level_file_split__flush_to_level0_RD_vector->rd_list;
       
-      for(auto &x: rd_list){
-        x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
-        x.first = surf::SuRF_Utils::extend_string_to_length(x.first, 5, (char)0);
-        x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
-        x.second = surf::SuRF_Utils::extend_string_to_length(x.second, 5, (char)0);
+      if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+        for(auto &x: rd_list){
+          uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+          x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+          x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
+          x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+          x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+        }
       }
 
       if(rd_list.size() != 0){
@@ -2985,11 +2991,14 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
               }
             }
 
-            for(auto &x: file_boundary_list){
-              x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
-              x.first = surf::SuRF_Utils::extend_string_to_length(x.first, 5, (char)0);
-              x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
-              x.second = surf::SuRF_Utils::extend_string_to_length(x.second, 5, (char)0);
+            if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+              for(auto &x: file_boundary_list){
+                uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+                x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+                x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
+                x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+                x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+              }
             }
 
             (this->surf__level_file_rdf_prime)->shiftRDFToOutputLevel(
@@ -3225,12 +3234,17 @@ for(uint32_t i_pk = 1; i_pk < this->surf_level_file_split__in_coming_point_keys.
 }
 #endif
 
-            for(uint32_t i_pk = 0; i_pk < this->surf_level_file_split__in_coming_point_keys.size(); i_pk++){
-              auto x = this->surf_level_file_split__in_coming_point_keys[i_pk];
-              x = surf::SuRF_Utils::encode_digit_string_to_byte_string(x);
-              x = surf::SuRF_Utils::extend_string_to_length(x, 5, (char)0);
-              this->surf_level_file_split__in_coming_point_keys[i_pk] = x;
+            if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+              
+              uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+              for(uint32_t i_pk = 0; i_pk < this->surf_level_file_split__in_coming_point_keys.size(); i_pk++){
+                auto x = this->surf_level_file_split__in_coming_point_keys[i_pk];
+                x = surf::SuRF_Utils::encode_digit_string_to_byte_string(x);
+                x = surf::SuRF_Utils::extend_string_to_length(x, len_condensed_key, (char)0);
+                this->surf_level_file_split__in_coming_point_keys[i_pk] = x;
+              }
             }
+
 #ifdef CHECK_SPLITTING_POINT_KEY_IN_ASCENDING_ORDER      
 for(uint32_t i_pk = 1; i_pk < this->surf_level_file_split__in_coming_point_keys.size(); i_pk++){
   auto x0 = this->surf_level_file_split__in_coming_point_keys[i_pk-1];
@@ -3247,11 +3261,15 @@ for(uint32_t i_pk = 1; i_pk < this->surf_level_file_split__in_coming_point_keys.
   }
 }
 #endif
-            for(auto &x: file_boundary_list){
-              x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
-              x.first = surf::SuRF_Utils::extend_string_to_length(x.first, 5, (char)0);
-              x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
-              x.second = surf::SuRF_Utils::extend_string_to_length(x.second, 5, (char)0);
+
+            if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+              for(auto &x: file_boundary_list){
+                uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+                x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+                x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
+                x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+                x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+              }
             }
 
             (this->surf__level_file_split_rdf_prime)->shiftRDFWithPointKeysToOutputLevel(
@@ -3387,8 +3405,56 @@ for(uint32_t i_pk = 1; i_pk < this->surf_level_file_split__in_coming_point_keys.
   this->inc_split__call_before_install_superversion_count();
 
 
-  this->logCurrentTotalNumbersOfRangesInEachRDF();
-  this->logCurrentTotalMmeoryUsageInEachRDF();
+  if(old_superversion != NULL){
+    // VersionStorageInfo storage_info_
+    // getSizeOfTablesRangeTombstonesInCache
+    // getNumberOfTablesRangeTombstonesInCache
+    Version *version_in = old_superversion->current;
+    uint32_t origin_count = version_in->getNumberOfTablesRangeTombstonesInCache();
+    uint32_t origin_bytes = version_in->getSizeOfTablesRangeTombstonesInCache();
+
+    this->logCurrentTotalNumbersOfRangesInEachRDF(origin_count);
+    this->logCurrentTotalMmeoryUsageInEachRDF(origin_bytes);
+    // this->logCurrentTotalNumbersOfRangesInEachRDF(old_superversion->current);
+    // this->logCurrentTotalMmeoryUsageInEachRDF(old_superversion->current);
+  }
+}
+
+// void logCurrentTotalNumbersOfRangesInEachRDF(Version* version_in){
+void ColumnFamilyData::logCurrentTotalNumbersOfRangesInEachRDF(uint32_t origin_count){
+  // uint32_t count = version_in->getNumberOfTablesRangeTombstonesInCache();
+  origin_info_prime.logCurrentTotalNumbersOfRanges(origin_count);
+  // version_in = nullptr;
+  // version_in += 12;
+
+  plrdf_prime.logCurrentTotalNumbersOfRanges();
+  split_plrdf_prime.logCurrentTotalNumbersOfRanges();
+  top_level_rdf_prime.logCurrentTotalNumbersOfRanges();
+  // logCurrentTotalNumbersOfRangesInSkylineRDF();
+  skyline_rdf_prime.logCurrentTotalNumbersOfRanges();
+
+  // init_surf();
+  // surf__top_level_rdf_prime->logCurrentTotalNumbersOfRanges();
+  surf__level_file_rdf_prime->logCurrentTotalNumbersOfRanges();
+  surf__level_file_split_rdf_prime->logCurrentTotalNumbersOfRanges();
+}
+// void logCurrentTotalMmeoryUsageInEachRDF(Version* version_in){
+void ColumnFamilyData::logCurrentTotalMmeoryUsageInEachRDF(uint32_t origin_bytes){
+  // uint32_t bytes = version_in->getSizeOfTablesRangeTombstonesInCache();
+  origin_info_prime.logCurrentTotalMemoryUsage(origin_bytes);
+  // version_in = nullptr;
+  // version_in += 12;
+
+  plrdf_prime.logCurrentTotalMemoryUsage();
+  split_plrdf_prime.logCurrentTotalMemoryUsage();
+  top_level_rdf_prime.logCurrentTotalMemoryUsage();
+  // logCurrentTotalMemoryUsageInSkylineRDF();
+  skyline_rdf_prime.logCurrentTotalMemoryUsage();
+  
+  // init_surf();
+  // surf__top_level_rdf_prime->logCurrentTotalMemoryUsage();
+  surf__level_file_rdf_prime->logCurrentTotalMemoryUsage();
+  surf__level_file_split_rdf_prime->logCurrentTotalMemoryUsage();
 }
 //Self Added End
 
@@ -3469,6 +3535,15 @@ void ColumnFamilyData::InstallSuperVersion(
 
   // if(old_superversion == NULL && old_superversion->current != current_){
   if(old_superversion == NULL){
+    //Origin
+    // current_->setOriginInfo(this->origin_info_prime);
+    // if(this->get_call_before_install_superversion_count() > 1){
+    //   // std::cerr << "Error: call_before_install_superversion_count is not 1 @installSuperversion, call_before_install_superversion_count = " 
+    //   //           << this->get_call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    //   std::cerr << "Error: call_before_install_superversion_count > 1 @installSuperversion, call_before_install_superversion_count = " 
+    //             << this->get_call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // }    
+    
     //PLRDF
     current_->setPLRDF(this->plrdf_prime);
     if(this->get_call_before_install_superversion_count() > 1){

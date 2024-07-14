@@ -195,7 +195,8 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
     vector<long long> currently_deleted_keys = system_verifier->getCurrentlyDeletedKeys();
     // if (counter % 100 == 0 && currently_deleted_keys.size() > 0){    
 
-    if (counter % 200 == 0 && currently_deleted_keys.size() > 100){    
+    if (counter % 200 == 0 && currently_deleted_keys.size() > 100){  
+logger_during_insertion->writeRecord(db_ptr2);  
     // if (counter % 100 == 0 && currently_deleted_keys.size() > 100){    
 // std::cout << "@M1 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 

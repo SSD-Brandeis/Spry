@@ -787,13 +787,14 @@ Status BlockBasedTable::Open(
     }else if(rdf_type == "SKYLINE_RDF"){
       rdf_skip_range_deletions = true;
 
-    }else if(rdf_type != "NONE" && rdf_type != "NONE_DUMMY" && rdf_type != "NONE2" 
+    }else if(rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" && rdf_type != "NONE2" 
     && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" 
     && rdf_type != "SKYLINE_RDF" && rdf_type != "SuRF_LF_RDF" && rdf_type != "SuRF_LF_SPLIT_RDF"){
       std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
                 << "rdf_type = " << rdf_type << std::endl;
     }
   }
+  // std::cout << "rdf_skip_range_deletions = " << rdf_skip_range_deletions << " " << __FILE__ << ":" << __LINE__ << std::endl;
 
 // std::cout << "ReadRangeDelBlock pre1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   if(!rdf_skip_range_deletions){
@@ -830,8 +831,9 @@ Status BlockBasedTable::Open(
   }
 
 // Self Added Start
-// cout << "table_reader_cache_res_mgr: " << table_reader_cache_res_mgr << " " << __FILE__ << ":" << __LINE__ << endl;
-// std::size_t mem_usage_self = new_table->ApproximateMemoryUsage();
+// std::cout << "approximate mem_usage = " << new_table->ApproximateMemoryUsage() << " " << __FILE__ << ":" << __LINE__ << std::endl;
+// // cout << "table_reader_cache_res_mgr: " << table_reader_cache_res_mgr << " " << __FILE__ << ":" << __LINE__ << endl;
+// // std::size_t mem_usage_self = new_table->ApproximateMemoryUsage();
 // cout << "new_table mem_usage: " << mem_usage_self << " " << __FILE__ << ":" << __LINE__ << endl;
 // Self Added End
   if (s.ok() && table_reader_cache_res_mgr) {
@@ -1057,6 +1059,12 @@ Status BlockBasedTable::ReadRangeDelBlock(
       rep_->fragmented_range_dels =
           std::make_shared<FragmentedRangeTombstoneList>(std::move(iter),
                                                          internal_comparator);
+      // ych__falg_tombstone_read = true;
+      set_ych__total_tombstone_payload_bytes( rep_->fragmented_range_dels->total_tombstone_payload_bytes());
+      set_ych__num_unfragmented_tombstones(rep_->fragmented_range_dels->num_unfragmented_tombstones());
+      // std::cout << "total_tombstone_payload_bytes = " << total_tombstone_payload_bytes
+      //           << "  num_unfragmented_tombstones = " << num_unfragmented_tombstones
+      //           << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
     }
   }
   return s;
@@ -1639,6 +1647,7 @@ BlockBasedTable::MaybeReadBlockAndLoadToCache(
       if (s.ok()) {
         // If filling cache is allowed and a cache is configured, try to put the
         // block to the cache.
+        std::cout << "PutDataBlockToCache" << " " << __FILE__ << ":" << __LINE__ << std::endl;
         s = PutDataBlockToCache(
             key, block_cache, out_parsed_block, std::move(*contents),
             contents_comp_type, uncompression_dict,

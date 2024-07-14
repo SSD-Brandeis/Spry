@@ -15,4 +15,5 @@ log
 *_log2
 log*
 *.json
+*payload*
 

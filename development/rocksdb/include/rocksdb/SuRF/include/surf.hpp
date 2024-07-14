@@ -90,6 +90,21 @@ class SuRF_Env {
             return surf__flag_allow_range_boundary_overlapped;
         }
         
+        void setFlagSurfUseCondensedDigitKey(bool flag){
+            surf__flag_use_condensed_digit_key = flag;
+        }
+        bool getFlagSurfUseCondensedDigitKey(){
+            return surf__flag_use_condensed_digit_key;
+        }
+
+        void setLengthOfCondensedDigitKey(uint32_t len){
+            std::cout << "set SuRF length of condensed digit keys to " << len 
+            << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            surf__length_of_condensed_digit_key = len;
+        }
+        uint32_t getLengthOfCondensedDigitKey(){
+            return surf__length_of_condensed_digit_key;
+        }
     private:
         SuRF_Env() {}
         static SuRF_Env* surf_env_ptr;
@@ -101,8 +116,9 @@ class SuRF_Env {
         uint32_t surf__sparse_dense_ratio = 16;
         bool surf__flag_bypass_if_same_key = true;
         bool surf__flag_allow_range_boundary_overlapped = false;
+        bool surf__flag_use_condensed_digit_key = true;
+        uint32_t surf__length_of_condensed_digit_key = 5;
 };
-
 
 
 class SuRF_Utils {

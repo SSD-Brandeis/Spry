@@ -25,6 +25,9 @@ namespace checking {
 #include <iomanip>
 #include <chrono>
 #include <unordered_map>
+#include <mutex>
+#include <shared_mutex>
+
 // #include "../emu_environment.h"
 // #include "../workload_executor.h"
 // #include "../workload/workload.h"
@@ -45,6 +48,69 @@ namespace checking {
           int count_exist_key;
           int count_non_exist_key;
   };
+
+  class CacheTombstoneTracer {
+    private:
+      std::unordered_map<uint64_t, uint64_t> ych__map_tombstone_bytes;
+      // std::unordered_map<uint64_t, uint64_t> ych__map_tombstone_bytes;
+      uint64_t ych__total_tombstone_bytes = 0;
+    
+    public:
+        
+      static CacheTombstoneTracer* cache_tombstone_tracer;
+      static std::mutex init_mutex;
+      // static std::shared_mutex rw_mutex;
+      std::shared_mutex rw_mutex;
+
+      static void init(){
+        std::lock_guard<std::mutex> lock(init_mutex);
+        if(cache_tombstone_tracer == NULL){
+          cache_tombstone_tracer = new CacheTombstoneTracer();
+        }
+      }
+
+      static CacheTombstoneTracer* getInstance(){
+        init();
+        return cache_tombstone_tracer;
+      }
+
+      void insertMapTombstoneBytes(uint64_t k, uint64_t bytes){
+        std::cout << "insertMapTombstoneBytes start" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::unique_lock<std::shared_mutex> lock(rw_mutex);
+        if(ych__map_tombstone_bytes.count(k) != 0){
+          std::cerr << "Error. Key already in ych__map_tombstone_bytes" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        }
+        ych__map_tombstone_bytes[k] = bytes;
+        ych__total_tombstone_bytes += bytes;
+        std::cout << "insertMapTombstoneBytes end" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      }
+
+      uint64_t getTotalTombstoneBytes(){
+        std::shared_lock<std::shared_mutex> lock(rw_mutex);
+        return ych__total_tombstone_bytes;
+      }
+
+      void removeTombstoneByAddressKey(uint64_t k){
+        std::cout << "removeTombstoneByAddressKey start" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::unique_lock<std::shared_mutex> lock(rw_mutex);
+        if(ych__map_tombstone_bytes.count(k) == 0){
+          std::cerr << "Error. Key not in ych__map_tombstone_bytes" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        }
+        uint64_t bytes = ych__map_tombstone_bytes[k];
+        ych__map_tombstone_bytes.erase(k);
+        ych__total_tombstone_bytes -= bytes;
+        std::cout << "removeTombstoneByAddressKey end" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      }
+
+      uint64_t get_total_tombstone_bytes(){
+        return ych__total_tombstone_bytes;
+      }
+  };
+
+  // Definition of static members
+  // std::mutex CacheTombstoneTracer::init_mutex;
+  // std::shared_mutex CacheTombstoneTracer::rw_mutex;
+
 
   class SystemVerifier {
   private:
@@ -436,6 +502,9 @@ namespace checking {
     }
 
 
+    // None: meaning default RocksDB implementation
+    // NONE_CACHE_RT_TRACING: is used to trace the Range Tombstone lying in the cache 
+
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "NONE"}};
@@ -447,7 +516,9 @@ namespace checking {
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}, {3, "TOP_LEVEL_RDF"}, {4, "SKYLINE_RDF"},  {5, "NONE_DUMMY"}, {6, "NONE2"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE"}, {2, "NONE2"}, {3, "PLRDF"}, {4, "SPLIT_PLRDF"}, {5, "TOP_LEVEL_RDF"}, {6, "SKYLINE_RDF"},  {7, "NONE_DUMMY"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE"}, {2, "NONE2"}, {3, "PLRDF"}, {4, "SPLIT_PLRDF"}, {5, "TOP_LEVEL_RDF"}, {6, "SKYLINE_RDF"},  {7, "SuRF_LF_RDF"}, {8, "NONE_DUMMY"}};
-    std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE"}, {2, "NONE2"}, {3, "PLRDF"}, {4, "SPLIT_PLRDF"}, {5, "TOP_LEVEL_RDF"}, {6, "SKYLINE_RDF"},  {7, "SuRF_LF_RDF"},  {8, "SuRF_LF_SPLIT_RDF"}, {9, "NONE_DUMMY"}};
+    // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE"}, {2, "NONE2"}, {3, "PLRDF"}, {4, "SPLIT_PLRDF"}, {5, "TOP_LEVEL_RDF"}, {6, "SKYLINE_RDF"},  {7, "SuRF_LF_RDF"},  {8, "SuRF_LF_SPLIT_RDF"}, {9, "NONE_DUMMY"}};
+    std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE_CACHE_RT_TRACING"}, {1, "NONE"}, {2, "NONE2"}, {3, "PLRDF"}, {4, "SPLIT_PLRDF"}, {5, "TOP_LEVEL_RDF"}, {6, "SKYLINE_RDF"},  {7, "SuRF_LF_RDF"},  {8, "SuRF_LF_SPLIT_RDF"}, {9, "NONE_DUMMY"}};
+    // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_CACHE_TOMBSTONE_TRACING"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "SuRF_LF_RDF"}, {1, "NONE_DUMMY"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "SuRF_LF_SPLIT_RDF"}, {1, "NONE_DUMMY"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "SuRF_LF_SPLIT_RDF"}};

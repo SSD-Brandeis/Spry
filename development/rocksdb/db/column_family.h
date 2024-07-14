@@ -45,6 +45,7 @@
 #include "../include/rocksdb/sys_rdfilter.h"
 // #include "../include/rocksdb/sys_rdfilter.cc"
 #include "../include/rocksdb/SuRF/include/surf.hpp"
+// #include "db/version_set.h"
 //Self Added End
 
 namespace ROCKSDB_NAMESPACE {
@@ -124,6 +125,26 @@ namespace ROCKSDB_NAMESPACE {
 
     void check_filled(){
       assert(src_fd_list.size() > 0);
+    }
+  };
+
+  struct OriginInfo{
+    std::vector<int> numbers_of_ranges, memory_usage_on_ranges;
+    
+    void logCurrentTotalNumbersOfRanges(int count){
+      numbers_of_ranges.push_back(count);
+    }
+
+    void logCurrentTotalMemoryUsage(int bytes){
+      memory_usage_on_ranges.push_back(bytes);
+    }
+
+    std::vector<int> getNumbersOfRanges(){
+      return numbers_of_ranges;
+    }
+
+    std::vector<int> getMemoryUsageOnRanges(){
+      return memory_usage_on_ranges;
     }
   };
 
@@ -1313,36 +1334,54 @@ class ColumnFamilyData {
     return flush_in_file_num;
   }
 
+  void logCurrentTotalMmeoryUsageInEachRDF(uint32_t origin_bytes);
+  
+  void logCurrentTotalNumbersOfRangesInEachRDF(uint32_t origin_count);
+
+  // void logCurrentTotalMmeoryUsageInEachRDF(Version* version_in);
+  // void logCurrentTotalNumbersOfRangesInEachRDF(Version* version_in);
 
   // void logCurrentTotalNumbersOfRangesInSkylineRDF(){
   //   skyline__numbers_of_ranges_in_rdf_log.push_back(skyline_rdf_prime.size());
   // }
 
-  void logCurrentTotalNumbersOfRangesInEachRDF(){
-    plrdf_prime.logCurrentTotalNumbersOfRanges();
-    split_plrdf_prime.logCurrentTotalNumbersOfRanges();
-    top_level_rdf_prime.logCurrentTotalNumbersOfRanges();
-    // logCurrentTotalNumbersOfRangesInSkylineRDF();
-    skyline_rdf_prime.logCurrentTotalNumbersOfRanges();
+  // // void logCurrentTotalNumbersOfRangesInEachRDF(Version* version_in){
+  // void logCurrentTotalNumbersOfRangesInEachRDF(uint32_t origin_count){
+  //   // uint32_t count = version_in->getNumberOfTablesRangeTombstonesInCache();
+  //   origin_info_prime.logCurrentTotalNumbersOfRanges(origin_count);
+  //   // version_in = nullptr;
+  //   // version_in += 12;
 
-    // init_surf();
-    // surf__top_level_rdf_prime->logCurrentTotalNumbersOfRanges();
-    surf__level_file_rdf_prime->logCurrentTotalNumbersOfRanges();
-    surf__level_file_split_rdf_prime->logCurrentTotalNumbersOfRanges();
-  }
-  void logCurrentTotalMmeoryUsageInEachRDF(){
-    //TODO: logCurrentTotalMmeoryUsage
-    plrdf_prime.logCurrentTotalMemoryUsage();
-    split_plrdf_prime.logCurrentTotalMemoryUsage();
-    top_level_rdf_prime.logCurrentTotalMemoryUsage();
-    // logCurrentTotalMemoryUsageInSkylineRDF();
-    skyline_rdf_prime.logCurrentTotalMemoryUsage();
+  //   plrdf_prime.logCurrentTotalNumbersOfRanges();
+  //   split_plrdf_prime.logCurrentTotalNumbersOfRanges();
+  //   top_level_rdf_prime.logCurrentTotalNumbersOfRanges();
+  //   // logCurrentTotalNumbersOfRangesInSkylineRDF();
+  //   skyline_rdf_prime.logCurrentTotalNumbersOfRanges();
+
+  //   // init_surf();
+  //   // surf__top_level_rdf_prime->logCurrentTotalNumbersOfRanges();
+  //   surf__level_file_rdf_prime->logCurrentTotalNumbersOfRanges();
+  //   surf__level_file_split_rdf_prime->logCurrentTotalNumbersOfRanges();
+  // }
+  // // void logCurrentTotalMmeoryUsageInEachRDF(Version* version_in){
+  // void logCurrentTotalMmeoryUsageInEachRDF(uint32_t origin_bytes){
+  //   // uint32_t bytes = version_in->getSizeOfTablesRangeTombstonesInCache();
+  //   origin_info_prime.logCurrentTotalMemoryUsage(origin_bytes);
+  //   // version_in = nullptr;
+  //   // version_in += 12;
+
+  //   plrdf_prime.logCurrentTotalMemoryUsage();
+  //   split_plrdf_prime.logCurrentTotalMemoryUsage();
+  //   top_level_rdf_prime.logCurrentTotalMemoryUsage();
+  //   // logCurrentTotalMemoryUsageInSkylineRDF();
+  //   skyline_rdf_prime.logCurrentTotalMemoryUsage();
     
-    // init_surf();
-    // surf__top_level_rdf_prime->logCurrentTotalMemoryUsage();
-    surf__level_file_rdf_prime->logCurrentTotalMemoryUsage();
-    surf__level_file_split_rdf_prime->logCurrentTotalMemoryUsage();
-  }
+  //   // init_surf();
+  //   // surf__top_level_rdf_prime->logCurrentTotalMemoryUsage();
+  //   surf__level_file_rdf_prime->logCurrentTotalMemoryUsage();
+  //   surf__level_file_split_rdf_prime->logCurrentTotalMemoryUsage();
+  // }
+
   std::vector<int> getLogOfNumbersOfRangesInPLRDF(){
     return plrdf_prime.getNumbersOfRangesInRDFLog();
   }
@@ -1506,6 +1545,7 @@ class ColumnFamilyData {
   std::pair<u_int64_t, std::vector<t3ll>>* fd_RD_in_ptr = nullptr; //flush
   FileInOut* file_in_out_ptr = nullptr; //compaction
   
+  OriginInfo origin_info_prime;
   PLRDF plrdf_prime, split_plrdf_prime;
   PLRDF top_level_rdf_prime;
   SkyLineRDF skyline_rdf_prime;

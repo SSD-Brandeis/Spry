@@ -1,5 +1,8 @@
-1. Compile RocksDB first by executing `make static_lib` in parent dir
-2. Compile all examples: `cd examples/; make all`
+1. Make sure zstd is installed. apt-get install zstd
+
+2. Compile RocksDB first by executing `make static_lib` in parent dir
+
+3. Compile all examples: `cd examples/; make all`
 Set --gen_workload 1 if the workload hasn't been generated yet
 
 To Run:

@@ -294,6 +294,7 @@ public:
   bool skip_reading_RD_blocks = false;
   int number_of_PQ = 5000;
   bool log_during_insertion = false;
+  bool surf_use_condensed_digit_key = true;
   //YuCheng Added End
 
 // old options

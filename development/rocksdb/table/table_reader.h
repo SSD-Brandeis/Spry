@@ -182,6 +182,39 @@ class TableReader {
                                 TableReaderCaller /*caller*/) {
     return Status::NotSupported("VerifyChecksum() not supported");
   }
+
+
+  // YCHuang Added Start
+  // bool get_ych__flag_tombstone_read(){
+  //   return ych__flag_tombstone_read;
+  // }
+  // void reset_ych__flag_tombstone_read(){
+  //   ych__flag_tombstone_read = 0;
+  //   ych__total_tombstone_payload_bytes = 0;
+  //   ych__num_unfragmented_tombstones = 0;
+  // }
+  void set_ych__total_tombstone_payload_bytes(uint64_t bytes){
+    ych__total_tombstone_payload_bytes = bytes;
+  }
+  void set_ych__num_unfragmented_tombstones(uint64_t count){
+    ych__num_unfragmented_tombstones = count;
+  }
+  uint64_t get_ych__total_tombstone_payload_bytes(){
+    return ych__total_tombstone_payload_bytes;
+  }
+  uint64_t get_ych__num_unfragmented_tombstones(){
+    return ych__num_unfragmented_tombstones;
+  }
+  private:
+    // bool ych__flag_tombstone_read = 0; //used in BlockBasedTable::ReadRangeDelBlock
+    uint64_t ych__total_tombstone_payload_bytes = 0; //used in BlockBasedTable::ReadRangeDelBlock
+    uint64_t ych__num_unfragmented_tombstones = 0; //used in BlockBasedTable::ReadRangeDelBlock
+    
+    // size_t ych__cache_capicity; //used in TableCache::FindTable
+    // size_t ych__cache_usage; //used in TableCache::FindTable
+    // size_t ych__cache_occupancy_count; //used in TableCache::FindTable
+    // size_t ych__cache_table_address_count; //used in TableCache::FindTable
+  // YCHuang Added End
 };
 
 }  // namespace ROCKSDB_NAMESPACE

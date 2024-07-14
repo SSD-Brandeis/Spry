@@ -352,12 +352,14 @@ class DB {
   virtual int getSkylineRDFNumberOfTotalRanges() {return -1;}
   virtual int getSuRFLevelFileRDFNumberOfTotalRanges() {return -1;}
   virtual int getSuRFLevelFileSplitRDFNumberOfTotalRanges() {return -1;}
+  virtual std::vector<int> getLogOfNumbersOfRangesInOrigin() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInPLRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfMemoryUsageInOrigin() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInPLRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSplitRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInTopLevelRDF() {return {-1, -1, -1};}

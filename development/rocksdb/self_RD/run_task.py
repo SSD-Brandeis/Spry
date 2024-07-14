@@ -23,7 +23,9 @@ params = {
     "--surf__include_dense": [0],    # 1: true, 0: false
     "--surf__sparse_dense_ratio": [16],
     "--log_during_insertion": [1],    # 1: true, 0: false
+    "--surf_use_condensed_digit_key": [1],    # 1: true, 0: false
 }
+
 tasks = ["./simple_example"]
 for key, values in params.items():
     tasks = [" ".join([task, key, str(value)]) for value in values for task in tasks]
