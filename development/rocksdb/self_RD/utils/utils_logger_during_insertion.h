@@ -534,6 +534,7 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
         std::stringstream searching_key;
         searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
 
+        std::cout << "issue get !! " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         start_pq = std::chrono::high_resolution_clock::now();
         system_verifier->start_remaining_get_path();
         s = db->Get(read_op, searching_key.str(), &value);
@@ -545,7 +546,7 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
           continue;
         }
-        if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_TOMBSTONE_TRACING"){
+        if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
           uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
           cache_tombstone_bytes.push_back(bytes);
         }
@@ -570,12 +571,20 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
         continue;
       }
-      if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_TOMBSTONE_TRACING"){
+      if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
         string i_round_str = "i_round="+std::to_string(i)+" ";
         std::string prefix = " (Historcially Exist Keys " + i_insertion_str + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
         testing_result_file_during_insertion << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
-        for(auto &x: cache_tombstone_bytes){
-          testing_result_file_during_insertion << x << ", ";
+        int len_ctb = cache_tombstone_bytes.size();
+        int i_ctb = 0;
+        if(i_ctb < len_ctb){
+          testing_result_file_during_insertion << cache_tombstone_bytes[i_ctb];
+          i_ctb++;
+        }
+        for(;i_ctb < len_ctb; i_ctb++){
+        // for(auto &x: cache_tombstone_bytes){
+          auto &x = cache_tombstone_bytes[i_ctb];
+          testing_result_file_during_insertion << ", " << x;
         }
         testing_result_file_during_insertion << "]" << std::endl;
       }
