@@ -1387,7 +1387,7 @@ void SuRF_RDF::shiftRDFWithPointKeysToOutputLevel(std::vector<pss> &rd_merged, s
 #ifdef DEBUG_SURF_COMPACTION
 std::cout << "within SuRF:" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 for(auto &rd: ranges_to_insert){
-    std::cout << rd.first << " " << rd.second << std::endl;
+    std::cout << SuRF_Utils::stringToHexString(rd.first) << " " << SuRF_Utils::stringToHexString(rd.second) << std::endl;
 }
 #endif
                 // (this->surf__level_file_rdf_prime)->insertRangesAtLevelOfFd(dst_level, dst_fd, ranges_to_insert, surf_flag__allow_range_boundary_overlapped);

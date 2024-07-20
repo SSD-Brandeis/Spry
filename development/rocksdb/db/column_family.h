@@ -128,25 +128,32 @@ namespace ROCKSDB_NAMESPACE {
     }
   };
 
-  struct OriginInfo{
+  struct OriginInfo {
     std::vector<int> numbers_of_ranges, memory_usage_on_ranges;
-    
-    void logCurrentTotalNumbersOfRanges(int count){
-      numbers_of_ranges.push_back(count);
+    static std::mutex mtx_numbers_of_ranges;
+    static std::mutex mtx_memory_usage_on_ranges;
+
+    void logCurrentTotalNumbersOfRanges(int count) {
+        std::lock_guard<std::mutex> lock(mtx_numbers_of_ranges);
+        numbers_of_ranges.push_back(count);
     }
 
-    void logCurrentTotalMemoryUsage(int bytes){
-      memory_usage_on_ranges.push_back(bytes);
+    void logCurrentTotalMemoryUsage(int bytes) {
+        std::lock_guard<std::mutex> lock(mtx_memory_usage_on_ranges);
+        memory_usage_on_ranges.push_back(bytes);
     }
 
-    std::vector<int> getNumbersOfRanges(){
-      return numbers_of_ranges;
+    std::vector<int> getNumbersOfRanges() {
+        std::lock_guard<std::mutex> lock(mtx_numbers_of_ranges);
+        return numbers_of_ranges;
     }
 
-    std::vector<int> getMemoryUsageOnRanges(){
-      return memory_usage_on_ranges;
+    std::vector<int> getMemoryUsageOnRanges() {
+        std::lock_guard<std::mutex> lock(mtx_memory_usage_on_ranges);
+        return memory_usage_on_ranges;
     }
   };
+
 
   // struct SuRFCompactionInfo{
   //   std::vector<uint32_t> src_level;

@@ -1486,7 +1486,10 @@ class Version {
   }
   
   std::vector<int> getLogOfMemoryUsageInOrigin(){
-    return origin_info.getMemoryUsageOnRanges();
+    // std::cout << "C0 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    std::vector<int> bytes = origin_info.getMemoryUsageOnRanges();
+    // std::cout << "C1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    return bytes;
   }
   std::vector<int> getLogOfMemoryUsageInPLRDF(){
     return plrdf.getMemoryUsageInRDFLog();

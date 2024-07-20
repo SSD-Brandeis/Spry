@@ -4950,10 +4950,14 @@ std::vector<int> DBImpl::getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF(){
 
 
 std::vector<int> DBImpl::getLogOfMemoryUsageInOrigin() {
+  // std::cout << "B0 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
+  // std::cout << "B1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   auto cfd = cfh->cfd();
+  // std::cout << "B2 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  // std::cout << "B3 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   return sv->current->getLogOfMemoryUsageInOrigin();
 }
 std::vector<int> DBImpl::getLogOfMemoryUsageInPLRDF() {

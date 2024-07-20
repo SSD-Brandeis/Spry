@@ -3777,10 +3777,14 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
         for (auto file_meta : *(c->inputs(l)))
         {
           // FIXME: ONLY FOR TESTING USE 
-          std::cout << "Pushing file from Current Level: " << c->level(l) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(l) << std::endl << std::flush;
-          std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;
-          smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
-          smallest_largest_boundries__str_key.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), file_meta->largest.user_key().ToString()));
+          std::cout << "Pushing file from Current Level: " << c->level(l) << " output Level: " << c->output_level() 
+                    << " with CompactionInputFiles: " << c->inputs(l) << std::endl << std::flush;
+          std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() 
+                    << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;
+          smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), 
+                                                              std::stoll(file_meta->largest.user_key().ToString())));
+          smallest_largest_boundries__str_key.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), 
+                                                                       file_meta->largest.user_key().ToString()));
           file_numbers.push_back(file_meta->fd.GetNumber());
         }
         file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries, file_numbers));

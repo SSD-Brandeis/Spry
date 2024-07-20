@@ -187,11 +187,19 @@ Status TableCache::FindTable(
     }
     MutexLock load_lock(loader_mutex_.get(key));
     // YCHuang Added Start
-    std::cout << "Lookup table from Cache_ again under loading mutex " << " "<< __FILE__ << ":" << __LINE__ << std::endl;
+    // std::cout << "Lookup table from Cache_ again under loading mutex " << " "<< __FILE__ << ":" << __LINE__ << std::endl;
     // YCHuang Added End
     // We check the cache again under loading mutex
     *handle = cache_.Lookup(key);
     if (*handle != nullptr) {
+      
+      if(checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
+        Cache * cache_ych = cache_.get();
+        // std::unordered_map<std::string, void*> map_currently_exist_kv = cache_ych->GetYCHMapKV();
+        std::unordered_set<std::string> set_currently_exist_keys = cache_ych->GetYCHSetKey();
+        checking::CacheTombstoneTracer::getInstance()->updateCurrentlyExistKeys(set_currently_exist_keys);
+      }
+
       return Status::OK();
     }
 
@@ -203,6 +211,14 @@ Status TableCache::FindTable(
                               level, prefetch_index_and_filter_in_cache,
                               max_file_size_for_l0_meta_pin, file_temperature);
     if (!s.ok()) {
+
+      if(checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
+        Cache * cache_ych = cache_.get();
+        // std::unordered_map<std::string, void*> map_currently_exist_kv = cache_ych->GetYCHMapKV();
+        std::unordered_set<std::string> set_currently_exist_keys = cache_ych->GetYCHSetKey();
+        checking::CacheTombstoneTracer::getInstance()->updateCurrentlyExistKeys(set_currently_exist_keys);
+      }
+
       assert(table_reader == nullptr);
       RecordTick(ioptions_.stats, NO_FILE_ERRORS);
       // We do not cache error results so that if the error is transient,
@@ -216,11 +232,6 @@ Status TableCache::FindTable(
       // ych__num_unfragmented_tombstones = table_reader->get_ych__num_unfragmented_tombstones();
       // ych__table_reader_ptr = table_reader.get();
       // ych__file_number = file_meta.fd.GetNumber();
-      if(checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed() == "NONE_CACHE_TOMBSTONE_TRACING"){
-        uint64_t k = reinterpret_cast<uint64_t>(table_reader.get());
-        uint64_t bytes = table_reader->get_ych__total_tombstone_payload_bytes();
-        checking::CacheTombstoneTracer::getInstance()->insertMapTombstoneBytes(k, bytes);
-      }
 
       //YCHuang Added Start
       // size_t ych__cache_capicity = cache_.get()->GetCapacity();
@@ -237,15 +248,54 @@ Status TableCache::FindTable(
       //           << " " << __FILE__ << ":" << __LINE__ << std::endl;
       //YCHuang Added End
 
+      //YCHuang Added Start
+      // auto slice_str = key.ToString();
+      // std::cout << "insert with key (slice_str) = " << checking::CacheTombstoneTracer::stringToHexString(slice_str) << " " << __FILE__ << ":" << __LINE__ << std::endl;
+      //YCHuang Added Start
+
       s = cache_.Insert(key, table_reader.get(), 1, handle);
+
+      //YCHuang Added Start   
+      // std::cout << " " << __FILE__ << ":" << __LINE__ << std::endl;
+      // Cache * cache_ych_x = cache_.get();
+      // // std::unordered_map<std::string, void*> map_currently_exist_kv = cache_ych->GetYCHMapKV();
+      // std::unordered_set<std::string> set_currently_exist_keys_x = cache_ych_x->GetYCHSetKey();
+      // checking::CacheTombstoneTracer::getInstance()->updateCurrentlyExistKeys(set_currently_exist_keys_x);
+
+      if(checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
+        void* ptr = reinterpret_cast<void*>(table_reader.get());
+        std::string k2 = checking::CacheTombstoneTracer::voidPointerToString(ptr);
+        std::string k = checking::CacheTombstoneTracer::stringToHexString(key.ToString()) + k2;
+        uint64_t bytes = table_reader->get_ych__total_tombstone_payload_bytes();
+        checking::CacheTombstoneTracer::getInstance()->insertMapTombstoneBytes(k, bytes);
+      }
+      //YCHuang Added End
+
 
       if (s.ok()) {
         // Release ownership of table reader.
         table_reader.release();
       }
     }
+
+    if(checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
+      Cache * cache_ych = cache_.get();
+      // std::unordered_map<std::string, void*> map_currently_exist_kv = cache_ych->GetYCHMapKV();
+      std::unordered_set<std::string> set_currently_exist_keys = cache_ych->GetYCHSetKey();
+      checking::CacheTombstoneTracer::getInstance()->updateCurrentlyExistKeys(set_currently_exist_keys);
+    }
+
     return s;
   }
+
+  //YCHuang Added Start
+  if(checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
+    Cache * cache_ych = cache_.get();
+    // std::unordered_map<std::string, void*> map_currently_exist_kv = cache_ych->GetYCHMapKV();
+    std::unordered_set<std::string> set_currently_exist_keys = cache_ych->GetYCHSetKey();
+    checking::CacheTombstoneTracer::getInstance()->updateCurrentlyExistKeys(set_currently_exist_keys);
+  }
+  //YCHuang Added End
 
   return Status::OK();
 }
@@ -928,21 +978,27 @@ size_t TableCache::GetMemoryUsageByTableReader(
 }
 
 void TableCache::Evict(Cache* cache, uint64_t file_number) {
-  std::cout << "Evict fd from cache" << " " << __FILE__ << ":" << __LINE__ << std::endl;
+  // std::cout << "Evict fd from cache" << " " << __FILE__ << ":" << __LINE__ << std::endl;
+
+  //YCHuang Added Start
+  // auto slice_str = GetSliceForFileNumber(&file_number).ToString();  
+  // std::cout << "Erase with key (slice_str) = " << checking::CacheTombstoneTracer::stringToHexString(slice_str) << " " << __FILE__ << ":" << __LINE__ << std::endl;
+  //YCHuang Added Start
+
   cache->Erase(GetSliceForFileNumber(&file_number));
 
   //YCHuang Added Start
-  size_t cache_capicity = cache->GetCapacity();
-  size_t cache_usage = cache->GetUsage();
-  size_t cache_occupancy_count = cache->GetOccupancyCount();
-  size_t cache_table_address_count = cache->GetTableAddressCount();
-  std::cout << "cache = " << cache
-            << " file_number = " << file_number
-            << " cache_capicity = " << cache_capicity 
-            << " cache_usage = " << cache_usage
-            << " cache_occupancy_count = " << cache_occupancy_count
-            << " cache_table_address_count = " << cache_table_address_count
-            << " " << __FILE__ << ":" << __LINE__ << std::endl;
+  // size_t cache_capicity = cache->GetCapacity();
+  // size_t cache_usage = cache->GetUsage();
+  // size_t cache_occupancy_count = cache->GetOccupancyCount();
+  // size_t cache_table_address_count = cache->GetTableAddressCount();
+  // std::cout << "cache = " << cache
+  //           << " file_number = " << file_number
+  //           << " cache_capicity = " << cache_capicity 
+  //           << " cache_usage = " << cache_usage
+  //           << " cache_occupancy_count = " << cache_occupancy_count
+  //           << " cache_table_address_count = " << cache_table_address_count
+  //           << " " << __FILE__ << ":" << __LINE__ << std::endl;
   //YCHuang Added End
 }
 

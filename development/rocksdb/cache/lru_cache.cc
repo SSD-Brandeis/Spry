@@ -52,6 +52,15 @@ LRUHandle* LRUHandleTable::Lookup(const Slice& key, uint32_t hash) {
 }
 
 LRUHandle* LRUHandleTable::Insert(LRUHandle* h) {
+  // YCHuang Added Start
+  // std::cout << "LRUHandleTable Insert " << " h->key()(slice_str) = " << checking::CacheTombstoneTracer::stringToHexString(h->key().ToString()) << " h->hash = " << h->hash << " " << __FILE__ << ":" << __LINE__ << " "<< std::endl;
+  // if(checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
+    std::string k = h->key().ToString();
+    void* v = h->value;
+    this->InsertKVToYCHMapKVAndSetKey(k, v);
+  // }
+  // YCHuang Added End
+
   LRUHandle** ptr = FindPointer(h->key(), h->hash);
   LRUHandle* old = *ptr;
   h->next_hash = (old == nullptr ? nullptr : old->next_hash);
@@ -68,6 +77,14 @@ LRUHandle* LRUHandleTable::Insert(LRUHandle* h) {
 }
 
 LRUHandle* LRUHandleTable::Remove(const Slice& key, uint32_t hash) {
+  // YCHuang Added Start
+  // std::cout << "LRUHandleTable Remove " << " key(slice_str) = " << checking::CacheTombstoneTracer::stringToHexString(key.ToString()) << " hash = " << hash << " " << __FILE__ << ":" << __LINE__ << std::endl;
+  // if(checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
+    std::string k = key.ToString();
+    this->RemoveKFromYCHMapKVAndSetKey(k);
+  // }
+  // YCHuang Added End
+
   LRUHandle** ptr = FindPointer(key, hash);
   LRUHandle* result = *ptr;
   if (result != nullptr) {
@@ -327,6 +344,7 @@ void LRUCacheShard::MaintainPoolSize() {
 
 void LRUCacheShard::EvictFromLRU(size_t charge,
                                  autovector<LRUHandle*>* deleted) {
+  // std::cout << "EvictFromLRU " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
   while ((usage_ + charge) > capacity_ && lru_.next != &lru_) {
     LRUHandle* old = lru_.next;
     // LRU list contains only elements which can be evicted.

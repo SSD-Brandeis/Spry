@@ -236,6 +236,21 @@ class SuRF_Utils {
         static void print_digit_string(std::string digit_string){
             std::cout << digit_string << std::endl;
         }
+
+        static std::string stringToHexString(const std::string& input_string) {
+            std::stringstream hex_stream;
+            hex_stream << std::hex << std::setfill('0');
+            
+            // Iterate through each character in the string
+            for (size_t i = 0; i < input_string.size(); ++i) {
+                // Convert each character to its hex representation
+                hex_stream << std::setw(2) << static_cast<int>(input_string[i]);
+            }
+            
+            // Convert stringstream to string and return
+            return hex_stream.str();
+        }
+        
     private:
 };
 

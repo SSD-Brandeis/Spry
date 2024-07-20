@@ -771,6 +771,7 @@ Status BlockBasedTable::Open(
 
 
   //Self Added Start
+  // std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   checking::SystemVerifier::getSystemVerifier()->setFlagOpenTable();
 
   //Notation: file opened only @ compaction, not @ get (so far)

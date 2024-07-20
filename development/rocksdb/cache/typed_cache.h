@@ -122,10 +122,10 @@ class BasicTypedCacheHelperFns {
 
   static void Delete(ObjectPtr value, MemoryAllocator* allocator) {
     // YCHuang Added Start
-    if(checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed() == "NONE_CACHE_TOMBSTONE_TRACING"){
-      uint64_t k = reinterpret_cast<uint64_t>(value);
-      checking::CacheTombstoneTracer::getInstance()->removeTombstoneByAddressKey(k);
-    }
+    // if(checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
+    //   uint64_t k = reinterpret_cast<uint64_t>(value);
+    //   checking::CacheTombstoneTracer::getInstance()->removeTombstoneByAddressKey(k);
+    // }
 // std::cout << "cache_->Delete " << " " << __FILE__ << ":" << __LINE__ << std::endl;
 // std::cout << "ObjectPtr value " << value << " " << __FILE__ << ":" << __LINE__ << std::endl;
 // // TValuePtr value2 = DownCastValue(value);

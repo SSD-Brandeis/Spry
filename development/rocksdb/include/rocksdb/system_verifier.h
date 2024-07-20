@@ -25,8 +25,13 @@ namespace checking {
 #include <iomanip>
 #include <chrono>
 #include <unordered_map>
+#include <unordered_set>
 #include <mutex>
 #include <shared_mutex>
+#include <sstream>
+#include <iomanip>
+#include <cstdint> // for uint64_t
+#include <cstring> // for memcpy
 
 // #include "../emu_environment.h"
 // #include "../workload_executor.h"
@@ -51,7 +56,7 @@ namespace checking {
 
   class CacheTombstoneTracer {
     private:
-      std::unordered_map<uint64_t, uint64_t> ych__map_tombstone_bytes;
+      std::unordered_map<std::string, uint64_t> ych__map_tombstone_bytes;
       // std::unordered_map<uint64_t, uint64_t> ych__map_tombstone_bytes;
       uint64_t ych__total_tombstone_bytes = 0;
     
@@ -74,36 +79,101 @@ namespace checking {
         return cache_tombstone_tracer;
       }
 
-      void insertMapTombstoneBytes(uint64_t k, uint64_t bytes){
-        std::cout << "insertMapTombstoneBytes start" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // Function to interpret void* as 8-byte string
+      static std::string voidPointerToString(void* ptr) {
+          // Convert void* to uint64_t
+          uint64_t ptr_value;
+          std::memcpy(&ptr_value, &ptr, sizeof(uint64_t));
+
+          // Convert uint64_t to hex string (8 bytes)
+          std::stringstream ss;
+          ss << std::hex << std::uppercase << std::setw(16) << std::setfill('0') << ptr_value;
+
+          return ss.str();
+      }
+
+           
+      // static void printStringAsHex(const std::string& input_string) {
+      //     // std::cout << "Hexadecimal representation of \"" << input_string << "\": ";
+      //     for (size_t i = 0; i < input_string.size(); ++i) {
+      //         // Convert each character to its hex representation
+      //         std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(input_string[i]);
+      //         // Separate each byte with a space for clarity (optional)
+      //         if (i < input_string.size() - 1) {
+      //             std::cout << " ";
+      //         }
+      //     }
+      //     std::cout << std::dec; // Reset to decimal output
+      // }
+
+      static std::string stringToHexString(const std::string& input_string) {
+          std::stringstream hex_stream;
+          hex_stream << std::hex << std::setfill('0');
+          
+          // Iterate through each character in the string
+          for (size_t i = 0; i < input_string.size(); ++i) {
+              // Convert each character to its hex representation
+              hex_stream << std::setw(2) << static_cast<int>(input_string[i]);
+          }
+          
+          // Convert stringstream to string and return
+          return hex_stream.str();
+      }
+
+
+
+      void insertMapTombstoneBytes(std::string k, uint64_t bytes){
+        // std::cout << "insertMapTombstoneBytes start" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         std::unique_lock<std::shared_mutex> lock(rw_mutex);
         if(ych__map_tombstone_bytes.count(k) != 0){
           std::cerr << "Error. Key already in ych__map_tombstone_bytes" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         }
         ych__map_tombstone_bytes[k] = bytes;
         ych__total_tombstone_bytes += bytes;
-        std::cout << "insertMapTombstoneBytes end" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        // std::cout << " +bytes = " << bytes << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        // std::cout << "insertMapTombstoneBytes end" << " key = " << k << " " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       }
 
       uint64_t getTotalTombstoneBytes(){
         std::shared_lock<std::shared_mutex> lock(rw_mutex);
+        // std::cout << " total_RT_bytes = " << ych__total_tombstone_bytes << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         return ych__total_tombstone_bytes;
       }
 
-      void removeTombstoneByAddressKey(uint64_t k){
-        std::cout << "removeTombstoneByAddressKey start" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // Cache are removed by Evicting from table_cahe, or by lru_cache (cache) itself, ...
+      // void removeTombstoneByAddressKey(uint64_t k){
+      //   std::cout << "removeTombstoneByAddressKey start" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      //   std::unique_lock<std::shared_mutex> lock(rw_mutex);
+      //   // if(ych__map_tombstone_bytes.count(k) == 0){
+      //     // std::cerr << "Error. Key not in ych__map_tombstone_bytes" << " key = " << k << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      //   // }
+      //   uint64_t bytes = ych__map_tombstone_bytes[k];
+      //   ych__map_tombstone_bytes.erase(k);
+      //   ych__total_tombstone_bytes -= bytes;
+      //   std::cout << "removeTombstoneByAddressKey end" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // }
+
+      // void updateCurrentlyExistKeys(std::unordered_map<std::string, void*> map_currently_exist_kv){
+      void updateCurrentlyExistKeys(std::unordered_set<std::string> set_currently_exist_keys){
         std::unique_lock<std::shared_mutex> lock(rw_mutex);
-        if(ych__map_tombstone_bytes.count(k) == 0){
-          std::cerr << "Error. Key not in ych__map_tombstone_bytes" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        // std::cout << "set_currently_exist_keys.size() = " << set_currently_exist_keys.size() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        // std::cout << "set_currently_exist_keys" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        // for(auto it2 : set_currently_exist_keys ){
+        //   std::cout << it2 << " ";
+        // }
+        // std::cout << std::endl;
+        // Erase keys from ych_map_kv if they are not in allowed_keys
+        for (auto it = ych__map_tombstone_bytes.begin(); it != ych__map_tombstone_bytes.end();) {
+            // std::cout << it->first << std::endl;
+            if (set_currently_exist_keys.count(it->first) == 0) {
+                uint64_t bytes = it->second;
+                ych__total_tombstone_bytes -= bytes;
+                // std::cout << " -bytes = " << bytes << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                it = ych__map_tombstone_bytes.erase(it);
+            } else {
+                ++it;
+            }
         }
-        uint64_t bytes = ych__map_tombstone_bytes[k];
-        ych__map_tombstone_bytes.erase(k);
-        ych__total_tombstone_bytes -= bytes;
-        std::cout << "removeTombstoneByAddressKey end" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-      }
-
-      uint64_t get_total_tombstone_bytes(){
-        return ych__total_tombstone_bytes;
       }
   };
 
@@ -517,7 +587,7 @@ namespace checking {
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE"}, {2, "NONE2"}, {3, "PLRDF"}, {4, "SPLIT_PLRDF"}, {5, "TOP_LEVEL_RDF"}, {6, "SKYLINE_RDF"},  {7, "NONE_DUMMY"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE"}, {2, "NONE2"}, {3, "PLRDF"}, {4, "SPLIT_PLRDF"}, {5, "TOP_LEVEL_RDF"}, {6, "SKYLINE_RDF"},  {7, "SuRF_LF_RDF"}, {8, "NONE_DUMMY"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE"}, {2, "NONE2"}, {3, "PLRDF"}, {4, "SPLIT_PLRDF"}, {5, "TOP_LEVEL_RDF"}, {6, "SKYLINE_RDF"},  {7, "SuRF_LF_RDF"},  {8, "SuRF_LF_SPLIT_RDF"}, {9, "NONE_DUMMY"}};
-    std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE_CACHE_RANGETOMBSTONE_TRACING"}, {1, "NONE"}, {2, "NONE2"}, {3, "PLRDF"}, {4, "SPLIT_PLRDF"}, {5, "TOP_LEVEL_RDF"}, {6, "SKYLINE_RDF"},  {7, "SuRF_LF_RDF"},  {8, "SuRF_LF_SPLIT_RDF"}, {9, "NONE_DUMMY"}};
+    std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE_CACHE_RANGETOMBSTONE_TRACING"}, {2, "NONE"}, {3, "NONE2"}, {4, "PLRDF"}, {5, "SPLIT_PLRDF"}, {6, "TOP_LEVEL_RDF"}, {7, "SKYLINE_RDF"},  {8, "SuRF_LF_RDF"},  {9, "SuRF_LF_SPLIT_RDF"}, {10, "NONE_DUMMY"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_CACHE_RANGETOMBSTONE_TRACING"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "SuRF_LF_RDF"}, {1, "NONE_DUMMY"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "SuRF_LF_SPLIT_RDF"}, {1, "NONE_DUMMY"}};

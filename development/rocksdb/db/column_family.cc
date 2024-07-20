@@ -1266,7 +1266,10 @@ namespace ROCKSDB_NAMESPACE {
 
 
 
-
+// YCHuang Added Start
+std::mutex OriginInfo::mtx_numbers_of_ranges;
+std::mutex OriginInfo::mtx_memory_usage_on_ranges;
+// YCHuang Added End
 
 
 

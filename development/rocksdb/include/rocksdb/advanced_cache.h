@@ -17,6 +17,11 @@
 #include "rocksdb/slice.h"
 #include "rocksdb/status.h"
 
+// YCHuang Added Start
+#include <unordered_map>
+#include <unordered_set>
+// YCHuang Added End
+
 namespace ROCKSDB_NAMESPACE {
 
 class Logger;
@@ -519,6 +524,11 @@ class Cache {
   // supports being set once, so should only be used during initialization
   // or destruction, guaranteed before or after any thread-shared operations.
   void SetEvictionCallback(EvictionCallback&& fn);
+
+  // YCHuang Added Start
+  virtual std::unordered_map<std::string, void*> GetYCHMapKV(){return {};}
+  virtual std::unordered_set<std::string> GetYCHSetKey(){return {};}
+  // YCHuang Added End
 
  protected:
   std::shared_ptr<MemoryAllocator> memory_allocator_;
