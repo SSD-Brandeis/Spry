@@ -289,12 +289,13 @@ public:
   int rd_count = 1;
   double selectivity = 0.001;
   string workload_file_name = "workload.txt";
-  double insert_before_rangeDelete = 0.5;
+  double insert_before_range_delete = 0.5;
   bool gen_workload = true;
   bool skip_reading_RD_blocks = false;
   int number_of_PQ = 5000;
   bool log_during_insertion = false;
   bool surf_use_condensed_digit_key = true;
+  int run_pq_during_insertion_interval = 200;
   //YuCheng Added End
 
 // old options

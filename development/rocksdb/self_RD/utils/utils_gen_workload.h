@@ -25,12 +25,12 @@ void gen_workload(EmuEnv* _env){
   int rd_count = _env->rd_count;
   double selectivity = _env->selectivity;
   string workload_file_name = _env->workload_file_name;
-  double insert_before_rangeDelete = _env->insert_before_rangeDelete;
+  double insert_before_range_delete = _env->insert_before_range_delete;
 
   
     
   WorkloadGenerator workload_generator;
-  // long number_Of_point_in_the_beginning = (long) ceil(num_inserts * insert_before_rangeDelete);
+  // long number_Of_point_in_the_beginning = (long) ceil(num_inserts * insert_before_range_delete);
   // assert(1.0*rd_count*selectivity <= 1.0);
   // workload_generator.generateWorkload((long)num_inserts, (long)entry_size, (double) correlation, 
   //         (long)rd_count, (double) selectivity, (long) number_Of_point_in_the_beginning, (string) workload_file_name,   
@@ -41,7 +41,8 @@ void gen_workload(EmuEnv* _env){
       + string(" --insert=") + to_string(num_inserts) 
       + string(" --range_delete=") + to_string(rd_count)  
       + string(" --range_delete_selectivity=") + to_string(selectivity) 
-      + string(" --entry_size=") + to_string(entry_size - checking::SystemVerifier::getSystemVerifier()->getKeySize() + sizeof(uint32_t));
+      + string(" --entry_size=") + to_string(entry_size - checking::SystemVerifier::getSystemVerifier()->getKeySize() + sizeof(uint32_t))
+      + string(" --range_delete_threshold=") + to_string(insert_before_range_delete);
 
   string move_workload_command = string(" mv workload.txt ./K-V-Workload-Generator-master/ ");
 
@@ -151,13 +152,14 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   args::ValueFlag<int> skip_reading_RD_blocks_cmd(group1, "skip_reading_RD_blocks", "skip_reading_RD_blocks [def:0 (false)]", {"skip_reading_RD_blocks"});
   args::ValueFlag<int> number_of_PQ_cmd(group1, "number_of_PQ", "number_of_PQ [def:5000]", {"number_of_PQ"});
 
+  args::ValueFlag<bool> log_during_insertion_cmd(group1, "log_during_insertion", "log_during_insertion [def:0 (false)]", {"log_during_insertion"});
+  args::ValueFlag<uint32_t> run_pq_during_insertion_interval_cmd(group1, "run_pq_during_insertion_interval", "interval to perform a set of PQ during the workload insertion phase [def:200]", {"run_pq_during_insertion_interval"});
+
   args::ValueFlag<int> surf__key_len_in_bytes_cmd(group1, "surf__key_len_in_bytes", "surf__key_len_in_bytes [def:12]", {"surf__key_len_in_bytes"});
   args::ValueFlag<uint32_t> surf__hash_suffix_len_cmd(group1, "surf__hash_suffix_len", "surf__hash_suffix_len [def:0]", {"surf__hash_suffix_len"});
   args::ValueFlag<uint32_t> surf__real_suffix_len_cmd(group1, "surf__real_suffix_len", "surf__real_suffix_len [def:0]", {"surf__real_suffix_len"});
   args::ValueFlag<bool> surf__include_dense_cmd(group1, "surf__include_dense", "surf__include_dense [def:1 (true)]", {"surf__include_dense"});
   args::ValueFlag<uint32_t> surf__sparse_dense_ratio_cmd(group1, "surf__sparse_dense_ratio", "surf__sparse_dense_ratio [def:16]", {"surf__sparse_dense_ratio"});
-
-  args::ValueFlag<bool> log_during_insertion_cmd(group1, "log_during_insertion", "log_during_insertion [def:0 (false)]", {"log_during_insertion"});
   args::ValueFlag<bool> surf_use_condensed_digit_key_cmd(group1, "surf_use_condensed_digit_key", "surf_use_condensed_digit_key [def:1 (true)]", {"surf_use_condensed_digit_key"});
   //YuCheng Added End
 
@@ -222,7 +224,7 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   int rd_count = RD_cmd ? args::get(RD_cmd) : 1;
   double selectivity = selectivity_cmd ? args::get(selectivity_cmd) : 0.001;
   string workload_file_name = workload_filename_cmd ? args::get(workload_filename_cmd) : "workload.txt";
-  double insert_before_rangeDelete = insert_before_range_delete_cmd ? args::get(insert_before_range_delete_cmd) : 0.5;
+  double insert_before_range_delete = insert_before_range_delete_cmd ? args::get(insert_before_range_delete_cmd) : 0.5;
   bool gen_workload = gen_workload_cmd ? (args::get(gen_workload_cmd) != 0) : 1;
   int max_open_files = max_open_files_cmd ? args::get(max_open_files_cmd) : 9999;
   bool skip_reading_RD_blocks = skip_reading_RD_blocks_cmd ? (args::get(skip_reading_RD_blocks_cmd) != 0) : false;
@@ -233,14 +235,16 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   _env->rd_count = rd_count;
   _env->selectivity = selectivity;
   _env->workload_file_name = workload_file_name;
-  _env->insert_before_rangeDelete = insert_before_rangeDelete;
+  _env->insert_before_range_delete = insert_before_range_delete;
   _env->gen_workload = gen_workload;
   _env->max_open_files = max_open_files;
   _env->skip_reading_RD_blocks = skip_reading_RD_blocks;
   _env->number_of_PQ = number_of_PQ;
 
   bool log_during_insertion = log_during_insertion_cmd ? (args::get(log_during_insertion_cmd) != 0) : false;
+  int run_pq_during_insertion_interval = run_pq_during_insertion_interval_cmd ? args::get(run_pq_during_insertion_interval_cmd) : 200;  
   _env->log_during_insertion = log_during_insertion;
+  _env->run_pq_during_insertion_interval = run_pq_during_insertion_interval;
   
   int surf__key_len_in_bytes = surf__key_len_in_bytes_cmd ? args::get(surf__key_len_in_bytes_cmd) : 12;
   uint32_t surf__hash_suffix_len = surf__hash_suffix_len_cmd ? args::get(surf__hash_suffix_len_cmd) : 0;

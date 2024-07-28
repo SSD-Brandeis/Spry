@@ -22,12 +22,14 @@
 #define U_THRESHOLD 0.1 // U_THRESHOLD*insert_count number of inserts must be made before Updates may take place (applicable when an empty database is being populated)
 #define PD_THRESHOLD 0.1 // PD_THRESHOLD*insert_count number of inserts must be made before Point Deletes may take place (applicable when an empty database is being populated)
 // #define RD_THRESHOLD 0.75 // RD_THRESHOLD*insert_count number of inserts must be made before Range Deletes may take place (applicable when an empty database is being populated)
-#define RD_THRESHOLD 0.9 // RD_THRESHOLD*insert_count number of inserts must be made before Range Deletes may take place (applicable when an empty database is being populated)
+// #define RD_THRESHOLD 0.9 // RD_THRESHOLD*insert_count number of inserts must be made before Range Deletes may take place (applicable when an empty database is being populated)
 #define PQ_THRESHOLD 0.1 // PQ_THRESHOLD*insert_count number of inserts must be made before Point Queries may take place (applicable when an empty database is being populated)
 #define RQ_THRESHOLD 0.1 // RQ_THRESHOLD*insert_count number of inserts must be made before Range Queries may take place (applicable when an empty database is being populated)
 #define STRING_KEY_ENABLED false
 #define FILENAME "workload.txt"
-
+// YCHuang Added Start
+float ych_rd_threshold = 0.9;
+// YCHuang Added End
 // using namespace std;
 
 // temporary global variables -- are to be programmed as commandline args
@@ -93,7 +95,8 @@ float existing_point_lookup_zipf_alpha = 1.0;
 Generator* existingPointLookupIndexGenerator = nullptr;
 
 int parse_arguments2(int argc, char *argv[]);
-int get_choice(long, long, long, long, long, long, long, long, long, long, long, long, long);
+// int get_choice(long, long, long, long, long, long, long, long, long, long, long, long, long);
+int get_choice(long, long, long, long, long, long, long, long, long, long, long, long, long, float);
 void generate_workload();
 void print_workload_parameters(int _insert_count, int _update_count, int _point_delete_count,int  _range_delete_count,int _effective_ingestion_count);
 std::string get_value(int _value_size);
@@ -294,7 +297,9 @@ void generate_workload() {
      }
 
     while (_total_operation_count < total_operation_count) {
-        int choice = get_choice(insert_pool.size(), insert_count, update_count, point_delete_count, range_delete_count, point_query_count, range_query_count, _insert_count, _update_count, _point_delete_count, _range_delete_count, _point_query_count, _range_query_count);
+        // int choice = get_choice(insert_pool.size(), insert_count, update_count, point_delete_count, range_delete_count, point_query_count, range_query_count, _insert_count, _update_count, _point_delete_count, _range_delete_count, _point_query_count, _range_query_count);
+        int choice = get_choice(insert_pool.size(), insert_count, update_count, point_delete_count, range_delete_count, point_query_count, range_query_count, _insert_count, _update_count, _point_delete_count, _range_delete_count, _point_query_count, _range_query_count,
+                                ych_rd_threshold);
         // std::cout << "choice = " << choice << std::endl;
 
         if (choice == 0)
@@ -678,13 +683,15 @@ void print_workload_parameters(int _insert_count, int _update_count, int _point_
     << "existing_point_lookup_beta_beta = "<< existing_point_lookup_beta_beta << ", " 
     << "existing_point_lookup_zipf_alpha = "<< existing_point_lookup_zipf_alpha << ", "
     << "sorted = "<< sorted << ", " 
-    << "num_insert_key_prefix = "<< num_insert_key_prefix
+    << "num_insert_key_prefix = "<< num_insert_key_prefix << ", "
+    << "rd_threshold = " << ych_rd_threshold 
     <<std::endl;
 }
 
 
 
-int get_choice(long insert_pool_size, long insert_count, long update_count, long point_delete_count, long range_delete_count, long point_query_count, long range_query_count, long _insert_count, long _update_count, long _point_delete_count, long _range_delete_count, long _point_query_count, long _range_query_count) {
+int get_choice(long insert_pool_size, long insert_count, long update_count, long point_delete_count, long range_delete_count, long point_query_count, long range_query_count, long _insert_count, long _update_count, long _point_delete_count, long _range_delete_count, long _point_query_count, long _range_query_count,
+                float ych_rd_threshold) {
     long total_operation_count = (insert_count - _insert_count) + (update_count - _update_count) + (point_delete_count - _point_delete_count) + (range_delete_count - _range_delete_count) + (point_query_count - _point_query_count) + (range_query_count - _range_query_count);
     if(total_operation_count == 0) return 0;
     float insert_fraction = (float) (insert_count - _insert_count) / total_operation_count;
@@ -719,7 +726,8 @@ int get_choice(long insert_pool_size, long insert_count, long update_count, long
             // choice = (choice + 1)%choice_domain;
             choice--;
         case 4: 
-            if (_range_delete_count < range_delete_count && insert_pool_size > 0 && _insert_count >= RD_THRESHOLD * insert_count) 
+            // if (_range_delete_count < range_delete_count && insert_pool_size > 0 && _insert_count >= RD_THRESHOLD * insert_count) 
+            if (_range_delete_count < range_delete_count && insert_pool_size > 0 && _insert_count >= ych_rd_threshold * insert_count) 
                 break;
             choice--;
         case 3: 
@@ -880,6 +888,9 @@ int parse_arguments2(int argc, char *argv[]) {
   args::ValueFlag<float> non_existing_point_lookup_dist_beta_beta_cmd(group1, "ZD_Beta_Beta", ", def: 1.0]", {"ZD_BBETA", "non_existing_point_lookup_distribution_beta_beta"});
   args::ValueFlag<float> non_existing_point_lookup_dist_zipf_alpha_cmd(group1, "ZD_Zipf_Alpha", ", def: 1.0]", {"ZD_ZALPHA", "non_existing_point_lookup_distribution_zipf_alpha"});
 
+  // YCHuang Added Start
+  args::ValueFlag<float> ych_rd_threshold_cmd(group1, "rd_threshold", ", def: 0.9]", {"RD_THRESHOLD", "range_delete_threshold"});
+  // YCHuang Added End
 
   try {
       parser.ParseCLI(argc, argv);
@@ -972,6 +983,10 @@ int parse_arguments2(int argc, char *argv[]) {
    existing_point_lookup_beta_alpha =  existing_point_lookup_dist_beta_alpha_cmd ? args::get(existing_point_lookup_dist_beta_alpha_cmd):1.0;
    existing_point_lookup_beta_beta = existing_point_lookup_dist_beta_beta_cmd ? args::get(existing_point_lookup_dist_beta_beta_cmd):1.0;
    existing_point_lookup_zipf_alpha =  existing_point_lookup_dist_zipf_alpha_cmd ? args::get(existing_point_lookup_dist_zipf_alpha_cmd):1.0;
+
+   // YCHuang Added Start
+   ych_rd_threshold = ych_rd_threshold_cmd ? args::get(ych_rd_threshold_cmd):0.9;
+   // YCHuang Added End
 
    if(insert_norm_mean_percentile <= 0 || insert_norm_mean_percentile > 1 || update_norm_mean_percentile <= 0 || update_norm_mean_percentile > 1 || 
       non_existing_point_lookup_norm_mean_percentile <= 0 || non_existing_point_lookup_norm_mean_percentile > 1 || 

@@ -187,7 +187,7 @@ void write_log2(std::ostream &outStream, EmuEnv* _env){
   outStream << ",\"rd_count\" : " <<_env->rd_count << std::endl;
   outStream << ",\"selectivity\" : " <<_env->selectivity << std::endl;
   outStream << ",\"workload_file_name\" : " << "\"" << _env->workload_file_name << "\"" << std::endl;
-  outStream << ",\"insert_before_rangeDelete\" : " <<_env->insert_before_rangeDelete << std::endl;
+  outStream << ",\"insert_before_rangeDelete\" : " <<_env->insert_before_range_delete << std::endl;
   outStream << ",\"gen_workload\" : " <<_env->gen_workload << std::endl;
   outStream << ",\"max_background_jobs\" : " <<_env->max_background_jobs << std::endl;
   outStream << ",\"target_file_size_base\" : " <<_env->target_file_size_base << std::endl;
