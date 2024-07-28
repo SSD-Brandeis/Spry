@@ -1560,6 +1560,7 @@ for(auto &rd: range_del_vec_self){ //sorted vector
   //   flag_split_RDF = true;
   // }
   // if(point_key >= start_key && point_key < end_key && point_key_seq < seq){
+  // TODO: YCH for Split_SURF  may need to handle (point_key == start_key)
   if(point_key >= start_key && point_key < end_key && std::stoull(point_key_seq2) < seq){
     std::clog << " (compaction) range delete key in compaction"
               << " (range_del) key = " << start_key << " " << end_key
