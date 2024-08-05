@@ -889,6 +889,7 @@ int parse_arguments2(int argc, char *argv[]) {
   args::ValueFlag<float> non_existing_point_lookup_dist_zipf_alpha_cmd(group1, "ZD_Zipf_Alpha", ", def: 1.0]", {"ZD_ZALPHA", "non_existing_point_lookup_distribution_zipf_alpha"});
 
   // YCHuang Added Start
+  // add a new argument
   args::ValueFlag<float> ych_rd_threshold_cmd(group1, "rd_threshold", ", def: 0.9]", {"RD_THRESHOLD", "range_delete_threshold"});
   // YCHuang Added End
 
