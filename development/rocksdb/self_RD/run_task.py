@@ -23,7 +23,7 @@ params = {
     "--surf__include_dense": [0],    # 1: true, 0: false
     "--surf__sparse_dense_ratio": [16],
     "--log_during_insertion": [1],    # 1: true, 0: false
-    "--surf_use_condensed_digit_key": [1],    # 1: true, 0: false
+    "--surf_use_condensed_digit_key": [1],    # 1: true, 0: false # digit_key to condensed_char_keys
     "--run_pq_during_insertion_interval": [200], # default: 200
 }
 
@@ -84,6 +84,9 @@ params2 = deepcopy(params)
 params2["-i"] = [1000000]
 params2["-P"] = [16]
 params2["-T"] = [4]
+params2["--insert_before_range_delete"] = [0.9999]
+params2["--run_pq_during_insertion_interval"] = [20]
+    
 tasks2 = set_B_E_list_to_task(params2, B_list = [4], E_list = [1024])
 run('14', RD_list=[100], sel_list=[0.001, 0.005, 0.01], tasks=tasks2)
 run('15', RD_list=[1000], sel_list=[0.0001, 0.0005, 0.001], tasks=tasks2)
