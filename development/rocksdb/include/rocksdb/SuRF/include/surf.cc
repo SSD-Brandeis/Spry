@@ -765,8 +765,10 @@ std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(SuRF* surf_,
                 flag_first_key = false;
             }
             if(start > end){
-                std::cerr << "Error: start > end" << std::endl;
-                std::cout << "Error: start > end" << std::endl;
+                // std::cerr << "Error: start > end" << std::endl;
+                // std::cout << "Error: start > end" << std::endl;
+                std::cerr << "Error: start > end" << " " << __FILE__ << ":" << __LINE__ << std::endl;
+                std::cout << "Error: start > end" << " " << __FILE__ << ":" << __LINE__ << std::endl;
                 assert(start > end);
             }
             ranges.push_back(std::make_pair(start, end));
@@ -789,8 +791,10 @@ std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(SuRF* surf_,
                 flag_first_key = false;
             }
             if(start > end){
-                std::cerr << "Error: start > end" << std::endl;
-                std::cout << "Error: start > end" << std::endl;
+                // std::cerr << "Error: start > end" << std::endl;
+                // std::cout << "Error: start > end" << std::endl;
+                std::cerr << "Error: start > end" << " " << __FILE__ << ":" << __LINE__ << std::endl;
+                std::cout << "Error: start > end" << " " << __FILE__ << ":" << __LINE__ << std::endl;
                 assert(start > end);
             }
             ranges.push_back(std::make_pair(start, end));
