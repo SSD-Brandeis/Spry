@@ -96,18 +96,6 @@ Status BuildTable(
   uint64_t num_unfragmented_tombstones = 0;
   uint64_t total_tombstone_payload_bytes = 0;
   for (auto& range_del_iter : range_del_iters) {
-//Self Added Start
-// auto tombstone = range_del_iter->Tombstone();
-  
-// std::cout << " (flush) range_del " << tombstone.start_key_.ToString()
-//           << ", " << tombstone.end_key_.ToString() 
-//           << " ; seq = " << tombstone.seq_
-//           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << " (flush) range_del " << range_del_iter->key().ToString()
-//           << ", " << range_del_iter->value().ToString() 
-//           << " ; seq = " << range_del_iter->seq()
-//           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//Self Added End
     num_unfragmented_tombstones +=
         range_del_iter->num_unfragmented_tombstones();
     total_tombstone_payload_bytes +=
@@ -123,11 +111,6 @@ std::vector<std::tuple<long long, long long, uint64_t>> range_del_vec_self;
 
     auto tombstone = range_del_it2->Tombstone();
     range_del_vec_self.push_back(std::make_tuple(std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()), tombstone.seq_));
-    // std::cout << std::endl
-    //           << " (flush) range_del " << tombstone.start_key_.ToString()
-    //           << ", " << tombstone.end_key_.ToString() 
-    //           << " ; seq = " << tombstone.seq_
-    //           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   }
 //Self Added End
 
@@ -305,14 +288,6 @@ if(flag_delete_current_entry){
         break;
       }
       builder->Add(key, value);
-//Self Added Start
-// std::cout << " (flush) key = " << key.ToString() 
-//           << " (flush) ikey.user_key = " << ikey.user_key.ToString() 
-//           << " ikey.sequence = " << ikey.sequence
-//           << " ikey.type = " << ikey.type << " " 
-//           << " value = " << value.ToString()
-//           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
-//Self Added End
 
       s = meta->UpdateBoundaries(key, value, ikey.sequence, ikey.type);
       if (!s.ok()) {
