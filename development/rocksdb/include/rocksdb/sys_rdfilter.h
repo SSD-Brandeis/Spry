@@ -311,24 +311,6 @@ class PLRDF{
       auto& rdList = range_delete_list;
       auto& rdList_in = range_delete_list_in;
 
-    // // std::cout << "rdList" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
-    // // for(auto it = rdList.begin(); it != rdList.end(); it++){
-    // // std::cout << "aaaa " << it->first << " " << it->second << std::endl;
-    // // }
-    // // std::cout << std::endl << std::endl;
-    // std::cout << "rdList_in" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
-    // for(auto it = rdList_in.begin(); it != rdList_in.end(); it++){
-    // std::cout << "aaaa2 " << it->first << " " << it->second << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    // }
-    // std::cout << std::endl << std::endl;
-
-
-    // std::cout << "rdList_in" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
-    // for(auto it = rdList_in.begin(); it != rdList_in.end(); it++){
-    //   std::cout << it->first << " " << it->second << std::endl;
-    // }
-    // std::cout << std::endl << std::endl;
-
       if(rdList_in.size() == 0){return;}
 
       for(uint i = 1; i < rdList_in.size(); i++){
@@ -355,18 +337,6 @@ class PLRDF{
         }
 
         rdList.push_back(tmp_range);
-
-        // std::cout << "after_direct insert to rdList: " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
-        // for(auto it = rdList.begin(); it != rdList.end(); it++){
-        //   std::cout << it->first << " " << it->second << std::endl;
-        // }
-
-
-        // //adding to rdList
-        // rdList.reserve(rdList_new.size());
-        // for(auto &p : rdList_new){
-        //   rdList.push_back(p);
-        // }
         
         return;
       }
@@ -384,8 +354,7 @@ class PLRDF{
       auto itB = rdList_in.begin();
       auto iteB = rdList_in.end();
 
-      // long long minK = start;
-      // long long maxK = end;
+
       pll tmp_range;
       if(itA->first < itB->first){
         tmp_range = *itA;
@@ -394,7 +363,6 @@ class PLRDF{
       }
 
       while(itA != iteA || itB != iteB){
-    // std::cout << " itA = " << itA->first << " " << itA->second << std::endl;
         if(itA != iteA && itA->first <= tmp_range.second){
           tmp_range.second = std::max(tmp_range.second, itA->second);
           itA++;
@@ -429,16 +397,6 @@ class PLRDF{
       rdList_new.push_back(tmp_range);
 
 
-    // std::cout << "rdList_new" << std::endl << std::endl;
-    // for(auto it = rdList_new.begin(); it != rdList_new.end(); it++){
-    //   std::cout << it->first << " " << it->second << std::endl;
-    // }
-    // std::cout << "rdList" << std::endl << std::endl;
-    // for(auto it = rdList.begin(); it != rdList.end(); it++){
-    //   std::cout << it->first << " " << it->second << std::endl;
-    // }
-    // std::cout << std::endl << std::endl;
-
 
       rdList.clear();
       rdList.reserve(rdList_new.size());
@@ -465,8 +423,6 @@ class PLRDF{
       auto it = rdList.begin();
       while ( it != rdList.end() ){
           // [a,b], [c,d]
-          // if (it->second < start-1){ rdList_new.push_back(*it); it++; continue;}
-          // if (it->first > end+1){ break;}
           
           //[a, b), [c,d)
           if (it->second < start){ rdList_new.push_back(*it); it++; continue;}
@@ -503,13 +459,6 @@ class PLRDF{
         std::cout << std::endl;
       }
       std::cout <<  std::setfill('-') << std::setw(60) << " END: Print PL RDF " << std::setfill('-') << "" << std::endl;
-
-      // auto& rdList = range_delete_list;
-
-      // for(auto it = rdList.begin(); it != rdList.end(); it++){
-      //   std::cout << "(" << it->first << " " << it->second << ") ";
-      // }
-      // std::cout << std::endl;
     }
 
 
@@ -697,7 +646,6 @@ class PLRDF{
       }
       rd_filter_level0[file_num] = sorted_merged_rdlist;
 
-      // std::cout << "rd_filter_Level0 " << "file_num: " << file_num << " number of RD: " << sorted_merged_rdlist.size() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
       // rd_filter_level0_mutex.unlock();
       // -- updating rd_filter_level0 --
@@ -728,7 +676,6 @@ class PLRDF{
       // // update_mutex.lock();
       // std::lock_guard<std::mutex> guard(update_mutex);
 
-      // assert( rd_filter.size() >= level);
       while (rd_filter.size() <= level)
       {
         rd_filter.push_back(std::vector<pll>());
@@ -754,10 +701,7 @@ class PLRDF{
       // std::lock_guard<std::mutex> guard(update_mutex);
 
       // // // FIXME: FOR TESTING (next 2 lines)
-      // // std::cout << "Before Comapction" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-      // // // update_mutex.lock();
-      // print_internal();
-      // // update_mutex.unlock();
+
 
       for (auto file_meta_data : *file_meta_data_vectors)
       {

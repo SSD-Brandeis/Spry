@@ -127,11 +127,6 @@ LoudsDense::LoudsDense(const SuRFBuilder* builder) {
 	// YCHUANG_ADDED END
 }
 
-// // YCHUANG_ADDED START
-// bool LoudsDense::setMaxNumLevel(uint16_t max_num_level){
-// 	max_num_level = max_num_level;
-// }
-// // YCHUANG_ADDED END
 
 bool LoudsDense::lookupKey(const std::string& key, position_t& out_node_num) const {
     position_t node_num = 0;
@@ -146,7 +141,6 @@ bool LoudsDense::lookupKey(const std::string& key, position_t& out_node_num) con
 	}
 	pos += (label_t)key[level];
 
-	//child_indicator_bitmaps_->prefetch(pos);
 
 	if (!label_bitmaps_->readBit(pos)) //if key byte does not exist
 	    return false;
@@ -171,26 +165,11 @@ bool LoudsDense::moveToNextCommonPrefixKey(const std::string& key,
 		// if is_at_prefix_key_, pos is at the next valid position in the child node
 		pos = node_num * kNodeFanout;
 		
-		// //if trie branch terminates ???
-		// if (!child_indicator_bitmaps_->readBit(pos)){
-		// 	//return compareSuffixGreaterThan(pos, key, level+1, inclusive, iter);
-    	// 	iter.setFlags(true, false, true, true);
-		// 	return true;
-		// }
-
 		if (level >= key.length()) { // if run out of searchKey bytes
 			std::cout << "\t\t *** " << "level >= key.length()" << std::endl;
 			std::cout << "\t\t *** " << "pos: " << pos << " " << " nextPos: " << getNextPos(pos - 1) 
 			 		<< " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
 			iter.append(getNextPos(pos - 1));
-			
-			// if (prefixkey_indicator_bits_->readBit(node_num)){ //if the prefix is also a key
-			// 	iter.is_at_prefix_key_ = true;
-			// 	// valid, search complete, moveLeft complete, moveRight complete
-			// 	iter.setFlags(true, true, true, true); 
-			// }else{
-			// 	iter.moveToLeftMostKey();
-			// }
 
 			iter.moveToLeftMostKey();
 
@@ -207,31 +186,6 @@ bool LoudsDense::moveToNextCommonPrefixKey(const std::string& key,
 		}
 		//if trie branch terminates
 		if (!child_indicator_bitmaps_->readBit(pos)){
-			// // return compareSuffixGreaterThan(pos, key, level+1, inclusive, iter);	
-			// // if(level == key.length() - 1){		
-    		// // 	iter.setFlags(true, false, true, true);
-			// // 	iter++;
-			// // 	// iter.moveToLeftMostKey();
-			// // 	return false;
-			// // }
-			
-			// // iter.moveToLeftMostKey();
-			// // valid, search complete, moveLeft complete, moveRight complete
-			// // iter.setFlags(true, true, true, true);
-			// // iter.setFlags(true, true, false, true);
-
-			// iter++;
-
-// 			if(level == max_num_level - 1) { // ending at the last level --> stop at this key, because of not knowing (all of its postfix)
-// std::cout << "\t\t *** " << "level == max_num_level - 1" << std::endl;
-// std::cout << "\t\t *** " << "level: " << level << " " << "max_num_level: " << max_num_level << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-//     			iter.setFlags(true, true, true, true);
-// 				return could_be_fp_;
-// 			}else{ // ending before the last level --> move to next key
-// 				iter++;
-// 				return could_be_fp_;
-// 			}
-
 			if(level == key.size() - 1) { // same as  the key
     			iter.setFlags(true, true, true, true);
 				return could_be_fp_;
@@ -253,8 +207,6 @@ bool LoudsDense::moveToNextCommonPrefixKey(const std::string& key,
 }
 // YCHUANG ADDED END
 
-// bool LoudsDense::moveToKeyGreaterThan(const std::string& key, 
-// 				      const bool inclusive, LoudsDense::Iter& iter) const {
 bool LoudsDense::moveToKeyGreaterThan(const std::string& key, 
 				       LoudsDense::Iter& iter) const {
     position_t node_num = 0;
@@ -271,15 +223,6 @@ bool LoudsDense::moveToKeyGreaterThan(const std::string& key,
 			iter.moveToLeftMostKey();
 			// valid, search complete, moveLeft complete, moveRight complete
 			iter.setFlags(true, true, true, true); 
-			
-			// if (prefixkey_indicator_bits_->readBit(node_num)){ //if the prefix is also a key
-			// 	iter.is_at_prefix_key_ = true;
-			// 	// valid, search complete, moveLeft complete, moveRight complete
-			// 	iter.setFlags(true, true, true, true);
-			// }else{
-			// 	iter.moveToLeftMostKey();
-			// }
-			
 			return true;
 		}
 
@@ -293,7 +236,6 @@ bool LoudsDense::moveToKeyGreaterThan(const std::string& key,
 		}
 		//if trie branch terminates
 		if (!child_indicator_bitmaps_->readBit(pos))
-			// return compareSuffixGreaterThan(pos, key, level+1, inclusive, iter);
 			return compareSuffixGreaterThan(pos, key, level+1, iter);
 		node_num = getChildNodeNum(pos);
     }
@@ -418,12 +360,6 @@ uint64_t LoudsDense::serializedSize() const {
 }
 
 uint64_t LoudsDense::getMemoryUsage() const {
-    // return (sizeof(LoudsDense)
-	//     + label_bitmaps_->size()
-	//     + child_indicator_bitmaps_->size()
-	//     + prefixkey_indicator_bits_->size()
-	//     + suffixes_->size());
-	
 	// YCHUANG_ADDED START
 	return (sizeof(LoudsDense)
 		+ label_bitmaps_->size()
@@ -435,13 +371,6 @@ uint64_t LoudsDense::getMemoryUsage() const {
 }
 
 uint64_t LoudsDense::getMemoryUsageInBitsSelf() const {
-	// std::cout << "getMemoryUsageInBitsSelf" << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-	// std::cout << "label_bitmaps_->nmBits(): " << label_bitmaps_->numBits() << " label_bitmaps_->rankLutSize(): " << label_bitmaps_->rankLutSize() << std::endl;
-	// std::cout << "child_indicator_bitmaps_->nmBits(): " << child_indicator_bitmaps_->numBits() << " child_indicator_bitmaps_->rankLutSize(): " << child_indicator_bitmaps_->rankLutSize() << std::endl;
-	// std::cout << "prefixkey_indicator_bits_->nmBits(): " << prefixkey_indicator_bits_->numBits() << " prefixkey_indicator_bits_->rankLutSize(): " << prefixkey_indicator_bits_->rankLutSize() << std::endl;
-	// std::cout << "suffixes_->numBits(): " << suffixes_->numBits() << std::endl;
-	// std::cout << "left_parentheses_->numBits(): " << left_parentheses_->numBits() << std::endl;
-	// std::cout << "right_parentheses_->numBits(): " << right_parentheses_->numBits() << std::endl;
 	return (sizeof(LoudsDense)
 		+ label_bitmaps_->numBits()
 		+ label_bitmaps_->rankLutSize()
@@ -483,9 +412,6 @@ position_t LoudsDense::getPrevPos(const position_t pos, bool* is_out_of_bound) c
     return (pos - distance);
 }
 
-// bool LoudsDense::compareSuffixGreaterThan(const position_t pos, const std::string& key, 
-// 					  const level_t level, const bool inclusive, 
-// 					  LoudsDense::Iter& iter) const {
 bool LoudsDense::compareSuffixGreaterThan(const position_t pos, const std::string& key, 
 					  const level_t level, 
 					  LoudsDense::Iter& iter) const {
@@ -499,8 +425,6 @@ bool LoudsDense::compareSuffixGreaterThan(const position_t pos, const std::strin
     iter.setFlags(true, true, true, true);
     return true;
 }
-
-//============================================================================
 
 void LoudsDense::Iter::clear() {
     is_valid_ = false;
@@ -545,12 +469,10 @@ int LoudsDense::Iter::getSuffix(word_t* suffix) const {
 // YCHUANG_ADDED START
 bool LoudsDense::Iter::getLeftParenthesis() const {
 	position_t pos = trie_->getSuffixPos(pos_in_trie_[key_len_-1], is_at_prefix_key_);
-	// std::cout << "pos: " << pos << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
 	return trie_->left_parentheses_->readBit(pos);
 }
 bool LoudsDense::Iter::getRightParenthesis() const {
 	position_t pos = trie_->getSuffixPos(pos_in_trie_[key_len_-1], is_at_prefix_key_);
-	// std::cout << "pos: " << pos << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
 	return trie_->right_parentheses_->readBit(pos);
 }
 // YCHUANG_ADDED END

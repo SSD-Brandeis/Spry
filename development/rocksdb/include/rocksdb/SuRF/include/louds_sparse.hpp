@@ -72,10 +72,6 @@ public:
 public:
     LoudsSparse() {};
     LoudsSparse(const SuRFBuilder* builder);
-	// // YCHUANG_ADDED START
-	// bool setMaxNumLevel(uint16_t max_num_level);
-	// // YCHUANG_ADDED END
-
     ~LoudsSparse() {}
 
     // point query: trie walk starts at node "in_node_num" instead of root
@@ -170,9 +166,6 @@ private:
     void moveToLeftInNextSubtrie(position_t pos, const position_t node_size, 
 				 const label_t label, LoudsSparse::Iter& iter) const;
     // return value indicates potential false positive
-    // bool compareSuffixGreaterThan(const position_t pos, const std::string& key, 
-	// 			  const level_t level, const bool inclusive, 
-	// 			  LoudsSparse::Iter& iter) const;
     bool compareSuffixGreaterThan(const position_t pos, const std::string& key, 
 				  const level_t level, 
 				  LoudsSparse::Iter& iter) const;
@@ -205,7 +198,6 @@ private:
 	// YCHUANG_ADDED START
 	Bitvector* left_parentheses_;
 	Bitvector* right_parentheses_;
-	// uint16_t max_num_level;
 	// YCHUANG_ADDED END
 };
 

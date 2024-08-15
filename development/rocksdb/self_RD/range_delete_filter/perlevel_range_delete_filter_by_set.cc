@@ -532,7 +532,6 @@ EntryList* PerlevelRangeDeleteFilterBySet::applyRangeFilter(long start, long end
   if(its != rdList.begin()){its--;}
   auto ite = rdList.upper_bound(pll(end, end));
 
-  // if(its == rdList.end()){return all range elements;}
 
   long i_key = start;
   auto it = its;

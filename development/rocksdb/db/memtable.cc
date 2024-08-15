@@ -729,18 +729,15 @@ Status MemTable::Add(SequenceNumber s, ValueType type,
   Slice key_without_ts = StripTimestampFromUserKey(key, ts_sz);
 
   if (!allow_concurrent) {
-// std::cout  << "MemTable::Add A1 @Not allow concurrent " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // Extract prefix for insert with hint.
     if (insert_with_hint_prefix_extractor_ != nullptr &&
         insert_with_hint_prefix_extractor_->InDomain(key_slice)) {
       Slice prefix = insert_with_hint_prefix_extractor_->Transform(key_slice);
-std::cout  << "MemTable::Add B1 @InsertKeyWithHint " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       bool res = table->InsertKeyWithHint(handle, &insert_hints_[prefix]);
       if (UNLIKELY(!res)) {
         return Status::TryAgain("key+seq exists");
       }
     } else {
-// std::cout  << "MemTable::Add B2 @InsertKeyWithoutHint " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       bool res = table->InsertKey(handle);
       if (UNLIKELY(!res)) {
         return Status::TryAgain("key+seq exists");
@@ -759,7 +756,6 @@ std::cout  << "MemTable::Add B1 @InsertKeyWithHint " << __FILE__ << ":" << __LIN
                          std::memory_order_relaxed);
     }
 
-// std::cout  << "MemTable::Add B3 @Update bloom_filter_ " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     if (bloom_filter_ && prefix_extractor_ &&
         prefix_extractor_->InDomain(key_without_ts)) {
       bloom_filter_->Add(prefix_extractor_->Transform(key_without_ts));
@@ -780,10 +776,8 @@ std::cout  << "MemTable::Add B1 @InsertKeyWithHint " << __FILE__ << ":" << __LIN
       assert(first_seqno_.load() >= earliest_seqno_.load());
     }
     assert(post_process_info == nullptr);
-// std::cout  << "MemTable::Add B4 @Update flush state " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     UpdateFlushState();
   } else {
-std::cout  << "MemTable::Add A2 @Allow concurrent " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     bool res = (hint == nullptr)
                    ? table->InsertKeyConcurrently(handle)
                    : table->InsertKeyWithHintConcurrently(handle, hint);

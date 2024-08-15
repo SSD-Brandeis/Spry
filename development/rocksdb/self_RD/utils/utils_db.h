@@ -16,16 +16,12 @@
 
 using namespace std;
 
-// void init(DB **db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_op, int max_background_jobs,
-//           EmuEnv* _env){
 void init(DB **db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_op, int max_background_jobs,
           EmuEnv* _env, string kDBPath){
   rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
   
   checking::SystemVerifier::init();
-  // rdfilter::PLRDF::init();
 
-  // kDBPath = kDBPath + "/" + _env->workload_file_name;
 
   // Check if the directory exists
   if (std::system(("test -d " + kDBPath).c_str()) == 0) {
@@ -57,18 +53,15 @@ void init(DB **db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_o
 
 
 
-// void reopen_DB(DB** db_ptr2, Options& op,  WriteOptions& write_op, ReadOptions& read_op, EmuEnv* _env){
 void reopen_DB(DB** db_ptr2, Options& op,  WriteOptions& write_op, ReadOptions& read_op, EmuEnv* _env, string kDBPath){
   Status s = (*db_ptr2)->Close();
   if (!s.ok()) std::cerr << s.ToString() << std::endl;
   assert(s.ok());
-  // DB* db;
-  
+
   DB* db;
   db_ptr2 = &db;
 
   int max_background_jobs = 1;
-//   init(db_ptr2, op, write_op, read_op, max_background_jobs, _env);
   init(db_ptr2, op, write_op, read_op, max_background_jobs, _env, kDBPath);
   
   // Options options;
@@ -95,7 +88,6 @@ void reopen_DB(DB** db_ptr2, Options& op,  WriteOptions& write_op, ReadOptions& 
 }
 
 
-// void start(DB** db_ptr2, Options& op,  WriteOptions& write_op, ReadOptions& read_op, EmuEnv* _env){
 void start(DB** db_ptr2, Options& op,  WriteOptions& write_op, ReadOptions& read_op, EmuEnv* _env, string kDBPath){
   string &workload_file_name = _env->workload_file_name;
 

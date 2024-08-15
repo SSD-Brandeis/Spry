@@ -33,17 +33,8 @@ namespace checking {
 #include <cstdint> // for uint64_t
 #include <cstring> // for memcpy
 
-// #include "../emu_environment.h"
-// #include "../workload_executor.h"
-// #include "../workload/workload.h"
-// #include "../query_runner.h"
-
-// #include "system_verifier.cc"
-
-
 
 using namespace std;
-// using namespace workload_exec;
 
 namespace checking {
 
@@ -57,14 +48,12 @@ namespace checking {
   class CacheTombstoneTracer {
     private:
       std::unordered_map<std::string, uint64_t> ych__map_tombstone_bytes;
-      // std::unordered_map<uint64_t, uint64_t> ych__map_tombstone_bytes;
       uint64_t ych__total_tombstone_bytes = 0;
     
     public:
         
       static CacheTombstoneTracer* cache_tombstone_tracer;
       static std::mutex init_mutex;
-      // static std::shared_mutex rw_mutex;
       std::shared_mutex rw_mutex;
 
       static void init(){
@@ -92,20 +81,6 @@ namespace checking {
           return ss.str();
       }
 
-           
-      // static void printStringAsHex(const std::string& input_string) {
-      //     // std::cout << "Hexadecimal representation of \"" << input_string << "\": ";
-      //     for (size_t i = 0; i < input_string.size(); ++i) {
-      //         // Convert each character to its hex representation
-      //         std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(input_string[i]);
-      //         // Separate each byte with a space for clarity (optional)
-      //         if (i < input_string.size() - 1) {
-      //             std::cout << " ";
-      //         }
-      //     }
-      //     std::cout << std::dec; // Reset to decimal output
-      // }
-
       static std::string stringToHexString(const std::string& input_string) {
           std::stringstream hex_stream;
           hex_stream << std::hex << std::setfill('0');
@@ -123,52 +98,25 @@ namespace checking {
 
 
       void insertMapTombstoneBytes(std::string k, uint64_t bytes){
-        // std::cout << "insertMapTombstoneBytes start" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         std::unique_lock<std::shared_mutex> lock(rw_mutex);
         if(ych__map_tombstone_bytes.count(k) != 0){
           std::cerr << "Error. Key already in ych__map_tombstone_bytes" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         }
         ych__map_tombstone_bytes[k] = bytes;
         ych__total_tombstone_bytes += bytes;
-        // std::cout << " +bytes = " << bytes << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-        // std::cout << "insertMapTombstoneBytes end" << " key = " << k << " " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       }
 
       uint64_t getTotalTombstoneBytes(){
         std::shared_lock<std::shared_mutex> lock(rw_mutex);
-        // std::cout << " total_RT_bytes = " << ych__total_tombstone_bytes << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         return ych__total_tombstone_bytes;
       }
 
-      // Cache are removed by Evicting from table_cahe, or by lru_cache (cache) itself, ...
-      // void removeTombstoneByAddressKey(uint64_t k){
-      //   std::cout << "removeTombstoneByAddressKey start" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-      //   std::unique_lock<std::shared_mutex> lock(rw_mutex);
-      //   // if(ych__map_tombstone_bytes.count(k) == 0){
-      //     // std::cerr << "Error. Key not in ych__map_tombstone_bytes" << " key = " << k << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-      //   // }
-      //   uint64_t bytes = ych__map_tombstone_bytes[k];
-      //   ych__map_tombstone_bytes.erase(k);
-      //   ych__total_tombstone_bytes -= bytes;
-      //   std::cout << "removeTombstoneByAddressKey end" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-      // }
-
-      // void updateCurrentlyExistKeys(std::unordered_map<std::string, void*> map_currently_exist_kv){
       void updateCurrentlyExistKeys(std::unordered_set<std::string> set_currently_exist_keys){
         std::unique_lock<std::shared_mutex> lock(rw_mutex);
-        // std::cout << "set_currently_exist_keys.size() = " << set_currently_exist_keys.size() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-        // std::cout << "set_currently_exist_keys" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-        // for(auto it2 : set_currently_exist_keys ){
-        //   std::cout << it2 << " ";
-        // }
-        // std::cout << std::endl;
-        // Erase keys from ych_map_kv if they are not in allowed_keys
         for (auto it = ych__map_tombstone_bytes.begin(); it != ych__map_tombstone_bytes.end();) {
-            // std::cout << it->first << std::endl;
             if (set_currently_exist_keys.count(it->first) == 0) {
                 uint64_t bytes = it->second;
                 ych__total_tombstone_bytes -= bytes;
-                // std::cout << " -bytes = " << bytes << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
                 it = ych__map_tombstone_bytes.erase(it);
             } else {
                 ++it;
@@ -177,14 +125,8 @@ namespace checking {
       }
   };
 
-  // Definition of static members
-  // std::mutex CacheTombstoneTracer::init_mutex;
-  // std::shared_mutex CacheTombstoneTracer::rw_mutex;
-
-
   class SystemVerifier {
   private:
-    //static const int KEY_SIZE = 12;
     int KEY_SIZE = 12;
 
     int CurrentlyNonInsertedKeysNum = 1000;
@@ -225,9 +167,7 @@ namespace checking {
   public:
     static SystemVerifier* system_verifier;
 
-    // WorkloadRecorder();
     const static int EXPERIMENT_REPETITION_TIMES = 3;
-    // const static int EXPERIMENT_REPETITION_TIMES = 1;
 
     static void init(){
       if(system_verifier == NULL){
@@ -244,7 +184,6 @@ namespace checking {
       this->KEY_SIZE = key_size;
     }
 
-    //static int getKeySize(){
     int getKeySize(){
       return KEY_SIZE;
     }
@@ -333,11 +272,6 @@ namespace checking {
       return result.str();
     }
 
-
-
-
-
-
     void setSkipReadingRangeDeleteBlock(bool flag){
       flag_skip_reading_range_delete_block = flag;
     }
@@ -355,7 +289,6 @@ namespace checking {
     void resetRunningPQ(){
       flag_is_running_PQ = false;
     }
-
 
     void resetDiskAccessCount(){
       disk_access_count = 0;
@@ -417,7 +350,6 @@ namespace checking {
     int getNumTotalBlockReadCount(){
       return num_total_block_read_count;
     }
-    
 
     void increaseFilteredByRDFCount(){
       filtered_by_RDF_count++;
@@ -438,10 +370,6 @@ namespace checking {
     int getBlockBasedTableOpenCount(){
       return block_based_table_open_count;
     }
-
-
-
-
 
     void increaseFetcherNumCompressionDictBlockReadCount(){
       fetcher__num_compression_dict_block_read_count++;
@@ -506,9 +434,6 @@ namespace checking {
       result << sep << bracket << prefix << "read_entry_block_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*read_entry_block_count / N_repetitions << "\n";
       result << "\n";
 
-      // result << sep << bracket << prefix << "duration__get_rdf" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*get_total_duration__get_rdf() / N_repetitions / 1000 << "\n";
-      // result << sep << bracket << prefix << "duration__get_max_seq" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*get_total_duration__get_max_seq() / N_repetitions / 1000 << " ms " << "\n";
-      // result << sep << bracket << prefix << "duration__retrieve_block" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*get_total_duration__retrieve_block() / N_repetitions / 1000 << " ms " << "\n";
       result << sep << bracket << prefix << "duration__get_rdf" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*get_total_duration__get_rdf() / N_repetitions << "\n";
       result << sep << bracket << prefix << "duration__get_max_seq" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*get_total_duration__get_max_seq() / N_repetitions  << "\n";
       result << sep << bracket << prefix << "duration__retrieve_block" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*get_total_duration__retrieve_block() / N_repetitions  << "\n";
@@ -601,7 +526,6 @@ namespace checking {
       return RDFTypes.size();
     }
 
-    //{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}
     void setRDFTypeChosed(int id){
       RDFType_chosed = id;
     }
@@ -609,10 +533,6 @@ namespace checking {
     std::string getStringOfRDFTypeChosed(){
       return RDFTypes[RDFType_chosed];
     }
-
-
-
-
 
     void enable_log__deleted_keys__max_sequnce_number(){
       flag_log__deleted_keys__max_sequnce_number = true;
@@ -661,27 +581,20 @@ namespace checking {
       return flag_testing_on_currently_deleted_keys;
     }
 
-
-
-
-
     std::chrono::_V2::system_clock::time_point  start__get_rdf = std::chrono::high_resolution_clock::now();
     std::chrono::_V2::system_clock::time_point  stop__get_rdf = std::chrono::high_resolution_clock::now();
     std::chrono::nanoseconds duration__get_rdf_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(stop__get_rdf - start__get_rdf);
-    // unsigned long long duration__get_rdf = duration__get_max_seq_us.count();
     unsigned long long total_duation__get_rdf = 0;
 
 
     std::chrono::_V2::system_clock::time_point  start__get_max_seq = std::chrono::high_resolution_clock::now();
     std::chrono::_V2::system_clock::time_point  stop__get_max_seq = std::chrono::high_resolution_clock::now();
     std::chrono::nanoseconds duration__get_max_seq_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(stop__get_max_seq - start__get_max_seq);
-    // unsigned long long duration__get_max_seq = duration__get_max_seq_us.count();
     unsigned long long total_duation__get_max_seq = 0;
 
     std::chrono::_V2::system_clock::time_point  start__retrieve_block = std::chrono::high_resolution_clock::now();
     std::chrono::_V2::system_clock::time_point  stop__retrieve_block = std::chrono::high_resolution_clock::now();
     std::chrono::nanoseconds duration__retrieve_block_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(stop__retrieve_block - start__retrieve_block);
-    // unsigned long long duration__retrieve_block = duration__retrieve_block_us.count();
     unsigned long long total_duation__retrieve_block = 0;
 
 
@@ -732,7 +645,6 @@ namespace checking {
     void stop_get_max_seq(){
       stop__get_max_seq = std::chrono::high_resolution_clock::now();
       duration__get_max_seq_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(stop__get_max_seq - start__get_max_seq);
-// std::cout << "duration__get_max_seq_us.count() = " << duration__get_max_seq_us.count() << " " << __FILE__ << " " << __LINE__ << " " << __func__ << std::endl;
       total_duation__get_max_seq += duration__get_max_seq_ns.count();
     }
 
@@ -748,7 +660,6 @@ namespace checking {
     void stop_retrieve_block(){
       stop__retrieve_block = std::chrono::high_resolution_clock::now();
       duration__retrieve_block_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(stop__retrieve_block - start__retrieve_block);
-// std::cout << "duration__retrieve_block_us.count() = " << duration__retrieve_block_us.count() << " " << __FILE__ << " " << __LINE__ << " " << __func__ << std::endl;
       total_duation__retrieve_block += duration__retrieve_block_ns.count();
     }
 
@@ -764,7 +675,6 @@ namespace checking {
     void stop_find_table(){
       stop__find_table = std::chrono::high_resolution_clock::now();
       duration__find_table_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(stop__find_table - start__find_table);
-// std::cout << "duration__remaining_get_path_us.count() = " << duration__remaining_get_path_us.count() << " " << __FILE__ << " " << __LINE__ << " " << __func__ << std::endl;
       total_duation__find_table += duration__find_table_ns.count();
     }
 
@@ -797,7 +707,6 @@ namespace checking {
     void stop_remaining_get_path(){
       stop__remaining_get_path = std::chrono::high_resolution_clock::now();
       duration__remaining_get_path_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(stop__remaining_get_path - start__remaining_get_path);
-// std::cout << "duration__remaining_get_path_us.count() = " << duration__remaining_get_path_us.count() << " " << __FILE__ << " " << __LINE__ << " " << __func__ << std::endl;
       total_duation__remaining_get_path += duration__remaining_get_path_ns.count();
     }
 
@@ -936,7 +845,6 @@ namespace checking {
     }
 
     vector<long long> getCurrentlyDeletedKeys(){
-// std::cout << "f1 " << __FILE__ << " " << __LINE__ << " " << __func__ << std::endl;
       if(historicExistingKeys.size() == 0){
         return vector<long long>();
       }
@@ -947,7 +855,6 @@ namespace checking {
           result.push_back(*it);
         }
       }
-// std::cout << "f2 " << __FILE__ << " " << __LINE__ << " " << __func__ << std::endl;
       return result;
     }
 
@@ -972,10 +879,6 @@ namespace checking {
       }
       RDs = RDS2;
 
-      // long long tot_range = 0;
-      // for(auto &range: RDs){
-      //   tot_range += range.second - range.first;
-      // }
       size_t len_RDs = RDs.size();
 
       currentlyNonInsertedKeys.clear();
@@ -999,7 +902,6 @@ namespace checking {
         }
       }
 
-      // currentlyNonInsertedKeys.clear();
       while(num){
         long long key = rand() % 100000000;
         if(groundTruth.count(key) == 0){
@@ -1010,7 +912,6 @@ namespace checking {
       return;
     }
 
-    // vector<long long> getCurrentlyNonInsertedKeys(int num){
     vector<long long> getCurrentlyNonInsertedKeys(){
       return currentlyNonInsertedKeys;
     }
@@ -1068,12 +969,6 @@ namespace checking {
 
       return result.str();
     }
-
-    // vector<int> checkOnExistingKeys();
-    // vector<int> checkOnAllInsertedKeys();
-    // vector<int> checkOnAllCurrentlyDeletedKeys();
-    // RandomKeysTestingResult checkOnRandomKeys(int num);
-    // void checkEquation();
   };
 
 

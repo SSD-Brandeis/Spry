@@ -50,29 +50,16 @@ namespace range_delete_filter {
   class SkylineRangeDeleteFilter {  
       
     private:
-      // set<pll> range_delete_list; //list of range delete (start, end), all entries are non-overlapping
       set<range_delete_entry> range_delete_with_timetag_list; //list of range delete (start, end, timetag), all entries are non-overlapping
       
     public:
-      // SkylineRangeDeleteFilter(){
-      //   range_delete_list = new set<pll>();
-      //   range_delete_with_timetag_list = new set<range_delete_entry>();
-      // }
-      // set<pll> getRangeDeleteList();
       set<range_delete_entry> getRangeDeleteWithTimetagList();
-      // void addRangeDelete(long start, long end);
       void addRangeDeleteWithTimetag(long start, long end, long timetag);
 
-
-      // void printRangeDeleteList();
       void printRangeDeleteWithTimetagList();
 
-
-            
-      // EntryList* applyRangeFilterWithoutTimetag(long start, long end);
       EntryList* applyRangeFilterWithTimetag(long start, long end, long timetag);
       
-      // bool isEntryAliveWithoutTimetag(long start);
       bool isEntryAliveWithTimetag(long start, long timetag);
 
       int getRangeDeleteWithTimetagCount();

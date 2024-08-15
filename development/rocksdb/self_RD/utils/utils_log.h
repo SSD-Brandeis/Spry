@@ -62,10 +62,7 @@ class TestingLogger{
 
     void set_to_end(Options& op, std::ostream& testing_result_file){
       i_round += 1;
-      testing_result_file << i_round << " -----" << std::endl;    
-  // long long total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
-  //       + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
-  // testing_result_file << "total_read_count_end = " << std::fixed << std::setprecision(2) << total_read_count_end << std::endl;
+      testing_result_file << i_round << " -----" << std::endl;
       long long read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
         + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
       long long read_bytes_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
@@ -102,10 +99,8 @@ class TestingLogger{
 
 void print_perf_iostats_context(std::ostream& ofile, int N_repetitions){
   
-    // rocksdb::SetPerfLevel(rocksdb::PerfLevel::kDisable);
     std::string perf_context = rocksdb::get_perf_context()->ToString();
     
-    // long long get_read_bytes = parsing_value_from_string(op.statistics->ToString(), "get_read_bytes[^:]*= ([0-9]+)");
     long long get_from_memtable_time = parsing_value_from_string(perf_context, "get_from_memtable_time[^:]*= ([0-9]+)");
     long long get_from_memtable_count = parsing_value_from_string(perf_context, "get_from_memtable_count[^:]*= ([0-9]+)");
     long long get_post_process_time = parsing_value_from_string(perf_context, "get_post_process_time[^:]*= ([0-9]+)");
@@ -132,7 +127,6 @@ void print_perf_iostats_context(std::ostream& ofile, int N_repetitions){
     long long internal_range_del_reseek_count = parsing_value_from_string(perf_context, "internal_range_del_reseek_count[^:]*= ([0-9]+)");
 
 
-    // rocksdb::SetPerfLevel(rocksdb::PerfLevel::kDisable);
     std::string iostats_context = rocksdb::get_iostats_context()->ToString();
 
     long long bytes_read = parsing_value_from_string(iostats_context, "bytes_read[^:]*= ([0-9]+)");
@@ -170,7 +164,6 @@ void print_perf_iostats_context(std::ostream& ofile, int N_repetitions){
     ofile << "bytes_written = " << std::fixed << std::setprecision(2) << bytes_written * 1.0 / N_repetitions << std::endl;
     ofile << "read_nanos = " << std::fixed << std::setprecision(2) << read_nanos * 1.0 / N_repetitions << std::endl;
     ofile << "write_nanos = " << std::fixed << std::setprecision(2) << write_nanos * 1.0 / N_repetitions << std::endl;
-    //print out a separation line
     ofile << "--------------------------------------------------------------------" << std::endl;
 }
 
@@ -181,7 +174,6 @@ void write_log2(std::ostream &outStream, EmuEnv* _env){
   outStream << ",\"B\" : " <<_env->entries_per_page << std::endl;
   outStream << ",\"E\" : " <<_env->entry_size << std::endl;
   outStream << ",\"write_buffer_size\" : " <<_env->buffer_size << std::endl;
-  // outStream << ",\"bits_per_key\" : " <<_env->bits_per_key << std::endl;
   outStream << ",\"correlation\" : " <<_env->correlation << std::endl;
   outStream << ",\"num_inserts\" : " <<_env->num_inserts << std::endl;
   outStream << ",\"rd_count\" : " <<_env->rd_count << std::endl;
@@ -193,7 +185,6 @@ void write_log2(std::ostream &outStream, EmuEnv* _env){
   outStream << ",\"target_file_size_base\" : " <<_env->target_file_size_base << std::endl;
   outStream << ",\"target_file_size_multiplier\" : " <<_env->target_file_size_multiplier << std::endl;
   outStream << ",\"max_bytes_for_level_base\" : " <<_env->max_bytes_for_level_base << std::endl;
-  // outStream << ",\"max_bytes_for_level_multiplier\" : " <<_env->max_bytes_for_level_multiplier << std::endl;
   outStream << ",\"num_levels\" : " <<_env->num_levels << std::endl;
   outStream << ",\"max_write_buffer_number\" : " <<_env->max_write_buffer_number << std::endl;
   outStream << ",\"level0_file_num_compaction_trigger\" : " <<_env->level0_file_num_compaction_trigger << std::endl;
@@ -293,14 +284,12 @@ void io_timing_test(DB* db){
 
   std::cout << "Testing 10000 start,end duration = " << std::endl;
   checking::SystemVerifier::getSystemVerifier()->reset_total_duration__remaining_get_path();
-  // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
   timer_start = std::chrono::high_resolution_clock::now();
   for(int i_timing = 0; i_timing < 10000; i_timing++){
     checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
     checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
   }
   timer_end = std::chrono::high_resolution_clock::now();
-  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
   unsigned long long total_duration__remaining_get_path = checking::SystemVerifier::getSystemVerifier()->get_total_duration__remaining_get_path();
   std::cout << "total_duration__remaining_get_path = " << total_duration__remaining_get_path << std::endl;
 
@@ -311,13 +300,11 @@ void io_timing_test(DB* db){
   checking::SystemVerifier *system_verifier_timing = checking::SystemVerifier::getSystemVerifier();
   system_verifier_timing->reset_total_duration__remaining_get_path();
   timer_start = std::chrono::high_resolution_clock::now();
-  // system_verifier_timing->start_remaining_get_path();
   for(int i_timing = 0; i_timing < 10000; i_timing++){
     system_verifier_timing->start_remaining_get_path();
     system_verifier_timing->stop_remaining_get_path();
   }
   timer_end = std::chrono::high_resolution_clock::now();
-  // system_verifier_timing->stop_remaining_get_path();
   total_duration__remaining_get_path = system_verifier_timing->get_total_duration__remaining_get_path();
   std::cout << "total_duration__remaining_get_path = " << total_duration__remaining_get_path << std::endl;
 
@@ -346,7 +333,6 @@ void io_timing_test(DB* db){
     timer_start__testing = std::chrono::high_resolution_clock::now();
     timer_end__testing = std::chrono::high_resolution_clock::now();
     duration_ns__testing += std::chrono::duration_cast<std::chrono::nanoseconds>(timer_end__testing - timer_start__testing);
-    // sum_duration__testing += duration_ns__testing.count();
   }
   timer_end = std::chrono::high_resolution_clock::now();
   std::cout << "total_duration__testing_chrono_clock = " << duration_ns__testing.count()  << std::endl;

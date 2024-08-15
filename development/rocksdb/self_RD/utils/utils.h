@@ -17,17 +17,6 @@
 #include "rocksdb/iostats_context.h" // !YBS-sep01-XX!
 #include "../env_settings/emu_environment.h"
 
-// struct Params{
-//   int entry_size;
-//   double correlation;
-//   long long num_inserts;
-//   int rd_count;
-//   double selectivity;
-//   string workload_file_name;
-//   double insert_before_rangeDelete;
-//   bool gen_workload;
-// };
-
 
 inline void showProgress(const uint64_t& workload_size,
                          const uint64_t& counter) {
@@ -116,7 +105,6 @@ void setNewBlockCacheForReading(Options& op){
 
   //Reference: options.cc
   BlockBasedTableOptions table_options;
-  // table_options.block_cache = NewLRUCache(32*1024*1024);
   table_options.block_cache = NewLRUCache(0.5*1024*1024);
 
   op.table_factory.reset(NewBlockBasedTableFactory(table_options));
@@ -127,11 +115,7 @@ void setNewBlockCacheForReading(Options& op){
 void setNoBlockCacheForReading(Options& op){
   std::this_thread::sleep_for(std::chrono::seconds(3));  // Sleep for 10 second
 
-  //Reference: options.cc
   BlockBasedTableOptions table_options;
-  // table_options.block_cache = NewLRUCache(32*1024*1024);
-  // table_options.block_cache = NewLRUCache(0.5*1024*1024);
-  // table_options.block_cache = NULL; //default block cache
   table_options.no_block_cache = true; //disable block cache completely
   table_options.block_size = 4 * 1024;
 
@@ -159,13 +143,6 @@ void clearCache(Options& op){
   }
 
   std::this_thread::sleep_for(std::chrono::seconds(3));  // Sleep for 10 second
-
-  // BlockBasedTableOptions table_options;
-  // // table_options.no_block_cache = true; //disable block cache completely
-  // // table_options.block_cache = NewLRUCache(0.5*1024*1024);
-  // op.table_factory.reset(NewBlockBasedTableFactory(table_options));
-  
-  // std::this_thread::sleep_for(std::chrono::seconds(3));  // Sleep for 10 second
 }
 
 void clearBlockCache(DB* db, std::ostream& ofile){
@@ -174,20 +151,6 @@ void clearBlockCache(DB* db, std::ostream& ofile){
   db->CleanTableCache(ofile);
 
   std::this_thread::sleep_for(std::chrono::seconds(3));  // Sleep for 10 second
-
-  // ColumnFamilyData *cfd = db->DefaultColumnFamily()->cfd();
-  // // auto* cfd =
-  // //     static_cast_with_check<ColumnFamilyHandleImpl>()->cfd();
-  // TableCache* table_cache = cfd->table_cache();
-
-
-  // Cache* table_cache = db->TEST_table_cache();
-  
-  // Status s = db->SetOptions({{"block_cache", "32M"}});
-  // if(!s.ok()){
-  //   std::cout << "Error setting block cache size" << __FILE__ << ":" << __LINE__ << std::endl;
-  // }
-  // Status s = db->SetOptions(db->DefaultColumnFamily(), {{"ttl", "36000"}});
 }
 
 
@@ -477,114 +440,6 @@ void configOptions(EmuEnv* _env, Options *op, BlockBasedTableOptions *t_op, Writ
     // f_op->allow_write_stall = _env->allow_write_stall;
 }
 
-
-// Status DumpTable(const std::string& out_filename) {
-//   std::unique_ptr<WritableFile> out_file;
-//   Env* env = options_.env;
-//   Status s = env->NewWritableFile(out_filename, &out_file, soptions_);
-//   if (s.ok()) {
-//     s = table_reader_->DumpTable(out_file.get());
-//   }
-//   if (!s.ok()) {
-//     // close the file before return error, ignore the close error if there's any
-//     out_file->Close().PermitUncheckedError();
-//     return s;
-//   }
-//   return out_file->Close();
-// }
-
-
-
-
-// void speed_test(){
-//   std::string speed_test_result_file_name = "speed_test.txt";
-//   std::string speed_test_result_file_name2 = "speed_test2.txt";
-//   std::ofstream speed_test_result_file;
-//   std::ofstream speed_test_result_file2;
-//   speed_test_result_file.open(speed_test_result_file_name);
-//   speed_test_result_file.open(speed_test_result_file_name2);
-//   for(int i = 0; i < 256 * 1000; i++){
-//     speed_test_result_file << i << " ";
-//   }
-//   speed_test_result_file << std::endl;
-//   speed_test_result_file2 << std::endl;
-//   speed_test_result_file.close();
-//   speed_test_result_file2.close();
-
-  
-
-//   std::ifstream speed_test_result_file1;
-//   std::ifstream speed_test_result_file12;
-//   // testing_result_file.open("testing_result.txt");
-
-//   std::string num = "-1";
-//   auto start_pq = std::chrono::high_resolution_clock::now();
-//   speed_test_result_file1.open(speed_test_result_file_name);
-//   // speed_test_result_file2.open(speed_test_result_file_name2);
-//   while(speed_test_result_file1 >> num){
-//     if(num == "1"){break;}
-//     continue;
-//   }
-
-
-
-//   auto stop_pq = std::chrono::high_resolution_clock::now();
-//   auto duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
-//   auto duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
-//   unsigned long long point_query_time = duration_pq.count();
-//   std::cout << "done " << num << std::endl;
-//   std::cout << "time elapsed = " << point_query_time << std::endl;
-//   speed_test_result_file1.close();
-//   speed_test_result_file12.close();
-
-
-
-//   vector<int> v;
-//   for(int i = 0; i < 1000000; i++){
-//     v.push_back(i);
-//   }
-
-//   start_pq = std::chrono::high_resolution_clock::now();
-//   // for(int i = 0; i < 1000000; i++){
-//   //   std::binary_search(v.begin(), v.end(), i);
-//   // }    
-//   // for(int i = 0; i < 1000000; i++){
-//   //   std::lower_bound(v.begin(), v.end(), i);
-//   // }    
-//   // std::binary_search(v.begin(), v.end(), 100000);
-//   std::lower_bound(v.begin(), v.end(), 100000);
-//   stop_pq = std::chrono::high_resolution_clock::now();
-//   duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
-//   duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
-//   point_query_time = duration_pq.count();
-//   std::cout << "done " << 1000000 << std::endl;
-//   std::cout << "time elapsed = " << point_query_time << std::endl;
-
-// }
-
-
-// void speed_test2(){
-//   std::unordered_map<long long, uint64_t> map;
-//   for(int i = 0; i < 1000000; i++){
-//     map[i] = i;
-//   }
-//   // testing_result_file.open("testing_result.txt");
-
-//   uint64_t num = -1;
-//   auto start_pq = std::chrono::high_resolution_clock::now();
-
-//   for(int i = 0; i < 1000000; i++){
-//     num = map[i];
-//   }
-
-//   auto stop_pq = std::chrono::high_resolution_clock::now();
-//   auto duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
-//   auto duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
-//   unsigned long long point_query_time = duration_pq.count();
-//   std::cout << "done " << num << std::endl;
-//   std::cout << "time elapsed = " << point_query_time << std::endl;
-
-// }
 
 
 

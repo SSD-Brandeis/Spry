@@ -1771,8 +1771,7 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
     bool use_cache, bool async_read) const {
 
   //Self Added Start: timing
-  checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-  // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+  checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();\
   //Self Added End: timing
   //Self Added Start 
   checking::SystemVerifier::getSystemVerifier()->start_retrieve_block();
@@ -1793,7 +1792,6 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
       checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
       //Self Added End        
       //Self Added Start: timing
-      // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
       checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
       //Self Added End: timing
 
@@ -1808,7 +1806,6 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
       checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
       //Self Added End        
       //Self Added Start: timing
-      // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
       checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
       //Self Added End: timing
 
@@ -1824,7 +1821,6 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
     checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
     //Self Added End        
     //Self Added Start: timing
-    // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
     checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
     //Self Added End: timing
 
@@ -1847,77 +1843,33 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
         uncompression_dict, rep_->persistent_cache_options,
         GetMemoryAllocator(rep_->table_options), for_compaction, async_read);
 
-
-    // //Self Added Start: timing
-    // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-    // // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    // //Self Added End: timing
-
     //Self Added Start 
     checking::SystemVerifier::getSystemVerifier()->increaseNumTotalBlockReadCount();
     //Self Added End
-
-    // //Self Added Start: timing
-    // // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-    // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    // //Self Added End: timing
-
 
     if (get_context) {
       switch (TBlocklike::kBlockType) {
         case BlockType::kIndex:
           ++(get_context->get_context_stats_.num_index_read);
 
-          // //Self Added Start: timing
-          // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-          // // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-          // //Self Added End: timing
-
           //Self Added Start 
           checking::SystemVerifier::getSystemVerifier()->increaseNumIndexReadCount();
           //Self Added End
           
-          // //Self Added Start: timing
-          // // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-          // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-          // //Self Added End: timing
-
           break;
         case BlockType::kFilter:
         case BlockType::kFilterPartitionIndex:
           ++(get_context->get_context_stats_.num_filter_read);
 
-          // //Self Added Start: timing
-          // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-          // // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-          // //Self Added End: timing
-
           //Self Added Start 
           checking::SystemVerifier::getSystemVerifier()->increaseNumFilterReadCount();
           //Self Added End
-
-          // //Self Added Start: timing
-          // // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-          // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-          // //Self Added End: timing
 
           break;
 
         //Self Added Start
         case BlockType::kRangeDeletion:
-
-          // //Self Added Start: timing
-          // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-          // // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-          // //Self Added End: timing
-          
           checking::SystemVerifier::getSystemVerifier()->increaseNumRangeDelReadCount();
-        
-          // //Self Added Start: timing
-          // // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-          // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-          // //Self Added End: timing
-          
           break;
         //Self Added End
         
@@ -1934,7 +1886,6 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
     checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
     //Self Added End        
     //Self Added Start: timing
-    // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
     checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
     //Self Added End: timing
 
@@ -1949,7 +1900,6 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
   checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
   //Self Added End        
   //Self Added Start: timing
-  // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
   checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
   //Self Added End: timing
 

@@ -10,12 +10,11 @@
 #include <iomanip>
 #include <cstdlib>
 #include "rocksdb/db.h"
-//#include "rocksdb/slice.h"
+
 #include "rocksdb/options.h"
 #include "rocksdb/advanced_options.h"
 #include "rocksdb/table.h"
-// #include "../db/version_set.h"
-// #include "../db/version_edit.h"
+
 #include "../util/string_util.h"
 #include "args.hxx"
 #include "emu_environment.h"
@@ -28,7 +27,6 @@
 #include "chrono" // !YBS-sep09-XX!
 #include "../util/cast_util.h"
 #include "db/db_impl/db_impl.h"
-// #include "working_version.h"
 
 using namespace rocksdb;
 

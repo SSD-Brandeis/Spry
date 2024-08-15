@@ -232,7 +232,6 @@ class WriteBatch : public WriteBatchBase {
     // If user-defined timestamp is enabled, then `key` includes timestamp.
     virtual Status PutCF(uint32_t column_family_id, const Slice& key,
                          const Slice& value) {
-std::cout  << "PutCF in .h " << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl;
       if (column_family_id == 0) {
         // Put() historically doesn't return status. We didn't want to be
         // backwards incompatible so we didn't change the return status

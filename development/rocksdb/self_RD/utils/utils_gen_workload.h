@@ -30,12 +30,6 @@ void gen_workload(EmuEnv* _env){
   
     
   WorkloadGenerator workload_generator;
-  // long number_Of_point_in_the_beginning = (long) ceil(num_inserts * insert_before_range_delete);
-  // assert(1.0*rd_count*selectivity <= 1.0);
-  // workload_generator.generateWorkload((long)num_inserts, (long)entry_size, (double) correlation, 
-  //         (long)rd_count, (double) selectivity, (long) number_Of_point_in_the_beginning, (string) workload_file_name,   
-  //         (int) checking::SystemVerifier::getKeySize()
-  //         );    
 
   string gen_workload_command = string("./K-V-Workload-Generator-master/load_gen")
       + string(" --insert=") + to_string(num_inserts) 
@@ -64,7 +58,6 @@ void gen_workload(EmuEnv* _env){
     if(returnCode < 0){
       std::cout << "Gen workload command failed to execute." << std::endl;
       std::cerr << "Gen workload command failed to execute." << std::endl;
-      // std::perror("system");
       exit(-1);
     }
   }
@@ -79,7 +72,6 @@ void gen_workload(EmuEnv* _env){
   } else {
       std::cout << "Move workload command failed to execute." << std::endl;
       std::cerr << "Move workload command failed to execute." << std::endl;
-      // std::perror("system");
       exit(-1);
   }
 
@@ -107,13 +99,6 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   args::ArgumentParser parser("RocksDB_parser.", "");
 
   args::Group group1(parser, "This group is all exclusive:", args::Group::Validators::DontCare);
-/*
-  args::Group group1(parser, "This group is all exclusive:", args::Group::Validators::AtMostOne);
-  args::Group group2(parser, "Path is needed:", args::Group::Validators::All);
-  args::Group group3(parser, "This group is all exclusive (either N or L):", args::Group::Validators::Xor);
-  args::Group group4(parser, "Optional switches and parameters:", args::Group::Validators::DontCare);
-  args::Group group5(parser, "Optional less frequent switches and parameters:", args::Group::Validators::DontCare);
-*/
 
   args::ValueFlag<int> destroy_database_cmd(group1, "d", "Destroy and recreate the database [def: 1]", {'d', "destroy"});
   args::ValueFlag<int> clear_system_cache_cmd(group1, "cc", "Clear system cache [def: 1]", {"cc"}); // !YBS-sep09-XX!
@@ -140,9 +125,7 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   //YuCheng Added Start
   args::ValueFlag<double> key_size_to_insert_cmd(group1, "key_size_to_insert", "key_size_to_insert [def: 12]", {"key_size_to_insert"});
 
-  // args::ValueFlag<int> entry_size_cmd(group1, "E", "Entry size in bytes [def: 128 B]", {'E', "entry_size"});
   args::ValueFlag<double> cor_cmd(group1, "#correlation", "Correlation between sort key and delete key [def: 0]", {"correlation"});
-  // args::ValueFlag<long long> num_inserts_cmd(group1, "#inserts", "The number of unique inserts to issue in the experiment [def: 0]", {'i', "num_inserts"});
   args::ValueFlag<int> RD_cmd(group1, "range_delete", "Count of range delete [def:1]", {'R', "RD"});
   args::ValueFlag<double> selectivity_cmd(group1, "selectivity_of_range_delete", "Selectivity of range delete [def:0.001]", {"selectivity"});
   args::ValueFlag<string> workload_filename_cmd(group1, "workload_filename", "workload filename [def:0.001]", {"workload_filename"});
@@ -218,9 +201,7 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   int key_size_to_insert = key_size_to_insert_cmd ? args::get(key_size_to_insert_cmd) : 12;
   system_verifier->setKeySize(key_size_to_insert);
 
-  // int entry_size = entry_size_cmd ? args::get(entry_size_cmd) : 128;
   double correlation = cor_cmd ? args::get(cor_cmd) : 0;
-  // long long num_inserts = num_inserts_cmd ? args::get(num_inserts_cmd) : 0;
   int rd_count = RD_cmd ? args::get(RD_cmd) : 1;
   double selectivity = selectivity_cmd ? args::get(selectivity_cmd) : 0.001;
   string workload_file_name = workload_filename_cmd ? args::get(workload_filename_cmd) : "workload.txt";
@@ -229,9 +210,7 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   int max_open_files = max_open_files_cmd ? args::get(max_open_files_cmd) : 9999;
   bool skip_reading_RD_blocks = skip_reading_RD_blocks_cmd ? (args::get(skip_reading_RD_blocks_cmd) != 0) : false;
   int number_of_PQ = number_of_PQ_cmd ? args::get(number_of_PQ_cmd) : 5000;
-  // _env->entry_size = entry_size;
   _env->correlation = correlation;
-  // _env.num_inserts = num_inserts;
   _env->rd_count = rd_count;
   _env->selectivity = selectivity;
   _env->workload_file_name = workload_file_name;

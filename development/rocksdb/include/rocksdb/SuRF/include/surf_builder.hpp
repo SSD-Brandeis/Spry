@@ -30,7 +30,6 @@ public:
     void build(const std::vector<std::string>& keys);
 
     // YCHUANG ADDED START
-    // void build(const std::vector<std::string>& keys, const std::vector<bool>& left_parentheses, const std::vector<bool>& right_parentheses, const bool flag_build_until_unique, const uint16_t max_num_level=-1);
     void build(const std::vector<std::string>& keys, const std::vector<bool>& left_parentheses, const std::vector<bool>& right_parentheses, const uint16_t max_num_level=-1);
     // YCHUANG ADDED END
 
@@ -128,8 +127,6 @@ private:
 
     // Fill in the LOUDS-Sparse vectors through a single scan
     // of the sorted key list.
-    // void buildSparseWithparentheses(const std::vector<std::string>& keys, const std::vector<int>& values, const bool flag_build_until_unique, int max_num_level=-1);
-    // void buildSparseWithparentheses(const std::vector<std::string>& keys, const std::vector<bool>& left_parentheses, const std::vector<bool>& right_parentheses, const bool flag_build_until_unique, int max_num_level=-1);
     void buildSparseWithparentheses(const std::vector<std::string>& keys, const std::vector<bool>& left_parentheses, const std::vector<bool>& right_parentheses, level_t max_num_level);
 
     // Fill in the LOUDS-Sparse vectors through a single scan
@@ -176,8 +173,6 @@ private:
     // YCHUANG ADDED END
 
     // Compute sparse_start_level_ according to the pre-defined
-    // size ratio between Sparse and Dense levels.
-    // Dense size < Sparse size / sparse_dense_ratio_
     inline void determineCutoffLevel();
 
     inline uint64_t computeDenseMem(const level_t downto_level) const;

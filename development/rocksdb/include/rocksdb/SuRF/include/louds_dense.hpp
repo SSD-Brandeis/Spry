@@ -88,10 +88,6 @@ public:
 public:
     LoudsDense() {};
     LoudsDense(const SuRFBuilder* builder);
-	// // YCHUANG_ADDED START
-	// bool setMaxNumLevel(uint16_t max_num_level);
-	// // YCHUANG_ADDED END
-
     ~LoudsDense() {}
 
     // Returns whether key exists in the trie so far
@@ -168,9 +164,6 @@ private:
     position_t getNextPos(const position_t pos) const;
     position_t getPrevPos(const position_t pos, bool* is_out_of_bound) const;
 
-    // bool compareSuffixGreaterThan(const position_t pos, const std::string& key, 
-	// 			  const level_t level, const bool inclusive, 
-	// 			  LoudsDense::Iter& iter) const;
     bool compareSuffixGreaterThan(const position_t pos, const std::string& key, 
 				  const level_t level, 
 				  LoudsDense::Iter& iter) const;
@@ -192,7 +185,6 @@ private:
 	// YCHUANG_ADDED START
 	Bitvector* left_parentheses_; // length is the same sa suffixes_
 	Bitvector* right_parentheses_; // length is the same sa suffixes_
-	// uint16_t max_num_level;
 	// YCHUANG_ADDED END
 };
 

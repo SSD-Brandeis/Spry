@@ -32,7 +32,6 @@ namespace checking {
 
 
 using namespace std;
-// using namespace workload_exec;
 
 namespace checking {
 
@@ -47,7 +46,6 @@ namespace checking {
   private:
 
   public:
-    // WorkloadRecorder();
     const static int EXPERIMENT_REPETITION_TIMES = 3;
 
     static vector<int> checkOnExistingKeys();

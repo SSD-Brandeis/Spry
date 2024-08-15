@@ -11,9 +11,6 @@ namespace surf {
 
 LoudsSparse::LoudsSparse(const SuRFBuilder* builder) {
     height_ = builder->getLabels().size();
-	// YCHUANG_ADDED START
-	// max_num_level = builder->getMaxNumLevel();
-	// YCHUANG_ADDED END
     start_level_ = builder->getSparseStartLevel();
 
     node_count_dense_ = 0;
@@ -145,12 +142,6 @@ LoudsSparse::LoudsSparse(const SuRFBuilder* builder) {
 
 }
 
-// // YCHUANG_ADDED START
-// bool LoudsSparse::setMaxNumLevel(uint16_t max_num_level){
-// 	max_num_level = max_num_level;
-// }
-// // YCHUANG_ADDED END
-
 bool LoudsSparse::lookupKey(const std::string& key, const position_t in_node_num) const {
     position_t node_num = in_node_num;
     position_t pos = getFirstLabelPos(node_num);
@@ -160,16 +151,9 @@ bool LoudsSparse::lookupKey(const std::string& key, const position_t in_node_num
 		if (!labels_->search((label_t)key[level], pos, nodeSize(pos)))
 			return false;
 
-		// std::cout << "****** " << "sparse level: " << level << " key[level]: " << key[level] << "\t"
-		// 		<< " pos: " << pos << " node_num: " << node_num
-		// 		<< " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-
 		// if trie branch terminates
 		if (!child_indicator_bits_->readBit(pos)){
 			bool termination_rst = suffixes_->checkEquality(getSuffixPos(pos), key, level + 1);
-			// std::cout << "****** " << "sparse termination_rst: " << termination_rst << "\n"
-			// 		<< " " << "key: " << key << " level: " << level << " pos: " << pos << " node_num: " << node_num
-			// 		<< " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
 			return termination_rst;
 		}
 
@@ -187,18 +171,11 @@ bool LoudsSparse::moveToNextCommonPrefixKey(const std::string& key,
 					LoudsSparse::Iter& iter) const {
 	bool could_be_fp_ = false;
     position_t node_num = iter.getStartNodeNum();
-	// std::cout << "***** " << "node num: " << node_num << " " << " key: " << key << " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
     position_t pos = getFirstLabelPos(node_num);
-	// std::cout << "****** " << "sparse start node_num: " << node_num << " pos: " << pos << " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
 
     level_t level;
     for (level = start_level_; level < key.length(); level++) {
 		position_t node_size = nodeSize(pos);
-
-		// std::cout << "****** " << "sparse level: " << level << " key[level]: " << key[level] << " key:" << key << "\t"
-		// 		<< " pos: " << pos << " node_num: " << node_num
-		// 		<< " node_size: " << node_size
-		// 		<< " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
 		
 		// if no exact match
 		position_t pos_search = pos;
@@ -211,16 +188,6 @@ bool LoudsSparse::moveToNextCommonPrefixKey(const std::string& key,
 			std::cout << " sparse diverge " << " pos: " << pos << " node_label:" << labels_->read(pos)  << " node_size:" << node_size << " key[level]:" << key[level] << " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
 			#endif //DEBUG_LOUDS_SPARSE
 			
-			// iter.is_valid_ = false;
-			// for(position_t j = pos_search; j < pos_search + node_size; j++) {
-			// 	if (labels_->read(j) > key[level]) {
-			// 		pos_search = j;
-			// 		iter.is_valid_ = true;
-			// 		break;
-			// 	}
-			// }
-			// // std::cout << "*****f " << " (After search) pos_search: " << pos_search << " node_size:" << node_size << std::endl;  
-			// moveToLeftInNextSubtrie(pos_search, node_size-(pos_search-pos), key[level], iter);
 			moveToLeftInNextSubtrie(pos, node_size, key[level], iter);
 
 			return could_be_fp_;
@@ -232,15 +199,6 @@ bool LoudsSparse::moveToNextCommonPrefixKey(const std::string& key,
 
 		// if trie branch terminates
 		if (!child_indicator_bits_->readBit(pos)){
-			// if(level == max_num_level - 1) { // ending at the last level --> stop at this key, because of not knowing (all of its postfix)
-			// 	iter.is_valid_ = true;
-			// 	return could_be_fp_;
-			// }else{ // ending before the last level --> move to next key
-			// 	iter++;
-			// 	// return compareSuffixGreaterThan(pos, key, level+1, inclusive, iter);
-			// 	iter.is_valid_ = true;
-			// 	return could_be_fp_;
-			// }
 
 			#ifdef DEBUG_LOUDS_SPARSE
 			std::cout << "sparse trie branch terminates" <<  " level:" << level << " key:" << key << " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
@@ -279,19 +237,6 @@ bool LoudsSparse::moveToNextCommonPrefixKey(const std::string& key,
 	&& !isEndofNode(pos)) {
 		iter.append(kTerminator, pos);
 		iter.is_at_terminator_ = true;
-		// if (!inclusive)
-		// 	iter++;
-		// iter.is_valid_ = true;
-
-		// if(level == max_num_level - 1) { // ending at the last level --> stop at this key, because of not knowing (all of its postfix)
-		// 	iter.is_valid_ = true;
-		// 	return could_be_fp_;
-		// }else{ // ending before the last level --> move to next key
-		// 	iter++;
-		// 	// return compareSuffixGreaterThan(pos, key, level+1, inclusive, iter);
-		// 	iter.is_valid_ = true;
-		// 	return could_be_fp_;
-		// }
 		
 		iter.is_valid_ = true;
 		return could_be_fp_;
@@ -328,7 +273,6 @@ bool LoudsSparse::moveToKeyGreaterThan(const std::string& key,
 
 		// if trie branch terminates
 		if (!child_indicator_bits_->readBit(pos)){
-			// return compareSuffixGreaterThan(pos, key, level+1, inclusive, iter);
 			return compareSuffixGreaterThan(pos, key, level+1, iter);
 		}
 
@@ -544,9 +488,6 @@ bool LoudsSparse::isEndofNode(const position_t pos) const {
 
 void LoudsSparse::moveToLeftInNextSubtrie(position_t pos, const position_t node_size, 
 					  const label_t label, LoudsSparse::Iter& iter) const {
-	// std::cout << "label: " << label << " " << " pos:" << pos << " node_size:" << node_size << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-	// std::cout << " lebels->searchGreaterThan(label, pos, node_size): " << labels_->searchGreaterThan(label, pos, node_size) << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-    
 	position_t pos_last_node = pos + node_size - 1;
 	// if no label is greater than key[level] in this node
 	// searchGreaterThan moves the pos to the greater node, however, node_size is not changed 
@@ -564,9 +505,6 @@ void LoudsSparse::moveToLeftInNextSubtrie(position_t pos, const position_t node_
     }
 }
 
-// bool LoudsSparse::compareSuffixGreaterThan(const position_t pos, const std::string& key, 
-// 					   const level_t level, const bool inclusive, 
-// 					   LoudsSparse::Iter& iter) const {
 bool LoudsSparse::compareSuffixGreaterThan(const position_t pos, const std::string& key, 
 					   const level_t level,
 					   LoudsSparse::Iter& iter) const {
@@ -580,7 +518,6 @@ bool LoudsSparse::compareSuffixGreaterThan(const position_t pos, const std::stri
     return true;
 }
 
-//============================================================================
 
 void LoudsSparse::Iter::clear() {
     is_valid_ = false;
@@ -623,18 +560,10 @@ int LoudsSparse::Iter::getSuffix(word_t* suffix) const {
 // YCHUANG_ADDED START
 bool LoudsSparse::Iter::getLeftParenthesis() const {
 	position_t pos = trie_->getSuffixPos(pos_in_trie_[key_len_ - 1]);
-	// std::cout << "pos: " << pos << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-	
-	// std::cout << "\t\t" << "trie_->left_parentheses_ " << "\n" << "\t\t";
-	// for(int i = 0; i < trie_->left_parentheses_->numBits(); i++) {
-	// 	std::cout << trie_->left_parentheses_->readBit(i) << " ";
-	// }
-	// std::cout << std::endl;
 	return trie_->left_parentheses_->readBit(pos);
 }
 bool LoudsSparse::Iter::getRightParenthesis() const {
 	position_t pos = trie_->getSuffixPos(pos_in_trie_[key_len_ - 1]);
-	// std::cout << "pos: " << pos << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
 	return trie_->right_parentheses_->readBit(pos);
 }
 // YCHUANG_ADDED END
@@ -712,22 +641,7 @@ void LoudsSparse::Iter::moveToLeftMostKey() {
 		return;
     }
 
-	// // YCHUANG_ADDED START
-	// for(int i = 0; i < 9; i++){
-	// 	position_t i_pos = i;
-	// 	position_t i_node = trie_->getChildNodeNum(i_pos); 
-	// 	label_t i_label = trie_->labels_->read(i_pos);
-	// 	std::cout << " --- " << "i: " << i << " i_pos: " << i_pos << " i_node: " << i_node << " i_label: " << i_label << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-	// }
-	// std::cout << std::endl << std::endl << std::endl;
-	// // YCHUANG_ADDED END
-
     while (level < trie_->getHeight()) {
-// std::cout << "****** " << "sparse level: " << level << " pos: " << pos 
-// 		<< " node_num: " << trie_->getChildNodeNum(pos) 
-// 		<< " next pos: " << trie_->getFirstLabelPos(trie_->getChildNodeNum(pos)) << " "
-// 		<< " next label: " << trie_->labels_->read(trie_->getFirstLabelPos(trie_->getChildNodeNum(pos)))
-// 		<< " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
 		position_t node_num = trie_->getChildNodeNum(pos);
 		pos = trie_->getFirstLabelPos(node_num);
 		label = trie_->labels_->read(pos);
@@ -765,16 +679,6 @@ void LoudsSparse::Iter::moveToRightMostKey() {
 	is_valid_ = true;
 	return;
     }
-	
-	// // YCHUANG_ADDED START
-	// for(int i = 0; i < 9; i++){
-	// 	position_t i_pos = i;
-	// 	position_t i_node = trie_->getChildNodeNum(i_pos); 
-	// 	label_t i_label = trie_->labels_->read(i_pos);
-	// 	std::cout << " --- " << "i: " << i << " i_pos: " << i_pos << " i_node: " << i_node << " i_label: " << i_label << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-	// }
-	// std::cout << std::endl << std::endl << std::endl;
-	// YCHUANG_ADDED END
 	
     while (level < trie_->getHeight()) {
 	position_t node_num = trie_->getChildNodeNum(pos);

@@ -2001,7 +2001,6 @@ bool DBImpl::ShouldReferenceSuperVersion(const MergeContext& merge_context) {
 Status DBImpl::GetImpl(const ReadOptions& read_options, const Slice& key,
                        GetImplOptions& get_impl_options) {
 
-// std::cout  << "DBImpl::GetImpl A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   assert(get_impl_options.value != nullptr ||
          get_impl_options.merge_operands != nullptr ||
@@ -2010,14 +2009,12 @@ Status DBImpl::GetImpl(const ReadOptions& read_options, const Slice& key,
   assert(get_impl_options.column_family);
 
   if (read_options.io_activity != Env::IOActivity::kUnknown) {
-std::cout  << "DBImpl::GetImpl A2 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     return Status::InvalidArgument(
         "Cannot call Get with `ReadOptions::io_activity` != "
         "`Env::IOActivity::kUnknown`");
   }
 
   if (read_options.timestamp) {
-std::cout  << "DBImpl::GetImpl A3 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     const Status s = FailIfTsMismatchCf(get_impl_options.column_family,
                                         *(read_options.timestamp),
                                         /*ts_for_read=*/true);
@@ -2034,7 +2031,6 @@ std::cout  << "DBImpl::GetImpl A3 " << __FILE__ << ":" << __LINE__ << " " << __F
   // Clear the timestamps for returning results so that we can distinguish
   // between tombstone or key that has never been written
   if (get_impl_options.timestamp) {
-std::cout  << "DBImpl::GetImpl A4 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     get_impl_options.timestamp->clear();
   }
 
@@ -2049,19 +2045,16 @@ std::cout  << "DBImpl::GetImpl A4 " << __FILE__ << ":" << __LINE__ << " " << __F
   auto cfd = cfh->cfd();
 
   if (tracer_) {
-std::cout  << "DBImpl::GetImpl A5 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // TODO: This mutex should be removed later, to improve performance when
     // tracing is enabled.
     InstrumentedMutexLock lock(&trace_mutex_);
     if (tracer_) {
-std::cout  << "DBImpl::GetImpl A6 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       // TODO: maybe handle the tracing status?
       tracer_->Get(get_impl_options.column_family, key).PermitUncheckedError();
     }
   }
 
   if (get_impl_options.get_merge_operands_options != nullptr) {
-std::cout  << "DBImpl::GetImpl A7 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     for (int i = 0; i < get_impl_options.get_merge_operands_options
                             ->expected_max_number_of_operands;
          ++i) {
@@ -2077,7 +2070,6 @@ std::cout  << "DBImpl::GetImpl A7 " << __FILE__ << ":" << __LINE__ << " " << __F
 
   SequenceNumber snapshot;
   if (read_options.snapshot != nullptr) {
-std::cout  << "DBImpl::GetImpl A8 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     if (get_impl_options.callback) {
       // Already calculated based on read_options.snapshot
       snapshot = get_impl_options.callback->max_visible_seq();
@@ -2119,7 +2111,6 @@ std::cout  << "DBImpl::GetImpl A8 " << __FILE__ << ":" << __LINE__ << " " << __F
   const Comparator* ucmp = get_impl_options.column_family->GetComparator();
   assert(ucmp);
   if (ucmp->timestamp_size() > 0) {
-std::cout  << "DBImpl::GetImpl A10 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     assert(!get_impl_options
                 .callback);  // timestamp with callback is not supported
     read_cb.Refresh(snapshot);
@@ -2174,7 +2165,6 @@ std::cout  << "DBImpl::GetImpl A10 " << __FILE__ << ":" << __LINE__ << " " << __
                               &merge_context, &max_covering_tombstone_seq,
                               read_options, get_impl_options.callback,
                               get_impl_options.is_blob_index)) {
-std::cout  << "DBImpl::GetImpl A11 B1 C2 (sv->imm) " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         done = true;
 
         if (get_impl_options.value) {
@@ -2184,7 +2174,6 @@ std::cout  << "DBImpl::GetImpl A11 B1 C2 (sv->imm) " << __FILE__ << ":" << __LIN
         RecordTick(stats_, MEMTABLE_HIT);
       }
     } else {
-std::cout  << "DBImpl::GetImpl A11 B2 @get Merge Operands associated with key " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       // Get Merge Operands associated with key, Merge Operands should not be
       // merged and raw values should be returned to the user.
       if (sv->mem->Get(lkey, /*value=*/nullptr, /*columns=*/nullptr,
@@ -2192,14 +2181,12 @@ std::cout  << "DBImpl::GetImpl A11 B2 @get Merge Operands associated with key " 
                        &max_covering_tombstone_seq, read_options,
                        false /* immutable_memtable */, nullptr, nullptr,
                        false)) {
-std::cout  << "DBImpl::GetImpl A11 B2 C1 (sv->mem)" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         done = true;
         RecordTick(stats_, MEMTABLE_HIT);
       } else if ((s.ok() || s.IsMergeInProgress()) &&
                  sv->imm->GetMergeOperands(lkey, &s, &merge_context,
                                            &max_covering_tombstone_seq,
                                            read_options)) {
-std::cout  << "DBImpl::GetImpl A11 B2 C2 (sv->imm)" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         done = true;
         RecordTick(stats_, MEMTABLE_HIT);
       }
@@ -5002,13 +4989,6 @@ std::vector<int> DBImpl::getLogOfMemoryUsageInSuRFLevelFileSplitRDF() {
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfMemoryUsageInSuRFLevelFileSplitRDF();
 }
-// std::vector<int> DBImpl::getLogOfMemoryUsageInSuRFTopLevelRDF() {
-//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-//   DefaultColumnFamily());
-//   auto cfd = cfh->cfd();
-//   SuperVersion* sv = GetAndRefSuperVersion(cfd);
-//   return sv->current->getLogOfMemoryUsageInSuRFTopLevelRDF();
-// }
 
 const PLRDF *DBImpl::getPLRDF(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
@@ -5035,19 +5015,7 @@ const SkyLineRDF *DBImpl::getSkylineRDF(){
   auto cfd = cfh->cfd();
   return cfd->getSkylineRDF();
 }
-// const std::vector<int> *DBImpl::getSkylineNumbersOfRangesInRDFLog(){
-//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-//   DefaultColumnFamily());
-//   auto cfd = cfh->cfd();
-//   return cfd->getSkylineNumbersOfRangesInRDFLog();
-// }
 
-// const surf::SuRF_RDF *DBImpl::getSuRFTopLevelRDF() {
-//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-//   DefaultColumnFamily());
-//   auto cfd = cfh->cfd();
-//   return cfd->getSuRFTopLevelRDF();
-// }
 const surf::SuRF_RDF *DBImpl::getSuRFLevelFileRDF() {
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
@@ -5061,11 +5029,6 @@ const surf::SuRF_RDF *DBImpl::getSuRFLevelFileSplitRDF() {
   return cfd->getSuRFLevelFileSplitRDF();
 }
 
-// void DBImpl::setPLRDF(std::vector<int> v){
-//   if(v.size() != 0){
-//     std::cout << "" << std::endl;
-//   }
-// }
 
 void DBImpl::setPLRDF( PLRDF *plrdf){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
@@ -5075,7 +5038,6 @@ void DBImpl::setPLRDF( PLRDF *plrdf){
   
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   sv->current->setPLRDF(*plrdf);
-  // return Status::OK();
 }
 void DBImpl::setSplitPLRDF( PLRDF *plrdf){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
@@ -5085,7 +5047,6 @@ void DBImpl::setSplitPLRDF( PLRDF *plrdf){
   cfd->setSplitPLRDF(*plrdf);
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   sv->current->setSplitPLRDF(*plrdf);
-  // return Status::OK();
 }
 void DBImpl::setTopLevelRDF( PLRDF *plrdf){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
@@ -5095,9 +5056,7 @@ void DBImpl::setTopLevelRDF( PLRDF *plrdf){
   cfd->setTopLevelRDF(*plrdf);
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   sv->current->setTopLevelRDF(*plrdf);
-  // return Status::OK();
 }
-// void DBImpl::setSkylineRDF( std::vector<t3ll> *skyline_rdf){
 void DBImpl::setSkylineRDF( SkyLineRDF *skyline_rdf){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
@@ -5106,29 +5065,7 @@ void DBImpl::setSkylineRDF( SkyLineRDF *skyline_rdf){
   cfd->setSkylineRDF(*skyline_rdf);
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   sv->current->setSkylineRDF(*skyline_rdf);
-  // return Status::OK();
 }
-// void DBImpl::setSkylineNumbersOfRangesInRDFLog( std::vector<int> *skyline__numbers_of_ranges_in_rdf_log){
-//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-//   DefaultColumnFamily());
-//   auto cfd = cfh->cfd();
-
-//   cfd->setSkylineNumbersOfRangesInRDFLog(*skyline__numbers_of_ranges_in_rdf_log);
-//   SuperVersion* sv = GetAndRefSuperVersion(cfd);
-//   sv->current->setSkylineNumbersOfRangesInRDFLog(*skyline__numbers_of_ranges_in_rdf_log);
-//   // return Status::OK();
-// }
-
-// void DBImpl::setSuRFTopLevelRDF( surf::SuRF_RDF *suRFTopLevelRDF){
-//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-//   DefaultColumnFamily());
-//   auto cfd = cfh->cfd();
-
-//   cfd->setSuRFTopLevelRDF(suRFTopLevelRDF);
-//   SuperVersion* sv = GetAndRefSuperVersion(cfd);
-//   sv->current->setSuRFTopLevelRDF(suRFTopLevelRDF);
-//   // return Status::OK();
-// }
 void DBImpl::setSuRFLevelFileRDF( surf::SuRF_RDF *suRFLevelFileRDF){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
@@ -5137,7 +5074,6 @@ void DBImpl::setSuRFLevelFileRDF( surf::SuRF_RDF *suRFLevelFileRDF){
   cfd->setSuRFLevelFileRDF(suRFLevelFileRDF);
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   sv->current->setSuRFLevelFileRDF(suRFLevelFileRDF);
-  // return Status::OK();
 }
 void DBImpl::setSuRFLevelFileSplitRDF( surf::SuRF_RDF *suRFLevelFileSplitRDF){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
@@ -5147,7 +5083,6 @@ void DBImpl::setSuRFLevelFileSplitRDF( surf::SuRF_RDF *suRFLevelFileSplitRDF){
   cfd->setSuRFLevelFileSplitRDF(suRFLevelFileSplitRDF);
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   sv->current->setSuRFLevelFileSplitRDF(suRFLevelFileSplitRDF);
-  // return Status::OK();
 }
 //Self Added End
 

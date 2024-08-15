@@ -8,21 +8,18 @@
 #include <cmath>
 
 #include "../workload/args.hxx"
-// #include "workload/workload_generator.h"
 #include "../workload/workload_generator.h"
 #include "../env_settings/emu_environment.h"
 #include "rocksdb/db.h"
 #include "rocksdb/options.h"
 #include "rocksdb/advanced_options.h"
 #include "rocksdb/system_verifier.h"
-// #include "utils_run_verification.h"
 #include "utils_logger_during_insertion.h"
 #include "rocksdb/SuRF/include/surf.hpp"
 
 
 void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_op, 
                  EmuEnv* _env, std::string kDBPath){
-                //  Params &params) {
   DB* db = *db_ptr2;
 
   string &workload_file_name = _env->workload_file_name;
@@ -31,7 +28,6 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
 
   // opening workload file for the first time
   std::ifstream workload_file;
-  // workload_file.open("workload.txt");
   workload_file.open(workload_file_name);
   assert(workload_file);
   // doing a first pass to get the workload size
@@ -40,7 +36,6 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
   while (std::getline(workload_file, line)) ++workload_size;
   workload_file.close();
 
-  // workload_file.open("workload.txt");
   workload_file.open(workload_file_name);
   assert(workload_file);
 
@@ -52,20 +47,11 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
   Iterator* it = db->NewIterator(read_op);  // for range reads
   uint64_t counter = 0;                     // for progress bar
   int KEY_SIZE = checking::SystemVerifier::getSystemVerifier()->getKeySize();
-  // KEY_SIZE = KEY_SIZE * log(10) / log(256) + 1;
   int TIME_STAMP_SIZE = 7;  // shall == rocksdb sequence num 
   long long i_instruction = 0;
 
   while (!workload_file.eof()) {
     i_instruction ++;
-    // std::cout << " i_instruction = " << i_instruction << std::endl;
-    // while(db->getFlushQueueSize() > 0 || db->getCompactionQueueSize() > 0) {
-    //   std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    // }
-    // while(db->getFlushQueueSize() > 0) {
-    // while(db->existFlushJob() == true){
-    //   std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    // }
     while(db->existFlushJob() == true || db->existCompactionJob() == true){
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
@@ -86,15 +72,9 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
 
         system_verifier->insert(key, value);
 
-        // std::cout << "Insert " << key << std::endl;
         ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
         ss_time_stamp << std::setfill('0') << std::setw(TIME_STAMP_SIZE) << i_instruction;
-        // std::cout << "Insert " << ss_key.str() << " time_stamp = " << ss_time_stamp.str() << endl;
-        // std::cout << "Insert " <<  ss_key.str() << std::endl;
-        // Put key-value
-        // s = db->Put(write_op, ss_key.str(), value);
         s = db->Put(write_op, ss_key.str(), value + "|" + ss_time_stamp.str());
-        // s = db->Put(write_op, ss_key.str(), value, Slice(std::to_string(i_instruction)));
         if (!s.ok()) std::cerr << s.ToString() << std::endl;
         assert(s.ok());
         counter++;
@@ -107,18 +87,12 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
       case 'Q':  // probe: point query
         workload_file >> key;
 
-        // bool gt_is_exist = system_verifier->isKeyExist(key);
-        // std::string gt_value = system_verifier->get(key);
-
         std::cout << "Query " << key << std::endl;
         ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
         s = db->Get(read_op, ss_key.str(), &value);
         separator_pos = value.find("|");
         time_stamp = value.substr(separator_pos + 1);
         value = value.substr(0, separator_pos);
-        // if (!s.ok()) std::cerr << s.ToString() << "key = " << key <<
-        // std::endl;
-        //  assert(s.ok());
         counter++;
         break;
 
@@ -130,7 +104,6 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
         ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
         ss_end_key << std::setfill('0') << std::setw(KEY_SIZE) << end_key;
         for (it->Seek(ss_start_key.str()); it->Valid(); it->Next()) {
-          // std::cout << "found key = " << it->key().ToString() << std ::endl;
           if (it->key().ToString() == ss_end_key.str()) {
             break;
           }
@@ -146,8 +119,6 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
         
         if (type == "Range") {
           
-          // FlushOptions flush_opts;
-          // s = db->Flush(flush_opts);
           while(db->existFlushJob() == true){
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
           }
@@ -155,16 +126,11 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
           while(db->existFlushJob() == true){
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
           }
-          // s = db->Flush(flush_opts);
-
 
           ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
           ss_end_key << std::setfill('0') << std::setw(KEY_SIZE) << end_key;
           s = db->DeleteRange(write_op, db->DefaultColumnFamily(),
                               ss_start_key.str(), ss_end_key.str());
-          // s = db->DeleteRange(write_op, db->DefaultColumnFamily(),
-          //                     ss_start_key.str(), ss_end_key.str(), 
-          //                     Slice(std::to_string(i_instruction)));
           if (!s.ok()) std::cerr << s.ToString() << std::endl;
           assert(s.ok());
           counter++;
@@ -193,31 +159,16 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
 
     // run PQ and log memory footprint during insertion
     vector<long long> currently_deleted_keys = system_verifier->getCurrentlyDeletedKeys();
-    // if (counter % 100 == 0 && currently_deleted_keys.size() > 0){    
 
     if (counter % _env->run_pq_during_insertion_interval == 0 && currently_deleted_keys.size() > 100){  
 logger_during_insertion->writeRecord(db_ptr2);  
-    // if (counter % 100 == 0 && currently_deleted_keys.size() > 100){    
-// std::cout << "@M1 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-
-      // s = db->SetOptions({{"disable_auto_compactions", "true"}}); 
-      // if (!s.ok()) std::cerr << s.ToString() << std::endl;
-      // assert(s.ok());
-      // std::cout << "!!! Disable auto compaction" << std::endl; 
       
       std::this_thread::sleep_for(std::chrono::seconds(30));  // Sleep for 10 second
-// std::cout << "@M2 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
       if(_env->log_during_insertion == true){
         logger_during_insertion->runPQonCurrentlyDeletedKeys(
           counter, db_ptr2, op, write_op, read_op, _env, 500, kDBPath);
       }
-// std::cout << "@M3 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-
-      // s = db->SetOptions({{"disable_auto_compactions", "false"}}); 
-      // if (!s.ok()) std::cerr << s.ToString() << std::endl;
-      // assert(s.ok());
-      // std::cout << "!!! Enable auto compaction" << std::endl; 
     }
   }
 
@@ -232,8 +183,6 @@ logger_during_insertion->writeRecord(db_ptr2);
   s = db->Flush(flush_opts);
   if (!s.ok()) std::cerr << s.ToString() << std::endl;
   assert(s.ok());
-  // Status s = db->Flush(flush_opts, {db->DefaultColumnFamily()});
-  
 
   std::cout << "!!! Insertion Workload Ends." << std::endl;
 
@@ -280,8 +229,6 @@ logger_during_insertion->writeRecord(db_ptr2);
           + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
     long long total_read_bytes_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
           + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.bytes[^:]*: ([0-9]+)");
-    // rocksdb::get_perf_context()->Reset();
-    // rocksdb::get_iostats_context()->Reset();
     reset_perf_iostats_context();
 
 
@@ -327,22 +274,15 @@ logger_during_insertion->writeRecord(db_ptr2);
     print_perf_iostats_context(std::cout, 1);
   }
 
-
   std::cout << "!!! several gets done " << std::endl;
 
   std::cout << "!!! print stats " << std::endl;
-
   
   printStats(db, op);
 
-  // std::cout << "!!! runQPVerification start " << std::endl;
-
   io_timing_test(db);
-
-
  
   workload_file.close();
-
 
   return;
 }

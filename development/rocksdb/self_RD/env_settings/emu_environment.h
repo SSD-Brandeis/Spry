@@ -25,27 +25,9 @@ private:
 public:
   static EmuEnv* getInstance();
 
-  // double delete_persistence_latency;
-  // double* level_delete_persistence_latency;
-  // int* RR_level_last_file_selected;  // !YBS-sep06-XX!
-  // static void AddNewLevel(int _level_count, EmuEnv* _env); // !YBS-sep06-XX!
-  // static void ReSetLevelDeletePersistenceLatency(int _level_count, EmuEnv* _env); // reset dpl-per-level when there in a new level added
-  // static double GetLevelDeletePersistenceLatency(int _level, EmuEnv* _env);
-
-  // std::chrono::time_point<std::chrono::system_clock> oldest_delete_file_timestamp;
-  // int flag;
   std::vector<uint64_t> vec;
-  // static void DumpDeleteFileTimestamp(std::chrono::time_point<std::chrono::system_clock> delete_file_timestamp, uint64_t delete_file_id, EmuEnv* _env);
-  // static std::chrono::time_point<std::chrono::system_clock> GetDumpedDeleteFileTimestamp();
   static void PopulatingVector(uint64_t _file_id);
   static int CheckingVector(uint64_t _file_id);
-  // static void PrintRRIndices(EmuEnv* _env); // !YBS-sep06-XX!
-
-
-  // //YuCheng Added Start
-  // void configOptions(EmuEnv* _env, Options *op, BlockBasedTableOptions *t_op, WriteOptions *w_op, ReadOptions *r_op, FlushOptions *f_op);
-  // //YuCheng Added End
-
 
   // First-Entry Flags (FEFs) // !YBS-sep06-XX!
   bool version_set_FEF; // !YBS-sep06-XX!
@@ -283,9 +265,7 @@ public:
     long num_inserts;
 
   //YuCheng Added Start
-  // int entry_size = entry_size_cmd ? args::get(entry_size_cmd) : 128;
   double correlation = 0;
-  // long long num_inserts = num_inserts_cmd ? args::get(num_inserts_cmd) : 0;
   int rd_count = 1;
   double selectivity = 0.001;
   string workload_file_name = "workload.txt";

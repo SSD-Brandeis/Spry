@@ -89,8 +89,6 @@ public:
 	memcpy(lv->labels_, src, lv->num_bytes_);
 	src += lv->num_bytes_;
 	
-	//lv->labels_ = const_cast<label_t*>(reinterpret_cast<const label_t*>(src));
-	//src += lv->num_bytes_;
 	align(src);
 	return lv;
     }

@@ -18,86 +18,6 @@
 
 using namespace std;
 using namespace ROCKSDB_NAMESPACE;
-// // namespace ROCKSDB_NAMESPACE{
-//   // class PerlevelRangeDeleteFilterByVector {  
-//   class PLRDF {  
-//     private:
-//       std::unordered_map<uint64_t, std::vector<pll>> rd_filter_level0; //for level 0, (file_num, RD_list), FileMetaData* -> fd .GetNumber();
-
-//       std::vector<std::vector<pll>> rd_filter; //for level > 0, list of range delete (start, end), all entries are non-overlapping
-//       std::vector<int> numbers_of_ranges_in_RDF_log; //for level > 0, number of ranges in RDF
-      
-//       void addRangeDelete_internal(uint level, std::vector<pll> &range_delete_list_in);
-//       std::vector<pll> sortAndMerge(std::vector<pll> &range_delete_list_in);
-//       void addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll> &range_delete_list_in);
-//       void addRangeDelete(std::vector<pll> &range_delete_list, long long start, long long end);
-//       void print_internal();
-
-
-//       /*
-//         * adjust range deletes as per the compaction
-//         */
-//       void adjustRangeDeletesForLevel0Input(uint olevel, std::vector<uint64_t> file_numbers);
-//       void adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<long long, long long>> one_level_compaction_file_boundaries);
-
-//     public:
-//       // std::vector<pll> getRangeDeleteList();
-//       void insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pll> &range_delete_list_in, std::vector<uint64_t> exist_level0_file_nums);
-
-//       void addRangeDelete(uint level, long long start, long long end);
-//       void addRangeDelete(uint level, std::vector<pll> &range_delete_list_in);
-//       void shiftRDFToOutputLevel(std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors);
-//       void deleteLastLevelIfEqualsBottomLevel(uint bottom_level);
-//       // void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data);
-//       void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, std::vector<pll>, std::vector<uint64_t>> *file_meta_data);
-
-//       std::vector<pll> getLevelRanges(int outlevel);
-//       void setLevelRanges(std::vector<pll> level_ranges_in, int outlevel);
-
-//       int getNumberOfTotalLevels();
-//       int getNumberOfTotalRanges();
-
-//       void printLevel0();
-//       void print();
-
-//       bool isEntryAlive(uint level, long long key);
-
-
-//       void splitRangesOnLevel(uint level, std::vector<long long> keys);
-//       // int getRangeDeleteCount();
-
-//       void logCurrentTotalNumbersOfRanges();
-//       std::vector<int> getNumbersOfRangesInRDFLog();
-//   };
-
-//   class SKyLineRDF {
-//     private:
-//       std::vector<t3ll> range_delete_list_in;
-
-//     public:      
-//       void addRangeDelete(std::vector<t3ll> &range_delete_list_in);
-//       bool isEntryAlive(long long key);
-//       void print();
-//   };
-// // }
-
-
-// void PLRDF::addRangeDelete_internal(uint level, std::vector<pll> &range_delete_list_in){
-//   // init();
-//   // update_mutex.lock();
-//   // std::lock_guard<std::mutex> guard(update_mutex);
-
-//   assert(rd_filter.size() >= level);
-//   while (rd_filter.size() <= level)
-//   {
-//     rd_filter.push_back(std::vector<pll>());
-//   }
-
-//   addRangeDelete(rd_filter[level], range_delete_list_in);
-
-//   // update_mutex.unlock();
-// }
-
 
 
 std::vector<pll> PLRDF::sortAndMerge(std::vector<pll> &range_delete_list_in){
@@ -130,29 +50,10 @@ std::vector<pll> PLRDF::sortAndMerge(std::vector<pll> &range_delete_list_in){
 
 
 void PLRDF::addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll> &range_delete_list_in){
-// init();
-// std::lock_guard<std::mutex> guard(init_mutex);
 
   auto& rdList = range_delete_list;
   auto& rdList_in = range_delete_list_in;
 
-// // std::cout << "rdList" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
-// // for(auto it = rdList.begin(); it != rdList.end(); it++){
-// // std::cout << "aaaa " << it->first << " " << it->second << std::endl;
-// // }
-// // std::cout << std::endl << std::endl;
-// std::cout << "rdList_in" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
-// for(auto it = rdList_in.begin(); it != rdList_in.end(); it++){
-// std::cout << "aaaa2 " << it->first << " " << it->second << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// }
-// std::cout << std::endl << std::endl;
-
-
-// std::cout << "rdList_in" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
-// for(auto it = rdList_in.begin(); it != rdList_in.end(); it++){
-//   std::cout << it->first << " " << it->second << std::endl;
-// }
-// std::cout << std::endl << std::endl;
 
   if(rdList_in.size() == 0){return;}
 
@@ -180,18 +81,6 @@ void PLRDF::addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll>
     }
 
     rdList.push_back(tmp_range);
-
-    // std::cout << "after_direct insert to rdList: " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
-    // for(auto it = rdList.begin(); it != rdList.end(); it++){
-    //   std::cout << it->first << " " << it->second << std::endl;
-    // }
-
-
-    // //adding to rdList
-    // rdList.reserve(rdList_new.size());
-    // for(auto &p : rdList_new){
-    //   rdList.push_back(p);
-    // }
     
     return;
   }
@@ -219,7 +108,6 @@ void PLRDF::addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll>
   }
 
   while(itA != iteA || itB != iteB){
-// std::cout << " itA = " << itA->first << " " << itA->second << std::endl;
     if(itA != iteA && itA->first <= tmp_range.second){
       tmp_range.second = std::max(tmp_range.second, itA->second);
       itA++;
@@ -254,17 +142,6 @@ void PLRDF::addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll>
   rdList_new.push_back(tmp_range);
 
 
-// std::cout << "rdList_new" << std::endl << std::endl;
-// for(auto it = rdList_new.begin(); it != rdList_new.end(); it++){
-//   std::cout << it->first << " " << it->second << std::endl;
-// }
-// std::cout << "rdList" << std::endl << std::endl;
-// for(auto it = rdList.begin(); it != rdList.end(); it++){
-//   std::cout << it->first << " " << it->second << std::endl;
-// }
-// std::cout << std::endl << std::endl;
-
-
   rdList.clear();
   rdList.reserve(rdList_new.size());
   for(auto &p : rdList_new){
@@ -274,8 +151,6 @@ void PLRDF::addRangeDelete(std::vector<pll> &range_delete_list, std::vector<pll>
 
 
 void PLRDF::addRangeDelete(std::vector<pll> &range_delete_list, long long start, long long end){
-// init();
-// std::lock_guard<std::mutex> guard(init_mutex);
 
 auto& rdList = range_delete_list;
 #ifdef DEBUG
@@ -315,8 +190,6 @@ auto& rdList = range_delete_list;
 }
 
 void PLRDF::print_internal(){
-  // init();
-  // std::lock_guard<std::mutex> guard(update_mutex);
 
   std::cout <<  std::setfill('-') << std::setw(60) << " START: Print PL RDF " << std::setfill('-') << "" << std::endl;
   for(uint l = 0; l < rd_filter.size(); l++){
@@ -329,135 +202,7 @@ void PLRDF::print_internal(){
   }
   std::cout <<  std::setfill('-') << std::setw(60) << " END: Print PL RDF " << std::setfill('-') << "" << std::endl;
 
-  // auto& rdList = range_delete_list;
-
-  // for(auto it = rdList.begin(); it != rdList.end(); it++){
-  //   std::cout << "(" << it->first << " " << it->second << ") ";
-  // }
-  // std::cout << std::endl;
 }
-
-
-
-
-
-
-
-
-
-
-
-  // // This would be used for trivial compaction and normal compaction
-  // void PerlevelRangeDeleteFilterByVector::adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<long long, long long>> one_level_compaction_file_boundaries)
-  // {
-  //   std::vector<pll> new_current_level_rdf;
-  //   std::vector<pll> to_be_added_in_next_level_rdf;
-  //
-  //   if (rd_filter.size() <= clevel)
-  //   {
-  //     return;
-  //   }
-  //
-  //   auto old_current_level_rdf = rd_filter[clevel];
-  //
-  //   // FIXME: (Shubham) This might not be required
-  //   if (one_level_compaction_file_boundaries.size() == 0)
-  //   {
-  //     return;
-  //   }
-  //
-  //   auto it = old_current_level_rdf.begin();
-  //   auto itf = one_level_compaction_file_boundaries.begin();
-  //
-  //   while (it != old_current_level_rdf.end())
-  //   {
-  //     pll val = *it;
-  //     auto file_boundries = *itf;
-  //     pll file_boundry = std::make_pair(file_boundries.first, file_boundries.second);
-  //
-  //     /*
-  //     *    |--|
-  //     *         -----
-  //     *         |   |
-  //     *         -----
-  //     */
-  //     if (itf == one_level_compaction_file_boundaries.end() || (val.second <= file_boundry.first))
-  //     {
-  //       new_current_level_rdf.push_back(val);
-  //       it++;
-  //     }
-  //     /*
-  //     *             |--|
-  //     *     ------
-  //     *     |    |
-  //     *     ------
-  //     */
-  //     else if (val.first > file_boundry.second)
-  //     {
-  //       itf++;
-  //     }
-  //     /*
-  //     *    |------||||
-  //     *         ------
-  //     *         |    |
-  //     *         ------
-  //     */
-  //     else if (val.first < file_boundry.first && val.second > file_boundry.first && val.second <= file_boundry.second)
-  //     {
-  //       new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
-  //       to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, val.second));
-  //       it++;
-  //     }
-  //     /*
-  //     *    |||--|||
-  //     *    --------
-  //     *    |      |
-  //     *    --------
-  //     */
-  //     else if (val.first >= file_boundry.first && val.second <= file_boundry.second)
-  //     {
-  //       to_be_added_in_next_level_rdf.push_back(val);
-  //       it++;
-  //     }
-  //     /*
-  //     *     ||||-------|
-  //     *     --------
-  //     *     |      |
-  //     *     --------
-  //     */
-  //     else if (val.first >= file_boundry.first && val.first <= file_boundry.second && val.second > file_boundry.second)
-  //     {
-  //       to_be_added_in_next_level_rdf.push_back(std::make_pair(val.first, file_boundry.second + 1));
-  //       (*it).first = file_boundry.second + 1;
-  //       itf++;
-  //     }
-  //     /*
-  //     *  |------------|
-  //     *     --------
-  //     *     |      |
-  //     *     --------
-  //     */
-  //     else if (val.first < file_boundry.first && val.second > file_boundry.second)
-  //     {
-  //       new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
-  //       to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, file_boundry.second + 1));
-  //       (*it).first = file_boundry.second + 1;
-  //       itf++;
-  //     }else{
-  //       std::cerr << "Condition Unchecked " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  //       std::cerr << "val.first: " << val.first << " val.second: " << val.second << " file_boundry.first: " << file_boundry.first << " file_boundry.second: " << file_boundry.second << std::endl;
-  //       assert(false);
-  //       exit(1);
-  //     }
-  //   }
-  //
-  //   rd_filter[clevel] = new_current_level_rdf;
-  //   std::sort(to_be_added_in_next_level_rdf.begin(), to_be_added_in_next_level_rdf.end(), [](const pll a, const pll b)
-  //           { return a.first < b.first; });
-  //
-  //   addRangeDelete(olevel, to_be_added_in_next_level_rdf);
-  //
-  // }
 
 
 
@@ -627,30 +372,19 @@ void PLRDF::adjustRangeDeletes(uint clevel, uint olevel, std::vector<std::pair<l
 
 void PLRDF::insertRangeDeleteToLevel0(uint64_t file_num, std::vector<pll> &range_delete_list_in, std::vector<uint64_t> exist_level0_file_nums){
   std::vector<pll> sorted_merged_rdlist = sortAndMerge(range_delete_list_in);
-  // init();
 
   // -- updating rd_filter_level0 --
-  // std::lock_guard<std::mutex> guard(rd_filter_level0_mutex);
-  // rd_filter_level0_mutex.lock();
-
-  // if(rd_filter_level0.count(file_num) > 0){
   if(std::binary_search(exist_level0_file_nums.begin(), exist_level0_file_nums.end(), file_num) == true){
     std::cerr << "Error: file_num already exists in rd_filter_level0 " << "file_num = " << file_num << "\t" << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
     exit(1);
   }
   rd_filter_level0[file_num] = sorted_merged_rdlist;
-
-  // std::cout << "rd_filter_Level0 " << "file_num: " << file_num << " number of RD: " << sorted_merged_rdlist.size() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-
-  // rd_filter_level0_mutex.unlock();
   // -- updating rd_filter_level0 --
 
 
 }
 
 void PLRDF::printLevel0(){
-  // init();
-  // std::lock_guard<std::mutex> guard(rd_filter_level0_mutex);
 
   std::cout << "rd_filter_level0" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<  std::endl << std::endl;
   for(auto it = rd_filter_level0.begin(); it != rd_filter_level0.end(); it++){
@@ -667,19 +401,12 @@ void PLRDF::printLevel0(){
 
 
 void PLRDF::addRangeDelete(uint level, std::vector<pll> &range_delete_list_in){
-  // init();
-  // // update_mutex.lock();
-  // std::lock_guard<std::mutex> guard(update_mutex);
-
-  // assert( rd_filter.size() >= level);
   while (rd_filter.size() <= level)
   {
     rd_filter.push_back(std::vector<pll>());
   }
 
   addRangeDelete(rd_filter[level], range_delete_list_in);
-
-  // update_mutex.unlock();
 }
 
 

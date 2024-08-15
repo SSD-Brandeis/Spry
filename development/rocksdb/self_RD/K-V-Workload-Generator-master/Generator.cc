@@ -9,10 +9,8 @@
 int myrandom (int i) { return std::rand()%i;}
 
 inline int binary_search(double p, int low, int high, std::vector<double> & cdf) {
-    //std::cout << "p : " << p << "\tlow : " << low << "\t high : " << high << std::endl;
     int mid = (low + high)/2;
     while(high - low > 1){
-       //std::cout << "p: " << p << "\tmid: " << cumulative_probabilities[mid] << "\tmid+1: " << cumulative_probabilities[mid+1] << std::endl;
        if(p < cdf[mid]){
              high = mid;
        }else if(p >= cdf[mid+1]){
@@ -87,17 +85,6 @@ Generator::Generator(int dist, uint32_t lb, uint32_t ub, double norm_mean, doubl
 	    small_cumulative_probabilities->clear();
 	    delete small_cumulative_probabilities;
         }else{
-            /*
-            cumulative_probabilities = std::vector<double> ( zipf_size+1, 0.0);
-            index_mapping = std::vector<int> (zipf_size_, 0);
-            if(zipf_size_ == 0){
-                zipf_size_ = 1;
-            }
-            double unit = 1/zipf_size_;
-            for(int i = 0; i < zipf_size; i++){
-                cumulative_probabilities[i+1] = cumulative_probabilities[i] + unit;
-		index_mapping[i] = i;
-            }*/
             cumulative_probabilities = std::vector<double> ();
         }
         uniform_standard_distribution = std::uniform_real_distribution<double>(0.0,1.0);

@@ -80,10 +80,7 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
 
 
   std::string testing_result_file_name = _env->workload_file_name + ".testing_log";
-//   std::string testing_result_file_name2 = _env->workload_file_name + ".testing_log2";
   std::string testing_result_file_name2 = "output_statistics/" + _env->workload_file_name + ".json";
-//   std::ofstream testing_result_file, testing_result_file2;
-  // testing_result_file.open("testing_result.txt");
   testing_result_file.open(testing_result_file_name);
   testing_result_file2.open(testing_result_file_name2);
   testing_result_file2 << "{"<< std::endl;
@@ -231,12 +228,6 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
 
 
 
-
-// void verification_runner::runPQVerification(DB** db_ptr2, 
-//                                             Options& op, 
-//                                             WriteOptions& write_op, 
-//                                             ReadOptions& read_op, 
-//                                             EmuEnv* _env){
                                                 
 void verification_runner::runPQVerification(DB** db_ptr2, 
                                             Options& op, 
@@ -260,7 +251,6 @@ std::cout << "number_of_PQ = " << number_of_PQs <<  std::endl;
   long long total_read_bytes = 0;
 
   const long long N_repetitions = checking::SystemVerifier::EXPERIMENT_REPETITION_TIMES;
-  // long long num_RDF_types = getNumberOfRDFTypes();
   long long disk_access_count = 0;
 
   
@@ -275,7 +265,6 @@ std::cout << "number_of_PQ = " << number_of_PQs <<  std::endl;
 
   auto start_pq = std::chrono::high_resolution_clock::now();
   auto stop_pq = std::chrono::high_resolution_clock::now();
-  // auto duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
   auto duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
   unsigned long long point_query_time = duration_pq.count();
 
@@ -294,7 +283,6 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
       s = db->SetOptions({{"max_open_files", std::to_string(_env->max_open_files)}}); // is there any compaction happended after this????
     }
 
-    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
@@ -313,13 +301,10 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 
 
       if(flag_reopen_db_for_each_RDF_testing == true){
-        // retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
         retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
         reopen_DB(db_ptr2, op, write_op, read_op, _env, kDBPath);
-        // set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
         set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
       }
-    //   for(auto &x: system_verifier->getAllExistingKeys()){
       for(auto x: system_verifier->getAllExistingKeysAtNRound(i)){
         bool gt_is_exist = system_verifier->isKeyExist(x);
         std::string gt_value = system_verifier->get(x);
@@ -416,7 +401,6 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
       s = db->SetOptions({{"max_open_files", std::to_string(_env->max_open_files)}}); // is there any compaction happended after this????
     }
 
-    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
@@ -434,13 +418,11 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
 
 
       if(flag_reopen_db_for_each_RDF_testing == true){
-        // retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
         retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
         reopen_DB(db_ptr2, op, write_op, read_op, _env, kDBPath);
-        // set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
         set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
       }
-    //   for(auto &x: system_verifier->getHistoricExistingKeys()){
+
       for(auto x: system_verifier->getHistoricExistingKeysAtNRound(i)){
         bool gt_is_exist = system_verifier->isKeyExist(x);
         std::string gt_value = system_verifier->get(x);
@@ -540,7 +522,6 @@ system_verifier->startPQTracing();
       s = db->SetOptions({{"max_open_files", std::to_string(_env->max_open_files)}}); // is there any compaction happended after this????
     }
 
-    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
@@ -566,9 +547,8 @@ system_verifier->startPQTracing();
         // set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
         set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
       }
-    //   for(auto &x: system_verifier->getCurrentlyDeletedKeys()){
+
       for(auto x: system_verifier->getCurrentlyDeletedKeysAtNRound(i)){
-// cout << "x = " << x << " " << __FILE__ << ":" << __LINE__ << endl;
         bool gt_is_exist = system_verifier->isKeyExist(x);
         std::string gt_value = system_verifier->get(x);
 
@@ -582,7 +562,6 @@ system_verifier->startPQTracing();
         s = db->Get(read_op, searching_key.str(), &value);
         system_verifier->stop_remaining_get_path(); 
         stop_pq = std::chrono::high_resolution_clock::now();
-        // duration_pq = std::chrono::duration_cast<std::chrono::microseconds>(stop_pq - start_pq);
         duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
@@ -634,7 +613,6 @@ system_verifier->startPQTracing();
     testing_result_file << system_verifier->getAllCount("", "", "", N_repetitions) << std::endl;
     testing_result_file << "block_read_cpu_time = " << 1.0*block_read_cpu_time/N_repetitions/1e3  << "" << std::endl;
 
-    // std::string prefix = " (Currently Deleted Keys) " + system_verifier->getStringOfRDFTypeChosed() + " ";
     std::string prefix = " (Currently Deleted Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file2 << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e6 << std::endl;
     testing_result_file2 << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
@@ -659,7 +637,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
   testing_result_file << "----------------------Testing On Currently Non-inserted Keys-----------------------" << std::endl;
   int CurrentlyNonInsertedKeysNum = system_verifier->getCurrentlyNonInsertedKeysNum();
   testing_result_file << "number of currently non-inserted keys = " << CurrentlyNonInsertedKeysNum << std::endl;
-//   system_verifier->genCurrentlyNonInsertedKeys(CurrentlyNonInsertedKeysNum);
+
   for(uint t = 0; t < system_verifier->getNumberOfRDFTypes(); t++){
     long long total_read_count = 0;
     long long total_read_bytes = 0;
@@ -676,7 +654,6 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
       s = db->SetOptions({{"max_open_files", std::to_string(_env->max_open_files)}}); // is there any compaction happended after this????
     }
 
-    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
@@ -757,7 +734,6 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
     testing_result_file << system_verifier->getAllCount("", "", "", N_repetitions) << std::endl;
     testing_result_file << "block_read_cpu_time = " << 1.0*block_read_cpu_time/N_repetitions/1e3  << "" << std::endl;
 
-    // std::string prefix = " (Non-inserted Keys) " + system_verifier->getStringOfRDFTypeChosed() + " ";
     std::string prefix = " (Non-inserted Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file2 << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e6 << std::endl;
     testing_result_file2 << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
@@ -778,9 +754,6 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 void verification_runner::endPQVerification(){
   checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
 
-  // testing_result_file.close();
-  // testing_result_file2.close();
-
   
   testing_result_file << std::endl << std::endl;
   testing_result_file << "----------------------End Testing-----------------------" << std::endl;
@@ -791,7 +764,6 @@ void verification_runner::endPQVerification(){
   testing_result_file2 << ",\"End\" : \"End\""<< std::endl;
   testing_result_file2 << "}"<< std::endl;
   testing_result_file2.close();
-  // Status s = DB::Open(op, kDBPath, &db);
 
   system_verifier->resetRunningPQ();
 }

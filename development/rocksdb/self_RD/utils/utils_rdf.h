@@ -17,8 +17,6 @@ void retrieve_all_RDFs(DB** dp_ptr2,
                        PLRDF split_plrdf_prime, 
                        PLRDF top_level_rdf_prime, 
                        SkyLineRDF skyline_rdf_prime
-                      //  std::vector<t3ll> skyline_rdf_prime, 
-                      //  std::vector<int> skyline__numbers_of_ranges_in_rdf_log
                        ){
   DB* db = *dp_ptr2;
   // retrieve all RDFs
