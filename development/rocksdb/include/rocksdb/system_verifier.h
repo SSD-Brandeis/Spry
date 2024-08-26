@@ -520,6 +520,26 @@ namespace checking {
     // std::unordered_map<int, std::string> RDFTypes = {{0, "SPLIT_PLRDF"}, {1, "NONE_DUMMY"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "TOP_LEVEL_RDF"}}; 
 
+    void setRDFTypes(std::unordered_map<int, std::string> rdf_types_in){
+      RDFTypes = rdf_types_in;
+    }
+
+    bool hasRDFTypeOtherThanNone(){
+      for(auto &[k, v]: RDFTypes){
+        if(v.substring(0,4) != "NONE"){
+          return true;
+        }
+      }
+      return false;
+    }
+
+    bool containsRDFType(std::string rdf_type){
+      for(const auto &[k, v]: RDFTypes){
+        if(v == rdf_type){return true;}
+      }
+      return false;
+    }
+
     int RDFType_chosed = 0;
         
     uint getNumberOfRDFTypes(){

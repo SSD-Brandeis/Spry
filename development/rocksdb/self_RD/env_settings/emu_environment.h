@@ -12,6 +12,8 @@
 #include <chrono>
 #include <ctime> 
 #include <vector>
+#include <unordered_map>
+#include <string>
 
 using namespace std;
 
@@ -265,6 +267,7 @@ public:
     long num_inserts;
 
   //YuCheng Added Start
+  std::unordered_map<int, std::string> RDFTypes;
   double correlation = 0;
   int rd_count = 1;
   double selectivity = 0.001;

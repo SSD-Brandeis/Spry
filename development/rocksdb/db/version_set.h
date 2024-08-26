@@ -1180,6 +1180,7 @@ class Version {
   void setSkylineRDF( SkyLineRDF &skyline_rdf_in){
     skyline_rdf = skyline_rdf_in;
   }
+  //TODO: level_surf_rdf / level_file_surf_rdf shall maintain multiple versions rollout
   void setSuRFLevelFileRDF(surf::SuRF_RDF *surf__level_file_rdf_in){
     assert(surf__level_file_rdf_in != NULL);
     surf__level_file_rdf = surf__level_file_rdf_in;

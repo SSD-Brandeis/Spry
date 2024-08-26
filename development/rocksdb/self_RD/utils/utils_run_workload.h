@@ -50,6 +50,12 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
   int TIME_STAMP_SIZE = 7;  // shall == rocksdb sequence num 
   long long i_instruction = 0;
 
+  auto start_time = std::chrono::high_resolution_clock::now();
+  auto stop_time = std::chrono::high_resolution_clock::now();
+  auto duration_time = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_time - start_time);
+  unsigned long long insertion_time_ns = 0;
+  unsigned long long rd_time_ns = 0;
+
   while (!workload_file.eof()) {
     i_instruction ++;
     while(db->existFlushJob() == true || db->existCompactionJob() == true){
@@ -66,6 +72,7 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
     std::stringstream ss_key, ss_start_key, ss_end_key;
     size_t separator_pos = 0;
     workload_file >> instruction;
+
     switch (instruction) {
       case 'I':  // insert
         workload_file >> key >> value;
@@ -74,7 +81,11 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
 
         ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
         ss_time_stamp << std::setfill('0') << std::setw(TIME_STAMP_SIZE) << i_instruction;
+        start_time = std::chrono::high_resolution_clock::now();
         s = db->Put(write_op, ss_key.str(), value + "|" + ss_time_stamp.str());
+        stop_time = std::chrono::high_resolution_clock::now();
+        duration_time = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_time - start_time);
+        insertion_time_ns += duration_time.count();
         if (!s.ok()) std::cerr << s.ToString() << std::endl;
         assert(s.ok());
         counter++;
@@ -129,8 +140,12 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
 
           ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
           ss_end_key << std::setfill('0') << std::setw(KEY_SIZE) << end_key;
+          start_time = std::chrono::high_resolution_clock::now();
           s = db->DeleteRange(write_op, db->DefaultColumnFamily(),
                               ss_start_key.str(), ss_end_key.str());
+          stop_time = std::chrono::high_resolution_clock::now();
+          duration_time = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_time - start_time);
+          rd_time_ns += duration_time.count();
           if (!s.ok()) std::cerr << s.ToString() << std::endl;
           assert(s.ok());
           counter++;
@@ -142,6 +157,30 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
           std::cerr << "end_key = " << end_key << std::endl;
           break;
         }
+        break;
+      
+      case 'R':
+        workload_file >> start_key >> end_key;
+
+        while(db->existFlushJob() == true){
+          std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+        system_verifier->rangeDelete(start_key, end_key);
+        while(db->existFlushJob() == true){
+          std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+
+        ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
+        ss_end_key << std::setfill('0') << std::setw(KEY_SIZE) << end_key;
+        start_time = std::chrono::high_resolution_clock::now();
+        s = db->DeleteRange(write_op, db->DefaultColumnFamily(),
+                            ss_start_key.str(), ss_end_key.str());
+        stop_time = std::chrono::high_resolution_clock::now();
+        duration_time = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_time - start_time);
+        rd_time_ns += duration_time.count();
+        if (!s.ok()) std::cerr << s.ToString() << std::endl;
+        assert(s.ok());
+        counter++;
         break;
 
       default:
@@ -171,6 +210,8 @@ logger_during_insertion->writeRecord(db_ptr2);
       }
     }
   }
+  std::cout << "insertion_time_ns = " << insertion_time_ns << std::endl;
+  std::cout << "rd_time_ns = " << rd_time_ns << std::endl;
 
 
   std::cout << "!!! Final Flush. (Manually Flush) " << std::endl;
@@ -208,8 +249,6 @@ logger_during_insertion->writeRecord(db_ptr2);
   std::cout << "!!! Disable auto compaction" << std::endl; 
 
   
-
-
   std::this_thread::sleep_for(std::chrono::seconds(10));  // Sleep for 10 second
 
   db->printAllFileRanges();

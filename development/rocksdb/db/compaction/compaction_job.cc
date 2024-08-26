@@ -1355,10 +1355,10 @@ std::sort(range_del_vec_self.begin(), range_del_vec_self.end());
           const_cast<Compaction*>(sub_compact->compaction)));
 
 
-  // Self Added Start
+  // yucheng Added Start
   int out_lvl = sub_compact->compaction->output_level();
   sub_compact->compaction->column_family_data()->split_start(out_lvl);
-  // Self Added End
+  // yucheng Added End
 
   // Self Added Hint: Do Range Deletion Point Entries here
   // ProcessKeyValueCompaction() is the main loop of the compaction process.
@@ -1502,9 +1502,9 @@ if(flag_split_RDF && c_iter->ikey().type == 1){
   }
 
   
-  // Self Added Start
+  // yucheng Added Start
   sub_compact->compaction->column_family_data()->split_end();
-  // Self Added End
+  // yucheng Added End
 
 
   sub_compact->compaction_job_stats.num_blobs_read =
@@ -1908,134 +1908,175 @@ Status CompactionJob::InstallCompactionResults(
     }
   }
 
-  // Self Added Start
-  FileInOut* file_in_out_ptr = new FileInOut();
-  SuRFCompactionMovingRDInfo* surf__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
-  SuRFCompactionMovingRDInfo* surf_level_file_split__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
+  // yucheng Added Start
+  if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
 
-  // Push RDF data down to `output_level`
-  std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>();
-  for (size_t lvl = 0; lvl < compaction->num_input_levels(); lvl++)
-  {
-    int current_level = compaction->level(lvl);
-#ifdef DEBUG_SURF_COMPACTION 
-std::cout << "current_level = " << current_level << " compaction->output_level() = " << compaction->output_level() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
-#endif
-    if(current_level == compaction->output_level()){
-#ifdef DEBUG_SURF_COMPACTION 
-std::cerr << "(Want to know) (if exist --> go revise compaction update rdf) exist brach (@compaction): input level == output level (" << current_level << ")" << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-#endif
-      std::vector<uint64_t> flie_numbers;
-      for (auto file_meta : *(compaction->inputs(lvl))){
-        file_in_out_ptr->fd_in.push_back(file_meta->fd.GetNumber());
-        flie_numbers.push_back(file_meta->fd.GetNumber());
-      }
+    FileInOut* file_in_out_ptr = new FileInOut();
+    SuRFCompactionMovingRDInfo* surf__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
+    SuRFCompactionMovingRDInfo* surf_level_file_split__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
 
-      //SuRF
-      SuRFCompactionSourceLevelInfo src_level_info = SuRFCompactionSourceLevelInfo();
-      src_level_info.src_level = current_level;
-      src_level_info.src_fd_list = flie_numbers;
-      surf__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
-      surf_level_file_split__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
-    }
-
-    if (current_level != compaction->output_level()){
-
-if(current_level ==  compaction->output_level()){
-  std::cerr << "Error: input level == output level (" << current_level << ")" << std::endl;
-}
-if( (current_level+1) !=  compaction->output_level()){
-  std::cerr << "Error: (input level + 1) != output level" << std::endl;
-}
-
-      // FIXME: FOR TESTING (remove the loop as well) 
-
-      std::vector<pll> smallest_largest_boundries{};
-      std::vector<pss> smallest_largest_boundries_str{};
-      std::vector<uint64_t> flie_numbers;
-      for (auto file_meta : *(compaction->inputs(lvl)))
-      {
-        auto RDs_seq_vec = compaction->column_family_data()
-            ->get_RDs_by_fd((u_int64_t)file_meta->fd.GetNumber());
-        long long max_end_key = 0;
-        std::string max_end_key_str = "";
-        for(auto RD_seq : RDs_seq_vec){
-          auto end_key = std::get<1>(RD_seq);
-          max_end_key = max(max_end_key, end_key);
-          max_end_key_str = max(max_end_key_str, std::to_string(end_key));
-          assert(max_end_key_str == std::to_string(max_end_key));
+    // Push RDF data down to `output_level`
+    std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>();
+    for (size_t lvl = 0; lvl < compaction->num_input_levels(); lvl++)
+    {
+      int current_level = compaction->level(lvl);
+  #ifdef DEBUG_SURF_COMPACTION 
+  std::cout << "current_level = " << current_level << " compaction->output_level() = " << compaction->output_level() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+  #endif
+      if(current_level == compaction->output_level()){
+  #ifdef DEBUG_SURF_COMPACTION 
+  std::cerr << "(Want to know) (if exist --> go revise compaction update rdf) exist brach (@compaction): input level == output level (" << current_level << ")" << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+  #endif
+        std::vector<uint64_t> flie_numbers;
+        for (auto file_meta : *(compaction->inputs(lvl))){
+          file_in_out_ptr->fd_in.push_back(file_meta->fd.GetNumber());
+          flie_numbers.push_back(file_meta->fd.GetNumber());
         }
 
-        if(max_end_key != std::stoll(file_meta->largest.user_key().ToString())){
-          smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), max_end_key));
-        }else{
-          smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+        //SuRF
+        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
+        || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+          SuRFCompactionSourceLevelInfo src_level_info = SuRFCompactionSourceLevelInfo();
+          src_level_info.src_level = current_level;
+          src_level_info.src_fd_list = flie_numbers;
+          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+            surf__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
+          }
+          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+            surf_level_file_split__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
+          }
         }
-        flie_numbers.push_back(file_meta->fd.GetNumber());
-
-        file_in_out_ptr->fd_in.push_back(file_meta->fd.GetNumber());
       }
 
-      file_meta_data_vectors->push_back(std::make_tuple(current_level, compaction->output_level(), smallest_largest_boundries, flie_numbers));
-      
-      SuRFCompactionSourceLevelInfo src_level_info = SuRFCompactionSourceLevelInfo();
-      src_level_info.src_level = current_level;
-      src_level_info.src_fd_list = flie_numbers;
-      surf__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
-      surf_level_file_split__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
+      if (current_level != compaction->output_level()){
 
+  if(current_level ==  compaction->output_level()){
+    std::cerr << "Error: input level == output level (" << current_level << ")" << std::endl;
+  }
+  if( (current_level+1) !=  compaction->output_level()){
+    std::cerr << "Error: (input level + 1) != output level" << std::endl;
+  }
+
+        // FIXME: FOR TESTING (remove the loop as well) 
+
+        std::vector<pll> smallest_largest_boundries{};
+        std::vector<pss> smallest_largest_boundries_str{};
+        std::vector<uint64_t> flie_numbers;
+        for (auto file_meta : *(compaction->inputs(lvl)))
+        {
+          auto RDs_seq_vec = compaction->column_family_data()
+              ->get_RDs_by_fd((u_int64_t)file_meta->fd.GetNumber());
+          long long max_end_key = 0;
+          std::string max_end_key_str = "";
+          for(auto RD_seq : RDs_seq_vec){
+            auto end_key = std::get<1>(RD_seq);
+            max_end_key = max(max_end_key, end_key);
+            max_end_key_str = max(max_end_key_str, std::to_string(end_key));
+            assert(max_end_key_str == std::to_string(max_end_key));
+          }
+
+          if(max_end_key != std::stoll(file_meta->largest.user_key().ToString())){
+            smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), max_end_key));
+          }else{
+            smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+          }
+          flie_numbers.push_back(file_meta->fd.GetNumber());
+
+          file_in_out_ptr->fd_in.push_back(file_meta->fd.GetNumber());
+        }
+
+        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+          file_meta_data_vectors->push_back(std::make_tuple(current_level, compaction->output_level(), smallest_largest_boundries, flie_numbers));
+        }
+
+        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
+        || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+          SuRFCompactionSourceLevelInfo src_level_info = SuRFCompactionSourceLevelInfo();
+          src_level_info.src_level = current_level;
+          src_level_info.src_fd_list = flie_numbers;
+          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+            surf__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
+          }
+          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+            surf_level_file_split__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
+          }
+        }
+      }
+    }
+
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
+      compaction->column_family_data()->set_compaction_moving_RD_vector(*file_meta_data_vectors);
+    }
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+      compaction->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
+    }
+    // yucheng Added End
+
+
+
+
+
+    // yucheng Added Start
+    //Output part
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
+    || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+      for (const auto& sub_compact : compact_->sub_compact_states) {
+        std::vector<FileMetaData> compaction_output_file_meta_data = sub_compact.getCompactionOutputFileMetaData();
+        std::vector<FileMetaData> penultimate_level_output_file_meta_data = sub_compact.getPenultimateLevelOutputFileMetaData();
+
+        for(const auto &fmeta: compaction_output_file_meta_data) {
+          file_in_out_ptr->file_out.push_back(std::make_tuple(fmeta.fd.GetNumber(), std::stoll(fmeta.smallest.user_key().ToString()), std::stoll(fmeta.largest.user_key().ToString())));
+          SuRFCompactionDstinationLevelInfo dst_level_info;
+          dst_level_info.fd = fmeta.fd.GetNumber();
+          dst_level_info.file_boundary = std::make_pair(fmeta.smallest.user_key().ToString(), fmeta.largest.user_key().ToString());
+          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+            surf__compaction_moving_RD_vector->dst_level_info_list.push_back(dst_level_info);
+          }
+          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+            surf_level_file_split__compaction_moving_RD_vector->dst_level_info_list.push_back(dst_level_info);
+          }
+        }
+        for(const auto &fmeta: penultimate_level_output_file_meta_data) {
+          file_in_out_ptr->file_out.push_back(std::make_tuple(fmeta.fd.GetNumber(), std::stoll(fmeta.smallest.user_key().ToString()), std::stoll(fmeta.largest.user_key().ToString())));
+          SuRFCompactionDstinationLevelInfo dst_level_info;
+          dst_level_info.fd = fmeta.fd.GetNumber();
+          dst_level_info.file_boundary = std::make_pair(fmeta.smallest.user_key().ToString(), fmeta.largest.user_key().ToString());
+          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+            surf__compaction_moving_RD_vector->dst_level_info_list.push_back(dst_level_info);
+          }
+          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+            surf_level_file_split__compaction_moving_RD_vector->dst_level_info_list.push_back(dst_level_info);
+          }
+        }
+      }
+    }
+
+    if(compaction->column_family_data()->get_file_in_out_ptr() != nullptr) {
+      std::cout << "compaction->column_family_data()->get_file_in_out_ptr() != nullptr " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      exit(1);
+    }
+    compaction->column_family_data()->set_file_in_out_ptr(file_in_out_ptr);
+    
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
+    || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+      if(compaction->column_family_data()->get_surf__file_in_out_ptr() != nullptr) {
+        std::cout << "compaction->column_family_data()->get_surf_file_int_out_ptr() != nullptr " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        exit(1);
+      }
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+        surf__compaction_moving_RD_vector->dst_level = compaction->output_level();
+        surf__compaction_moving_RD_vector->check_filled();
+        compaction->column_family_data()->set_surf__compaction_moving_RD_vector(surf__compaction_moving_RD_vector);
+      }
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+        surf_level_file_split__compaction_moving_RD_vector->dst_level = compaction->output_level();
+        surf_level_file_split__compaction_moving_RD_vector->check_filled();
+        compaction->column_family_data()->set_surf_level_file_split__compaction_moving_RD_vector(surf_level_file_split__compaction_moving_RD_vector);
+      }
     }
   }
-  compaction->column_family_data()->set_compaction_moving_RD_vector(*file_meta_data_vectors);
-  compaction->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
-  // Self Added End
-
-
-
-
-
-  //Self Added Start
-  //Output part
-  for (const auto& sub_compact : compact_->sub_compact_states) {
-    std::vector<FileMetaData> compaction_output_file_meta_data = sub_compact.getCompactionOutputFileMetaData();
-    std::vector<FileMetaData> penultimate_level_output_file_meta_data = sub_compact.getPenultimateLevelOutputFileMetaData();
-
-
-    for(const auto &fmeta: compaction_output_file_meta_data) {
-      file_in_out_ptr->file_out.push_back(std::make_tuple(fmeta.fd.GetNumber(), std::stoll(fmeta.smallest.user_key().ToString()), std::stoll(fmeta.largest.user_key().ToString())));
-      SuRFCompactionDstinationLevelInfo dst_level_info;
-      dst_level_info.fd = fmeta.fd.GetNumber();
-      dst_level_info.file_boundary = std::make_pair(fmeta.smallest.user_key().ToString(), fmeta.largest.user_key().ToString());
-      surf__compaction_moving_RD_vector->dst_level_info_list.push_back(dst_level_info);
-      surf_level_file_split__compaction_moving_RD_vector->dst_level_info_list.push_back(dst_level_info);
-    }
-    for(const auto &fmeta: penultimate_level_output_file_meta_data) {
-      file_in_out_ptr->file_out.push_back(std::make_tuple(fmeta.fd.GetNumber(), std::stoll(fmeta.smallest.user_key().ToString()), std::stoll(fmeta.largest.user_key().ToString())));
-      SuRFCompactionDstinationLevelInfo dst_level_info;
-      dst_level_info.fd = fmeta.fd.GetNumber();
-      dst_level_info.file_boundary = std::make_pair(fmeta.smallest.user_key().ToString(), fmeta.largest.user_key().ToString());
-      surf__compaction_moving_RD_vector->dst_level_info_list.push_back(dst_level_info);
-      surf_level_file_split__compaction_moving_RD_vector->dst_level_info_list.push_back(dst_level_info);
-    }
-  }
-
-  if(compaction->column_family_data()->get_file_in_out_ptr() != nullptr) {
-    std::cout << "compaction->column_family_data()->get_file_in_out_ptr() != nullptr " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    exit(1);
-  }
-  compaction->column_family_data()->set_file_in_out_ptr(file_in_out_ptr);
-  if(compaction->column_family_data()->get_surf__file_in_out_ptr() != nullptr) {
-    std::cout << "compaction->column_family_data()->get_surf_file_int_out_ptr() != nullptr " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    exit(1);
-  }
-  surf__compaction_moving_RD_vector->dst_level = compaction->output_level();
-  surf__compaction_moving_RD_vector->check_filled();
-  compaction->column_family_data()->set_surf__compaction_moving_RD_vector(surf__compaction_moving_RD_vector);
-
-  surf_level_file_split__compaction_moving_RD_vector->dst_level = compaction->output_level();
-  surf_level_file_split__compaction_moving_RD_vector->check_filled();
-  compaction->column_family_data()->set_surf_level_file_split__compaction_moving_RD_vector(surf_level_file_split__compaction_moving_RD_vector);
-  //Self Added End
+  // yucheng Added End
 
   return versions_->LogAndApply(compaction->column_family_data(),
                                 mutable_cf_options, read_options, edit,

@@ -249,7 +249,7 @@ class SuRF_RDF {
 
         SuRF_RDF(RDF_MODE rdf_mode_in); 
 
-        SuRF_RDF(SuRF_RDF &surf_rdf_in);
+        SuRF_RDF(const SuRF_RDF &surf_rdf_in);
         SuRF_RDF(const VMP &level_file_surf_rdf_in,
                 const std::vector<int> &numbers_of_ranges_in_RDF_log_in, const std::vector<int> &memory_usage_in_RDF_log_in,
                 const RDF_MODE rdf_mode_in = PER_FILE);

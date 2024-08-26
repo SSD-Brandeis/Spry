@@ -876,56 +876,67 @@ Status FlushJob::WriteLevel0Table() {
       memtables.push_back(m->NewIterator(ro, &arena));
 
 //Self Added Start
-std::pair<u_int64_t, std::vector<t3ll>>* fd_RD_in_ptr = new std::pair<u_int64_t, std::vector<t3ll>>;
-std::vector<t3ll> RD_seq;
+if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+  std::pair<u_int64_t, std::vector<t3ll>>* fd_RD_in_ptr = new std::pair<u_int64_t, std::vector<t3ll>>;
+  std::vector<t3ll> RD_seq;
 
-std::vector<pll> range_delete_list_in;
-std::vector<pss> range_delete_list_in_str;
-auto* range_del_iter2 = m->NewRangeTombstoneIterator(
-          ro, kMaxSequenceNumber, true /* immutable_memtable */);
-if (range_del_iter2 != nullptr) {
-  for (range_del_iter2->SeekToFirst(); range_del_iter2->Valid(); range_del_iter2->Next()) {
-    auto tombstone = range_del_iter2->Tombstone();
-    RD_seq.push_back(std::make_tuple(std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()), tombstone.seq_));
-    range_delete_list_in.push_back(std::make_pair( std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) ));
-    range_delete_list_in_str.push_back(std::make_pair(tombstone.start_key_.ToString(), tombstone.end_key_.ToString() ));
+  std::vector<pll> range_delete_list_in;
+  std::vector<pss> range_delete_list_in_str;
+  auto* range_del_iter2 = m->NewRangeTombstoneIterator(
+            ro, kMaxSequenceNumber, true /* immutable_memtable */);
+  if (range_del_iter2 != nullptr) {
+    for (range_del_iter2->SeekToFirst(); range_del_iter2->Valid(); range_del_iter2->Next()) {
+      auto tombstone = range_del_iter2->Tombstone();
+      RD_seq.push_back(std::make_tuple(std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()), tombstone.seq_));
+      range_delete_list_in.push_back(std::make_pair( std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) ));
+      range_delete_list_in_str.push_back(std::make_pair(tombstone.start_key_.ToString(), tombstone.end_key_.ToString() ));
+    }
   }
+
+  fd_RD_in_ptr->first = meta_.fd.GetNumber();
+  fd_RD_in_ptr->second = RD_seq;
+  if(cfd_->get_fd_RD_in_ptr() != nullptr){
+    std::cerr << " flush job fd_RD_in_ptr is not nullptr " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    exit(1);
+  }
+  cfd_->set_fd_RD_in_ptr(fd_RD_in_ptr);
+
+  vector<uint64_t> exist_level0_file_nums = cfd_->current()->getLevelFileNumbers(0);
+  // // Do insertion, even if the vector is empty, because we need to set condition_variable of mutex (semaphore) for compaction
+  auto level0_RD_vector = std::make_tuple(meta_.fd.GetNumber(), range_delete_list_in, exist_level0_file_nums);
+  
+  if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
+    cfd_->set_flush_to_level0_RD_vector(level0_RD_vector);
+  }
+  if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+    cfd_->set_split__flush_to_level0_RD_vector(level0_RD_vector);
+  }
+
+  if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+    SuRFFlushToLevel0Info *surf_level0_RD_vector = new SuRFFlushToLevel0Info;
+    surf_level0_RD_vector->dst_fd = meta_.fd.GetNumber();
+    surf_level0_RD_vector->rd_list = range_delete_list_in_str; 
+    surf_level0_RD_vector->check_filled();
+    cfd_->set_surf__flush_to_level0_RD_vector(surf_level0_RD_vector);
+  }
+
+
+  if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+    SuRFFlushToLevel0Info *surf_level_file_split__level0_RD_vector = new SuRFFlushToLevel0Info;
+    surf_level_file_split__level0_RD_vector->dst_fd = meta_.fd.GetNumber();
+    surf_level_file_split__level0_RD_vector->rd_list = range_delete_list_in_str; 
+    surf_level_file_split__level0_RD_vector->check_filled();
+    cfd_->set_surf_level_file_split__flush_to_level0_RD_vector(surf_level_file_split__level0_RD_vector);
+  }
+
+
+  if(cfd_->get_flush_in_file_num() >= meta_.fd.GetNumber()){
+    std::cerr << "flush in file num is not in increasing order" << std::endl
+              << " flush in file num = " << cfd_->get_flush_in_file_num()
+              << " meta_.fd.GetNumber() = " << meta_.fd.GetNumber() << std::endl;
+  }
+  cfd_->set_flush_in_file_num(meta_.fd.GetNumber());
 }
-
-fd_RD_in_ptr->first = meta_.fd.GetNumber();
-fd_RD_in_ptr->second = RD_seq;
-if(cfd_->get_fd_RD_in_ptr() != nullptr){
-  std::cerr << " flush job fd_RD_in_ptr is not nullptr " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  exit(1);
-}
-cfd_->set_fd_RD_in_ptr(fd_RD_in_ptr);
-
-vector<uint64_t> exist_level0_file_nums = cfd_->current()->getLevelFileNumbers(0);
-// // Do insertion, even if the vector is empty, because we need to set condition_variable of mutex (semaphore) for compaction
-auto level0_RD_vector = std::make_tuple(meta_.fd.GetNumber(), range_delete_list_in, exist_level0_file_nums);
-cfd_->set_flush_to_level0_RD_vector(level0_RD_vector);
-cfd_->set_split__flush_to_level0_RD_vector(level0_RD_vector);
-
-SuRFFlushToLevel0Info *surf_level0_RD_vector = new SuRFFlushToLevel0Info;
-surf_level0_RD_vector->dst_fd = meta_.fd.GetNumber();
-surf_level0_RD_vector->rd_list = range_delete_list_in_str; 
-surf_level0_RD_vector->check_filled();
-cfd_->set_surf__flush_to_level0_RD_vector(surf_level0_RD_vector);
-
-
-SuRFFlushToLevel0Info *surf_level_file_split__level0_RD_vector = new SuRFFlushToLevel0Info;
-surf_level_file_split__level0_RD_vector->dst_fd = meta_.fd.GetNumber();
-surf_level_file_split__level0_RD_vector->rd_list = range_delete_list_in_str; 
-surf_level_file_split__level0_RD_vector->check_filled();
-cfd_->set_surf_level_file_split__flush_to_level0_RD_vector(surf_level_file_split__level0_RD_vector);
-
-
-if(cfd_->get_flush_in_file_num() >= meta_.fd.GetNumber()){
-  std::cerr << "flush in file num is not in increasing order" << std::endl
-            << " flush in file num = " << cfd_->get_flush_in_file_num()
-            << " meta_.fd.GetNumber() = " << meta_.fd.GetNumber() << std::endl;
-}
-cfd_->set_flush_in_file_num(meta_.fd.GetNumber());
 //Self Added End
 
 

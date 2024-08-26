@@ -302,25 +302,27 @@ Status DBImpl::FlushMemTableToOutputFile(
   }
 
   if (s.ok()) {
-if(cfd->current()->get_flush_install_count() > 0){
-      std::cerr << "flush write to version (current_) happens more than once. times = " 
-            << cfd->current()->get_flush_install_count() << __FILE__ << ":" << __LINE__ << std::endl
-            << "flush = " << cfd->current()->get_flush_install_count() << std::endl
-            << "compact = " << cfd->current()->get_compaction_install_count() << std::endl
-            << "installSuperversion = " << cfd->current()->get_installSuperversion_count() << std::endl;
-}
-cfd->current()->inc_flush_install_count();
-cfd->inc_flush_install_count();
-cfd->inc_split__flush_install_count();
+    //yucheng Added Start
+    if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+      if(cfd->current()->get_flush_install_count() > 0){
+            std::cerr << "flush write to version (current_) happens more than once. times = " 
+                  << cfd->current()->get_flush_install_count() << __FILE__ << ":" << __LINE__ << std::endl
+                  << "flush = " << cfd->current()->get_flush_install_count() << std::endl
+                  << "compact = " << cfd->current()->get_compaction_install_count() << std::endl
+                  << "installSuperversion = " << cfd->current()->get_installSuperversion_count() << std::endl;
+      }
+      cfd->current()->inc_flush_install_count();
+      cfd->inc_flush_install_count();
+      cfd->inc_split__flush_install_count();
 
-//shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
-bool split_flag = false;
-cfd->updateRDF2NewVersion(1, split_flag); // 1 for flush, 2 for compaction
+      //shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
+      bool split_flag = false;
+      cfd->updateRDF2NewVersion(1, split_flag); // 1 for flush, 2 for compaction 
+    }
+    //yucheng Added End
 
     InstallSuperVersionAndScheduleWork(cfd, superversion_context,
-                                       mutable_cf_options);
-
-// //Self Added
+                                      mutable_cf_options);
 
 
     if (made_progress) {
@@ -3492,48 +3494,62 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
       c->edit()->DeleteFile(c->level(), f->fd.GetNumber());
     }
 
-    //Self Added
-    std::vector<pll> smallest_largest_boundries{};
-    std::vector<pss> smallest_largest_boundries__str_key{};
-    std::vector<uint64_t> file_numbers;
-    for (auto file_meta : *(c->inputs(0)))
-    {
-    // FIXME: ONLY FOR TESTING USE 
-      // std::cout << "Pushing file from Current Level: " << c->level(0) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(0) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl << std::flush;
-      // std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl << std::flush;
-      smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
-      smallest_largest_boundries__str_key.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), file_meta->largest.user_key().ToString()));
-      file_numbers.push_back(file_meta->fd.GetNumber());
+    //yucheng Added Start
+    if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+      std::vector<pll> smallest_largest_boundries{};
+      std::vector<pss> smallest_largest_boundries__str_key{};
+      std::vector<uint64_t> file_numbers;
+      for (auto file_meta : *(c->inputs(0)))
+      {
+      // FIXME: ONLY FOR TESTING USE 
+        // std::cout << "Pushing file from Current Level: " << c->level(0) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(0) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl << std::flush;
+        // std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl << std::flush;
+        smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+        smallest_largest_boundries__str_key.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), file_meta->largest.user_key().ToString()));
+        file_numbers.push_back(file_meta->fd.GetNumber());
+      }
+
+      std::tuple<int, std::vector<pll>, std::vector<uint64_t>> file_meta_data_vectors = std::make_tuple(c->level(), smallest_largest_boundries, file_numbers);
+      // std::tuple<int, std::vector<pss>, std::vector<uint64_t、>> *surf__file_meta_data_vectors = new std::tuple<int, std::vector<pss>, std::vector<uint64_t>>(); 
+      // surf__file_meta_data_vectors->push_back(std::make_tuple(c->level(), smallest_largest_boundries__str_key, file_numbers));
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+        SuRFCompactionDirectRemovalInfo *surf__file_meta_data_vectors = new SuRFCompactionDirectRemovalInfo();
+        surf__file_meta_data_vectors->src_level = c->level();
+        surf__file_meta_data_vectors->src_fd_list = file_numbers;
+      }
+      
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+          SuRFCompactionDirectRemovalInfo *surf_level_file_split__file_meta_data_vectors = new SuRFCompactionDirectRemovalInfo();
+          surf_level_file_split__file_meta_data_vectors->src_level = c->level();
+          surf_level_file_split__file_meta_data_vectors->src_fd_list = file_numbers;
+      }
+      // std::cout << "[Compaction]: Calling Direct Delete Compaction .. " << std::endl;
+
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
+        c->column_family_data()->set_compaction_direct_delete_RD_vector(file_meta_data_vectors);
+      }
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+        c->column_family_data()->set_split__compaction_direct_delete_RD_vector(file_meta_data_vectors);
+      }
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+        c->column_family_data()->set_surf__compaction_direct_delete_RD_vector(surf__file_meta_data_vectors);
+      }
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+        c->column_family_data()->set_surf_level_file_split__compaction_direct_delete_RD_vector(surf_level_file_split__file_meta_data_vectors);
+      }
+
+      if(c->column_family_data()->current()->get_compaction_install_count() > 0){
+        std::cout << "compaction write to version (current_) happens more than once. times = " 
+                  << c->column_family_data()->current()->get_compaction_install_count() << __FILE__ << ":" << __LINE__ << std::endl;
+        std::cout << "flush = " << c->column_family_data()->current()->get_flush_install_count() << std::endl;
+        std::cout << "compact = " << c->column_family_data()->current()->get_compaction_install_count() << std::endl;
+        std::cout << "installSuperversion = " << c->column_family_data()->current()->get_installSuperversion_count() << std::endl;
+      }
+      c->column_family_data()->current()->inc_compaction_install_count();
+      c->column_family_data()->inc_compaction_install_count();
+      c->column_family_data()->inc_split__compaction_install_count();
     }
-
-    std::tuple<int, std::vector<pll>, std::vector<uint64_t>> file_meta_data_vectors = std::make_tuple(c->level(), smallest_largest_boundries, file_numbers);
-    // std::tuple<int, std::vector<pss>, std::vector<uint64_t、>> *surf__file_meta_data_vectors = new std::tuple<int, std::vector<pss>, std::vector<uint64_t>>(); 
-    // surf__file_meta_data_vectors->push_back(std::make_tuple(c->level(), smallest_largest_boundries__str_key, file_numbers));
-    SuRFCompactionDirectRemovalInfo *surf__file_meta_data_vectors = new SuRFCompactionDirectRemovalInfo();
-    surf__file_meta_data_vectors->src_level = c->level();
-    surf__file_meta_data_vectors->src_fd_list = file_numbers;
-    
-    SuRFCompactionDirectRemovalInfo *surf_level_file_split__file_meta_data_vectors = new SuRFCompactionDirectRemovalInfo();
-    surf_level_file_split__file_meta_data_vectors->src_level = c->level();
-    surf_level_file_split__file_meta_data_vectors->src_fd_list = file_numbers;
-    // std::cout << "[Compaction]: Calling Direct Delete Compaction .. " << std::endl;
-
-    c->column_family_data()->set_compaction_direct_delete_RD_vector(file_meta_data_vectors);
-    c->column_family_data()->set_split__compaction_direct_delete_RD_vector(file_meta_data_vectors);
-    c->column_family_data()->set_surf__compaction_direct_delete_RD_vector(surf__file_meta_data_vectors);
-    c->column_family_data()->set_surf_level_file_split__compaction_direct_delete_RD_vector(surf_level_file_split__file_meta_data_vectors);
-
-    //Self Added
-    if(c->column_family_data()->current()->get_compaction_install_count() > 0){
-      std::cout << "compaction write to version (current_) happens more than once. times = " 
-                << c->column_family_data()->current()->get_compaction_install_count() << __FILE__ << ":" << __LINE__ << std::endl;
-      std::cout << "flush = " << c->column_family_data()->current()->get_flush_install_count() << std::endl;
-      std::cout << "compact = " << c->column_family_data()->current()->get_compaction_install_count() << std::endl;
-      std::cout << "installSuperversion = " << c->column_family_data()->current()->get_installSuperversion_count() << std::endl;
-    }
-    c->column_family_data()->current()->inc_compaction_install_count();
-    c->column_family_data()->inc_compaction_install_count();
-    c->column_family_data()->inc_split__compaction_install_count();
+    //yucheng Added End
 
 
 
@@ -3544,15 +3560,17 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
         c->edit(), &mutex_, directories_.GetDbDir());
     io_s = versions_->io_status();
 
-std::cout << "@@ BackgroundCompaction A @InstallSuperVersionAndScheduleWork " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//Self Added
-//shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
-bool split_flag = false;
-c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 for compaction, 3 for compaction direcly deleted flie
+    // std::cout << "@@ BackgroundCompaction A @InstallSuperVersionAndScheduleWork " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    //yucheng Added Start
+    //shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
+    if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+      bool split_flag = false;
+      c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 for compaction, 3 for compaction direcly deleted flie
+    }
+    //yucheng Added End
     InstallSuperVersionAndScheduleWork(c->column_family_data(),
                                        &job_context->superversion_contexts[0],
                                        *c->mutable_cf_options());
-//Self Added
 
     ROCKS_LOG_BUFFER(log_buffer, "[%s] Deleted %d files\n",
                      c->column_family_data()->GetName().c_str(),
@@ -3577,49 +3595,64 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
     int32_t moved_files = 0;
     int64_t moved_bytes = 0;
 
-    //Self Added Start
+    //yucheng Added Start
     std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>();
     SuRFCompactionMovingRDInfo *surf__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
     SuRFCompactionMovingRDInfo *surf_level_file_split__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
     std::tuple<int, std::vector<pll>, std::vector<uint64_t>> delete_RD_vector; 
-    //Self Added End
+    //yucheng Added End
     for (unsigned int l = 0; l < c->num_input_levels(); l++) {
       if (c->level(l) == c->output_level()) {
         continue;
       }
 
 
-      //Self Added Start
-      {
-        std::vector<pll> smallest_largest_boundries{};
-        std::vector<pss> smallest_largest_boundries__str_key{};
-        std::vector<uint64_t> file_numbers;
-        for (auto file_meta : *(c->inputs(l)))
-        {
-          // FIXME: ONLY FOR TESTING USE 
-          // std::cout << "Pushing file from Current Level: " << c->level(l) << " output Level: " << c->output_level() 
-          //           << " with CompactionInputFiles: " << c->inputs(l) << std::endl << std::flush;
-          // std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() 
-          //           << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;
-          smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), 
-                                                              std::stoll(file_meta->largest.user_key().ToString())));
-          smallest_largest_boundries__str_key.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), 
-                                                                       file_meta->largest.user_key().ToString()));
-          file_numbers.push_back(file_meta->fd.GetNumber());
+      //yucheng Added Start
+      if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+          std::vector<pll> smallest_largest_boundries{};
+          std::vector<pss> smallest_largest_boundries__str_key{};
+          std::vector<uint64_t> file_numbers;
+          for (auto file_meta : *(c->inputs(l)))
+          {
+            // FIXME: ONLY FOR TESTING USE 
+            // std::cout << "Pushing file from Current Level: " << c->level(l) << " output Level: " << c->output_level() 
+            //           << " with CompactionInputFiles: " << c->inputs(l) << std::endl << std::flush;
+            // std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() 
+            //           << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;
+            smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), 
+                                                                std::stoll(file_meta->largest.user_key().ToString())));
+            smallest_largest_boundries__str_key.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), 
+                                                                        file_meta->largest.user_key().ToString()));
+            file_numbers.push_back(file_meta->fd.GetNumber());
+          }    
+          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
+            || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+            file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries, file_numbers));
+          }
+          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+            if(c->level(l) == 0){ // coming from level 0
+              delete_RD_vector = std::make_tuple(1, smallest_largest_boundries, file_numbers);
+            }
+          }
         }
-        file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries, file_numbers));
-
-        SuRFCompactionSourceLevelInfo src_level_info = SuRFCompactionSourceLevelInfo();
-        src_level_info.src_level = c->level(l);
-        src_level_info.src_fd_list = file_numbers;
-        surf__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
-        surf_level_file_split__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
         
-        if(c->level(l) == 0){ // coming from level 0
-          delete_RD_vector = std::make_tuple(1, smallest_largest_boundries, file_numbers);
+        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+          SuRFCompactionSourceLevelInfo src_level_info = SuRFCompactionSourceLevelInfo();
+          src_level_info.src_level = c->level(l);
+          src_level_info.src_fd_list = file_numbers;
+          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+            surf__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
+          }
+          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+            surf_level_file_split__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
+          }
         }
       }
-      // Self Added End
+      //yucheng Added End
 
       for (size_t i = 0; i < c->num_input_files(l); i++) {
         FileMetaData* f = c->input(l, i);
@@ -3653,32 +3686,48 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
       }
     }
 
-    //Self Added Start
-    // std::cout << "[Compaction]: Calling Shift RDF To Output Level for Trivial Compaction .. " << std::endl;
-    surf__compaction_moving_RD_vector->dst_level = c->output_level();
-    surf__compaction_moving_RD_vector->flag_direct_move_to_dst_level = true;
-    
-    surf_level_file_split__compaction_moving_RD_vector->dst_level = c->output_level();
-    surf_level_file_split__compaction_moving_RD_vector->flag_direct_move_to_dst_level = true;
+    //yucheng Added Start
+    if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+      // std::cout << "[Compaction]: Calling Shift RDF To Output Level for Trivial Compaction .. " << std::endl;
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+        surf__compaction_moving_RD_vector->dst_level = c->output_level();
+        surf__compaction_moving_RD_vector->flag_direct_move_to_dst_level = true;
+      }
+      
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+        surf_level_file_split__compaction_moving_RD_vector->dst_level = c->output_level();
+        surf_level_file_split__compaction_moving_RD_vector->flag_direct_move_to_dst_level = true;
+      }
 
-    c->column_family_data()->set_compaction_moving_RD_vector(*file_meta_data_vectors);
-    c->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
-    c->column_family_data()->set_top_level__trivial_move__delete_RD_vector(delete_RD_vector); 
-    c->column_family_data()->set_surf__compaction_moving_RD_vector(surf__compaction_moving_RD_vector);
-    c->column_family_data()->set_surf_level_file_split__compaction_moving_RD_vector(surf_level_file_split__compaction_moving_RD_vector);
-    //Self Added End
-    //Self Added Start
-    if(c->column_family_data()->current()->get_compaction_install_count() > 0){
-      std::cout << "compaction write to version (current_) happens more than once. times = " 
-                << c->column_family_data()->current()->get_compaction_install_count() << __FILE__ << ":" << __LINE__ << std::endl;
-      std::cout << "flush = " << c->column_family_data()->current()->get_flush_install_count() << std::endl;
-      std::cout << "compact = " << c->column_family_data()->current()->get_compaction_install_count() << std::endl;
-      std::cout << "installSuperversion = " << c->column_family_data()->current()->get_installSuperversion_count() << std::endl;
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
+        c->column_family_data()->set_compaction_moving_RD_vector(*file_meta_data_vectors);
+      }
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+        c->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
+      }
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+        c->column_family_data()->set_top_level__trivial_move__delete_RD_vector(delete_RD_vector); 
+      }
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+        c->column_family_data()->set_surf__compaction_moving_RD_vector(surf__compaction_moving_RD_vector);
+      }
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+        c->column_family_data()->set_surf_level_file_split__compaction_moving_RD_vector(surf_level_file_split__compaction_moving_RD_vector);
+      }
+      //yucheng Added End
+      //yucheng Added Start
+      if(c->column_family_data()->current()->get_compaction_install_count() > 0){
+        std::cout << "compaction write to version (current_) happens more than once. times = " 
+                  << c->column_family_data()->current()->get_compaction_install_count() << __FILE__ << ":" << __LINE__ << std::endl;
+        std::cout << "flush = " << c->column_family_data()->current()->get_flush_install_count() << std::endl;
+        std::cout << "compact = " << c->column_family_data()->current()->get_compaction_install_count() << std::endl;
+        std::cout << "installSuperversion = " << c->column_family_data()->current()->get_installSuperversion_count() << std::endl;
+      }
+      c->column_family_data()->current()->inc_compaction_install_count();
+      c->column_family_data()->inc_compaction_install_count();
+      c->column_family_data()->inc_split__compaction_install_count();
     }
-    c->column_family_data()->current()->inc_compaction_install_count();
-    c->column_family_data()->inc_compaction_install_count();
-    c->column_family_data()->inc_split__compaction_install_count();
-    //Self Added End
+    //yucheng Added End
 
 
 
@@ -3688,11 +3737,13 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
     io_s = versions_->io_status();
     // Use latest MutableCFOptions
   
-//Self Added Start
-//shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
-bool split_flag = false;
-c->column_family_data()->updateRDF2NewVersion(2, split_flag); // 1 for flush, 2 for compaction, 3 for compaction direcly deleted flie
-//Self Added End
+    //yucheng Added Start
+    //shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
+    if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+      bool split_flag = false;
+      c->column_family_data()->updateRDF2NewVersion(2, split_flag); // 1 for flush, 2 for compaction, 3 for compaction direcly deleted flie
+    }
+    //yucheng Added End
     InstallSuperVersionAndScheduleWork(c->column_family_data(),
                                        &job_context->superversion_contexts[0],
                                        *c->mutable_cf_options());
@@ -3791,29 +3842,33 @@ c->column_family_data()->updateRDF2NewVersion(2, split_flag); // 1 for flush, 2 
     // mutex_.Lock();
 
     // std::cout << "[Compaction]: Performing Scheduled Compaction .. " << std::endl;
-    //Self Added Start
-    if(c->column_family_data()->current()->get_compaction_install_count() > 0){
-      std::cout << "compaction write to version (current_) happens more than once. times = " 
-                << c->column_family_data()->current()->get_compaction_install_count() << __FILE__ << ":" << __LINE__ << std::endl;
-      std::cout << "flush = " << c->column_family_data()->current()->get_flush_install_count() << std::endl;
-      std::cout << "compact = " << c->column_family_data()->current()->get_compaction_install_count() << std::endl;
-      std::cout << "installSuperversion = " << c->column_family_data()->current()->get_installSuperversion_count() << std::endl;
+    //yucheng Added Start
+    if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+      if(c->column_family_data()->current()->get_compaction_install_count() > 0){
+        std::cout << "compaction write to version (current_) happens more than once. times = " 
+                  << c->column_family_data()->current()->get_compaction_install_count() << __FILE__ << ":" << __LINE__ << std::endl;
+        std::cout << "flush = " << c->column_family_data()->current()->get_flush_install_count() << std::endl;
+        std::cout << "compact = " << c->column_family_data()->current()->get_compaction_install_count() << std::endl;
+        std::cout << "installSuperversion = " << c->column_family_data()->current()->get_installSuperversion_count() << std::endl;
+      }
+      c->column_family_data()->current()->inc_compaction_install_count();
+      c->column_family_data()->inc_compaction_install_count();
+      c->column_family_data()->inc_split__compaction_install_count();
     }
-    c->column_family_data()->current()->inc_compaction_install_count();
-    c->column_family_data()->inc_compaction_install_count();
-    c->column_family_data()->inc_split__compaction_install_count();
-    //Self Added End
+    //yucheng Added End
 
 
 
     status = compaction_job.Install(*c->mutable_cf_options());
     io_s = compaction_job.io_status();
     if (status.ok()) {
-//Self Added Start
-//shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
-bool split_flag = true;
-c->column_family_data()->updateRDF2NewVersion(2, split_flag); // 1 for flush, 2 for compaction, 3 for compaction direcly deleted flie
-//Self Added End
+      //yucheng Added Start
+      //shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
+      if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+        bool split_flag = true;
+        c->column_family_data()->updateRDF2NewVersion(2, split_flag); // 1 for flush, 2 for compaction, 3 for compaction direcly deleted flie
+      }
+      //yucheng Added End
       InstallSuperVersionAndScheduleWork(c->column_family_data(),
                                          &job_context->superversion_contexts[0],
                                          *c->mutable_cf_options());

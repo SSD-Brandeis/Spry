@@ -5,6 +5,9 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <sstream>
+#include <vector>
+#include <unordered_map>
 
 #include <unistd.h>
 #include "../workload/args.hxx"
@@ -14,6 +17,19 @@
 
 #include "rocksdb/SuRF/include/surf.hpp"
 
+
+
+std::vector<std::string> splitString(const std::string& str, char delimiter) {
+    std::vector<std::string> result;
+    std::stringstream ss(str);
+    std::string token;
+    
+    while (std::getline(ss, token, delimiter)) {
+        result.push_back(token);
+    }
+    
+    return result;
+}
 
 
 void gen_workload(EmuEnv* _env){
@@ -38,10 +54,11 @@ void gen_workload(EmuEnv* _env){
       + string(" --entry_size=") + to_string(entry_size - checking::SystemVerifier::getSystemVerifier()->getKeySize() + sizeof(uint32_t))
       + string(" --range_delete_threshold=") + to_string(insert_before_range_delete);
 
-  string move_workload_command = string(" mv workload.txt ./K-V-Workload-Generator-master/ ");
+//   string move_workload_command = string(" mv workload.txt ./K-V-Workload-Generator-master/ ");
 
-  // The command you want to execute, for example, "ls" to list files in the current directory.
-  string sed_workload_command = string("cat ./K-V-Workload-Generator-master/workload.txt | sed 's/^R/D Range/g' > ") + string("./") + workload_file_name;
+//   // The command you want to execute, for example, "ls" to list files in the current directory.
+//   string sed_workload_command = string("cat ./K-V-Workload-Generator-master/workload.txt | sed 's/^R/D Range/g' > ") + string("./") + workload_file_name;
+  string rename_workload_command = string("mv workload.txt ") + string("./") + workload_file_name;
 
   cout << "gen_workload_command: " << gen_workload_command << endl;
   // Use the system function to execute the command.
@@ -62,30 +79,44 @@ void gen_workload(EmuEnv* _env){
     }
   }
 
-  cout << "move_workload_command: " << move_workload_command << endl;
-  // Use the system function to execute the command.
-  returnCode = system(move_workload_command.c_str());
+//   cout << "move_workload_command: " << move_workload_command << endl;
+//   // Use the system function to execute the command.
+//   returnCode = system(move_workload_command.c_str());
 
-  // Check the return code to see if the command was executed successfully.
-  if (returnCode == 0) {
-      // std::cout << "Move workload command executed successfully." << std::endl;
-  } else {
-      std::cout << "Move workload command failed to execute." << std::endl;
-      std::cerr << "Move workload command failed to execute." << std::endl;
-      exit(-1);
-  }
+//   // Check the return code to see if the command was executed successfully.
+//   if (returnCode == 0) {
+//       // std::cout << "Move workload command executed successfully." << std::endl;
+//   } else {
+//       std::cout << "Move workload command failed to execute." << std::endl;
+//       std::cerr << "Move workload command failed to execute." << std::endl;
+//       exit(-1);
+//   }
 
   
-  cout << "sed_workload_command: " << sed_workload_command << endl;
+//   cout << "sed_workload_command: " << sed_workload_command << endl;
+//   // Use the system function to execute the command.
+//   returnCode = system(sed_workload_command.c_str());
+
+//   // Check the return code to see if the command was executed successfully.
+//   if (returnCode == 0) {
+//       // std::cout << "Move workload command executed successfully." << std::endl;
+//   } else {
+//       std::cout << "Sed workload command failed to execute." << std::endl;
+//       std::cerr << "Sed workload command failed to execute." << std::endl;
+//       // std::perror("system");
+//       exit(-1);
+//   }
+  
+  cout << "rename_workload_command: " << rename_workload_command << endl;
   // Use the system function to execute the command.
-  returnCode = system(sed_workload_command.c_str());
+  returnCode = system(rename_workload_command.c_str());
 
   // Check the return code to see if the command was executed successfully.
   if (returnCode == 0) {
       // std::cout << "Move workload command executed successfully." << std::endl;
   } else {
-      std::cout << "Sed workload command failed to execute." << std::endl;
-      std::cerr << "Sed workload command failed to execute." << std::endl;
+      std::cout << "Rename workload command failed to execute." << std::endl;
+      std::cerr << "Rename workload command failed to execute." << std::endl;
       // std::perror("system");
       exit(-1);
   }
@@ -123,6 +154,10 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
 
 
   //YuCheng Added Start
+  args::ValueFlag<std::string> using_rdf_types_cmd(group1, "using_rdf_types", 
+                                                  "using_rdf_types_cmd [def:NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,TOP_LEVEL_RDF,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY]", 
+                                                  {"using_rdf_types"});
+
   args::ValueFlag<double> key_size_to_insert_cmd(group1, "key_size_to_insert", "key_size_to_insert [def: 12]", {"key_size_to_insert"});
 
   args::ValueFlag<double> cor_cmd(group1, "#correlation", "Correlation between sort key and delete key [def: 0]", {"correlation"});
@@ -198,6 +233,22 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
 
 
   //YuCheng Added Start
+  std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE_CACHE_RANGETOMBSTONE_TRACING"}, {2, "NONE"}, {3, "NONE2"}, {4, "PLRDF"}, {5, "SPLIT_PLRDF"}, {6, "TOP_LEVEL_RDF"}, {7, "SKYLINE_RDF"},  {8, "SuRF_LF_RDF"},  {9, "SuRF_LF_SPLIT_RDF"}, {10, "NONE_DUMMY"}};
+
+  if(using_rdf_types_cmd){
+    std::string tmp = args::get(using_rdf_types_cmd);
+    std::vector<std::string> rdf_types = splitString(tmp, ',');
+    int counter = 0;
+    std::unordered_map<int, std::string> RDFTypes_tmp;
+    for(auto &v: rdf_types){
+      RDFTypes_tmp[counter] = v;
+      std::cout << counter << " " << v << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      counter++;
+    }
+    RDFTypes = RDFTypes_tmp;
+  }
+  _env->RDFTypes = RDFTypes;
+
   int key_size_to_insert = key_size_to_insert_cmd ? args::get(key_size_to_insert_cmd) : 12;
   system_verifier->setKeySize(key_size_to_insert);
 

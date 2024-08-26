@@ -76,7 +76,12 @@ int main(int argc, char *argv[]) {
 
   int max_background_jobs = 1;
   if(_env->gen_workload == true){
+    auto start_wg = std::chrono::high_resolution_clock::now();
     gen_workload(_env);
+    auto stop_wg = std::chrono::high_resolution_clock::now();
+    auto duration_wg = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_wg - start_wg);
+    unsigned long long workload_generation_time_ns = duration_wg.count();
+    std::cout << "workload_generation_time_ns = " << workload_generation_time_ns << std::endl;
   }
 
   std::string kDBPathBase = "/tmp/cs561_project1";

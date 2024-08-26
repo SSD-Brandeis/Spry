@@ -1357,19 +1357,21 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
           << "cfd->compact_clr = " << this->get_compaction_install_count_clr() << std::endl;
   }
 
-
-  if(this->get_split__flush_install_count_clr() >= 2 || this->get_split__compaction_install_count_clr() >= 2){
-    std::cerr << "(split RDF) numbers of flush or compaction accumulated are more than 2" << std::endl;
-    std::cerr << "@@@@ (cfd): " << std::endl  
-          << "cfd->flush_clr = " << this->get_split__flush_install_count_clr() << std::endl
-          << "cfd->compact_clr = " << this->get_split__compaction_install_count_clr() << std::endl;
+  if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+    if(this->get_split__flush_install_count_clr() >= 2 || this->get_split__compaction_install_count_clr() >= 2){
+      std::cerr << "(split RDF) numbers of flush or compaction accumulated are more than 2" << std::endl;
+      std::cerr << "@@@@ (cfd): " << std::endl  
+            << "cfd->flush_clr = " << this->get_split__flush_install_count_clr() << std::endl
+            << "cfd->compact_clr = " << this->get_split__compaction_install_count_clr() << std::endl;
+    }
   }
 
   if(opt == 1){ //flush
     //Skyline RDF
-    auto RDs = std::get<1>(*this->fd_RD_in_ptr);
-    this->addRangeToSkylineRDFPrime(RDs);
-
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SKYLINE_RDF")){
+      auto RDs = std::get<1>(*this->fd_RD_in_ptr);
+      this->addRangeToSkylineRDFPrime(RDs);
+    }
 
     //fd_RDs_map
     if(this->fd_RD_in_ptr == NULL){
@@ -1377,95 +1379,109 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
       exit(1);
     }
     auto fd = std::get<0>(*this->fd_RD_in_ptr);
-    RDs = std::get<1>(*this->fd_RD_in_ptr);
+    auto RDs = std::get<1>(*this->fd_RD_in_ptr);
     this->fd_RDs_map[fd] = RDs;
     this->reset_fd_RD_in_ptr();
 
 
 
     //PLRDF
-    auto &file_num = std::get<0>(this->flush_to_level0_RD_vector);
-    auto &range_delete_list_in = std::get<1>(this->flush_to_level0_RD_vector);
-    auto &exist_level0_file_nums = std::get<2>(this->flush_to_level0_RD_vector);
-    (this->plrdf_prime).insertRangeDeleteToLevel0(file_num, 
-                                                  range_delete_list_in, 
-                                                  exist_level0_file_nums);
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
+      auto &file_num = std::get<0>(this->flush_to_level0_RD_vector);
+      auto &range_delete_list_in = std::get<1>(this->flush_to_level0_RD_vector);
+      auto &exist_level0_file_nums = std::get<2>(this->flush_to_level0_RD_vector);
+      (this->plrdf_prime).insertRangeDeleteToLevel0(file_num, 
+                                                    range_delete_list_in, 
+                                                    exist_level0_file_nums);
 
-    
-    this->flush_to_level0_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
-
+      this->flush_to_level0_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
+    }
 
 
     //Split PLRDF
-    auto &file_num2 = std::get<0>(this->split__flush_to_level0_RD_vector);
-    auto &range_delete_list_in2 = std::get<1>(this->split__flush_to_level0_RD_vector);
-    auto &exist_level0_file_nums2 = std::get<2>(this->split__flush_to_level0_RD_vector);
-    (this->split_plrdf_prime).insertRangeDeleteToLevel0(file_num2, 
-                                                  range_delete_list_in2, 
-                                                  exist_level0_file_nums2);
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+      auto &file_num2 = std::get<0>(this->split__flush_to_level0_RD_vector);
+      auto &range_delete_list_in2 = std::get<1>(this->split__flush_to_level0_RD_vector);
+      auto &exist_level0_file_nums2 = std::get<2>(this->split__flush_to_level0_RD_vector);
+      (this->split_plrdf_prime).insertRangeDeleteToLevel0(file_num2, 
+                                                    range_delete_list_in2, 
+                                                    exist_level0_file_nums2);
+    }
 
     
     //Top Level RDF
-    (this->top_level_rdf_prime).insertRangeDeleteToLevel0(file_num2, 
-                                                  range_delete_list_in2, 
-                                                  exist_level0_file_nums2);
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+      auto &file_num2 = std::get<0>(this->split__flush_to_level0_RD_vector);
+      auto &range_delete_list_in2 = std::get<1>(this->split__flush_to_level0_RD_vector);
+      auto &exist_level0_file_nums2 = std::get<2>(this->split__flush_to_level0_RD_vector);
+      (this->top_level_rdf_prime).insertRangeDeleteToLevel0(file_num2, 
+                                                    range_delete_list_in2, 
+                                                    exist_level0_file_nums2);
+    }
 
-    //Split PLRDF
-    this->split__flush_to_level0_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
+      || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+      this->split__flush_to_level0_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
+    }
 
-
-    // //SuRF top level / level file RDF / level file Split RDF
-    surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
-    bool surf_flag__allow_range_boundary_overlapped = _surf_env->getFlagAllowRangeBoundaryOverlapped();
-    //SuRF level file RDF
-    if(surf__flush_to_level0_RD_vector != nullptr){
-      uint64_t fd_out = surf__flush_to_level0_RD_vector->dst_fd;
-      std::vector<pss> &rd_list = surf__flush_to_level0_RD_vector->rd_list;
-      
-      if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
-        for(auto &x: rd_list){
-          uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
-          x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
-          x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
-          x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
-          x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
-        }
-      }
-      
-      if(rd_list.size() != 0){
-        std::sort(rd_list.begin(), rd_list.end()); 
-        (this->surf__level_file_rdf_prime)->insertRangeDeleteToLevel0(fd_out, rd_list, surf_flag__allow_range_boundary_overlapped);
+    // //SuRF level file RDF
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+      surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
+      bool surf_flag__allow_range_boundary_overlapped = _surf_env->getFlagAllowRangeBoundaryOverlapped();
+      //SuRF level file RDF
+      if(surf__flush_to_level0_RD_vector != nullptr){
+        uint64_t fd_out = surf__flush_to_level0_RD_vector->dst_fd;
+        std::vector<pss> &rd_list = surf__flush_to_level0_RD_vector->rd_list;
         
-        delete surf__flush_to_level0_RD_vector;
+        if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+          for(auto &x: rd_list){
+            uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+            x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+            x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
+            x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+            x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+          }
+        }
+        
+        if(rd_list.size() != 0){
+          std::sort(rd_list.begin(), rd_list.end()); 
+          (this->surf__level_file_rdf_prime)->insertRangeDeleteToLevel0(fd_out, rd_list, surf_flag__allow_range_boundary_overlapped);
+          
+          delete surf__flush_to_level0_RD_vector;
+        }
+        this->surf__flush_to_level0_RD_vector = nullptr;
       }
-      this->surf__flush_to_level0_RD_vector = nullptr;
     }
     
     //SuRF level file split RDF
-    if(surf_level_file_split__flush_to_level0_RD_vector != nullptr){
-      uint64_t fd_out = surf_level_file_split__flush_to_level0_RD_vector->dst_fd;
-      std::vector<pss> &rd_list = surf_level_file_split__flush_to_level0_RD_vector->rd_list;
-      
-      if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
-        for(auto &x: rd_list){
-          uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
-          x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
-          x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
-          x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
-          x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
-        }
-      }
-
-      if(rd_list.size() != 0){
-        std::sort(rd_list.begin(), rd_list.end()); 
-
-        //TODO: insert incoming point keys to the ranges
-
-        (this->surf__level_file_split_rdf_prime)->insertRangeDeleteToLevel0(fd_out, rd_list, surf_flag__allow_range_boundary_overlapped);
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+      surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
+      bool surf_flag__allow_range_boundary_overlapped = _surf_env->getFlagAllowRangeBoundaryOverlapped();
+      if(surf_level_file_split__flush_to_level0_RD_vector != nullptr){
+        uint64_t fd_out = surf_level_file_split__flush_to_level0_RD_vector->dst_fd;
+        std::vector<pss> &rd_list = surf_level_file_split__flush_to_level0_RD_vector->rd_list;
         
-        delete surf_level_file_split__flush_to_level0_RD_vector;
+        if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+          for(auto &x: rd_list){
+            uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+            x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+            x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
+            x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+            x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+          }
+        }
+
+        if(rd_list.size() != 0){
+          std::sort(rd_list.begin(), rd_list.end()); 
+
+          //TODO: insert incoming point keys to the ranges
+
+          (this->surf__level_file_split_rdf_prime)->insertRangeDeleteToLevel0(fd_out, rd_list, surf_flag__allow_range_boundary_overlapped);
+          
+          delete surf_level_file_split__flush_to_level0_RD_vector;
+        }
+        this->surf_level_file_split__flush_to_level0_RD_vector = nullptr;
       }
-      this->surf_level_file_split__flush_to_level0_RD_vector = nullptr;
     }
 
     current_->clear_flush_install_count_clr();
@@ -1508,348 +1524,377 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
 
     if(opt == 2){ //complete compaction or trivial move compaction
       //PLRDF
-      (this->plrdf_prime).shiftRDFToOutputLevel(&this->compaction_moving_RD_vector);
-      this->compaction_moving_RD_vector.clear();
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
+        (this->plrdf_prime).shiftRDFToOutputLevel(&this->compaction_moving_RD_vector);
+        this->compaction_moving_RD_vector.clear();
+      }
       
       //Split PLRDF
-      if(split_flag == true){
-        if(this->get_split__out_level() != std::get<1>(this->split__compaction_moving_RD_vector[0])){
-            std::cerr << "Error: split RDF out level is not consistent with the out level of the compaction moving RD vector" << std::endl
-                      << "split RDF out level = " << this->get_split__out_level() << std::endl
-                      << "compaction moving RD vector out level = " << std::get<1>(this->split__compaction_moving_RD_vector[0]) 
-                      << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-        }
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+        if(split_flag == true){
+          if(this->get_split__out_level() != std::get<1>(this->split__compaction_moving_RD_vector[0])){
+              std::cerr << "Error: split RDF out level is not consistent with the out level of the compaction moving RD vector" << std::endl
+                        << "split RDF out level = " << this->get_split__out_level() << std::endl
+                        << "compaction moving RD vector out level = " << std::get<1>(this->split__compaction_moving_RD_vector[0]) 
+                        << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          }
 
-        if(this->get_split__count() > 1){
-          std::cerr << "Error: split RDF count is more than 1" << std::endl
-                    << "split RDF count = " << this->get_split__count() << std::endl
-                    << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          if(this->get_split__count() > 1){
+            std::cerr << "Error: split RDF count is more than 1" << std::endl
+                      << "split RDF count = " << this->get_split__count() << std::endl
+                      << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          }
         }
       }
 
       //Top Level RDF
-      if(split_flag == true){ //complete compaction
-        int in_lvl = std::get<0>(this->split__compaction_moving_RD_vector[0]);
-        // if(in_lvl == 0 || in_lvl == 1){
-        if(in_lvl == 0){
-          (this->top_level_rdf_prime).shiftRDFToOutputLevel(&this->split__compaction_moving_RD_vector);
-          if(split_flag == true && in_lvl == 0){
-            (this->top_level_rdf_prime).splitRangesOnLevel((uint)1, this->top_level__level_points);
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+        if(split_flag == true){ //complete compaction
+          int in_lvl = std::get<0>(this->split__compaction_moving_RD_vector[0]);
+          // if(in_lvl == 0 || in_lvl == 1){
+          if(in_lvl == 0){
+            (this->top_level_rdf_prime).shiftRDFToOutputLevel(&this->split__compaction_moving_RD_vector);
+            if(split_flag == true && in_lvl == 0){
+              (this->top_level_rdf_prime).splitRangesOnLevel((uint)1, this->top_level__level_points);
+            }
           }
+        }else{ //trivial move
+          // not the way we want, so --> set trivial move to false --> never do trivial move only 
+          // for top level RDF (just for an easier way to simulate top level RDF's behavior)
+          // int in_lvl = std::get<0>(this->top_level__trivial_move__delete_RD_vector);
+          // if(in_lvl == 1){
+          //   (this->top_level_rdf_prime).deleteRDFAssociatedWithFilesAtCurrentLevel(&this->top_level__trivial_move__delete_RD_vector);
+          // }
+          this->top_level__trivial_move__delete_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
         }
-      }else{ //trivial move
-        // not the way we want, so --> set trivial move to false --> never do trivial move only 
-        // for top level RDF (just for an easier way to simulate top level RDF's behavior)
-        // int in_lvl = std::get<0>(this->top_level__trivial_move__delete_RD_vector);
-        // if(in_lvl == 1){
-        //   (this->top_level_rdf_prime).deleteRDFAssociatedWithFilesAtCurrentLevel(&this->top_level__trivial_move__delete_RD_vector);
-        // }
-        this->top_level__trivial_move__delete_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
       }
 
 
       //Split PLRDF
-      (this->split_plrdf_prime).shiftRDFToOutputLevel(&this->split__compaction_moving_RD_vector);
-      this->split__compaction_moving_RD_vector.clear();
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+        (this->split_plrdf_prime).shiftRDFToOutputLevel(&this->split__compaction_moving_RD_vector);
+      }
+
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
+        || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+        this->split__compaction_moving_RD_vector.clear();
+      }
 
       //Split PLRDF
-      if(split_flag == true){ //complete compaction
-        (this->split_plrdf_prime).splitRangesOnLevel((uint)this->get_split__out_level(), this->split__level_points);
-        this->split__level_points.clear();
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+        if(split_flag == true){ //complete compaction
+          (this->split_plrdf_prime).splitRangesOnLevel((uint)this->get_split__out_level(), this->split__level_points);
+          this->split__level_points.clear();
 
-        this->clear_split__count();
-        this->clear_split__fin_flag();
-        this->clear_split__out_level();
-        this->clear_split__level_ranges_updated();
+          this->clear_split__count();
+          this->clear_split__fin_flag();
+          this->clear_split__out_level();
+          this->clear_split__level_ranges_updated();
+        }
       }
 
       //SuRF level file RDF
-      surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
-      bool surf_flag__allow_range_boundary_overlapped = _surf_env->getFlagAllowRangeBoundaryOverlapped();
-      //bool surf_flag__allow_range_boundary_overlapped = false;
-      
-      if(surf__compaction_moving_RD_vector != nullptr){
-        std::vector<SuRFCompactionSourceLevelInfo> &src_level_info_list =
-          surf__compaction_moving_RD_vector->src_level_info_list;
-        uint32_t dst_level = surf__compaction_moving_RD_vector->dst_level;
-        std::vector<SuRFCompactionDstinationLevelInfo> &dst_level_info_list =
-          surf__compaction_moving_RD_vector->dst_level_info_list;
-        bool flag_direct_move_to_dst_level = 
-          surf__compaction_moving_RD_vector->flag_direct_move_to_dst_level;
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+        surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
+        bool surf_flag__allow_range_boundary_overlapped = _surf_env->getFlagAllowRangeBoundaryOverlapped();
+        //bool surf_flag__allow_range_boundary_overlapped = false;
+        
+        if(surf__compaction_moving_RD_vector != nullptr){
+          std::vector<SuRFCompactionSourceLevelInfo> &src_level_info_list =
+            surf__compaction_moving_RD_vector->src_level_info_list;
+          uint32_t dst_level = surf__compaction_moving_RD_vector->dst_level;
+          std::vector<SuRFCompactionDstinationLevelInfo> &dst_level_info_list =
+            surf__compaction_moving_RD_vector->dst_level_info_list;
+          bool flag_direct_move_to_dst_level = 
+            surf__compaction_moving_RD_vector->flag_direct_move_to_dst_level;
 
-        if(flag_direct_move_to_dst_level == true){
-          for(auto &src_level_info: src_level_info_list){
-            uint32_t src_level = src_level_info.src_level;
-            std::vector<uint64_t> src_fd_list = src_level_info.src_fd_list;
-            for(auto &fd: src_fd_list){
-              (this->surf__level_file_rdf_prime)->directMoveFileToLevel(fd, src_level, dst_level);
+          if(flag_direct_move_to_dst_level == true){
+            for(auto &src_level_info: src_level_info_list){
+              uint32_t src_level = src_level_info.src_level;
+              std::vector<uint64_t> src_fd_list = src_level_info.src_fd_list;
+              for(auto &fd: src_fd_list){
+                (this->surf__level_file_rdf_prime)->directMoveFileToLevel(fd, src_level, dst_level);
+              }
+            } 
+          }else{
+
+            std::vector<uint32_t> src_level_list;
+            std::vector<std::vector<uint64_t>> src_fd_list2d;
+            for(auto &src_level_info: src_level_info_list){
+              uint32_t &src_level = src_level_info.src_level;
+              std::vector<uint64_t> &src_fd_list = src_level_info.src_fd_list;
+              src_level_list.push_back(src_level);
+              src_fd_list2d.push_back(src_fd_list);
             }
-          } 
-        }else{
+            std::vector<pss> range_tombstone_merged = 
+              (this->surf__level_file_rdf_prime)->gatherSortedRangeTombstonesAndRemoveSuRF(
+                src_level_list, src_fd_list2d, surf_flag__allow_range_boundary_overlapped);
 
-          std::vector<uint32_t> src_level_list;
-          std::vector<std::vector<uint64_t>> src_fd_list2d;
-          for(auto &src_level_info: src_level_info_list){
-            uint32_t &src_level = src_level_info.src_level;
-            std::vector<uint64_t> &src_fd_list = src_level_info.src_fd_list;
-            src_level_list.push_back(src_level);
-            src_fd_list2d.push_back(src_fd_list);
-          }
-          std::vector<pss> range_tombstone_merged = 
-            (this->surf__level_file_rdf_prime)->gatherSortedRangeTombstonesAndRemoveSuRF(
-              src_level_list, src_fd_list2d, surf_flag__allow_range_boundary_overlapped);
+            size_t len_rd = range_tombstone_merged.size();
+            if(len_rd > 0){
+              std::vector<uint64_t> dst_fd_list;
+              std::vector<pss> file_boundary_list; 
+              for(auto &dst_level_info: dst_level_info_list){         
+                uint64_t &dst_fd = dst_level_info.fd;
+                pss &file_boundary = dst_level_info.file_boundary;
+                dst_fd_list.push_back(dst_fd);
+                file_boundary_list.push_back(file_boundary);
 
-          size_t len_rd = range_tombstone_merged.size();
-          if(len_rd > 0){
-            std::vector<uint64_t> dst_fd_list;
-            std::vector<pss> file_boundary_list; 
-            for(auto &dst_level_info: dst_level_info_list){         
-              uint64_t &dst_fd = dst_level_info.fd;
-              pss &file_boundary = dst_level_info.file_boundary;
-              dst_fd_list.push_back(dst_fd);
-              file_boundary_list.push_back(file_boundary);
-
-              if((this->fd_RDs_map).count(dst_fd) != 0 && (this->fd_RDs_map)[dst_fd].size() > 0){
-                std::cout << "dst_fd = " << dst_fd  << std::endl;
-                for(auto RD: this->fd_RDs_map[dst_fd]){
-                  std::cout << "\t" << " RD = " << std::get<0>(RD) << ", " << std::get<1>(RD) 
-                            << " @" << std::get<2>(RD) << " " << __FILE__ << ":" << __LINE__ 
-                            << " " << __FUNCTION__ << std::endl;
+                if((this->fd_RDs_map).count(dst_fd) != 0 && (this->fd_RDs_map)[dst_fd].size() > 0){
+                  std::cout << "dst_fd = " << dst_fd  << std::endl;
+                  for(auto RD: this->fd_RDs_map[dst_fd]){
+                    std::cout << "\t" << " RD = " << std::get<0>(RD) << ", " << std::get<1>(RD) 
+                              << " @" << std::get<2>(RD) << " " << __FILE__ << ":" << __LINE__ 
+                              << " " << __FUNCTION__ << std::endl;
+                  }
                 }
               }
-            }
 
-            if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
-              for(auto &x: file_boundary_list){
-                uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
-                x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
-                x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
-                x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
-                x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+              if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+                for(auto &x: file_boundary_list){
+                  uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+                  x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+                  x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
+                  x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+                  x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+                }
               }
+
+              (this->surf__level_file_rdf_prime)->shiftRDFToOutputLevel(
+                range_tombstone_merged, dst_level, 
+                dst_fd_list, file_boundary_list,
+                surf_flag__allow_range_boundary_overlapped);
             }
+            
+  #ifdef DEBUG_SURF_COMPACTION
+              //check output file ranges are in ascending order
+              int len_dst_level_info = dst_level_info_list.size();
 
-            (this->surf__level_file_rdf_prime)->shiftRDFToOutputLevel(
-              range_tombstone_merged, dst_level, 
-              dst_fd_list, file_boundary_list,
-              surf_flag__allow_range_boundary_overlapped);
-          }
-          
-#ifdef DEBUG_SURF_COMPACTION
-            //check output file ranges are in ascending order
-            int len_dst_level_info = dst_level_info_list.size();
+              for(int i_dst_level_info = 0; i_dst_level_info < len_dst_level_info-1; i_dst_level_info++){
+                auto &a = dst_level_info_list[i_dst_level_info];
+                auto &b = dst_level_info_list[i_dst_level_info+1];
+                bool flag_in_ascending_order = surf_flag__allow_range_boundary_overlapped?
+                      (a.file_boundary.second <= b.file_boundary.first) : 
+                      (a.file_boundary.second < b.file_boundary.first);
 
-            for(int i_dst_level_info = 0; i_dst_level_info < len_dst_level_info-1; i_dst_level_info++){
-              auto &a = dst_level_info_list[i_dst_level_info];
-              auto &b = dst_level_info_list[i_dst_level_info+1];
-              bool flag_in_ascending_order = surf_flag__allow_range_boundary_overlapped?
-                    (a.file_boundary.second <= b.file_boundary.first) : 
-                    (a.file_boundary.second < b.file_boundary.first);
-
-              if(flag_in_ascending_order == false){
-                if(a.file_boundary.second == b.file_boundary.first){
-                  std::cout << "Warning: file boundary is not in ascending order" << std::endl
+                if(flag_in_ascending_order == false){
+                  if(a.file_boundary.second == b.file_boundary.first){
+                    std::cout << "Warning: file boundary is not in ascending order" << std::endl
+                              << "a.file_boundary = " << a.file_boundary.first << " " << a.file_boundary.second << std::endl
+                              << "b.file_boundary = " << b.file_boundary.first << " " << b.file_boundary.second << std::endl
+                              << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                  }else{
+                    std::cerr << "Error: file boundary is not in ascending order" << std::endl
                             << "a.file_boundary = " << a.file_boundary.first << " " << a.file_boundary.second << std::endl
                             << "b.file_boundary = " << b.file_boundary.first << " " << b.file_boundary.second << std::endl
                             << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-                }else{
-                  std::cerr << "Error: file boundary is not in ascending order" << std::endl
-                          << "a.file_boundary = " << a.file_boundary.first << " " << a.file_boundary.second << std::endl
-                          << "b.file_boundary = " << b.file_boundary.first << " " << b.file_boundary.second << std::endl
-                          << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                  }
                 }
+                assert(flag_in_ascending_order == true);
               }
-              assert(flag_in_ascending_order == true);
-            }
-#endif
+  #endif
+          }
+          
+          delete this->surf__compaction_moving_RD_vector;
+          this->surf__compaction_moving_RD_vector = nullptr;
         }
-        
-        delete this->surf__compaction_moving_RD_vector;
-        this->surf__compaction_moving_RD_vector = nullptr;
       }
 
 
 
 
 
-      
       //SuRF level file split RDF
-      if(surf_level_file_split__compaction_moving_RD_vector != nullptr){
-        std::vector<SuRFCompactionSourceLevelInfo> &src_level_info_list =
-          surf_level_file_split__compaction_moving_RD_vector->src_level_info_list;
-        uint32_t dst_level = surf_level_file_split__compaction_moving_RD_vector->dst_level;
-        std::vector<SuRFCompactionDstinationLevelInfo> &dst_level_info_list =
-          surf_level_file_split__compaction_moving_RD_vector->dst_level_info_list;
-        bool flag_direct_move_to_dst_level = 
-          surf_level_file_split__compaction_moving_RD_vector->flag_direct_move_to_dst_level;
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+        surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
+        bool surf_flag__allow_range_boundary_overlapped = _surf_env->getFlagAllowRangeBoundaryOverlapped();
+        //bool surf_flag__allow_range_boundary_overlapped = false;
+        
+        if(surf_level_file_split__compaction_moving_RD_vector != nullptr){
+          std::vector<SuRFCompactionSourceLevelInfo> &src_level_info_list =
+            surf_level_file_split__compaction_moving_RD_vector->src_level_info_list;
+          uint32_t dst_level = surf_level_file_split__compaction_moving_RD_vector->dst_level;
+          std::vector<SuRFCompactionDstinationLevelInfo> &dst_level_info_list =
+            surf_level_file_split__compaction_moving_RD_vector->dst_level_info_list;
+          bool flag_direct_move_to_dst_level = 
+            surf_level_file_split__compaction_moving_RD_vector->flag_direct_move_to_dst_level;
 
-        if(flag_direct_move_to_dst_level == true){
-          for(auto &src_level_info: src_level_info_list){
-            uint32_t src_level = src_level_info.src_level;
-            std::vector<uint64_t> src_fd_list = src_level_info.src_fd_list;
-            for(auto &fd: src_fd_list){
-              (this->surf__level_file_split_rdf_prime)->directMoveFileToLevel(fd, src_level, dst_level);
+          if(flag_direct_move_to_dst_level == true){
+            for(auto &src_level_info: src_level_info_list){
+              uint32_t src_level = src_level_info.src_level;
+              std::vector<uint64_t> src_fd_list = src_level_info.src_fd_list;
+              for(auto &fd: src_fd_list){
+                (this->surf__level_file_split_rdf_prime)->directMoveFileToLevel(fd, src_level, dst_level);
+              }
+            } 
+          }else{
+
+            std::vector<uint32_t> src_level_list;
+            std::vector<std::vector<uint64_t>> src_fd_list2d;
+            for(auto &src_level_info: src_level_info_list){
+              uint32_t &src_level = src_level_info.src_level;
+              std::vector<uint64_t> &src_fd_list = src_level_info.src_fd_list;
+              src_level_list.push_back(src_level);
+              src_fd_list2d.push_back(src_fd_list);
             }
-          } 
-        }else{
+            std::vector<pss> range_tombstone_merged = 
+              (this->surf__level_file_split_rdf_prime)->gatherSortedRangeTombstonesAndRemoveSuRF(
+                src_level_list, src_fd_list2d, surf_flag__allow_range_boundary_overlapped);
 
-          std::vector<uint32_t> src_level_list;
-          std::vector<std::vector<uint64_t>> src_fd_list2d;
-          for(auto &src_level_info: src_level_info_list){
-            uint32_t &src_level = src_level_info.src_level;
-            std::vector<uint64_t> &src_fd_list = src_level_info.src_fd_list;
-            src_level_list.push_back(src_level);
-            src_fd_list2d.push_back(src_fd_list);
-          }
-          std::vector<pss> range_tombstone_merged = 
-            (this->surf__level_file_split_rdf_prime)->gatherSortedRangeTombstonesAndRemoveSuRF(
-              src_level_list, src_fd_list2d, surf_flag__allow_range_boundary_overlapped);
+            size_t len_rd = range_tombstone_merged.size();
+            if(len_rd > 0){
+              //TODO: insert incoming point keys to the ranges
+              //surf_level_file_split__in_coming_point_keys into ranges  {left_boundary:1, right_boundary:1}
 
-          size_t len_rd = range_tombstone_merged.size();
-          if(len_rd > 0){
-            //TODO: insert incoming point keys to the ranges
-            //surf_level_file_split__in_coming_point_keys into ranges  {left_boundary:1, right_boundary:1}
+              std::vector<uint64_t> dst_fd_list;
+              std::vector<pss> file_boundary_list; 
+              for(auto &dst_level_info: dst_level_info_list){         
+                uint64_t &dst_fd = dst_level_info.fd;
+                pss &file_boundary = dst_level_info.file_boundary;
+                dst_fd_list.push_back(dst_fd);
+                file_boundary_list.push_back(file_boundary);
 
-            std::vector<uint64_t> dst_fd_list;
-            std::vector<pss> file_boundary_list; 
-            for(auto &dst_level_info: dst_level_info_list){         
-              uint64_t &dst_fd = dst_level_info.fd;
-              pss &file_boundary = dst_level_info.file_boundary;
-              dst_fd_list.push_back(dst_fd);
-              file_boundary_list.push_back(file_boundary);
-
-              if((this->fd_RDs_map).count(dst_fd) != 0 && (this->fd_RDs_map)[dst_fd].size() > 0){
-                std::cout << "dst_fd = " << dst_fd  << std::endl;
-                for(auto RD: this->fd_RDs_map[dst_fd]){
-                  std::cout << "\t" << " RD = " << std::get<0>(RD) << ", " << std::get<1>(RD) 
-                            << " @" << std::get<2>(RD) << " " << __FILE__ << ":" << __LINE__ 
-                            << " " << __FUNCTION__ << std::endl;
+                if((this->fd_RDs_map).count(dst_fd) != 0 && (this->fd_RDs_map)[dst_fd].size() > 0){
+                  std::cout << "dst_fd = " << dst_fd  << std::endl;
+                  for(auto RD: this->fd_RDs_map[dst_fd]){
+                    std::cout << "\t" << " RD = " << std::get<0>(RD) << ", " << std::get<1>(RD) 
+                              << " @" << std::get<2>(RD) << " " << __FILE__ << ":" << __LINE__ 
+                              << " " << __FUNCTION__ << std::endl;
+                  }
                 }
               }
-            }
-#define CHECK_SPLITTING_POINT_KEY_IN_ASCENDING_ORDER
-#ifdef CHECK_SPLITTING_POINT_KEY_IN_ASCENDING_ORDER
-std::vector<std::string> tmp_point_keys(this->surf_level_file_split__in_coming_point_keys);
-for(uint32_t i_pk = 1; i_pk < this->surf_level_file_split__in_coming_point_keys.size(); i_pk++){
-  auto x0 = this->surf_level_file_split__in_coming_point_keys[i_pk-1];
-  auto x1 = this->surf_level_file_split__in_coming_point_keys[i_pk];
-  // std::cout  << "@A1  x0 <= x1" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  #define CHECK_SPLITTING_POINT_KEY_IN_ASCENDING_ORDER
+  #ifdef CHECK_SPLITTING_POINT_KEY_IN_ASCENDING_ORDER
+  std::vector<std::string> tmp_point_keys(this->surf_level_file_split__in_coming_point_keys);
+  for(uint32_t i_pk = 1; i_pk < this->surf_level_file_split__in_coming_point_keys.size(); i_pk++){
+    auto x0 = this->surf_level_file_split__in_coming_point_keys[i_pk-1];
+    auto x1 = this->surf_level_file_split__in_coming_point_keys[i_pk];
+    // std::cout  << "@A1  x0 <= x1" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
-  if (x0 > x1){
-    std::cout  << "Error @A1  x0 > x1" << " " << "x0 = " << x0 << " x1 = " << x1 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    if (x0 > x1){
+      std::cout  << "Error @A1  x0 > x1" << " " << "x0 = " << x0 << " x1 = " << x1 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
   }
-}
-#endif
+  #endif
 
-            if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
-              
-              uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
-              for(uint32_t i_pk = 0; i_pk < this->surf_level_file_split__in_coming_point_keys.size(); i_pk++){
-                auto x = this->surf_level_file_split__in_coming_point_keys[i_pk];
-                x = surf::SuRF_Utils::encode_digit_string_to_byte_string(x);
-                x = surf::SuRF_Utils::extend_string_to_length(x, len_condensed_key, (char)0);
-                this->surf_level_file_split__in_coming_point_keys[i_pk] = x;
-              }
-            }
-
-#ifdef CHECK_SPLITTING_POINT_KEY_IN_ASCENDING_ORDER      
-for(uint32_t i_pk = 1; i_pk < this->surf_level_file_split__in_coming_point_keys.size(); i_pk++){
-  auto x0 = this->surf_level_file_split__in_coming_point_keys[i_pk-1];
-  auto x1 = this->surf_level_file_split__in_coming_point_keys[i_pk];
-  if (x0 > x1){
-    std::cout  << "Error @A2  x0 > x1" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    std::cout << "x0 = " << x0 << " x1 = " << x1 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    x0 = surf::SuRF_Utils::decode_byte_string_to_digit_string(x0);
-    x1 = surf::SuRF_Utils::decode_byte_string_to_digit_string(x1);
-    std::cout << "x0 = " << x0 << " x1 = " << x1 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
-    x0 = tmp_point_keys[i_pk-1];
-    x1 = tmp_point_keys[i_pk];
-    std::cout << "x0 = " << x0 << " x1 = " << x1 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
-  }
-}
-#endif
-
-            if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
-              for(auto &x: file_boundary_list){
+              if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+                
                 uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
-                x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
-                x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
-                x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
-                x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+                for(uint32_t i_pk = 0; i_pk < this->surf_level_file_split__in_coming_point_keys.size(); i_pk++){
+                  auto x = this->surf_level_file_split__in_coming_point_keys[i_pk];
+                  x = surf::SuRF_Utils::encode_digit_string_to_byte_string(x);
+                  x = surf::SuRF_Utils::extend_string_to_length(x, len_condensed_key, (char)0);
+                  this->surf_level_file_split__in_coming_point_keys[i_pk] = x;
+                }
               }
+
+  #ifdef CHECK_SPLITTING_POINT_KEY_IN_ASCENDING_ORDER      
+  for(uint32_t i_pk = 1; i_pk < this->surf_level_file_split__in_coming_point_keys.size(); i_pk++){
+    auto x0 = this->surf_level_file_split__in_coming_point_keys[i_pk-1];
+    auto x1 = this->surf_level_file_split__in_coming_point_keys[i_pk];
+    if (x0 > x1){
+      std::cout  << "Error @A2  x0 > x1" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      std::cout << "x0 = " << x0 << " x1 = " << x1 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      x0 = surf::SuRF_Utils::decode_byte_string_to_digit_string(x0);
+      x1 = surf::SuRF_Utils::decode_byte_string_to_digit_string(x1);
+      std::cout << "x0 = " << x0 << " x1 = " << x1 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+      x0 = tmp_point_keys[i_pk-1];
+      x1 = tmp_point_keys[i_pk];
+      std::cout << "x0 = " << x0 << " x1 = " << x1 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+    }
+  }
+  #endif
+
+              if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+                for(auto &x: file_boundary_list){
+                  uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+                  x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+                  x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
+                  x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+                  x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+                }
+              }
+
+              (this->surf__level_file_split_rdf_prime)->shiftRDFWithPointKeysToOutputLevel(
+                range_tombstone_merged, 
+                this->surf_level_file_split__in_coming_point_keys,
+                dst_level, 
+                dst_fd_list, file_boundary_list,
+                surf_flag__allow_range_boundary_overlapped);
             }
+            
+  #ifdef DEBUG_SURF_COMPACTION
+              //check output file ranges are in ascending order
+              int len_dst_level_info = dst_level_info_list.size();
 
-            (this->surf__level_file_split_rdf_prime)->shiftRDFWithPointKeysToOutputLevel(
-              range_tombstone_merged, 
-              this->surf_level_file_split__in_coming_point_keys,
-              dst_level, 
-              dst_fd_list, file_boundary_list,
-              surf_flag__allow_range_boundary_overlapped);
-          }
-          
-#ifdef DEBUG_SURF_COMPACTION
-            //check output file ranges are in ascending order
-            int len_dst_level_info = dst_level_info_list.size();
+              for(int i_dst_level_info = 0; i_dst_level_info < len_dst_level_info-1; i_dst_level_info++){
+                auto &a = dst_level_info_list[i_dst_level_info];
+                auto &b = dst_level_info_list[i_dst_level_info+1];
+                bool flag_in_ascending_order = surf_flag__allow_range_boundary_overlapped?
+                      (a.file_boundary.second <= b.file_boundary.first) : 
+                      (a.file_boundary.second < b.file_boundary.first);
 
-            for(int i_dst_level_info = 0; i_dst_level_info < len_dst_level_info-1; i_dst_level_info++){
-              auto &a = dst_level_info_list[i_dst_level_info];
-              auto &b = dst_level_info_list[i_dst_level_info+1];
-              bool flag_in_ascending_order = surf_flag__allow_range_boundary_overlapped?
-                    (a.file_boundary.second <= b.file_boundary.first) : 
-                    (a.file_boundary.second < b.file_boundary.first);
-
-              if(flag_in_ascending_order == false){
-                if(a.file_boundary.second == b.file_boundary.first){
-                  std::cout << "Warning: file boundary is not in ascending order" << std::endl
+                if(flag_in_ascending_order == false){
+                  if(a.file_boundary.second == b.file_boundary.first){
+                    std::cout << "Warning: file boundary is not in ascending order" << std::endl
+                              << "a.file_boundary = " << a.file_boundary.first << " " << a.file_boundary.second << std::endl
+                              << "b.file_boundary = " << b.file_boundary.first << " " << b.file_boundary.second << std::endl
+                              << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                  }else{
+                    std::cerr << "Error: file boundary is not in ascending order" << std::endl
                             << "a.file_boundary = " << a.file_boundary.first << " " << a.file_boundary.second << std::endl
                             << "b.file_boundary = " << b.file_boundary.first << " " << b.file_boundary.second << std::endl
                             << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-                }else{
-                  std::cerr << "Error: file boundary is not in ascending order" << std::endl
-                          << "a.file_boundary = " << a.file_boundary.first << " " << a.file_boundary.second << std::endl
-                          << "b.file_boundary = " << b.file_boundary.first << " " << b.file_boundary.second << std::endl
-                          << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                  }
                 }
+                assert(flag_in_ascending_order == true);
               }
-              assert(flag_in_ascending_order == true);
-            }
-#endif
+  #endif
+          }
+          
+          delete this->surf_level_file_split__compaction_moving_RD_vector;
+          this->surf_level_file_split__compaction_moving_RD_vector = nullptr;
+          this->surf_level_file_split__in_coming_point_keys.clear();
         }
-        
-        delete this->surf_level_file_split__compaction_moving_RD_vector;
-        this->surf_level_file_split__compaction_moving_RD_vector = nullptr;
-        this->surf_level_file_split__in_coming_point_keys.clear();
       }
 
     }else if(opt == 3){ //directly deleted file compaction
       //PLRDF
-      (this->plrdf_prime).deleteRDFAssociatedWithFilesAtCurrentLevel(&this->compaction_direct_delete_RD_vector);
-      this->compaction_direct_delete_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
+        (this->plrdf_prime).deleteRDFAssociatedWithFilesAtCurrentLevel(&this->compaction_direct_delete_RD_vector);
+        this->compaction_direct_delete_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
+      }
 
       //Split PLRDF
-      (this->split_plrdf_prime).deleteRDFAssociatedWithFilesAtCurrentLevel(&this->split__compaction_direct_delete_RD_vector);
-      this->split__compaction_direct_delete_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+        (this->split_plrdf_prime).deleteRDFAssociatedWithFilesAtCurrentLevel(&this->split__compaction_direct_delete_RD_vector);
+        this->split__compaction_direct_delete_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
+      }
 
       //SuRF level file RDF
-      if(this->surf__compaction_direct_delete_RD_vector != nullptr){
-        uint32_t level = surf__compaction_direct_delete_RD_vector->src_level;
-        std::vector<uint64_t> &fd_list = surf__compaction_direct_delete_RD_vector->src_fd_list;
-        for(auto &fd: fd_list){
-          (this->surf__level_file_rdf_prime)->removeSuRFAtLevelOfFd(level, fd);
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+        if(this->surf__compaction_direct_delete_RD_vector != nullptr){
+          uint32_t level = surf__compaction_direct_delete_RD_vector->src_level;
+          std::vector<uint64_t> &fd_list = surf__compaction_direct_delete_RD_vector->src_fd_list;
+          for(auto &fd: fd_list){
+            (this->surf__level_file_rdf_prime)->removeSuRFAtLevelOfFd(level, fd);
+          }
+          delete this->surf__compaction_direct_delete_RD_vector;
+          this->surf__compaction_direct_delete_RD_vector = nullptr;
         }
-        delete this->surf__compaction_direct_delete_RD_vector;
-        this->surf__compaction_direct_delete_RD_vector = nullptr;
       }
 
       //SuRF level file split RDF
-      if(this->surf_level_file_split__compaction_direct_delete_RD_vector != nullptr){
-        uint32_t level = surf_level_file_split__compaction_direct_delete_RD_vector->src_level;
-        std::vector<uint64_t> &fd_list = surf_level_file_split__compaction_direct_delete_RD_vector->src_fd_list;
-        for(auto &fd: fd_list){
-          (this->surf__level_file_split_rdf_prime)->removeSuRFAtLevelOfFd(level, fd);
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+        if(this->surf_level_file_split__compaction_direct_delete_RD_vector != nullptr){
+          uint32_t level = surf_level_file_split__compaction_direct_delete_RD_vector->src_level;
+          std::vector<uint64_t> &fd_list = surf_level_file_split__compaction_direct_delete_RD_vector->src_fd_list;
+          for(auto &fd: fd_list){
+            (this->surf__level_file_split_rdf_prime)->removeSuRFAtLevelOfFd(level, fd);
+          }
+          delete this->surf_level_file_split__compaction_direct_delete_RD_vector;
+          this->surf_level_file_split__compaction_direct_delete_RD_vector = nullptr;
         }
-        delete this->surf_level_file_split__compaction_direct_delete_RD_vector;
-        this->surf_level_file_split__compaction_direct_delete_RD_vector = nullptr;
       }
     }
 
@@ -1870,18 +1915,22 @@ for(uint32_t i_pk = 1; i_pk < this->surf_level_file_split__in_coming_point_keys.
 
 
   //PLRDF
-  if(this->get_call_before_install_superversion_count() != 0){
-    std::cerr << "Error: call_before_install_superversion_count is not 0 @updateRDF2NewVersion, call_before_install_superversion_count = " 
-              << this->get_call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
+    if(this->get_call_before_install_superversion_count() != 0){
+      std::cerr << "Error: call_before_install_superversion_count is not 0 @updateRDF2NewVersion, call_before_install_superversion_count = " 
+                << this->get_call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    this->inc_call_before_install_superversion_count();
   }
-  this->inc_call_before_install_superversion_count();
 
   //Split PLRDF
-  if(this->get_split__call_before_install_superversion_count() != 0){
-    std::cerr << "Error: split__call_before_install_superversion_count is not 0 @updateRDF2NewVersion, split__call_before_install_superversion_count = " 
-              << this->get_split__call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+    if(this->get_split__call_before_install_superversion_count() != 0){
+      std::cerr << "Error: split__call_before_install_superversion_count is not 0 @updateRDF2NewVersion, split__call_before_install_superversion_count = " 
+                << this->get_split__call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    this->inc_split__call_before_install_superversion_count();
   }
-  this->inc_split__call_before_install_superversion_count();
 
 
   if(old_superversion != NULL){
@@ -1945,7 +1994,9 @@ void ColumnFamilyData::InstallSuperVersion(
   if(old_superversion == NULL){
     
     //PLRDF
-    current_->setPLRDF(this->plrdf_prime);
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
+      current_->setPLRDF(this->plrdf_prime);
+    }
     if(this->get_call_before_install_superversion_count() > 1){
       std::cerr << "Error: call_before_install_superversion_count > 1 @installSuperversion, call_before_install_superversion_count = " 
                 << this->get_call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -1953,7 +2004,9 @@ void ColumnFamilyData::InstallSuperVersion(
     this->clear_call_before_install_superversion_count();
 
     //Split PLRDF
-    current_->setSplitPLRDF(this->split_plrdf_prime);
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+      current_->setSplitPLRDF(this->split_plrdf_prime);
+    }
     if(this->get_split__call_before_install_superversion_count() > 1){
       std::cerr << "Error: split__call_before_install_superversion_count > 1 @installSuperversion, split__call_before_install_superversion_count = " 
                 << this->get_split__call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -1961,22 +2014,32 @@ void ColumnFamilyData::InstallSuperVersion(
     this->clear_split__call_before_install_superversion_count();
 
     //Top Level RDF
-    current_->setTopLevelRDF(this->top_level_rdf_prime);
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+      current_->setTopLevelRDF(this->top_level_rdf_prime);
+    }
 
     //Skyline RDF
-    current_->setSkylineRDF(this->skyline_rdf_prime);
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SKYLINE_RDF")){
+      current_->setSkylineRDF(this->skyline_rdf_prime);
+    }
 
     //SuRF TopLevel/LevelFile RDF
-    current_->setSuRFLevelFileRDF(this->surf__level_file_rdf_prime);
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+      current_->setSuRFLevelFileRDF(this->surf__level_file_rdf_prime);
+    }
 
     //LevelFileSplit RDF
-    current_->setSuRFLevelFileSplitRDF(this->surf__level_file_split_rdf_prime);
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+      current_->setSuRFLevelFileSplitRDF(this->surf__level_file_split_rdf_prime);
+    }
   }
 
   if(old_superversion != NULL && old_superversion->current != current_){
     //PLRDF
-    (this->plrdf_prime).deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
-    current_->setPLRDF(this->plrdf_prime);
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
+      (this->plrdf_prime).deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
+      current_->setPLRDF(this->plrdf_prime);
+    }
     if(this->get_call_before_install_superversion_count() > 1){
       std::cerr << "Error: call_before_install_superversion_count > 1 @installSuperversion, call_before_install_superversion_count = " 
                 << this->get_call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -1984,8 +2047,10 @@ void ColumnFamilyData::InstallSuperVersion(
     this->clear_call_before_install_superversion_count();
 
     //Split PLRDF
-    (this->split_plrdf_prime).deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
-    current_->setSplitPLRDF(this->split_plrdf_prime);
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+      (this->split_plrdf_prime).deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
+      current_->setSplitPLRDF(this->split_plrdf_prime);
+    }
     if(this->get_split__call_before_install_superversion_count() > 1){
       std::cerr << "Error: split__call_before_install_superversion_count > 1 @installSuperversion, split__call_before_install_superversion_count = " 
                 << this->get_split__call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -1993,18 +2058,26 @@ void ColumnFamilyData::InstallSuperVersion(
     this->clear_split__call_before_install_superversion_count();
 
     //Top Level RDF
-    current_->setTopLevelRDF(this->top_level_rdf_prime);
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+      current_->setTopLevelRDF(this->top_level_rdf_prime);
+    }
 
     //Skyline RDF
-    current_->setSkylineRDF(this->skyline_rdf_prime);
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SKYLINE_RDF")){
+      current_->setSkylineRDF(this->skyline_rdf_prime);
+    }
 
     //SuRF TopLevel/LevelFile RDF
-    (this->surf__level_file_rdf_prime)->deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
-    current_->setSuRFLevelFileRDF(this->surf__level_file_rdf_prime);
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+      (this->surf__level_file_rdf_prime)->deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
+      current_->setSuRFLevelFileRDF(this->surf__level_file_rdf_prime);
+    }
     
     //LevelFileSplit RDF
-    (this->surf__level_file_split_rdf_prime)->deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
-    current_->setSuRFLevelFileSplitRDF(this->surf__level_file_split_rdf_prime);
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+      (this->surf__level_file_split_rdf_prime)->deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
+      current_->setSuRFLevelFileSplitRDF(this->surf__level_file_split_rdf_prime);
+    }
 
     //checking version update is continguous 
     if(install_version_pre != NULL){

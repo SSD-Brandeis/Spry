@@ -712,6 +712,14 @@ SuRF_RDF::SuRF_RDF(SuRF_RDF::RDF_MODE rdf_mode_in) {
     rdf_mode = rdf_mode_in;
 }
 
+SuRF_RDF::SuRF_RDF(const SuRF_RDF &rdf_in) {
+    this->rdf_mode = rdf_in.rdf_mode;
+    this->level_surf_rdf = rdf_in.level_surf_rdf;
+    this->level_file_surf_rdf = rdf_in.level_file_surf_rdf;
+    this->numbers_of_ranges_in_RDF_log = rdf_in.numbers_of_ranges_in_RDF_log;
+    this->memory_usage_in_RDF_log = rdf_in.memory_usage_in_RDF_log;
+}
+
 SuRF_RDF::SuRF_RDF(const VMP &level_file_surf_rdf_in,
         const std::vector<int> &numbers_of_ranges_in_RDF_log_in, const std::vector<int> &memory_usage_in_RDF_log_in,
         const SuRF_RDF::RDF_MODE rdf_mode_in) {
