@@ -526,7 +526,7 @@ namespace checking {
 
     bool hasRDFTypeOtherThanNone(){
       for(auto &[k, v]: RDFTypes){
-        if(v.substring(0,4) != "NONE"){
+        if(v.substr(0,4) != "NONE"){
           return true;
         }
       }

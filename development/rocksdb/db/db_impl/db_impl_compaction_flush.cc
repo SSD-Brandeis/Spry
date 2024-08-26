@@ -3509,34 +3509,33 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
         file_numbers.push_back(file_meta->fd.GetNumber());
       }
 
-      std::tuple<int, std::vector<pll>, std::vector<uint64_t>> file_meta_data_vectors = std::make_tuple(c->level(), smallest_largest_boundries, file_numbers);
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
+        || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+        std::tuple<int, std::vector<pll>, std::vector<uint64_t>> file_meta_data_vectors = std::make_tuple(c->level(), smallest_largest_boundries, file_numbers);
+        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
+          c->column_family_data()->set_compaction_direct_delete_RD_vector(file_meta_data_vectors);
+        }
+        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+          c->column_family_data()->set_split__compaction_direct_delete_RD_vector(file_meta_data_vectors);
+        }
+      }
+
       // std::tuple<int, std::vector<pss>, std::vector<uint64_t、>> *surf__file_meta_data_vectors = new std::tuple<int, std::vector<pss>, std::vector<uint64_t>>(); 
       // surf__file_meta_data_vectors->push_back(std::make_tuple(c->level(), smallest_largest_boundries__str_key, file_numbers));
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
         SuRFCompactionDirectRemovalInfo *surf__file_meta_data_vectors = new SuRFCompactionDirectRemovalInfo();
         surf__file_meta_data_vectors->src_level = c->level();
         surf__file_meta_data_vectors->src_fd_list = file_numbers;
+        c->column_family_data()->set_surf__compaction_direct_delete_RD_vector(surf__file_meta_data_vectors);
       }
       
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
-          SuRFCompactionDirectRemovalInfo *surf_level_file_split__file_meta_data_vectors = new SuRFCompactionDirectRemovalInfo();
-          surf_level_file_split__file_meta_data_vectors->src_level = c->level();
-          surf_level_file_split__file_meta_data_vectors->src_fd_list = file_numbers;
-      }
-      // std::cout << "[Compaction]: Calling Direct Delete Compaction .. " << std::endl;
-
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
-        c->column_family_data()->set_compaction_direct_delete_RD_vector(file_meta_data_vectors);
-      }
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
-        c->column_family_data()->set_split__compaction_direct_delete_RD_vector(file_meta_data_vectors);
-      }
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
-        c->column_family_data()->set_surf__compaction_direct_delete_RD_vector(surf__file_meta_data_vectors);
-      }
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+        SuRFCompactionDirectRemovalInfo *surf_level_file_split__file_meta_data_vectors = new SuRFCompactionDirectRemovalInfo();
+        surf_level_file_split__file_meta_data_vectors->src_level = c->level();
+        surf_level_file_split__file_meta_data_vectors->src_fd_list = file_numbers;
         c->column_family_data()->set_surf_level_file_split__compaction_direct_delete_RD_vector(surf_level_file_split__file_meta_data_vectors);
       }
+      // std::cout << "[Compaction]: Calling Direct Delete Compaction .. " << std::endl;
 
       if(c->column_family_data()->current()->get_compaction_install_count() > 0){
         std::cout << "compaction write to version (current_) happens more than once. times = " 
@@ -3611,7 +3610,9 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
       if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
         if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
           || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
-          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
           std::vector<pll> smallest_largest_boundries{};
           std::vector<pss> smallest_largest_boundries__str_key{};
           std::vector<uint64_t> file_numbers;
@@ -3637,18 +3638,18 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
               delete_RD_vector = std::make_tuple(1, smallest_largest_boundries, file_numbers);
             }
           }
-        }
         
-        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
-          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
-          SuRFCompactionSourceLevelInfo src_level_info = SuRFCompactionSourceLevelInfo();
-          src_level_info.src_level = c->level(l);
-          src_level_info.src_fd_list = file_numbers;
-          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
-            surf__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
-          }
-          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
-            surf_level_file_split__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
+          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
+            || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+            SuRFCompactionSourceLevelInfo src_level_info = SuRFCompactionSourceLevelInfo();
+            src_level_info.src_level = c->level(l);
+            src_level_info.src_fd_list = file_numbers;
+            if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+              surf__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
+            }
+            if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+              surf_level_file_split__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
+            }
           }
         }
       }
