@@ -63,7 +63,7 @@ def run(
             file_code = exp_code+str(i+1)+str(j+1)
             task = task_orig + f" --RD {RD} --selectivity {sel} --workload_filename workload/workload{file_code}.txt > log{file_code}"
             print(task)
-            # os.system(task)
+            os.system(task)
         
         
 #run('4', RD_list=[0, 1, 5, 10, 50, 100, 500, 900], sel_list=[0.001])
@@ -89,8 +89,8 @@ params2["--insert_before_range_delete"] = [0.9999]
 params2["--run_pq_during_insertion_interval"] = [20]
     
 tasks2 = set_B_E_list_to_task(params2, B_list = [4], E_list = [1024])
-run('14', RD_list=[100], sel_list=[0.001, 0.005, 0.01], tasks=tasks2)
-run('15', RD_list=[1000], sel_list=[0.0001, 0.0005, 0.001], tasks=tasks2)
+#run('14', RD_list=[100], sel_list=[0.001, 0.005, 0.01], tasks=tasks2)
+#run('15', RD_list=[1000], sel_list=[0.0001, 0.0005, 0.001], tasks=tasks2)
 
 
 params3 = deepcopy(params)
@@ -102,6 +102,8 @@ params3["--run_pq_during_insertion_interval"] = [20]
 # ["NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,TOP_LEVEL_RDF,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY"]
 rdf_types = ["NONE", "PLRDF", "SPLIT_PLRDF", "TOP_LEVEL_RDF", "SKYLINE_RDF", "SuRF_LF_RDF", "SuRF_LF_SPLIT_RDF"]
 for i_rdf, rdf_type in enumerate(rdf_types):
+    if i_rdf < 1:
+        continue
     test_num = 21 + i_rdf
     params3["--using_rdf_types"] = [rdf_type]
     tasks3 = set_B_E_list_to_task(params3, B_list = [4], E_list = [1024])

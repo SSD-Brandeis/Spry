@@ -268,6 +268,7 @@ std::cout << "number_of_PQ = " << number_of_PQs <<  std::endl;
   auto stop_pq = std::chrono::high_resolution_clock::now();
   auto duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
   unsigned long long point_query_time = duration_pq.count();
+  unsigned long long point_query_time_on_currently_deleted_all_ns = 0;
 
 std::cout << "!!! Testing On Existing Keys " << std::endl;
 
@@ -565,6 +566,7 @@ system_verifier->startPQTracing();
         stop_pq = std::chrono::high_resolution_clock::now();
         duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
+        point_query_time_on_currently_deleted_all_ns += duration_pq.count();
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
           continue;
         }
@@ -631,6 +633,7 @@ system_verifier->startPQTracing();
   }
 system_verifier->reset_flag_testing_on_currently_deleted_keys();
 system_verifier->endPQTracing();
+std::cout << prefix_number_of_PQs << " point_query_time_on_currently_deleted_all_ns = " << point_query_time_on_currently_deleted_all_ns << std::endl;
 
 std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 

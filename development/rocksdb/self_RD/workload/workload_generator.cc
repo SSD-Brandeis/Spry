@@ -14,6 +14,7 @@
 #include <fstream>
 #include <stdlib.h>
 #include <set>
+#include <limits.h>
 
 #include "args.hxx"
 #include "workload_generator.h"

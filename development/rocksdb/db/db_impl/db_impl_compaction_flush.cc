@@ -3495,7 +3495,7 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
     }
 
     //yucheng Added Start
-    if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+    // if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
       std::vector<pll> smallest_largest_boundries{};
       std::vector<pss> smallest_largest_boundries__str_key{};
       std::vector<uint64_t> file_numbers;
@@ -3509,16 +3509,16 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
         file_numbers.push_back(file_meta->fd.GetNumber());
       }
 
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
-        || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
+        // || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
         std::tuple<int, std::vector<pll>, std::vector<uint64_t>> file_meta_data_vectors = std::make_tuple(c->level(), smallest_largest_boundries, file_numbers);
-        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
+        // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
           c->column_family_data()->set_compaction_direct_delete_RD_vector(file_meta_data_vectors);
-        }
-        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+        // }
+        // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
           c->column_family_data()->set_split__compaction_direct_delete_RD_vector(file_meta_data_vectors);
-        }
-      }
+        // }
+      // }
 
       // std::tuple<int, std::vector<pss>, std::vector<uint64_t、>> *surf__file_meta_data_vectors = new std::tuple<int, std::vector<pss>, std::vector<uint64_t>>(); 
       // surf__file_meta_data_vectors->push_back(std::make_tuple(c->level(), smallest_largest_boundries__str_key, file_numbers));
@@ -3547,7 +3547,7 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
       c->column_family_data()->current()->inc_compaction_install_count();
       c->column_family_data()->inc_compaction_install_count();
       c->column_family_data()->inc_split__compaction_install_count();
-    }
+    // }
     //yucheng Added End
 
 
@@ -3607,12 +3607,12 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
 
 
       //yucheng Added Start
-      if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
-        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
-          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
-          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")
-          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
-          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+      // if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+      //   if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
+      //     || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
+      //     || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")
+      //     || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
+      //     || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
           std::vector<pll> smallest_largest_boundries{};
           std::vector<pss> smallest_largest_boundries__str_key{};
           std::vector<uint64_t> file_numbers;
@@ -3629,15 +3629,15 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
                                                                         file_meta->largest.user_key().ToString()));
             file_numbers.push_back(file_meta->fd.GetNumber());
           }    
-          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
-            || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+          // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
+          //   || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
             file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries, file_numbers));
-          }
-          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+          // }
+          // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
             if(c->level(l) == 0){ // coming from level 0
               delete_RD_vector = std::make_tuple(1, smallest_largest_boundries, file_numbers);
             }
-          }
+          // }
         
           if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
             || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
@@ -3651,8 +3651,8 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
               surf_level_file_split__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
             }
           }
-        }
-      }
+      //   }
+      // }
       //yucheng Added End
 
       for (size_t i = 0; i < c->num_input_files(l); i++) {
@@ -3688,24 +3688,24 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
     }
 
     //yucheng Added Start
-    if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+    // if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
       // std::cout << "[Compaction]: Calling Shift RDF To Output Level for Trivial Compaction .. " << std::endl;
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
         surf__compaction_moving_RD_vector->dst_level = c->output_level();
         surf__compaction_moving_RD_vector->flag_direct_move_to_dst_level = true;
-      }
+      // }
       
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
         surf_level_file_split__compaction_moving_RD_vector->dst_level = c->output_level();
         surf_level_file_split__compaction_moving_RD_vector->flag_direct_move_to_dst_level = true;
-      }
+      // }
 
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
+      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
         c->column_family_data()->set_compaction_moving_RD_vector(*file_meta_data_vectors);
-      }
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+      // }
+      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
         c->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
-      }
+      // }
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
         c->column_family_data()->set_top_level__trivial_move__delete_RD_vector(delete_RD_vector); 
       }
@@ -3727,7 +3727,7 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
       c->column_family_data()->current()->inc_compaction_install_count();
       c->column_family_data()->inc_compaction_install_count();
       c->column_family_data()->inc_split__compaction_install_count();
-    }
+    // }
     //yucheng Added End
 
 

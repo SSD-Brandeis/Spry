@@ -54,6 +54,9 @@ void reset_perf_iostats_context();
 
 
 int main(int argc, char *argv[]) {
+  
+  auto start_all = std::chrono::high_resolution_clock::now();
+
   // check emu_environment.h for the contents of EmuEnv and also the definitions of the singleton experimental environment 
   EmuEnv *_env = EmuEnv::getInstance();
   surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
@@ -125,6 +128,13 @@ int main(int argc, char *argv[]) {
     
     verification_runner::endPQVerification();
   }
+
+  
+  auto stop_all = std::chrono::high_resolution_clock::now();
+  auto duration_all = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_all - start_all);
+  unsigned long long all_time_ns = duration_all.count();
+  std::cout << "all_time_ns = " << all_time_ns << std::endl;
+    
 
   set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
 

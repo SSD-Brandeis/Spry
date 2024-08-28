@@ -525,7 +525,9 @@ namespace checking {
     }
 
     bool hasRDFTypeOtherThanNone(){
-      for(auto &[k, v]: RDFTypes){
+      // for(auto &[k, v]: RDFTypes){
+      for(const auto &it: RDFTypes){
+        auto v = it.second;
         if(v.substr(0,4) != "NONE"){
           return true;
         }
@@ -534,7 +536,9 @@ namespace checking {
     }
 
     bool containsRDFType(std::string rdf_type){
-      for(const auto &[k, v]: RDFTypes){
+      // for(auto &[k, v]: RDFTypes){
+      for(const auto &it: RDFTypes){
+        auto v = it.second;
         if(v == rdf_type){return true;}
       }
       return false;
