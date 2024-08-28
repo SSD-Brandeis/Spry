@@ -988,7 +988,7 @@ class ColumnFamilyData {
       }
 
       //Split RDF
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
         auto len = split__level_ranges.size();
         auto len2 = split__level_ranges_updated.size();
         if((int)len != 0){
@@ -1009,14 +1009,14 @@ class ColumnFamilyData {
                     << "before this one yet at function installSuperversion!! " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
                     << "split__fin_flag = " << split__fin_flag << std::endl;
         }
-      }
+      // }
 
       //Top Level RDF
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
         top_level__level_ranges = top_level_rdf_prime.getLevelRanges(1);
         top_level__level_points.clear();
         top_level__level_range_idx = 0;
-      }
+      // }
       
       // //SuRF levelfile Split 
       // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
@@ -1028,9 +1028,9 @@ class ColumnFamilyData {
   void split_range(long long key_in, std::string key_in_str){
     if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
       //Top Level RDF
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
         top_level__level_points.push_back(key_in);
-      }
+      // }
 
       //SuRF levelfile Split 
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
@@ -1038,7 +1038,7 @@ class ColumnFamilyData {
       }
 
       //Split RDF
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
         split__level_points.push_back(key_in);
         int &idx = split__level_range_idx;
         int len = split__level_ranges.size();
@@ -1073,24 +1073,21 @@ class ColumnFamilyData {
           return;
         }
         
-
-
         if(idx >= len){return;}
-
 
         std::cerr << "Error: condition not checked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
                   << "split__level_ranges[idx].first: " << split__level_ranges[idx].first << std::endl
                   << "split__level_ranges[idx].second: " << split__level_ranges[idx].second << std::endl
                   << "key_in: " << key_in << std::endl;
         exit(1);
-      }
+      // }
     }
   }
 
   //not called in: updateRDF2NewVersion()
   void split_end(){
     if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
         int &idx = split__level_range_idx;
         int len = split__level_ranges.size();
         while(idx < len){
@@ -1101,7 +1098,7 @@ class ColumnFamilyData {
         split__fin_flag = 1;
         split__level_ranges.clear();
         split__level_range_idx = 0;
-      }
+      // }
       
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
         || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")

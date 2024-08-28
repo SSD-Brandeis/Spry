@@ -1922,7 +1922,7 @@ Status CompactionJob::InstallCompactionResults(
       int current_level = compaction->level(lvl);
   #ifdef DEBUG_SURF_COMPACTION 
   std::cout << "current_level = " << current_level << " compaction->output_level() = " << compaction->output_level() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
-  #endif
+  #endif  
       if(current_level == compaction->output_level()){
   #ifdef DEBUG_SURF_COMPACTION 
   std::cerr << "(Want to know) (if exist --> go revise compaction update rdf) exist brach (@compaction): input level == output level (" << current_level << ")" << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
@@ -2011,7 +2011,7 @@ Status CompactionJob::InstallCompactionResults(
     if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
       compaction->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
     }
-    // yucheng Added End
+    // ychuang Added End
 
 
 

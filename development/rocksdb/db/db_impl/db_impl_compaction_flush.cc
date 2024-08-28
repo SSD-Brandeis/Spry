@@ -3706,9 +3706,9 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
       // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
         c->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
       // }
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
         c->column_family_data()->set_top_level__trivial_move__delete_RD_vector(delete_RD_vector); 
-      }
+      // }
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
         c->column_family_data()->set_surf__compaction_moving_RD_vector(surf__compaction_moving_RD_vector);
       }
