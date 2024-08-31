@@ -63,7 +63,7 @@ def run(
             file_code = exp_code+str(i+1)+str(j+1)
             task = task_orig + f" --RD {RD} --selectivity {sel} --workload_filename workload/workload{file_code}.txt > log{file_code}"
             print(task)
-            os.system(task)
+            #os.system(task)
         
         
 #run('4', RD_list=[0, 1, 5, 10, 50, 100, 500, 900], sel_list=[0.001])
@@ -98,6 +98,7 @@ params3["-P"] = [16]
 params3["-T"] = [4]
 params3["--insert_before_range_delete"] = [0.999]
 params3["--run_pq_during_insertion_interval"] = [20]
+params3["--gen_workload"] = [0]
 
 # ["NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,TOP_LEVEL_RDF,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY"]
 rdf_types = ["NONE", "PLRDF", "SPLIT_PLRDF", "TOP_LEVEL_RDF", "SKYLINE_RDF", "SuRF_LF_RDF", "SuRF_LF_SPLIT_RDF"]

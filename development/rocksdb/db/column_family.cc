@@ -1399,25 +1399,26 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
 
 
     //Split PLRDF
-    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
+      || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
       auto &file_num2 = std::get<0>(this->split__flush_to_level0_RD_vector);
       auto &range_delete_list_in2 = std::get<1>(this->split__flush_to_level0_RD_vector);
       auto &exist_level0_file_nums2 = std::get<2>(this->split__flush_to_level0_RD_vector);
-      (this->split_plrdf_prime).insertRangeDeleteToLevel0(file_num2, 
-                                                    range_delete_list_in2, 
-                                                    exist_level0_file_nums2);
+      //Split PLRDF
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+        (this->split_plrdf_prime).insertRangeDeleteToLevel0(file_num2, 
+                                                      range_delete_list_in2, 
+                                                      exist_level0_file_nums2);
+      }
+      //Top Level RDF
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+        (this->top_level_rdf_prime).insertRangeDeleteToLevel0(file_num2, 
+                                                      range_delete_list_in2, 
+                                                      exist_level0_file_nums2);
+      }
     }
 
     
-    //Top Level RDF
-    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
-      auto &file_num2 = std::get<0>(this->split__flush_to_level0_RD_vector);
-      auto &range_delete_list_in2 = std::get<1>(this->split__flush_to_level0_RD_vector);
-      auto &exist_level0_file_nums2 = std::get<2>(this->split__flush_to_level0_RD_vector);
-      (this->top_level_rdf_prime).insertRangeDeleteToLevel0(file_num2, 
-                                                    range_delete_list_in2, 
-                                                    exist_level0_file_nums2);
-    }
 
     if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
       || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
@@ -1640,14 +1641,14 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
                 dst_fd_list.push_back(dst_fd);
                 file_boundary_list.push_back(file_boundary);
 
-                if((this->fd_RDs_map).count(dst_fd) != 0 && (this->fd_RDs_map)[dst_fd].size() > 0){
-                  std::cout << "dst_fd = " << dst_fd  << std::endl;
-                  for(auto RD: this->fd_RDs_map[dst_fd]){
-                    std::cout << "\t" << " RD = " << std::get<0>(RD) << ", " << std::get<1>(RD) 
-                              << " @" << std::get<2>(RD) << " " << __FILE__ << ":" << __LINE__ 
-                              << " " << __FUNCTION__ << std::endl;
-                  }
-                }
+                // if((this->fd_RDs_map).count(dst_fd) != 0 && (this->fd_RDs_map)[dst_fd].size() > 0){
+                //   std::cout << "dst_fd = " << dst_fd  << std::endl;
+                //   for(auto RD: this->fd_RDs_map[dst_fd]){
+                //     std::cout << "\t" << " RD = " << std::get<0>(RD) << ", " << std::get<1>(RD) 
+                //               << " @" << std::get<2>(RD) << " " << __FILE__ << ":" << __LINE__ 
+                //               << " " << __FUNCTION__ << std::endl;
+                //   }
+                // }
               }
 
               if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
@@ -1754,14 +1755,14 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
                 dst_fd_list.push_back(dst_fd);
                 file_boundary_list.push_back(file_boundary);
 
-                if((this->fd_RDs_map).count(dst_fd) != 0 && (this->fd_RDs_map)[dst_fd].size() > 0){
-                  std::cout << "dst_fd = " << dst_fd  << std::endl;
-                  for(auto RD: this->fd_RDs_map[dst_fd]){
-                    std::cout << "\t" << " RD = " << std::get<0>(RD) << ", " << std::get<1>(RD) 
-                              << " @" << std::get<2>(RD) << " " << __FILE__ << ":" << __LINE__ 
-                              << " " << __FUNCTION__ << std::endl;
-                  }
-                }
+                // if((this->fd_RDs_map).count(dst_fd) != 0 && (this->fd_RDs_map)[dst_fd].size() > 0){
+                //   std::cout << "dst_fd = " << dst_fd  << std::endl;
+                //   for(auto RD: this->fd_RDs_map[dst_fd]){
+                //     std::cout << "\t" << " RD = " << std::get<0>(RD) << ", " << std::get<1>(RD) 
+                //               << " @" << std::get<2>(RD) << " " << __FILE__ << ":" << __LINE__ 
+                //               << " " << __FUNCTION__ << std::endl;
+                //   }
+                // }
               }
   #define CHECK_SPLITTING_POINT_KEY_IN_ASCENDING_ORDER
   #ifdef CHECK_SPLITTING_POINT_KEY_IN_ASCENDING_ORDER
@@ -2006,12 +2007,13 @@ void ColumnFamilyData::InstallSuperVersion(
     //Split PLRDF
     if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
       current_->setSplitPLRDF(this->split_plrdf_prime);
+    
+      if(this->get_split__call_before_install_superversion_count() > 1){
+        std::cerr << "Error: split__call_before_install_superversion_count > 1 @installSuperversion, split__call_before_install_superversion_count = " 
+                  << this->get_split__call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      }
+      this->clear_split__call_before_install_superversion_count();
     }
-    if(this->get_split__call_before_install_superversion_count() > 1){
-      std::cerr << "Error: split__call_before_install_superversion_count > 1 @installSuperversion, split__call_before_install_superversion_count = " 
-                << this->get_split__call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    }
-    this->clear_split__call_before_install_superversion_count();
 
     //Top Level RDF
     if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
@@ -2050,12 +2052,13 @@ void ColumnFamilyData::InstallSuperVersion(
     if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
       (this->split_plrdf_prime).deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
       current_->setSplitPLRDF(this->split_plrdf_prime);
+      
+      if(this->get_split__call_before_install_superversion_count() > 1){
+        std::cerr << "Error: split__call_before_install_superversion_count > 1 @installSuperversion, split__call_before_install_superversion_count = " 
+                  << this->get_split__call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      }
+      this->clear_split__call_before_install_superversion_count();
     }
-    if(this->get_split__call_before_install_superversion_count() > 1){
-      std::cerr << "Error: split__call_before_install_superversion_count > 1 @installSuperversion, split__call_before_install_superversion_count = " 
-                << this->get_split__call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    }
-    this->clear_split__call_before_install_superversion_count();
 
     //Top Level RDF
     if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){

@@ -29,6 +29,10 @@
 #include "util/cast_util.h"
 #include "util/concurrent_task_limiter_impl.h"
 
+// // yucheng Added Start
+// #include "db/range_del_aggregator.h"
+// // yucheng Added End
+
 namespace ROCKSDB_NAMESPACE {
 
 bool DBImpl::EnoughRoomForCompaction(
@@ -3495,30 +3499,80 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
     }
 
     //yucheng Added Start
-    // if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+    std::cout << "(delete compaction) hasRDFTypeOtherThanNone() = " << checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() << std::endl;
+    std::cout << "containsRDFType(PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")<< std::endl;
+    std::cout << "containsRDFType(SPLIT_PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")<< std::endl;
+    std::cout << "containsRDFType(TOP_LEVEL_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")<< std::endl;
+    std::cout << "containsRDFType(SuRF_LF_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")<< std::endl;
+    std::cout << "containsRDFType(SuRF_LF_SPLIT_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")<< std::endl;
+    if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
       std::vector<pll> smallest_largest_boundries{};
-      std::vector<pss> smallest_largest_boundries__str_key{};
+      // std::vector<pss> smallest_largest_boundries__str_key{};
       std::vector<uint64_t> file_numbers;
+      long long min_start_key_RT = LLONG_MAX, max_end_key_RT = LLONG_MIN; 
       for (auto file_meta : *(c->inputs(0)))
       {
-      // FIXME: ONLY FOR TESTING USE 
+        {
+          size_t size = 0;
+          const FileDescriptor& fd = file_meta->fd;
+          Status s;
+          TableReader* t = fd.table_reader;
+          if (t == nullptr) {continue;}
+          FragmentedRangeTombstoneIterator* tombstone_iter = t->NewRangeTombstoneIterator(read_options);
+
+          if (tombstone_iter) {
+            tombstone_iter->SeekToFirst();
+            // TODO: print timestamp
+            while (tombstone_iter->Valid()) {
+              long long tmp_start_key = std::stoll(tombstone_iter->start_key().ToString(true));
+              long long tmp_end_key = std::stoll(tombstone_iter->end_key().ToString(true));
+              if(tmp_start_key < min_start_key_RT){min_start_key_RT = tmp_start_key;}
+              if(tmp_end_key > max_end_key_RT){max_end_key_RT = tmp_end_key;}
+
+
+              std::cout << "@ delete compaction" << " "
+                << "start: " << tombstone_iter->start_key().ToString(true)
+                << " end: " << tombstone_iter->end_key().ToString(true)
+                << " seq: " << tombstone_iter->seq() 
+                << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+              size += static_cast<std::string>(tombstone_iter->start_key().ToString(true)).size();
+              size += static_cast<std::string>(tombstone_iter->end_key().ToString(true)).size();
+              size += sizeof(static_cast<SequenceNumber>(tombstone_iter->seq()));
+              tombstone_iter->Next();
+            }
+            std::cout << "min_start_key_RT = " << min_start_key_RT << " max_end_key_RT = " << max_end_key_RT << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          }
+        }
+        
+        // FIXME: ONLY FOR TESTING USE 
         // std::cout << "Pushing file from Current Level: " << c->level(0) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(0) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl << std::flush;
         // std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl << std::flush;
-        smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
-        smallest_largest_boundries__str_key.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), file_meta->largest.user_key().ToString()));
+       
+        bool flag_has_range_tombstone = (min_start_key_RT <= max_end_key_RT);
+        if(flag_has_range_tombstone == true){
+          smallest_largest_boundries.push_back(std::make_pair(min_start_key_RT, max_end_key_RT));
+        }else{
+            //dummy (smallest,smallest)
+            // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->smallest.user_key().ToString())));
+            //dummy (smallest,largest)
+            smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+        }
+
+        // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+        // smallest_largest_boundries__str_key.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), file_meta->largest.user_key().ToString()));
         file_numbers.push_back(file_meta->fd.GetNumber());
       }
 
-      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
-        // || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
+        || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
         std::tuple<int, std::vector<pll>, std::vector<uint64_t>> file_meta_data_vectors = std::make_tuple(c->level(), smallest_largest_boundries, file_numbers);
-        // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
+        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
           c->column_family_data()->set_compaction_direct_delete_RD_vector(file_meta_data_vectors);
-        // }
-        // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+        }
+        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
           c->column_family_data()->set_split__compaction_direct_delete_RD_vector(file_meta_data_vectors);
-        // }
-      // }
+        }
+      }
 
       // std::tuple<int, std::vector<pss>, std::vector<uint64_t、>> *surf__file_meta_data_vectors = new std::tuple<int, std::vector<pss>, std::vector<uint64_t>>(); 
       // surf__file_meta_data_vectors->push_back(std::make_tuple(c->level(), smallest_largest_boundries__str_key, file_numbers));
@@ -3547,7 +3601,7 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
       c->column_family_data()->current()->inc_compaction_install_count();
       c->column_family_data()->inc_compaction_install_count();
       c->column_family_data()->inc_split__compaction_install_count();
-    // }
+    }
     //yucheng Added End
 
 
@@ -3606,13 +3660,20 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
       }
 
 
+
       //yucheng Added Start
-      // if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
-      //   if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
-      //     || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
-      //     || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")
-      //     || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
-      //     || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+      std::cout << "(trivial move) hasRDFTypeOtherThanNone() = " << checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() << std::endl;
+      std::cout << "containsRDFType(PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")<< std::endl;
+      std::cout << "containsRDFType(SPLIT_PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")<< std::endl;
+      std::cout << "containsRDFType(TOP_LEVEL_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")<< std::endl;
+      std::cout << "containsRDFType(SuRF_LF_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")<< std::endl;
+      std::cout << "containsRDFType(SuRF_LF_SPLIT_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")<< std::endl;
+      if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
           std::vector<pll> smallest_largest_boundries{};
           std::vector<pss> smallest_largest_boundries__str_key{};
           std::vector<uint64_t> file_numbers;
@@ -3629,15 +3690,16 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
                                                                         file_meta->largest.user_key().ToString()));
             file_numbers.push_back(file_meta->fd.GetNumber());
           }    
-          // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
-          //   || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
+            || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
+            || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
             file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries, file_numbers));
-          // }
-          // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+          }
+          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
             if(c->level(l) == 0){ // coming from level 0
               delete_RD_vector = std::make_tuple(1, smallest_largest_boundries, file_numbers);
             }
-          // }
+          }
         
           if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
             || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
@@ -3651,8 +3713,8 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
               surf_level_file_split__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
             }
           }
-      //   }
-      // }
+        }
+      }
       //yucheng Added End
 
       for (size_t i = 0; i < c->num_input_files(l); i++) {
@@ -3688,27 +3750,28 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
     }
 
     //yucheng Added Start
-    // if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+    if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
       // std::cout << "[Compaction]: Calling Shift RDF To Output Level for Trivial Compaction .. " << std::endl;
-      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
         surf__compaction_moving_RD_vector->dst_level = c->output_level();
         surf__compaction_moving_RD_vector->flag_direct_move_to_dst_level = true;
-      // }
+      }
       
-      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
         surf_level_file_split__compaction_moving_RD_vector->dst_level = c->output_level();
         surf_level_file_split__compaction_moving_RD_vector->flag_direct_move_to_dst_level = true;
-      // }
+      }
 
-      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
         c->column_family_data()->set_compaction_moving_RD_vector(*file_meta_data_vectors);
-      // }
-      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+      }
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
+        || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
         c->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
-      // }
-      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+      }
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
         c->column_family_data()->set_top_level__trivial_move__delete_RD_vector(delete_RD_vector); 
-      // }
+      }
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
         c->column_family_data()->set_surf__compaction_moving_RD_vector(surf__compaction_moving_RD_vector);
       }
@@ -3727,7 +3790,7 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
       c->column_family_data()->current()->inc_compaction_install_count();
       c->column_family_data()->inc_compaction_install_count();
       c->column_family_data()->inc_split__compaction_install_count();
-    // }
+    }
     //yucheng Added End
 
 
@@ -3844,6 +3907,12 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
 
     // std::cout << "[Compaction]: Performing Scheduled Compaction .. " << std::endl;
     //yucheng Added Start
+    std::cout << "(compaction) hasRDFTypeOtherThanNone() = " << checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() << std::endl;
+    std::cout << "containsRDFType(PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")<< std::endl;
+    std::cout << "containsRDFType(SPLIT_PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")<< std::endl;
+    std::cout << "containsRDFType(TOP_LEVEL_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")<< std::endl;
+    std::cout << "containsRDFType(SuRF_LF_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")<< std::endl;
+    std::cout << "containsRDFType(SuRF_LF_SPLIT_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")<< std::endl;
     if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
       if(c->column_family_data()->current()->get_compaction_install_count() > 0){
         std::cout << "compaction write to version (current_) happens more than once. times = " 

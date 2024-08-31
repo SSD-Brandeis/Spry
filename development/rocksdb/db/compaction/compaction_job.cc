@@ -1276,6 +1276,7 @@ void CompactionJob::ProcessKeyValueCompaction(SubcompactionState* sub_compact) {
 
 
 //Self Added Start
+// *** Don't use range_del_vec_self and get_RDs_by_fd for any RDF, it is just used for tracing and checking purposes!!! 
 std::vector<std::tuple<long long, long long, uint64_t>> range_del_vec_self;
 
  for (size_t lvl = 0; lvl < sub_compact->compaction->num_input_levels(); lvl++){
@@ -1933,6 +1934,37 @@ Status CompactionJob::InstallCompactionResults(
           flie_numbers.push_back(file_meta->fd.GetNumber());
         }
 
+        // // looping through Range Tombstones 
+        // for (auto file_meta : *(compaction->inputs(lvl))){
+        //   {
+        //     size_t size = 0;
+        //     const FileDescriptor& fd = file_meta->fd;
+        //     Status s;
+        //     TableReader* t = fd.table_reader;
+        //     if (t == nullptr) {continue;}
+        //     FragmentedRangeTombstoneIterator* tombstone_iter = t->NewRangeTombstoneIterator(read_options);
+        //     unsigned long long min_start_key = 0, max_end_key = 0; 
+
+        //     if (tombstone_iter) {
+        //       tombstone_iter->SeekToFirst();
+        //       // TODO: print timestamp
+        //       while (tombstone_iter->Valid()) {
+        //         std::cout << "@ delete compaction" << " "
+        //           << "start: " << tombstone_iter->start_key().ToString(true)
+        //           << " end: " << tombstone_iter->end_key().ToString(true)
+        //           << " seq: " << tombstone_iter->seq() 
+        //           << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<'\n';
+        //         size += static_cast<std::string>(tombstone_iter->start_key().ToString(true)).size();
+        //         size += static_cast<std::string>(tombstone_iter->end_key().ToString(true)).size();
+        //         size += sizeof(static_cast<SequenceNumber>(tombstone_iter->seq()));
+        //         tombstone_iter->Next();
+        //       }
+        //     }
+        //   }
+        // }
+
+
+
         //SuRF
         if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
         || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
@@ -1950,12 +1982,12 @@ Status CompactionJob::InstallCompactionResults(
 
       if (current_level != compaction->output_level()){
 
-  if(current_level ==  compaction->output_level()){
-    std::cerr << "Error: input level == output level (" << current_level << ")" << std::endl;
-  }
-  if( (current_level+1) !=  compaction->output_level()){
-    std::cerr << "Error: (input level + 1) != output level" << std::endl;
-  }
+        if(current_level ==  compaction->output_level()){
+          std::cerr << "Error: input level == output level (" << current_level << ")" << std::endl;
+        }
+        if( (current_level+1) !=  compaction->output_level()){
+          std::cerr << "Error: (input level + 1) != output level" << std::endl;
+        }
 
         // FIXME: FOR TESTING (remove the loop as well) 
 
@@ -1975,6 +2007,49 @@ Status CompactionJob::InstallCompactionResults(
             assert(max_end_key_str == std::to_string(max_end_key));
           }
 
+          // looping through the range tombstones to get the min_start_key, max_end_key
+          long long min_start_key_RT = LLONG_MAX, max_end_key_RT = LLONG_MIN; 
+          {
+            size_t size = 0;
+            const FileDescriptor& fd = file_meta->fd;
+            Status s;
+            TableReader* t = fd.table_reader;
+            if (t == nullptr) {continue;}
+            FragmentedRangeTombstoneIterator* tombstone_iter = t->NewRangeTombstoneIterator(read_options);
+
+            if (tombstone_iter) {
+              tombstone_iter->SeekToFirst();
+              // TODO: print timestamp
+              while (tombstone_iter->Valid()) {
+                long long tmp_start_key = std::stoll(tombstone_iter->start_key().ToString(true));
+                long long tmp_end_key = std::stoll(tombstone_iter->end_key().ToString(true));
+                if(tmp_start_key < min_start_key_RT){min_start_key_RT = tmp_start_key;}
+                if(tmp_end_key > max_end_key_RT){max_end_key_RT = tmp_end_key;}
+
+                std::cout << "@ compaction" << " "
+                  << "start: " << tombstone_iter->start_key().ToString(true)
+                  << " end: " << tombstone_iter->end_key().ToString(true)
+                  << " seq: " << tombstone_iter->seq() 
+                  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;;
+                size += static_cast<std::string>(tombstone_iter->start_key().ToString(true)).size();
+                size += static_cast<std::string>(tombstone_iter->end_key().ToString(true)).size();
+                size += sizeof(static_cast<SequenceNumber>(tombstone_iter->seq()));
+                tombstone_iter->Next();
+              }
+              std::cout << "min_start_key_RT = " << min_start_key_RT << " max_end_key_RT = " << max_end_key_RT << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            }
+          }
+
+          // bool flag_has_range_tombstone = (min_start_key_RT <= max_end_key_RT);
+          // if(flag_has_range_tombstone == true){
+          //   smallest_largest_boundries.push_back(std::make_pair(min_start_key_RT, max_end_key_RT));
+          // }else{
+          //   //dummy (smallest,smallest)
+          //   // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->smallest.user_key().ToString())));
+          //   //dummy (smallest,largest)
+          //   smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+          // }
+
           if(max_end_key != std::stoll(file_meta->largest.user_key().ToString())){
             smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), max_end_key));
           }else{
@@ -1986,7 +2061,8 @@ Status CompactionJob::InstallCompactionResults(
         }
 
         if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
-          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
           file_meta_data_vectors->push_back(std::make_tuple(current_level, compaction->output_level(), smallest_largest_boundries, flie_numbers));
         }
 
@@ -2008,7 +2084,8 @@ Status CompactionJob::InstallCompactionResults(
     if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
       compaction->column_family_data()->set_compaction_moving_RD_vector(*file_meta_data_vectors);
     }
-    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
+      || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
       compaction->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
     }
     // ychuang Added End
@@ -2019,14 +2096,15 @@ Status CompactionJob::InstallCompactionResults(
 
     // yucheng Added Start
     //Output part
-    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
-    || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
-      for (const auto& sub_compact : compact_->sub_compact_states) {
-        std::vector<FileMetaData> compaction_output_file_meta_data = sub_compact.getCompactionOutputFileMetaData();
-        std::vector<FileMetaData> penultimate_level_output_file_meta_data = sub_compact.getPenultimateLevelOutputFileMetaData();
+    for (const auto& sub_compact : compact_->sub_compact_states) {
+      std::vector<FileMetaData> compaction_output_file_meta_data = sub_compact.getCompactionOutputFileMetaData();
+      std::vector<FileMetaData> penultimate_level_output_file_meta_data = sub_compact.getPenultimateLevelOutputFileMetaData();
 
-        for(const auto &fmeta: compaction_output_file_meta_data) {
-          file_in_out_ptr->file_out.push_back(std::make_tuple(fmeta.fd.GetNumber(), std::stoll(fmeta.smallest.user_key().ToString()), std::stoll(fmeta.largest.user_key().ToString())));
+      for(const auto &fmeta: compaction_output_file_meta_data) {
+        file_in_out_ptr->file_out.push_back(std::make_tuple(fmeta.fd.GetNumber(), std::stoll(fmeta.smallest.user_key().ToString()), std::stoll(fmeta.largest.user_key().ToString())));
+        
+        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
           SuRFCompactionDstinationLevelInfo dst_level_info;
           dst_level_info.fd = fmeta.fd.GetNumber();
           dst_level_info.file_boundary = std::make_pair(fmeta.smallest.user_key().ToString(), fmeta.largest.user_key().ToString());
@@ -2037,8 +2115,12 @@ Status CompactionJob::InstallCompactionResults(
             surf_level_file_split__compaction_moving_RD_vector->dst_level_info_list.push_back(dst_level_info);
           }
         }
-        for(const auto &fmeta: penultimate_level_output_file_meta_data) {
-          file_in_out_ptr->file_out.push_back(std::make_tuple(fmeta.fd.GetNumber(), std::stoll(fmeta.smallest.user_key().ToString()), std::stoll(fmeta.largest.user_key().ToString())));
+      }
+      for(const auto &fmeta: penultimate_level_output_file_meta_data) {
+        file_in_out_ptr->file_out.push_back(std::make_tuple(fmeta.fd.GetNumber(), std::stoll(fmeta.smallest.user_key().ToString()), std::stoll(fmeta.largest.user_key().ToString())));
+        
+        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
           SuRFCompactionDstinationLevelInfo dst_level_info;
           dst_level_info.fd = fmeta.fd.GetNumber();
           dst_level_info.file_boundary = std::make_pair(fmeta.smallest.user_key().ToString(), fmeta.largest.user_key().ToString());
@@ -2077,7 +2159,6 @@ Status CompactionJob::InstallCompactionResults(
     }
   }
   // yucheng Added End
-
   return versions_->LogAndApply(compaction->column_family_data(),
                                 mutable_cf_options, read_options, edit,
                                 db_mutex_, db_directory_);

@@ -61,7 +61,7 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
 
   checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
   int KEY_SIZE = checking::SystemVerifier::getSystemVerifier()->getKeySize();
-  system_verifier->setRDFTypes(_env->RDFTypes);
+  // system_verifier->setRDFTypes(_env->RDFTypes);
 
   system_verifier->setRunningPQ();
 

@@ -908,7 +908,8 @@ if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == t
   if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
     cfd_->set_flush_to_level0_RD_vector(level0_RD_vector);
   }
-  if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+  if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
+    || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
     cfd_->set_split__flush_to_level0_RD_vector(level0_RD_vector);
   }
 
@@ -921,7 +922,7 @@ if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == t
   }
 
 
-  if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
+  if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
     SuRFFlushToLevel0Info *surf_level_file_split__level0_RD_vector = new SuRFFlushToLevel0Info;
     surf_level_file_split__level0_RD_vector->dst_fd = meta_.fd.GetNumber();
     surf_level_file_split__level0_RD_vector->rd_list = range_delete_list_in_str; 

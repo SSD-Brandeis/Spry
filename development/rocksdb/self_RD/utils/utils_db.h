@@ -21,6 +21,9 @@ void init(DB **db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_o
   rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
   
   checking::SystemVerifier::init();
+  
+  checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
+  system_verifier->setRDFTypes(_env->RDFTypes);
 
 
   // Check if the directory exists
