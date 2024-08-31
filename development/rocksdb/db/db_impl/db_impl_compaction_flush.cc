@@ -3517,30 +3517,32 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
           const FileDescriptor& fd = file_meta->fd;
           Status s;
           TableReader* t = fd.table_reader;
-          if (t == nullptr) {continue;}
-          FragmentedRangeTombstoneIterator* tombstone_iter = t->NewRangeTombstoneIterator(read_options);
+          // if (t == nullptr) {continue;}
+          if (t != nullptr) {
+            FragmentedRangeTombstoneIterator* tombstone_iter = t->NewRangeTombstoneIterator(read_options);
 
-          if (tombstone_iter) {
-            tombstone_iter->SeekToFirst();
-            // TODO: print timestamp
-            while (tombstone_iter->Valid()) {
-              long long tmp_start_key = std::stoll(tombstone_iter->start_key().ToString(true));
-              long long tmp_end_key = std::stoll(tombstone_iter->end_key().ToString(true));
-              if(tmp_start_key < min_start_key_RT){min_start_key_RT = tmp_start_key;}
-              if(tmp_end_key > max_end_key_RT){max_end_key_RT = tmp_end_key;}
+            if (tombstone_iter) {
+              tombstone_iter->SeekToFirst();
+              // TODO: print timestamp
+              while (tombstone_iter->Valid()) {
+                long long tmp_start_key = std::stoll(tombstone_iter->start_key().ToString(true));
+                long long tmp_end_key = std::stoll(tombstone_iter->end_key().ToString(true));
+                if(tmp_start_key < min_start_key_RT){min_start_key_RT = tmp_start_key;}
+                if(tmp_end_key > max_end_key_RT){max_end_key_RT = tmp_end_key;}
 
 
-              std::cout << "@ delete compaction" << " "
-                << "start: " << tombstone_iter->start_key().ToString(true)
-                << " end: " << tombstone_iter->end_key().ToString(true)
-                << " seq: " << tombstone_iter->seq() 
-                << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-              size += static_cast<std::string>(tombstone_iter->start_key().ToString(true)).size();
-              size += static_cast<std::string>(tombstone_iter->end_key().ToString(true)).size();
-              size += sizeof(static_cast<SequenceNumber>(tombstone_iter->seq()));
-              tombstone_iter->Next();
+                std::cout << "@ delete compaction" << " "
+                  << "start: " << tombstone_iter->start_key().ToString(true)
+                  << " end: " << tombstone_iter->end_key().ToString(true)
+                  << " seq: " << tombstone_iter->seq() 
+                  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                size += static_cast<std::string>(tombstone_iter->start_key().ToString(true)).size();
+                size += static_cast<std::string>(tombstone_iter->end_key().ToString(true)).size();
+                size += sizeof(static_cast<SequenceNumber>(tombstone_iter->seq()));
+                tombstone_iter->Next();
+              }
+              std::cout << "min_start_key_RT = " << min_start_key_RT << " max_end_key_RT = " << max_end_key_RT << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
             }
-            std::cout << "min_start_key_RT = " << min_start_key_RT << " max_end_key_RT = " << max_end_key_RT << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
           }
         }
         
@@ -3658,8 +3660,6 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
       if (c->level(l) == c->output_level()) {
         continue;
       }
-
-
 
       //yucheng Added Start
       std::cout << "(trivial move) hasRDFTypeOtherThanNone() = " << checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() << std::endl;
