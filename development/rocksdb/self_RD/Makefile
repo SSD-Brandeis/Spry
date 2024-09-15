@@ -21,7 +21,7 @@ CXXFLAGS += -pg
 # SURF_SOURCE_FILES := $(wildcard ../include/rocksdb/SuRF/include/*.cc)
 # YCH ADDED END
 
-.PHONY: clean librocksdb
+.PHONY: clean librocksdb genworkload
 
 out: 
 	echo "hello"
@@ -29,7 +29,7 @@ out:
 
 all: simple_example column_families_example compact_files_example c_simple_example optimistic_transaction_example transaction_example compaction_filter_example options_file_example rocksdb_backup_restore_example
 
-simple_example: librocksdb simple_example.cc
+simple_example: librocksdb simple_example.cc genworkload genpqworkload
 	# $(CXX) $(CXXFLAGS) $(SURF_SOURCE_FILES) $@.cc -o$@ ../librocksdb.a -I../include -O2 -std=c++17 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS)
 	# $(CXX) $(CXXFLAGS) $(SURF_SOURCE_FILES) $@.cc -o$@ ../librocksdb.a -I../include -I../include/SuRF/include -I../../db -I../ -O2 -std=c++17 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS) -DDEBUG_SURF_GET_PATH -DDEBUG_SURF_COMPACTION -DDEBUG_OPEN_SST_TABLE -DDEBUG_VERIFICATION
 	# $(CXX) $(CXXFLAGS) $(SURF_SOURCE_FILES) $@.cc -o$@ ../librocksdb.a -I../include -I../include/SuRF/include -I../../db -I../ -O2 -std=c++17 $(PLATFORM_LDFLAGS) $(PLATFORM_CXXFLAGS) $(EXEC_LDFLAGS) -DDEBUG_SURF_GET_PATH -DDEBUG_VERIFICATION
@@ -70,3 +70,9 @@ clean:
 
 librocksdb:
 	cd .. && $(MAKE) static_lib
+
+genworkload:
+	cd K-V-Workload-Generator-master && make
+
+genpqworkload:
+	cd gen_pq_workload  && make

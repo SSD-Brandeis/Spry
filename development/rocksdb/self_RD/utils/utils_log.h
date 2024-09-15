@@ -69,7 +69,7 @@ class TestingLogger{
         + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.bytes[^:]*: ([0-9]+)");
       total_read_count += read_count_end - read_count_start;
       total_read_bytes += read_bytes_end - read_bytes_start;
-      reset_perf_iostats_context();
+      // reset_perf_iostats_context();
 
       testing_result_file << "read_count_start = " << std::fixed << std::setprecision(2) << read_count_start << std::endl;
       testing_result_file << "read_count_end = " << std::fixed << std::setprecision(2) << read_count_end << std::endl;
@@ -100,7 +100,10 @@ class TestingLogger{
 void print_perf_iostats_context(std::ostream& ofile, int N_repetitions){
   
     std::string perf_context = rocksdb::get_perf_context()->ToString();
-    
+    std::cout << "perf_context = " << perf_context << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // std::cout << " rocksdb::get_perf_context()->bloom_sst_miss_count = " <<  rocksdb::get_perf_context()->bloom_sst_miss_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // std::cout << " rocksdb::get_perf_context()->bloom_sst_hit_count = " <<  rocksdb::get_perf_context()->bloom_sst_hit_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
     long long get_from_memtable_time = parsing_value_from_string(perf_context, "get_from_memtable_time[^:]*= ([0-9]+)");
     long long get_from_memtable_count = parsing_value_from_string(perf_context, "get_from_memtable_count[^:]*= ([0-9]+)");
     long long get_post_process_time = parsing_value_from_string(perf_context, "get_post_process_time[^:]*= ([0-9]+)");
@@ -128,6 +131,7 @@ void print_perf_iostats_context(std::ostream& ofile, int N_repetitions){
 
 
     std::string iostats_context = rocksdb::get_iostats_context()->ToString();
+    std::cout << "iostats_context = " << iostats_context << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
     long long bytes_read = parsing_value_from_string(iostats_context, "bytes_read[^:]*= ([0-9]+)");
     long long bytes_written = parsing_value_from_string(iostats_context, "bytes_written[^:]*= ([0-9]+)");

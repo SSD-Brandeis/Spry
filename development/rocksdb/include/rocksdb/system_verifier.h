@@ -14,6 +14,7 @@ namespace checking {
 
 
 #include <iostream>
+#include <fstream>
 #include <cmath>
 #include <sys/time.h>
 #include <assert.h>
@@ -33,6 +34,9 @@ namespace checking {
 #include <cstdint> // for uint64_t
 #include <cstring> // for memcpy
 
+// // yucheng Added Start
+// #include "../utils/utils_read_write.h"
+// // yucheng Added End
 
 using namespace std;
 
@@ -129,6 +133,8 @@ namespace checking {
   private:
     int KEY_SIZE = 12;
 
+    bool show_tombstone_during_compaction = false;
+
     int CurrentlyNonInsertedKeysNum = 1000;
 
     bool flag_skip_reading_range_delete_block = false;
@@ -188,7 +194,12 @@ namespace checking {
       return KEY_SIZE;
     }
 
-
+    void setShowTombstonesDuringCompactionInfo(bool flag){
+      show_tombstone_during_compaction = flag;
+    }
+    bool getShowTombstonesDuringCompactionInfo(){
+      return show_tombstone_during_compaction;
+    }
 
     void setFlagOpenTable(){
       flag_open_table = true;
@@ -747,9 +758,17 @@ namespace checking {
     vector<pll2> RDs;
     int deleted_key_count = 0;
 
+    map<long long, string> getGroundTruth(){return groundTruth;}
+    // vector<long long> getHistoricExistingKeys(){return historicExistingKeys;}
+    // vector<long long> getCurrentlyNonInsertedKeys(){return currentlyNonInsertedKeys;}
+    void setGroundTruth(map<long long, string> ground_truth){this->groundTruth = ground_truth;}
+    void setHistoricExistingKeys(set<long long> historic_existing_keys){this->historicExistingKeys = historic_existing_keys;}
+    void setCurrentlyNonInsertedKeys(vector<long long> currently_non_inserted_keys){this->currentlyNonInsertedKeys = currently_non_inserted_keys;}
+
 
     void insert(long long key, string value){
       groundTruth[key] = value;
+      // std::cout << "groundTruth[" << key << "] = " << groundTruth[key]  << std::endl;
       historicExistingKeys.insert(key);
     }
 
@@ -845,6 +864,215 @@ namespace checking {
 
           idx = (int) (rand() % len_currently_non_inserted_keys);
           workload_currently_non_inserted_keys[i][j] = currently_non_inserted_keys[idx];
+        }
+      }
+
+      return;
+    }
+
+    
+    // Template function to read map from a file
+    template <typename T1, typename T2>
+    std::map<T1, T2> readDictFromFile(const std::string& file_name) {
+        std::map<T1, T2> m;
+        std::ifstream in_file(file_name);
+        if (!in_file) {
+            std::cerr << "Error opening file for reading: " << file_name << std::endl;
+            return m;
+        }
+
+        std::string line;
+        while (std::getline(in_file, line)) {
+            std::stringstream ss(line);
+            std::string key_str, value_str;
+
+            // Split the line into key and value
+            if (std::getline(ss, key_str, ':') && std::getline(ss, value_str)) {
+                std::stringstream key_stream(key_str);
+                std::stringstream value_stream(value_str);
+
+                T1 key;
+                T2 value;
+
+                key_stream >> key;
+                value_stream >> value;
+
+                m[key] = value;
+            }
+        }
+
+        in_file.close();
+        return m;
+    }
+
+    // Template function to read vector from a file
+    template <typename T>
+    std::vector<T> readVectorFromFile(const std::string& file_name) {
+        std::vector<T> v;
+        std::ifstream in_file(file_name);
+        if (!in_file) {
+            std::cerr << "Error opening file for reading: " << file_name << std::endl;
+            return v;
+        }
+
+        std::string line;
+        while (std::getline(in_file, line)) {
+            std::stringstream ss(line);
+            T element;
+            ss >> element;  // Convert the line to the appropriate type
+            v.push_back(element);
+        }
+
+        in_file.close();
+        return v;
+    }
+
+    // Template function to read vector from a file
+    template <typename T>
+    std::set<T> readSetFromFile(const std::string& file_name) {
+        std::set<T> v;
+        std::ifstream in_file(file_name);
+        if (!in_file) {
+            std::cerr << "Error opening file for reading: " << file_name << std::endl;
+            return v;
+        }
+
+        std::string line;
+        while (std::getline(in_file, line)) {
+            std::stringstream ss(line);
+            T element;
+            ss >> element;  // Convert the line to the appropriate type
+            v.insert(element);
+        }
+
+        in_file.close();
+        return v;
+    }
+
+    void load_workload_with_numbers_of_PQ(int N_repetitions, int number_of_PQs, const std::string workload_file_name){
+      {
+        // const string pq_workload_ground_truth_file_name = "../../development/self_RD/" + workload_file_name + "_ground_truth";
+        // const string pq_workload_historic_existing_file_name = "../../development/self_RD/" +  workload_file_name + "_historic_existing";
+        // const string pq_workload_currently_non_existed_file_name = "../../development/self_RD/" + workload_file_name + "_currently_non_existed";
+  
+        const string pq_workload_ground_truth_file_name = workload_file_name + "_ground_truth";
+        const string pq_workload_historic_existing_file_name = workload_file_name + "_historic_existing";
+        const string pq_workload_currently_non_existed_file_name = workload_file_name + "_currently_non_existed";
+  
+        // Read the map back from the file
+        std::cout << "load " << pq_workload_ground_truth_file_name << std::endl;
+        std::map<long long, std::string> read_back_map = readDictFromFile<long long, std::string>(pq_workload_ground_truth_file_name);
+        this->setGroundTruth(read_back_map);
+
+        // Read the vector back from the file
+        std::cout << "load " << pq_workload_historic_existing_file_name << std::endl;
+        std::set<long long> read_back_vector = readSetFromFile<long long>(pq_workload_historic_existing_file_name);
+        this->setHistoricExistingKeys(read_back_vector);
+
+        // Read the vector back from the file
+        std::cout << "load " << pq_workload_currently_non_existed_file_name << std::endl;
+        std::set<long long> read_back_vector2 = readSetFromFile<long long>(pq_workload_currently_non_existed_file_name);
+        this->setHistoricExistingKeys(read_back_vector2);
+      }
+
+      workload_all_existing_keys.clear();
+      workload_historic_existing_keys.clear();
+      workload_currently_deleted_keys.clear();
+      workload_currently_non_inserted_keys.clear();
+      
+
+      if(number_of_PQs == -1){
+        
+        workload_all_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
+        workload_historic_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
+        workload_currently_deleted_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
+        workload_currently_non_inserted_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
+
+        //All keys
+          {
+            // const string pq_workload_all_existing_keys_file_name = "../../development/self_RD/" + workload_file_name + "_all_existing_keys";
+            // const string pq_workload_historic_existing_keys_file_name = "../../development/self_RD/" + workload_file_name + "_historic_existing_keys";
+            // const string pq_workload_currently_deleted_keys_file_name = "../../development/self_RD/" + workload_file_name + "_currently_deleted_keys";
+            // const string pq_workload_currently_non_inserted_keys_file_name = "../../development/self_RD/" + workload_file_name + "_currently_non_inserted_keys";
+            
+            const string pq_workload_all_existing_keys_file_name = workload_file_name + "_all_existing_keys";
+            const string pq_workload_historic_existing_keys_file_name = workload_file_name + "_historic_existing_keys";
+            const string pq_workload_currently_deleted_keys_file_name = workload_file_name + "_currently_deleted_keys";
+            const string pq_workload_currently_non_inserted_keys_file_name = workload_file_name + "_currently_non_inserted_keys";
+            
+            // vector<long long> workload_all_existing_keys = system_verifier->getAllExistingKeys();
+            // vector<long long> workload_historic_existing_keys = system_verifier->getHistoricExistingKeys();
+            // vector<long long> workload_currently_deleted_keys = system_verifier->getCurrentlyDeletedKeys();
+            // vector<long long> workload_currently_non_inserted_keys = system_verifier->getCurrentlyNonInsertedKeys(); 
+
+            // all_existing_keys = workload_all_existing_keys;
+            // historic_existing_keys = workload_historic_existing_keys;
+            // currently_deleted_keys = workload_currently_deleted_keys;
+            // currently_non_inserted_keys = workload_currently_non_inserted_keys;
+              
+            for(int i = 0; i < N_repetitions; i++){
+              // Read the vector back from the file
+              std::cout << "load " << pq_workload_all_existing_keys_file_name << std::endl;
+              auto read_back_vector_all_existing_keys = readVectorFromFile<long long>(pq_workload_all_existing_keys_file_name);
+
+              // Read the vector back from the file
+              std::cout << "load " << pq_workload_historic_existing_keys_file_name << std::endl;
+              auto read_back_vector_historic_existing_keys = readVectorFromFile<long long>(pq_workload_historic_existing_keys_file_name);
+            
+              // Read the vector back from the file
+              std::cout << "load " << pq_workload_currently_deleted_keys_file_name << std::endl;
+              auto read_back_vector_currently_deleted_keys = readVectorFromFile<long long>(pq_workload_currently_deleted_keys_file_name);
+
+              // Read the vector back from the file
+              std::cout << "load " << pq_workload_currently_non_inserted_keys_file_name << std::endl;
+              auto read_back_vector_currently_non_inserted_keys = readVectorFromFile<long long>(pq_workload_currently_non_inserted_keys_file_name);
+
+              workload_all_existing_keys[i] = (read_back_vector_all_existing_keys);
+              workload_historic_existing_keys[i] = (read_back_vector_historic_existing_keys);
+              workload_currently_deleted_keys[i] = (read_back_vector_currently_deleted_keys);
+              workload_currently_non_inserted_keys[i] = (read_back_vector_currently_non_inserted_keys);
+            }
+            
+          }
+        // return;
+      }else{   
+        workload_all_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs));
+        workload_historic_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs));
+        workload_currently_deleted_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs));
+        workload_currently_non_inserted_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs));
+
+        // #PQ = fixed
+        for(int i = 0; i < N_repetitions; i++){
+          // const string pq_workload_all_existing_keys_file_name = "../../development/self_RD/" + workload_file_name + "_all_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+          // const string pq_workload_historic_existing_keys_file_name = "../../development/self_RD/" + workload_file_name + "_historic_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+          // const string pq_workload_currently_deleted_keys_file_name = "../../development/self_RD/" + workload_file_name + "_currently_deleted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+          // const string pq_workload_currently_non_inserted_keys_file_name = "../../development/self_RD/" + workload_file_name + "_currently_non_inserted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+          
+          const string pq_workload_all_existing_keys_file_name = workload_file_name + "_all_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+          const string pq_workload_historic_existing_keys_file_name = workload_file_name + "_historic_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+          const string pq_workload_currently_deleted_keys_file_name = workload_file_name + "_currently_deleted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+          const string pq_workload_currently_non_inserted_keys_file_name = workload_file_name + "_currently_non_inserted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+          
+          // Read the vector back from the file
+          std::cout << "load " << pq_workload_all_existing_keys_file_name << std::endl;
+          auto read_back_vector_all_existing_keys = readVectorFromFile<long long>(pq_workload_all_existing_keys_file_name);
+
+          // Read the vector back from the file
+          std::cout << "load " << pq_workload_historic_existing_keys_file_name << std::endl;
+          auto read_back_vector_historic_existing_keys = readVectorFromFile<long long>(pq_workload_historic_existing_keys_file_name);
+        
+          // Read the vector back from the file
+          std::cout << "load " << pq_workload_currently_deleted_keys_file_name << std::endl;
+          auto read_back_vector_currently_deleted_keys = readVectorFromFile<long long>(pq_workload_currently_deleted_keys_file_name);
+
+          // Read the vector back from the file
+          std::cout << "load " << pq_workload_currently_non_inserted_keys_file_name << std::endl;
+          auto read_back_vector_currently_non_inserted_keys = readVectorFromFile<long long>(pq_workload_currently_non_inserted_keys_file_name);
+
+          workload_all_existing_keys[i] = (read_back_vector_all_existing_keys);
+          workload_historic_existing_keys[i] = (read_back_vector_historic_existing_keys);
+          workload_currently_deleted_keys[i] = (read_back_vector_currently_deleted_keys);
+          workload_currently_non_inserted_keys[i] = (read_back_vector_currently_non_inserted_keys);
         }
       }
 
@@ -960,7 +1188,6 @@ namespace checking {
       assert(n_round < workload_currently_non_inserted_keys.size());
       return workload_currently_non_inserted_keys[n_round];
     }
-
 
 
 

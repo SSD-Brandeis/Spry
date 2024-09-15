@@ -242,6 +242,10 @@ class SubcompactionState {
     }
     return file_numbers;
   }
+
+  void printRangeDelAgg(){
+    compaction_outputs_.printRangeDelAgg();
+  }
   //Self Added End
 
 

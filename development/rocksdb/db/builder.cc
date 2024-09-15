@@ -103,7 +103,7 @@ Status BuildTable(
     range_del_agg->AddTombstones(std::move(range_del_iter));
   }
 
-//Self Added Start
+//yucheng Added Start
 std::vector<std::tuple<long long, long long, uint64_t>> range_del_vec_self;
   auto range_del_it2 = range_del_agg->NewIterator();
   for (range_del_it2->SeekToFirst(); range_del_it2->Valid();
@@ -112,7 +112,7 @@ std::vector<std::tuple<long long, long long, uint64_t>> range_del_vec_self;
     auto tombstone = range_del_it2->Tombstone();
     range_del_vec_self.push_back(std::make_tuple(std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()), tombstone.seq_));
   }
-//Self Added End
+//yucheng Added End
 
 
 

@@ -72,12 +72,15 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
     std::stringstream ss_key, ss_start_key, ss_end_key;
     size_t separator_pos = 0;
     workload_file >> instruction;
-
+    if(workload_file.eof()){break;}
+    
     switch (instruction) {
       case 'I':  // insert
         workload_file >> key >> value;
 
-        system_verifier->insert(key, value);
+        if(_env->load_pq_workload == false){
+          system_verifier->insert(key, value);
+        }
 
         ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
         ss_time_stamp << std::setfill('0') << std::setw(TIME_STAMP_SIZE) << i_instruction;
@@ -133,7 +136,9 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
           while(db->existFlushJob() == true){
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
           }
-          system_verifier->rangeDelete(start_key, end_key);
+          if(_env->load_pq_workload == false){
+            system_verifier->rangeDelete(start_key, end_key);
+          }
           while(db->existFlushJob() == true){
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
           }
@@ -165,7 +170,9 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
         while(db->existFlushJob() == true){
           std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
-        system_verifier->rangeDelete(start_key, end_key);
+        if(_env->load_pq_workload == false){
+          system_verifier->rangeDelete(start_key, end_key);
+        }
         while(db->existFlushJob() == true){
           std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
@@ -191,10 +198,12 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
         break;
     }
 
-    if (workload_size < 100) workload_size = 100;
-    if (counter % (workload_size / 100) == 0) {  
-      showProgress(workload_size, counter);
-    }
+    // {
+    //   if (workload_size < 100) workload_size = 100;
+    //   if (counter % (workload_size / 100) == 0) {  
+    //     showProgress(workload_size, counter);
+    //   }
+    // }
 
     // run PQ and log memory footprint during insertion
     vector<long long> currently_deleted_keys = system_verifier->getCurrentlyDeletedKeys();
@@ -260,8 +269,6 @@ logger_during_insertion->writeRecord(db_ptr2);
   uint num_SST_files = db->getTotalNumberOfSSTFiles();
   std::cout << "!!! Number of SST files = " << num_SST_files << std::endl;
 
-
-
   {
     std::vector<long long> testing_key_list({2500, 5000, 5001});
     long long total_read_count_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
@@ -294,8 +301,6 @@ logger_during_insertion->writeRecord(db_ptr2);
         std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
       }
     }
-
-    
 
 
     long long total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")

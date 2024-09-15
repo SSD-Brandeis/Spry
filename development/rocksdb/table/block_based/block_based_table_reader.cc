@@ -2216,6 +2216,10 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
   Status s;
   const bool no_io = read_options.read_tier == kBlockCacheTier;
 
+  // //yucheng Added Start
+  // std::cout << "skip_filters = " << skip_filters << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // //yucheng Added End
+
   FilterBlockReader* const filter =
       !skip_filters ? rep_->filter.get() : nullptr;
 
@@ -2235,6 +2239,11 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
   const bool may_match =
       FullFilterKeyMayMatch(filter, key, no_io, prefix_extractor, get_context,
                             &lookup_context, read_options);
+  //                          
+  // //yucheng Added Start
+  // std::cout << "filter : " << (filter == nullptr) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+  // std::cout << "BlockBasedTable::Get: FullFilterKeyMayMatch may_match = " << may_match << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+  // //yucheng Added End
   TEST_SYNC_POINT("BlockBasedTable::Get:AfterFilterMatch");
   if (!may_match) {
     RecordTick(rep_->ioptions.stats, BLOOM_FILTER_USEFUL);

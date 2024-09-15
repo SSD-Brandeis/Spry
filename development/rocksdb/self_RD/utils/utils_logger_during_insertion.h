@@ -73,10 +73,10 @@ LoggerDuringInsertion* LoggerDuringInsertion::getInstance(EmuEnv* _env){
 
 void LoggerDuringInsertion::start(EmuEnv* _env){
   
-    std::string running_log_name_during_insertion = "output_statistics/" + _env->workload_file_name + "_during_insertion.log";
+    std::string running_log_name_during_insertion = "output_statistics/" + _env->logging_filename + "_during_insertion.log";
     running_log_during_insertion.open(running_log_name_during_insertion);
 
-    std::string testing_result_file_name_during_insertion = "output_statistics/" + _env->workload_file_name + "_during_insertion.json";
+    std::string testing_result_file_name_during_insertion = "output_statistics/" + _env->logging_filename + "_during_insertion.json";
     testing_result_file_during_insertion.open(testing_result_file_name_during_insertion);
     testing_result_file_during_insertion << "{"<< std::endl;
     testing_result_file_during_insertion << "\"start\" : \"start\""<< std::endl;

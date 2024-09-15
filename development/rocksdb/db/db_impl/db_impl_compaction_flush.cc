@@ -3499,12 +3499,12 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
     }
 
     //yucheng Added Start
-    std::cout << "(delete compaction) hasRDFTypeOtherThanNone() = " << checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() << std::endl;
-    std::cout << "containsRDFType(PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")<< std::endl;
-    std::cout << "containsRDFType(SPLIT_PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")<< std::endl;
-    std::cout << "containsRDFType(TOP_LEVEL_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")<< std::endl;
-    std::cout << "containsRDFType(SuRF_LF_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")<< std::endl;
-    std::cout << "containsRDFType(SuRF_LF_SPLIT_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")<< std::endl;
+    // std::cout << "(delete compaction) hasRDFTypeOtherThanNone() = " << checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() << std::endl;
+    // std::cout << "containsRDFType(PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")<< std::endl;
+    // std::cout << "containsRDFType(SPLIT_PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")<< std::endl;
+    // std::cout << "containsRDFType(TOP_LEVEL_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")<< std::endl;
+    // std::cout << "containsRDFType(SuRF_LF_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")<< std::endl;
+    // std::cout << "containsRDFType(SuRF_LF_SPLIT_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")<< std::endl;
     if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
       std::vector<pll> smallest_largest_boundries{};
       // std::vector<pss> smallest_largest_boundries__str_key{};
@@ -3525,19 +3525,19 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
               tombstone_iter->SeekToFirst();
               // TODO: print timestamp
               while (tombstone_iter->Valid()) {
-                long long tmp_start_key = std::stoll(tombstone_iter->start_key().ToString(true));
-                long long tmp_end_key = std::stoll(tombstone_iter->end_key().ToString(true));
+                long long tmp_start_key = std::stoll(tombstone_iter->start_key().ToString());
+                long long tmp_end_key = std::stoll(tombstone_iter->end_key().ToString());
                 if(tmp_start_key < min_start_key_RT){min_start_key_RT = tmp_start_key;}
                 if(tmp_end_key > max_end_key_RT){max_end_key_RT = tmp_end_key;}
 
 
                 std::cout << "@ delete compaction" << " "
-                  << "start: " << tombstone_iter->start_key().ToString(true)
-                  << " end: " << tombstone_iter->end_key().ToString(true)
+                  << "start: " << tombstone_iter->start_key().ToString()
+                  << " end: " << tombstone_iter->end_key().ToString()
                   << " seq: " << tombstone_iter->seq() 
                   << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-                size += static_cast<std::string>(tombstone_iter->start_key().ToString(true)).size();
-                size += static_cast<std::string>(tombstone_iter->end_key().ToString(true)).size();
+                size += static_cast<std::string>(tombstone_iter->start_key().ToString()).size();
+                size += static_cast<std::string>(tombstone_iter->end_key().ToString()).size();
                 size += sizeof(static_cast<SequenceNumber>(tombstone_iter->seq()));
                 tombstone_iter->Next();
               }
@@ -3550,17 +3550,17 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
         // std::cout << "Pushing file from Current Level: " << c->level(0) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(0) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl << std::flush;
         // std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl << std::flush;
        
-        bool flag_has_range_tombstone = (min_start_key_RT <= max_end_key_RT);
-        if(flag_has_range_tombstone == true){
-          smallest_largest_boundries.push_back(std::make_pair(min_start_key_RT, max_end_key_RT));
-        }else{
-            //dummy (smallest,smallest)
-            // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->smallest.user_key().ToString())));
-            //dummy (smallest,largest)
-            smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
-        }
+        // bool flag_has_range_tombstone = (min_start_key_RT <= max_end_key_RT);
+        // if(flag_has_range_tombstone == true){
+        //   smallest_largest_boundries.push_back(std::make_pair(min_start_key_RT, max_end_key_RT));
+        // }else{
+        //     //dummy (smallest,smallest)
+        //     smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->smallest.user_key().ToString())));
+        //     //dummy (smallest,largest)
+        //     // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+        // }
 
-        // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+        smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
         // smallest_largest_boundries__str_key.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), file_meta->largest.user_key().ToString()));
         file_numbers.push_back(file_meta->fd.GetNumber());
       }
@@ -3662,12 +3662,12 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
       }
 
       //yucheng Added Start
-      std::cout << "(trivial move) hasRDFTypeOtherThanNone() = " << checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() << std::endl;
-      std::cout << "containsRDFType(PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")<< std::endl;
-      std::cout << "containsRDFType(SPLIT_PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")<< std::endl;
-      std::cout << "containsRDFType(TOP_LEVEL_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")<< std::endl;
-      std::cout << "containsRDFType(SuRF_LF_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")<< std::endl;
-      std::cout << "containsRDFType(SuRF_LF_SPLIT_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")<< std::endl;
+      // std::cout << "(trivial move) hasRDFTypeOtherThanNone() = " << checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() << std::endl;
+      // std::cout << "containsRDFType(PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")<< std::endl;
+      // std::cout << "containsRDFType(SPLIT_PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")<< std::endl;
+      // std::cout << "containsRDFType(TOP_LEVEL_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")<< std::endl;
+      // std::cout << "containsRDFType(SuRF_LF_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")<< std::endl;
+      // std::cout << "containsRDFType(SuRF_LF_SPLIT_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")<< std::endl;
       if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
         if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
           || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
@@ -3907,12 +3907,12 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
 
     // std::cout << "[Compaction]: Performing Scheduled Compaction .. " << std::endl;
     //yucheng Added Start
-    std::cout << "(compaction) hasRDFTypeOtherThanNone() = " << checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() << std::endl;
-    std::cout << "containsRDFType(PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")<< std::endl;
-    std::cout << "containsRDFType(SPLIT_PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")<< std::endl;
-    std::cout << "containsRDFType(TOP_LEVEL_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")<< std::endl;
-    std::cout << "containsRDFType(SuRF_LF_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")<< std::endl;
-    std::cout << "containsRDFType(SuRF_LF_SPLIT_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")<< std::endl;
+    // std::cout << "(compaction) hasRDFTypeOtherThanNone() = " << checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() << std::endl;
+    // std::cout << "containsRDFType(PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")<< std::endl;
+    // std::cout << "containsRDFType(SPLIT_PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")<< std::endl;
+    // std::cout << "containsRDFType(TOP_LEVEL_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")<< std::endl;
+    // std::cout << "containsRDFType(SuRF_LF_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")<< std::endl;
+    // std::cout << "containsRDFType(SuRF_LF_SPLIT_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")<< std::endl;
     if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
       if(c->column_family_data()->current()->get_compaction_install_count() > 0){
         std::cout << "compaction write to version (current_) happens more than once. times = " 

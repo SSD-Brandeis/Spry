@@ -36,6 +36,9 @@ test_gen: test_gen.cpp $(SRC)
 clean:
 	rm -rf emu_runner  
 
+clean_workload:
+	rm -rf workload*txt*
+
 run: 
 	./test_gen -i 100000 --RD 10 -E 32 --selectivity 0.001 --workload_filename "workload1.txt" --insert_before_range_delete 0.9
 

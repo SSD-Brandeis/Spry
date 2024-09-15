@@ -978,6 +978,11 @@ class Version {
   // with maximum max_entries_to_print entries printed out.
   Status TablesRangeTombstoneSummary(int max_entries_to_print,
                                      std::string* out_str);
+  
+  // // yucheng Added Start
+  // Status Version::GetRangeTombstoneOfFileMeta(FileMetaData *file_meta,
+  //                                             std::unique_ptr<FragmentedRangeTombstoneIterator> *outer_iter) {
+  // // yucheng Added End
 
   // REQUIRES: lock is held
   // On success, "tp" will contains the aggregated table property among

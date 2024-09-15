@@ -105,6 +105,15 @@ class SuRF_Env {
         uint32_t getLengthOfCondensedDigitKey(){
             return surf__length_of_condensed_digit_key;
         }
+
+        void setShowSurfCompactionInfo(bool flag){
+            show_surf_compaction_info = flag;
+        }
+
+        bool getShowSurfCompactionInfo(){
+            return show_surf_compaction_info;
+        }
+        
     private:
         SuRF_Env() {}
         static SuRF_Env* surf_env_ptr;
@@ -118,6 +127,8 @@ class SuRF_Env {
         bool surf__flag_allow_range_boundary_overlapped = false;
         bool surf__flag_use_condensed_digit_key = true;
         uint32_t surf__length_of_condensed_digit_key = 5;
+
+        bool show_surf_compaction_info = false;
 };
 
 

@@ -250,9 +250,12 @@ uint64_t SuRF::getMemoryUsage() const {
 }
 
 uint64_t SuRF::getMemoryUsageInBitsSelf() const {
-    std::cout << "SuRF::getMemoryUsageInBitsSelf() " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    std::cout << "sparse start level " << louds_sparse_->getStartLevel() << " " << "louds_sparse_=>getHeight " << louds_sparse_->getHeight() << std::endl;
-    std::cout << "sizeof(SuRF) " << sizeof(SuRF) << "  " << "louds_dense_->getMemoryUsage() " << louds_dense_->getMemoryUsage() << "  " << "louds_sparse_->getMemoryUsage() " << louds_sparse_->getMemoryUsageInBitsSelf() << std::endl;
+	surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
+	if(_surf_env->getShowSurfCompactionInfo()){
+        std::cout << "SuRF::getMemoryUsageInBitsSelf() " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "sparse start level " << louds_sparse_->getStartLevel() << " " << "louds_sparse_=>getHeight " << louds_sparse_->getHeight() << std::endl;
+        std::cout << "sizeof(SuRF) " << sizeof(SuRF) << "  " << "louds_dense_->getMemoryUsage() " << louds_dense_->getMemoryUsage() << "  " << "louds_sparse_->getMemoryUsage() " << louds_sparse_->getMemoryUsageInBitsSelf() << std::endl;
+    }
     return (louds_dense_->getMemoryUsageInBitsSelf() + louds_sparse_->getMemoryUsageInBitsSelf());
 }
 
@@ -622,6 +625,10 @@ std::pair<SuRF*, size_t> SuRF::rangesWithPointKeysToSurf(std::vector<pss> ranges
     return std::make_pair(surf_, split_count);
 }
 
+// struct SuRFRangesAndSplitPoint{
+//     std::vector<std::pair<std::string, std::string>> ranges;
+//     std::vector<std::string> split_points;
+// };
 
 std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(SuRF* surf_, bool flag_allow_boundary_overlapped){
     std::vector<std::string> keys;
@@ -691,7 +698,7 @@ std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(SuRF* surf_,
                   }
                   start = keys[i];
                 }else{
-                    end = keys[i];
+                  end = keys[i];
                 }
                 flag_first_key = false;
             }
@@ -1607,7 +1614,14 @@ void SuRF_RDF::print(bool flag_allow_boundary_overlapped){
                 std::cout << "\t Number of ranges: " << len_rd << std::endl;
                 std::cout << "\t";
                 for(auto &range: range_list){
-                    std::cout << "(" << range.first << ", " << range.second << ") ";
+                    if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+                        auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(range.first);
+                        auto ke = surf::SuRF_Utils::decode_byte_string_to_digit_string(range.second);
+
+                        std::cout << "(" << ks << ", " << ke << ") ";
+                    }else{
+                        std::cout << "(" << range.first << ", " << range.second << ") ";
+                    }
                 }
                 std::cout << std::endl;
             }
@@ -1623,7 +1637,14 @@ void SuRF_RDF::print(bool flag_allow_boundary_overlapped){
                 std::vector<pss> range_list = SuRF::surfToRanges(surf, flag_allow_boundary_overlapped);
                 std::cout << "\t";
                 for(auto &range: range_list){
-                    std::cout << "(" << range.first << ", " << range.second << ") ";
+                    if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+                        auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(range.first);
+                        auto ke = surf::SuRF_Utils::decode_byte_string_to_digit_string(range.second);
+
+                        std::cout << "(" << ks << ", " << ke << ") ";
+                    }else{
+                        std::cout << "(" << range.first << ", " << range.second << ") ";
+                    }
                 }
                 std::cout << std::endl;
                 it++;

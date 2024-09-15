@@ -1681,6 +1681,54 @@ Status Version::TablesRangeTombstoneSummary(int max_entries_to_print,
   return Status::OK();
 }
 
+
+// // yucheng Added Start
+// Status Version::GetRangeTombstoneOfFileMeta(FileMetaData *file_meta,
+//                                             std::unique_ptr<FragmentedRangeTombstoneIterator> *outer_iter) {
+//   // if (max_entries_to_print <= 0) {
+//   //   return Status::OK();
+//   // }
+//   // int num_entries_left = max_entries_to_print;
+
+//   // std::stringstream ss;
+
+//   // TODO: plumb Env::IOActivity
+//   const ReadOptions read_options;
+//   // for (int level = 0; level < storage_info_.num_levels_; level++) {
+//   //   for (const auto& file_meta : storage_info_.files_[level]) {
+//   // }}
+//   auto fname =
+//       TableFileName(cfd_->ioptions()->cf_paths, file_meta->fd.GetNumber(),
+//                     file_meta->fd.GetPathId());
+
+//   // ss << "=== file : " << fname << " ===\n";
+
+//   TableCache* table_cache = cfd_->table_cache();
+//   std::unique_ptr<FragmentedRangeTombstoneIterator> tombstone_iter;
+
+//   Status s = table_cache->GetRangeTombstoneIterator(
+//       read_options, cfd_->internal_comparator(), *file_meta,
+//       cfd_->GetLatestMutableCFOptions()->block_protection_bytes_per_key,
+//       &tombstone_iter);
+//   if (!s.ok()) {
+//     return s;
+//   }
+//   outer_iter->reset(tombstone_iter);
+//   // if (tombstone_iter) {
+//   //   tombstone_iter->SeekToFirst();
+
+//   //   // TODO: print timestamp
+//   //   while (tombstone_iter->Valid() && num_entries_left > 0) {
+//   //     ss << "start: " << tombstone_iter->start_key().ToString(true)
+//   //         << " end: " << tombstone_iter->end_key().ToString(true)
+//   //         << " seq: " << tombstone_iter->seq() << '\n';
+//   //     tombstone_iter->Next();
+//   //   }
+//   // }
+//   return Status::OK();
+// }
+// // yucheng Added End
+
 Status Version::GetPropertiesOfAllTables(const ReadOptions& read_options,
                                          TablePropertiesCollection* props,
                                          int level) {
@@ -2383,10 +2431,10 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
 
   //SuRF_LEVEL_FILE_SPLIT_RDF
   bool surf_level_file_split__is_alive_after_hit_file_level = true;
-if(rdf_type == "NONE"){
-  uint32_t bytes = getSizeOfTablesRangeTombstonesInCache();
-  std::cout << "\n\n" << "bytes:" << bytes << " " << __FILE__ << ":" << __LINE__ << std::endl;
-}
+// if(rdf_type == "NONE"){
+//   uint32_t bytes = getSizeOfTablesRangeTombstonesInCache();
+//   std::cout << "\n\n" << "bytes:" << bytes << " " << __FILE__ << ":" << __LINE__ << std::endl;
+// }
   //PLRDF
   if(rdf_type == "PLRDF"){
     checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
@@ -2732,10 +2780,10 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
     //Self Added Start
     if(fp_hit_file_level != fp.GetHitFileLevel()){
       
-if(rdf_type == "NONE"){
-  uint32_t bytes = getSizeOfTablesRangeTombstonesInCache();
-  std::cout << "bytes:" << bytes << " " << __FILE__ << ":" << __LINE__ << std::endl;
-}
+// if(rdf_type == "NONE"){
+//   uint32_t bytes = getSizeOfTablesRangeTombstonesInCache();
+//   std::cout << "bytes:" << bytes << " " << __FILE__ << ":" << __LINE__ << std::endl;
+// }
       //PLRDF
       if(rdf_type == "PLRDF"){
         if(is_alive_after_hit_file_level == false){
@@ -7271,6 +7319,30 @@ InternalIterator* VersionSet::MakeInputIterator(
               c->mutable_cf_options()->block_protection_bytes_per_key,
               /*range_del_iter=*/&range_tombstone_iter);
           range_tombstones.emplace_back(range_tombstone_iter, nullptr);
+
+          // //ychuang Added Start
+          // TruncatedRangeDelIterator* range_tombstone_iter_ych = range_tombstone_iter;
+          // std::cout << "which = " << which << " " 
+          //     << "c->input_levels(which) = " << c->input_levels(which) << " "
+          //     << "c->level(which) = " << c->level(which) << " "
+          //     << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          // if (range_tombstone_iter_ych != nullptr) {
+          //   range_tombstone_iter_ych->SeekToFirst();
+          //   if (range_tombstone_iter_ych->Valid()) {
+          //     std::cout << "Range deletions:\n"
+          //                   "--------------------------------------\n";
+          //     for (; range_tombstone_iter_ych->Valid(); range_tombstone_iter_ych->Next()) {
+          //       std::cout << range_tombstone_iter_ych->start_key().user_key.ToString() << " " 
+          //         << range_tombstone_iter_ych->end_key().user_key.ToString() << " "
+          //         << range_tombstone_iter_ych->seq() << " "
+          //         << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          //     }
+          //     std::cout << "\n";
+          //   }
+          //   // delete range_tombstone_iter_ych;
+          // }
+          // //ychuang Added End
+          
         }
       } else {
         // Create concatenating iterator for the files from this level
@@ -7286,6 +7358,29 @@ InternalIterator* VersionSet::MakeInputIterator(
             c->mutable_cf_options()->block_protection_bytes_per_key,
             range_del_agg, c->boundaries(which), false, &tombstone_iter_ptr);
         range_tombstones.emplace_back(nullptr, tombstone_iter_ptr);
+        
+        // //ychuang Added Start
+        // TruncatedRangeDelIterator* range_tombstone_iter_ych = **tombstone_iter_ptr;
+        // std::cout << "which = " << which << " " 
+        //     << "c->input_levels(which) = " << c->input_levels(which) << " "
+        //     << "c->level(which) = " << c->level(which) << " "
+        //     << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        // if (range_tombstone_iter_ych != nullptr) {
+        //   range_tombstone_iter_ych->SeekToFirst();
+        //   if (range_tombstone_iter_ych->Valid()) {
+        //     std::cout << "Range deletions:\n"
+        //                   "--------------------------------------\n";
+        //     for (; range_tombstone_iter_ych->Valid(); range_tombstone_iter_ych->Next()) {
+        //       std::cout << range_tombstone_iter_ych->start_key().user_key.ToString() << " " 
+        //         << range_tombstone_iter_ych->end_key().user_key.ToString() << " "
+        //         << range_tombstone_iter_ych->seq() << " "
+        //         << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        //     }
+        //     std::cout << "\n";
+        //   }
+        //   // delete range_tombstone_iter_ych;
+        // }
+        // //ychuang Added End
       }
     }
   }

@@ -650,6 +650,16 @@ Status CompactionJob::Run() {
     thread.join();
   }
 
+  // yucheng Added Start
+  // for (auto& state : compact_->sub_compact_states) {
+  //   std::cout << "@CompactionJob::Run() " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  //   state.printRangeDelAgg();
+  // }
+  // for (size_t i = 1; i < compact_->sub_compact_states.size(); i++) {
+  //   compact_->sub_compact_states[i];
+  // }
+  // yucheng Added End
+
   compaction_stats_.SetMicros(db_options_.clock->NowMicros() - start_micros);
 
   for (auto& state : compact_->sub_compact_states) {
@@ -1127,10 +1137,17 @@ void CompactionJob::ProcessKeyValueCompaction(SubcompactionState* sub_compact) {
 
   // Although the v2 aggregator is what the level iterator(s) know about,
   // the AddTombstones calls will be propagated down to the v1 aggregator.
+  // ych Added Start
+  // versions_->MakeInputIterator get RangeTombstone from Table_Cache
+  // std::string out_str;
+  // int max_entries_to_print = 300;
+  // Status s_RT_summsary = versions_->TablesRangeTombstoneSummary(max_entries_to_print,
+  //                                       &out_str)
+  // std::cout << "RT_summary = " << out_str << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std:endl;
+  // ych Added End
   std::unique_ptr<InternalIterator> raw_input(versions_->MakeInputIterator(
       read_options, sub_compact->compaction, range_del_agg.get(),
       file_options_for_read_, start, end));
-
 
   InternalIterator* input = raw_input.get();
 
@@ -1275,36 +1292,36 @@ void CompactionJob::ProcessKeyValueCompaction(SubcompactionState* sub_compact) {
       preclude_last_level_min_seqno_);
 
 
-//Self Added Start
-// *** Don't use range_del_vec_self and get_RDs_by_fd for any RDF, it is just used for tracing and checking purposes!!! 
-std::vector<std::tuple<long long, long long, uint64_t>> range_del_vec_self;
+  //Self Added Start
+  // *** Don't use range_del_vec_self and get_RDs_by_fd for any RDF, it is just used for tracing and checking purposes!!! 
+  // for the metadata of the range of rangeTombstones that each file contains
+  std::vector<std::tuple<long long, long long, uint64_t>> range_del_vec_self;
+  if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+    // //can set range_del_agg parameters: both lower_bound and upper_bound = null_ptr
+    // auto lower_bound = nullptr;
+    // auto upper_bound = nullptr;
+    // auto it_rd_agg = range_del_agg->NewIterator(lower_bound, upper_bound);
 
- for (size_t lvl = 0; lvl < sub_compact->compaction->num_input_levels(); lvl++){
-    int current_level = sub_compact->compaction->level(lvl);
+    // // Slice last_tombstone_start_user_key{};
+    // // bool reached_lower_bound = false;
+    // // const ReadOptions read_options(Env::IOActivity::kCompaction);
+    // for (it_rd_agg->SeekToFirst(); it_rd_agg->Valid(); it_rd_agg->Next()) {
+    //   auto tombstone = it_rd_agg->Tombstone();
+    //   long long start_key_from_rd_agg = std::stoll(tombstone.start_key_.ToString());
+    //   long long end_key_from_rd_agg = std::stoll(tombstone.end_key_.ToString());
+    //   uint64_t seq_from_rd_agg = tombstone.seq_; 
+    //   std::cout << " start_key_from_rd_agg = " << start_key_from_rd_agg 
+    //     << " end_key_from_rd_agg = " << end_key_from_rd_agg
+    //     << " seq_from_rd_agg = " << seq_from_rd_agg
+    //     << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // }
 
-    if(current_level ==  sub_compact->compaction->output_level()){
-      for (auto file_meta : *(sub_compact->compaction->inputs(lvl))){     
-        auto fd = file_meta->fd.GetNumber() ;
-        auto RDs_seq_vec = sub_compact->compaction->column_family_data()->get_RDs_by_fd((u_int64_t)fd);
-        for(auto RD_seq : RDs_seq_vec){
-          auto start_key = std::get<0>(RD_seq);
-          auto end_key = std::get<1>(RD_seq);
-          auto seq = std::get<2>(RD_seq);
-          range_del_vec_self.push_back(std::make_tuple(start_key, end_key, (u_int64_t)seq));
-        }
-      }
-    }
 
-    if (current_level != sub_compact->compaction->output_level()){
+  for (size_t lvl = 0; lvl < sub_compact->compaction->num_input_levels(); lvl++){
+      int current_level = sub_compact->compaction->level(lvl);
 
-if( (current_level+1) !=  sub_compact->compaction->output_level()){
-  std::cerr << "Error: (input level + 1) != output level" << std::endl;
-}
-
-      // FIXME: FOR TESTING (remove the loop as well) 
-      // std::cout << "Pushing file from Current Level: " << current_level << " output Level: " << compaction->output_level() << " with CompactionInputFiles: " << compaction->inputs(lvl) << std::endl << std::flush;
-
-      for (auto file_meta : *(sub_compact->compaction->inputs(lvl))){
+      if(current_level ==  sub_compact->compaction->output_level()){
+        for (auto file_meta : *(sub_compact->compaction->inputs(lvl))){     
           auto fd = file_meta->fd.GetNumber() ;
           auto RDs_seq_vec = sub_compact->compaction->column_family_data()->get_RDs_by_fd((u_int64_t)fd);
           for(auto RD_seq : RDs_seq_vec){
@@ -1313,12 +1330,34 @@ if( (current_level+1) !=  sub_compact->compaction->output_level()){
             auto seq = std::get<2>(RD_seq);
             range_del_vec_self.push_back(std::make_tuple(start_key, end_key, (u_int64_t)seq));
           }
+        }
+      }
+
+      if (current_level != sub_compact->compaction->output_level()){
+
+      if( (current_level+1) !=  sub_compact->compaction->output_level()){
+        std::cerr << "Error: (input level + 1) != output level" << std::endl;
+      }
+
+        // FIXME: FOR TESTING (remove the loop as well) 
+        // std::cout << "Pushing file from Current Level: " << current_level << " output Level: " << compaction->output_level() << " with CompactionInputFiles: " << compaction->inputs(lvl) << std::endl << std::flush;
+
+        for (auto file_meta : *(sub_compact->compaction->inputs(lvl))){
+            auto fd = file_meta->fd.GetNumber() ;
+            auto RDs_seq_vec = sub_compact->compaction->column_family_data()->get_RDs_by_fd((u_int64_t)fd);
+            for(auto RD_seq : RDs_seq_vec){
+              auto start_key = std::get<0>(RD_seq);
+              auto end_key = std::get<1>(RD_seq);
+              auto seq = std::get<2>(RD_seq);
+              range_del_vec_self.push_back(std::make_tuple(start_key, end_key, (u_int64_t)seq));
+            }
+        }
       }
     }
-  }
 
-std::sort(range_del_vec_self.begin(), range_del_vec_self.end());
-//Self Added End
+    std::sort(range_del_vec_self.begin(), range_del_vec_self.end());
+  }
+  //Self Added End
 
 
 
@@ -1357,8 +1396,31 @@ std::sort(range_del_vec_self.begin(), range_del_vec_self.end());
 
 
   // yucheng Added Start
-  int out_lvl = sub_compact->compaction->output_level();
-  sub_compact->compaction->column_family_data()->split_start(out_lvl);
+  if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+    int out_lvl = sub_compact->compaction->output_level();
+    sub_compact->compaction->column_family_data()->split_start(out_lvl);
+
+    // {
+    //   //can set range_del_agg parameters: both lower_bound and upper_bound = null_ptr
+    //   auto lower_bound2 = nullptr;
+    //   auto upper_bound2 = nullptr;
+    //   auto it_rd_agg2 = range_del_agg->NewIterator(lower_bound2, upper_bound2);
+
+    //   // Slice last_tombstone_start_user_key{};
+    //   // bool reached_lower_bound = false;
+    //   // const ReadOptions read_options(Env::IOActivity::kCompaction);
+    //   for (it_rd_agg2->SeekToFirst(); it_rd_agg2->Valid(); it_rd_agg2->Next()) {
+    //     auto tombstone2 = it_rd_agg2->Tombstone();
+    //     long long start_key_from_rd_agg2 = std::stoll(tombstone2.start_key_.ToString());
+    //     long long end_key_from_rd_agg2 = std::stoll(tombstone2.end_key_.ToString());
+    //     uint64_t seq_from_rd_agg2 = tombstone2.seq_; 
+    //     std::cout << " start_key_from_rd_agg2 = " << start_key_from_rd_agg2
+    //       << " end_key_from_rd_agg2 = " << end_key_from_rd_agg2
+    //       << " seq_from_rd_agg2 = " << seq_from_rd_agg2
+    //       << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    //   }
+    // }
+  }
   // yucheng Added End
 
   // Self Added Hint: Do Range Deletion Point Entries here
@@ -1374,107 +1436,109 @@ std::sort(range_del_vec_self.begin(), range_del_vec_self.end());
                                    c_iter->user_key(), end.value()) < 0);
 
 
-//Self Added Start
-  // type == {
-  // kTypeDeletion = 0x0,
-  // kTypeValue = 0x1,   <---- point k-v pair
-  // kTypeMerge = 0x2,
-  // kTypeLogData = 0x3,               // WAL only.
-  // kTypeColumnFamilyDeletion = 0x4,  // WAL only.
-  // kTypeColumnFamilyValue = 0x5,     // WAL only.
-  // kTypeColumnFamilyMerge = 0x6,     // WAL only.
-  // kTypeSingleDeletion = 0x7,
-  // kTypeColumnFamilySingleDeletion = 0x8,  // WAL only.
-  // kTypeBeginPrepareXID = 0x9,             // WAL only.
-  // kTypeEndPrepareXID = 0xA,               // WAL only.
-  // kTypeCommitXID = 0xB,                   // WAL only.
-  // kTypeRollbackXID = 0xC,                 // WAL only.
-  // kTypeNoop = 0xD,                        // WAL only.
-  // kTypeColumnFamilyRangeDeletion = 0xE,   // WAL only.
-  // kTypeRangeDeletion = 0xF,               // meta block
-  // kTypeColumnFamilyBlobIndex = 0x10,      // Blob DB only
-  // kTypeBlobIndex = 0x11,                  // Blob DB only
-  // // When the prepared record is also persisted in db, we use a different
-  // // record. This is to ensure that the WAL that is generated by a WritePolicy
-  // // is not mistakenly read by another, which would result into data
-  // // inconsistency.
-  // kTypeBeginPersistedPrepareXID = 0x12,  // WAL only.
-  // // Similar to kTypeBeginPersistedPrepareXID, this is to ensure that WAL
-  // // generated by WriteUnprepared write policy is not mistakenly read by
-  // // another.
-  // kTypeBeginUnprepareXID = 0x13,  // WAL only.
-  // kTypeDeletionWithTimestamp = 0x14,
-  // kTypeCommitXIDAndTimestamp = 0x15,  // WAL only
-  // kTypeWideColumnEntity = 0x16,
-  // kTypeColumnFamilyWideColumnEntity = 0x17,  // WAL only
-  // kTypeMaxValid,    // Should be after the last valid type, only used for
-  //                   // validation
-  // kMaxValue = 0x7F  // Not used for storing records.
-  //}
-bool flag_delete_current_entry = false;
-bool flag_split_RDF = true;
+    //Self Added Start
+    if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+      // type == {
+      // kTypeDeletion = 0x0,
+      // kTypeValue = 0x1,   <---- point k-v pair
+      // kTypeMerge = 0x2,
+      // kTypeLogData = 0x3,               // WAL only.
+      // kTypeColumnFamilyDeletion = 0x4,  // WAL only.
+      // kTypeColumnFamilyValue = 0x5,     // WAL only.
+      // kTypeColumnFamilyMerge = 0x6,     // WAL only.
+      // kTypeSingleDeletion = 0x7,
+      // kTypeColumnFamilySingleDeletion = 0x8,  // WAL only.
+      // kTypeBeginPrepareXID = 0x9,             // WAL only.
+      // kTypeEndPrepareXID = 0xA,               // WAL only.
+      // kTypeCommitXID = 0xB,                   // WAL only.
+      // kTypeRollbackXID = 0xC,                 // WAL only.
+      // kTypeNoop = 0xD,                        // WAL only.
+      // kTypeColumnFamilyRangeDeletion = 0xE,   // WAL only.
+      // kTypeRangeDeletion = 0xF,               // meta block
+      // kTypeColumnFamilyBlobIndex = 0x10,      // Blob DB only
+      // kTypeBlobIndex = 0x11,                  // Blob DB only
+      // // When the prepared record is also persisted in db, we use a different
+      // // record. This is to ensure that the WAL that is generated by a WritePolicy
+      // // is not mistakenly read by another, which would result into data
+      // // inconsistency.
+      // kTypeBeginPersistedPrepareXID = 0x12,  // WAL only.
+      // // Similar to kTypeBeginPersistedPrepareXID, this is to ensure that WAL
+      // // generated by WriteUnprepared write policy is not mistakenly read by
+      // // another.
+      // kTypeBeginUnprepareXID = 0x13,  // WAL only.
+      // kTypeDeletionWithTimestamp = 0x14,
+      // kTypeCommitXIDAndTimestamp = 0x15,  // WAL only
+      // kTypeWideColumnEntity = 0x16,
+      // kTypeColumnFamilyWideColumnEntity = 0x17,  // WAL only
+      // kTypeMaxValid,    // Should be after the last valid type, only used for
+      //                   // validation
+      // kMaxValue = 0x7F  // Not used for storing records.
+      //}
+      bool flag_delete_current_entry = false;
+      bool flag_split_RDF = true;
 
-auto point_key_type = c_iter->ikey().type;
+      auto point_key_type = c_iter->ikey().type;
 
-auto point_key = std::stoll(c_iter->user_key().ToString());
-auto point_key_seq = c_iter->ikey().sequence;
-auto point_value_pre = c_iter->value().ToString();
-auto separator_pos = point_value_pre.find("|");
-auto point_key_seq2 = point_value_pre.substr(separator_pos + 1);
-auto point_value = point_value_pre.substr(0, separator_pos);
-for(auto &rd: range_del_vec_self){ //sorted vector
-  auto &start_key = std::get<0>(rd);
-  auto &end_key = std::get<1>(rd);
-  auto &seq = std::get<2>(rd);
+      auto point_key = std::stoll(c_iter->user_key().ToString());
+      auto point_key_seq = c_iter->ikey().sequence;
+      auto point_value_pre = c_iter->value().ToString();
+      auto separator_pos = point_value_pre.find("|");
+      auto point_key_seq2 = point_value_pre.substr(separator_pos + 1);
+      auto point_value = point_value_pre.substr(0, separator_pos);
+      for(auto &rd: range_del_vec_self){ //sorted vector
+        auto &start_key = std::get<0>(rd);
+        auto &end_key = std::get<1>(rd);
+        auto &seq = std::get<2>(rd);
 
-  if(start_key > point_key){break;}
+        if(start_key > point_key){break;}
 
-  if(point_key_type != 1){ // != ValueType::kTypeValue // if not point key (key-value)
-    break;
-  } 
+        if(point_key_type != 1){ // != ValueType::kTypeValue // if not point key (key-value)
+          break;
+        } 
 
-  if(point_key_seq == seq){
-    std::cerr << " (range_del) key = " << start_key << " " << end_key
-              << " (kv pair) ikey.user_key = " << point_key
-              << " Sequence number shall not be the same" << " "
-              << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    exit(1);
-  }
-  // TODO: YCH for Split_SURF  may need to handle (point_key == start_key)
-  if(point_key >= start_key && point_key < end_key && std::stoull(point_key_seq2) < seq){
-    std::clog << " (compaction) range delete key in compaction"
-              << " (range_del) key = " << start_key << " " << end_key
-              << " (range_del) seq = " << seq
-              << " (kv pair) ikey.user_key = " << point_key
-              << " (kv pair) ikey.sequence = " << point_key_seq << " "
-              << " (kv pair) point_key_seq2 = " << point_key_seq2 << " "
-              << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    std::cout << " (compaction) range delete key in compaction"
-              << " (range_del) key = " << start_key << " " << end_key
-              << " (range_del) seq = " << seq
-              << " (kv pair) ikey.user_key = " << point_key
-              << " (kv pair) ikey.sequence = " << point_key_seq << " "
-              << " (kv pair) point_key_seq2 = " << point_key_seq2 << " "
-              << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    flag_delete_current_entry = true;
-    flag_split_RDF = false;
-    break;
-  }
-}
-if(flag_delete_current_entry){
-  c_iter->Next();
-  if (c_iter->status().IsManualCompactionPaused()) {
-    break;
-  }
-  continue;
-}
+        if(point_key_seq == seq){
+          std::cerr << " (range_del) key = " << start_key << " " << end_key
+                    << " (kv pair) ikey.user_key = " << point_key
+                    << " Sequence number shall not be the same" << " "
+                    << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          exit(1);
+        }
+        // TODO: YCH for Split_SURF  may need to handle (point_key == start_key)
+        if(point_key >= start_key && point_key < end_key && std::stoull(point_key_seq2) < seq){
+          std::clog << " (compaction) range delete key in compaction"
+                    << " (range_del) key = " << start_key << " " << end_key
+                    << " (range_del) seq = " << seq
+                    << " (kv pair) ikey.user_key = " << point_key
+                    << " (kv pair) ikey.sequence = " << point_key_seq << " "
+                    << " (kv pair) point_key_seq2 = " << point_key_seq2 << " "
+                    << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          std::cout << " (compaction) range delete key in compaction"
+                    << " (range_del) key = " << start_key << " " << end_key
+                    << " (range_del) seq = " << seq
+                    << " (kv pair) ikey.user_key = " << point_key
+                    << " (kv pair) ikey.sequence = " << point_key_seq << " "
+                    << " (kv pair) point_key_seq2 = " << point_key_seq2 << " "
+                    << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          flag_delete_current_entry = true;
+          flag_split_RDF = false;
+          break;
+        }
+      }
+      if(flag_delete_current_entry){
+        c_iter->Next();
+        if (c_iter->status().IsManualCompactionPaused()) {
+          break;
+        }
+        continue;
+      }
 
-std::string key_in_str = c_iter->user_key().ToString();
-long long key_in = std::stoll(c_iter->user_key().ToString());
-if(flag_split_RDF && c_iter->ikey().type == 1){
-  sub_compact->compaction->column_family_data()->split_range(key_in, key_in_str);
-}
-//Self Added End
+      std::string key_in_str = c_iter->user_key().ToString();
+      long long key_in = std::stoll(c_iter->user_key().ToString());
+      if(flag_split_RDF && c_iter->ikey().type == 1){
+        sub_compact->compaction->column_family_data()->split_range(key_in, key_in_str);
+      }
+    }
+    //Self Added End
     if (c_iter_stats.num_input_records % kRecordStatsEvery ==
         kRecordStatsEvery - 1) {
       RecordDroppedKeys(c_iter_stats, &sub_compact->compaction_job_stats);
@@ -1504,7 +1568,9 @@ if(flag_split_RDF && c_iter->ikey().type == 1){
 
   
   // yucheng Added Start
-  sub_compact->compaction->column_family_data()->split_end();
+  if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
+    sub_compact->compaction->column_family_data()->split_end();
+  }
   // yucheng Added End
 
 
@@ -1910,6 +1976,14 @@ Status CompactionJob::InstallCompactionResults(
   }
 
   // yucheng Added Start
+  // for (auto& state : compact_->sub_compact_states) {
+  //   std::cout << "@CompactionJob::InstallCompactionResults() " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  //   state.printRangeDelAgg();
+  // }
+  // for (size_t i = 1; i < compact_->sub_compact_states.size(); i++) {
+  //   compact_->sub_compact_states[i];
+  // }
+
   if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
 
     FileInOut* file_in_out_ptr = new FileInOut();
@@ -1921,13 +1995,13 @@ Status CompactionJob::InstallCompactionResults(
     for (size_t lvl = 0; lvl < compaction->num_input_levels(); lvl++)
     {
       int current_level = compaction->level(lvl);
-  #ifdef DEBUG_SURF_COMPACTION 
-  std::cout << "current_level = " << current_level << " compaction->output_level() = " << compaction->output_level() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
-  #endif  
-      if(current_level == compaction->output_level()){
-  #ifdef DEBUG_SURF_COMPACTION 
-  std::cerr << "(Want to know) (if exist --> go revise compaction update rdf) exist brach (@compaction): input level == output level (" << current_level << ")" << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-  #endif
+      #ifdef DEBUG_SURF_COMPACTION 
+      std::cout << "current_level = " << current_level << " compaction->output_level() = " << compaction->output_level() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+      #endif  
+          if(current_level == compaction->output_level()){
+      #ifdef DEBUG_SURF_COMPACTION 
+      std::cerr << "(Want to know) (if exist --> go revise compaction update rdf) exist brach (@compaction): input level == output level (" << current_level << ")" << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+      #endif
         std::vector<uint64_t> flie_numbers;
         for (auto file_meta : *(compaction->inputs(lvl))){
           file_in_out_ptr->fd_in.push_back(file_meta->fd.GetNumber());
@@ -1996,67 +2070,141 @@ Status CompactionJob::InstallCompactionResults(
         std::vector<uint64_t> flie_numbers;
         for (auto file_meta : *(compaction->inputs(lvl)))
         {
+          //RDs_seq_vec update has some issues
           auto RDs_seq_vec = compaction->column_family_data()
               ->get_RDs_by_fd((u_int64_t)file_meta->fd.GetNumber());
           long long max_end_key = 0;
+          long long min_start_key = LONG_LONG_MAX;
           std::string max_end_key_str = "";
           for(auto RD_seq : RDs_seq_vec){
             auto end_key = std::get<1>(RD_seq);
+            auto start_key = std::get<0>(RD_seq);
             max_end_key = max(max_end_key, end_key);
             max_end_key_str = max(max_end_key_str, std::to_string(end_key));
+            min_start_key = min(min_start_key, start_key);
             assert(max_end_key_str == std::to_string(max_end_key));
           }
 
-          // looping through the range tombstones to get the min_start_key, max_end_key
+          // This part can be optimized ? --> like store the ranges of each file into abc
           long long min_start_key_RT = LLONG_MAX, max_end_key_RT = LLONG_MIN; 
           {
+            auto* cfd = compaction->column_family_data();
+            TableCache* table_cache = cfd->table_cache();
+            std::unique_ptr<FragmentedRangeTombstoneIterator> tombstone_iter;
+
+            Status s = table_cache->GetRangeTombstoneIterator(
+                read_options, cfd->internal_comparator(), *file_meta,
+                cfd->GetLatestMutableCFOptions()->block_protection_bytes_per_key,
+                &tombstone_iter);
             size_t size = 0;
-            const FileDescriptor& fd = file_meta->fd;
-            // Status s;
-            TableReader* t = fd.table_reader;
-            // if (t != nullptr){std::cout << "skip" << std::endl;}
-            if (t != nullptr) {
-              FragmentedRangeTombstoneIterator* tombstone_iter = t->NewRangeTombstoneIterator(read_options);
-
-              if (tombstone_iter) {
-                tombstone_iter->SeekToFirst();
-                // TODO: print timestamp
-                while (tombstone_iter->Valid()) {
-                  long long tmp_start_key = std::stoll(tombstone_iter->start_key().ToString(true));
-                  long long tmp_end_key = std::stoll(tombstone_iter->end_key().ToString(true));
-                  if(tmp_start_key < min_start_key_RT){min_start_key_RT = tmp_start_key;}
-                  if(tmp_end_key > max_end_key_RT){max_end_key_RT = tmp_end_key;}
-
-                  std::cout << "@ compaction" << " "
-                    << "start: " << tombstone_iter->start_key().ToString(true)
-                    << " end: " << tombstone_iter->end_key().ToString(true)
-                    << " seq: " << tombstone_iter->seq() 
-                    << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;;
-                  size += static_cast<std::string>(tombstone_iter->start_key().ToString(true)).size();
-                  size += static_cast<std::string>(tombstone_iter->end_key().ToString(true)).size();
-                  size += sizeof(static_cast<SequenceNumber>(tombstone_iter->seq()));
-                  tombstone_iter->Next();
+            if (tombstone_iter) {
+              tombstone_iter->SeekToFirst();
+              // TODO: print timestamp
+              while (tombstone_iter->Valid()) {
+                if(checking::SystemVerifier::getSystemVerifier()->getShowTombstonesDuringCompactionInfo()){
+                  std::cout << "tombstone_iter->start_key().ToString() = " << tombstone_iter->start_key().ToString() 
+                      << " tombstone_iter->end_key().ToString() = " << tombstone_iter->end_key().ToString() 
+                      << " " << __FILE__ << ":" << __LINE__ << " " << __FILE__ << std::endl;
                 }
-                std::cout << "min_start_key_RT = " << min_start_key_RT << " max_end_key_RT = " << max_end_key_RT << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                long long tmp_start_key = std::stoll(tombstone_iter->start_key().ToString());
+                long long tmp_end_key = std::stoll(tombstone_iter->end_key().ToString());
+                if(tmp_start_key < min_start_key_RT){min_start_key_RT = tmp_start_key;}
+                if(tmp_end_key > max_end_key_RT){max_end_key_RT = tmp_end_key;}
+                if(checking::SystemVerifier::getSystemVerifier()->getShowTombstonesDuringCompactionInfo()){
+                  std::cout << "@ compaction" << " "
+                    << "start: " << tombstone_iter->start_key().ToString()
+                    << " end: " << tombstone_iter->end_key().ToString()
+                    << " seq: " << tombstone_iter->seq() 
+                    << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                }
+                size += static_cast<std::string>(tombstone_iter->start_key().ToString()).size();
+                size += static_cast<std::string>(tombstone_iter->end_key().ToString()).size();
+                size += sizeof(static_cast<SequenceNumber>(tombstone_iter->seq()));
+                tombstone_iter->Next();
               }
+              min_start_key_RT = max(min_start_key_RT, std::stoll(file_meta->smallest.user_key().ToString()));
+              // if(max_end_key_RT > std::stoll(file_meta->largest.user_key().ToString())){
+              if(max_end_key_RT >= std::stoll(file_meta->largest.user_key().ToString())){
+                max_end_key_RT = std::stoll(file_meta->largest.user_key().ToString()) -1;
+              }
+              if(min_start_key_RT >= max_end_key_RT){
+                std::cout << "Error: " 
+                  << "min_start_key_RT = " << min_start_key_RT << " " 
+                  << "max_end_key_RT = " << max_end_key_RT << " " 
+                  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                assert(min_start_key_RT < max_end_key_RT);
+              }
+              {
+                if(checking::SystemVerifier::getSystemVerifier()->getShowTombstonesDuringCompactionInfo()){
+                  std::cout << "min_start_key_RT = " << min_start_key_RT << " max_end_key_RT = " << max_end_key_RT << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                  std::cout << "min_start_key = " << min_start_key << " max_end_key = " << max_end_key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                }
+                if(min_start_key_RT != min_start_key){
+                  std::cout << "ych info Mismatch: min_start_key_RT != min_start_key" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                }
+                if(max_end_key_RT != max_end_key){
+                  std::cout << "ych info Mismatch: max_end_key_RT != max_end_key" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                }
+                std::cout << "file_meta->smallest.user_key().ToString() = " << file_meta->smallest.user_key().ToString() << " file_meta->largest.user_key().ToString() = " << file_meta->largest.user_key().ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+              }
+              tombstone_iter.reset();
             }
           }
+          // // looping through the range tombstones to get the min_start_key, max_end_key
+          // long long min_start_key_RT = LLONG_MAX, max_end_key_RT = LLONG_MIN; 
+          // {
+          //   size_t size = 0;
+          //   const FileDescriptor& fd = file_meta->fd;
+          //   // Status s;
+          //   TableReader* t = fd.table_reader;
+          //   // if (t != nullptr){std::cout << "skip" << std::endl;}
+          //   // if(t == nullptr){//read the table from version_set->table_cache}
+          //   if (t != nullptr) {
+          //     FragmentedRangeTombstoneIterator* tombstone_iter = t->NewRangeTombstoneIterator(read_options);
 
-          bool flag_has_range_tombstone = (min_start_key_RT <= max_end_key_RT);
-          if(flag_has_range_tombstone == true){
-            smallest_largest_boundries.push_back(std::make_pair(min_start_key_RT, max_end_key_RT));
-          }else{
-            //dummy (smallest,smallest)
-            // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->smallest.user_key().ToString())));
-            //dummy (smallest,largest)
-            smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
-          }
+          //     if (tombstone_iter) {
+          //       tombstone_iter->SeekToFirst();
+          //       // TODO: print timestamp
+          //       while (tombstone_iter->Valid()) {
+          //         long long tmp_start_key = std::stoll(tombstone_iter->start_key().ToString());
+          //         long long tmp_end_key = std::stoll(tombstone_iter->end_key().ToString());
+          //         if(tmp_start_key < min_start_key_RT){min_start_key_RT = tmp_start_key;}
+          //         if(tmp_end_key > max_end_key_RT){max_end_key_RT = tmp_end_key;}
 
-          // if(max_end_key != std::stoll(file_meta->largest.user_key().ToString())){
-          //   smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), max_end_key));
-          // }else{
-          //   smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+          //         std::cout << "@ compaction" << " "
+          //           << "start: " << tombstone_iter->start_key().ToString()
+          //           << " end: " << tombstone_iter->end_key().ToString()
+          //           << " seq: " << tombstone_iter->seq() 
+          //           << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;;
+          //         size += static_cast<std::string>(tombstone_iter->start_key().ToString()).size();
+          //         size += static_cast<std::string>(tombstone_iter->end_key().ToString()).size();
+          //         size += sizeof(static_cast<SequenceNumber>(tombstone_iter->seq()));
+          //         tombstone_iter->Next();
+          //       }
+          //       std::cout << "min_start_key_RT = " << min_start_key_RT << " max_end_key_RT = " << max_end_key_RT << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          //     }
+          //   }
           // }
+
+          if(true){
+            bool flag_has_range_tombstone = (min_start_key_RT <= max_end_key_RT);
+            if(flag_has_range_tombstone == true){
+              smallest_largest_boundries.push_back(std::make_pair(min_start_key_RT, max_end_key_RT));
+            }else{
+              //dummy (smallest,smallest)
+              // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->smallest.user_key().ToString())));
+              //dummy (smallest,largest)
+              smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+            }
+          }else{
+            // if(max_end_key != std::stoll(file_meta->largest.user_key().ToString())){
+            //   // smallest_largest_boundries.push_back(std::make_pair(min_start_key, max_end_key));
+            //   smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), max_end_key));
+            // }else{
+            //   // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString())+1, std::stoll(file_meta->largest.user_key().ToString())-1));
+            //   smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+            // }
+          }
           flie_numbers.push_back(file_meta->fd.GetNumber());
 
           file_in_out_ptr->fd_in.push_back(file_meta->fd.GetNumber());

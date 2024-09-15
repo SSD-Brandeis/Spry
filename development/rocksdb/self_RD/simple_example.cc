@@ -65,9 +65,9 @@ int main(int argc, char *argv[]) {
   if (parse_arguments2(argc, argv, _env, _surf_env, system_verifier)){
     exit(1);
   }
+  
   checking::SystemVerifier::getSystemVerifier()->setSkipReadingRangeDeleteBlock(_env->skip_reading_RD_blocks);
-
-
+  
   Options options;
   WriteOptions write_op;
   ReadOptions read_op;
@@ -92,6 +92,7 @@ int main(int argc, char *argv[]) {
   init(db_ptr2, options, write_op, read_op, max_background_jobs, _env, kDBPath);
 
   configOptions(_env, &options, &table_options, &write_op, &read_op, &f_options);
+  std::cout << "table_op->filter_policy = " << table_options.filter_policy << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   start(db_ptr2, options, write_op, read_op, _env, kDBPath);
   runWorkload(db_ptr2, options, write_op, read_op, _env, kDBPath);
@@ -121,26 +122,28 @@ int main(int argc, char *argv[]) {
     
     std::cout << "!!! runQPVerification start " << std::endl;
 
-    int numbers_of_PQs = -1;
-    verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, numbers_of_PQs, kDBPath);
-    numbers_of_PQs = _env->number_of_PQ;
-    verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, numbers_of_PQs, kDBPath);
-    
+    if(_env->system_check_test_on_all_PQ == true){
+      int numbers_of_PQs = -1;
+      verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, numbers_of_PQs, kDBPath);
+    }
+    {
+      int numbers_of_PQs = _env->number_of_PQ;
+      verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, numbers_of_PQs, kDBPath);
+    }
     verification_runner::endPQVerification();
   }
-
   
   auto stop_all = std::chrono::high_resolution_clock::now();
   auto duration_all = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_all - start_all);
   unsigned long long all_time_ns = duration_all.count();
   std::cout << "all_time_ns = " << all_time_ns << std::endl;
-    
+  
+  print_perf_iostats_context(std::cout, 1);
 
   set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
 
   std::cout << "!!! runQPVerification done " << std::endl;
   
-  print_perf_iostats_context(std::cout, 1);
 
 
   end(db_ptr2);

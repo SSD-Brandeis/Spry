@@ -155,9 +155,23 @@ void clearBlockCache(DB* db, std::ostream& ofile){
 
 
 void reset_perf_iostats_context(){
+  // rocksdb::get_perf_context()->Reset();
+  // rocksdb::get_iostats_context()->Reset();
+  // rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
+  // begin perf code
+
+  rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeAndCPUTimeExceptForMutex);
+
+
   rocksdb::get_perf_context()->Reset();
+
+  rocksdb::get_perf_context()->ClearPerLevelPerfContext();
+
+  rocksdb::get_perf_context()->EnablePerLevelPerfContext();
+
   rocksdb::get_iostats_context()->Reset();
-  rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
+
+  // end perf code
 }
 
 
@@ -442,5 +456,8 @@ void configOptions(EmuEnv* _env, Options *op, BlockBasedTableOptions *t_op, Writ
 
 
 
+void writeDictToFile(){
+  
+}
 
 #endif
