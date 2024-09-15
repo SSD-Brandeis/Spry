@@ -1018,7 +1018,7 @@ class PLRDF{
         idx += 1;
       }
       
-      std::cout << std::endl;
+      // std::cout << std::endl;
 
       rd_filter[level] = rdList_new;
     }

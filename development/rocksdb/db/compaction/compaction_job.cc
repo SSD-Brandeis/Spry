@@ -2138,6 +2138,7 @@ Status CompactionJob::InstallCompactionResults(
                 if(checking::SystemVerifier::getSystemVerifier()->getShowTombstonesDuringCompactionInfo()){
                   std::cout << "min_start_key_RT = " << min_start_key_RT << " max_end_key_RT = " << max_end_key_RT << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
                   std::cout << "min_start_key = " << min_start_key << " max_end_key = " << max_end_key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                  std::cout << "file_meta->smallest.user_key().ToString() = " << file_meta->smallest.user_key().ToString() << " file_meta->largest.user_key().ToString() = " << file_meta->largest.user_key().ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
                 }
                 if(min_start_key_RT != min_start_key){
                   std::cout << "ych info Mismatch: min_start_key_RT != min_start_key" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -2145,7 +2146,6 @@ Status CompactionJob::InstallCompactionResults(
                 if(max_end_key_RT != max_end_key){
                   std::cout << "ych info Mismatch: max_end_key_RT != max_end_key" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
                 }
-                std::cout << "file_meta->smallest.user_key().ToString() = " << file_meta->smallest.user_key().ToString() << " file_meta->largest.user_key().ToString() = " << file_meta->largest.user_key().ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
               }
               tombstone_iter.reset();
             }

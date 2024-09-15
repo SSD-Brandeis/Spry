@@ -161,7 +161,8 @@ params3 = deepcopy(params)
 params3["-P"] = [16]
 params3["-T"] = [4]
 # params3["--insert_before_range_delete"] = [0.999]
-params3["--insert_before_range_delete"] = [0.8]
+# params3["--insert_before_range_delete"] = [0.8]
+params3["--insert_before_range_delete"] = [0.7]
 # params3["--run_pq_during_insertion_interval"] = [20]
 
 # params3["--gen_workload"] = [1]
@@ -222,7 +223,7 @@ if True:
 # ["NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,TOP_LEVEL_RDF,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY"]
 rdf_types = ["NONE", "PLRDF", "SPLIT_PLRDF", "TOP_LEVEL_RDF", "SKYLINE_RDF", "SuRF_LF_RDF", "SuRF_LF_SPLIT_RDF"]
 for i_rdf, rdf_type in enumerate(rdf_types):
-    #if i_rdf < 1:
+    # if i_rdf < 5:
     #    continue
     test_num = 21 + i_rdf
     params3["--using_rdf_types"] = [rdf_type]

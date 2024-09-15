@@ -586,6 +586,7 @@ std::pair<SuRF*, size_t> SuRF::rangesWithPointKeysToSurf(std::vector<pss> ranges
             if(point_key >= key_end){break;}
 
             if(point_key == key_start){
+// std::cout << "(==) point_key = " << point_key << " key_start = " << key_start << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
                 if(flag_allow_boundary_overlapped == false){
                     right_parentheses.back() = true;
                 }
@@ -625,12 +626,10 @@ std::pair<SuRF*, size_t> SuRF::rangesWithPointKeysToSurf(std::vector<pss> ranges
     return std::make_pair(surf_, split_count);
 }
 
-// struct SuRFRangesAndSplitPoint{
-//     std::vector<std::pair<std::string, std::string>> ranges;
-//     std::vector<std::string> split_points;
-// };
 
+// cannot be used under split setting because the start key may need to moved to the next larger one if it is removed by the point_key 
 std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(SuRF* surf_, bool flag_allow_boundary_overlapped){
+// SuRFRangesAndSplitPoint SuRF::surfToRanges(SuRF* surf_, bool flag_allow_boundary_overlapped){
     std::vector<std::string> keys;
     std::vector<bool> left_parentheses;
     std::vector<bool> right_parentheses;
@@ -680,12 +679,16 @@ std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(SuRF* surf_,
                 }
                 flag_first_key = false;
             }
+            // if(end == "" && start > end){
+
+            // }else{
             if(start > end){
                 std::cerr << "Error: start > end" << " " << __FILE__ << ":" << __LINE__ << std::endl;
                 std::cout << "Error: start > end" << " " << __FILE__ << ":" << __LINE__ << std::endl;
                 assert(start > end);
             }
             ranges.push_back(std::make_pair(start, end));
+            // }
         }else{
             for(int i = 0; i < len; i++){
                 if(left_parentheses[i]){
@@ -712,7 +715,106 @@ std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(SuRF* surf_,
     }
 
     return ranges;
+    // return SuRFRangesAndSplitPoint{.ranges = ranges, .split_points = split_points};
 }
+
+
+// struct SuRFRangesAndSplitPoints{
+//     std::vector<std::pair<std::string, std::string>> ranges;
+//     std::vector<std::string> split_points;
+// };
+
+// // std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(SuRF* surf_, bool flag_allow_boundary_overlapped){
+// SuRFRangesAndSplitPoints SuRF::surfToRangesAndSplitPoints(SuRF* surf_, bool flag_allow_boundary_overlapped){
+//     std::vector<std::string> keys;
+//     std::vector<bool> left_parentheses;
+//     std::vector<bool> right_parentheses;
+
+//     SuRF::Iter iter = surf_->moveToFirst();
+    
+//     if(surf_->louds_dense_->getHeight() == 0){
+//         while(iter.sparse_iter_.isValid()){
+//             std::string key = iter.sparse_iter_.getKey();
+//             bool left_parenthesis = iter.sparse_iter_.getLeftParenthesis();
+//             bool right_parenthesis = iter.sparse_iter_.getRightParenthesis();
+//             keys.push_back(key);
+//             left_parentheses.push_back(left_parenthesis);
+//             right_parentheses.push_back(right_parenthesis);
+//             iter.sparse_iter_++;
+//         }
+//     }else{
+//         while(iter.isValid()){
+//             std::string key = iter.getKey();
+//             bool left_parenthesis = iter.getLeftParenthesis();
+//             bool right_parenthesis = iter.getRightParenthesis();
+//             keys.push_back(key);
+//             left_parentheses.push_back(left_parenthesis);
+//             right_parentheses.push_back(right_parenthesis);
+//             iter++;
+//         }
+//     }
+
+//     std::vector<std::pair<std::string, std::string>> ranges;
+//     std::vector<std::string> split_points;
+//     int len = keys.size();
+
+//     if(len > 0){
+//         std::string end; 
+//         std::string start;
+//         bool flag_first_key = true;
+//         if(flag_allow_boundary_overlapped == false){
+//             for(int i = 0; i < len; i++){
+//                 if(left_parentheses[i]){
+//                     //assert(left_parentheses[i] == true && right_parentheses[i] == true);
+//                     if(flag_first_key != true){
+//                         ranges.push_back(std::make_pair(start, end));
+//                     }
+//                     start = keys[i];
+//                     //
+//                     if(right_parentheses[i]){
+//                         split_points.push_back(start);
+//                     }
+//                     //
+//                     // end = keys[i];
+//                 }else{
+//                     end = keys[i];
+//                 }
+//                 flag_first_key = false;
+//             }
+//             if(start > end){
+//                 std::cerr << "Error: start > end" << " start = " << start << " end = " << end << " " << __FILE__ << ":" << __LINE__ << std::endl;
+//                 std::cout << "Error: start > end" << " start = " << start << " end = " << end << " " << __FILE__ << ":" << __LINE__ << std::endl;
+//                 assert(start > end);
+//             }
+//             ranges.push_back(std::make_pair(start, end));
+//         }else{
+//             for(int i = 0; i < len; i++){
+//                 if(left_parentheses[i]){
+//                   if(right_parentheses[i]){
+//                     end = keys[i];
+//                   }
+
+//                   if(flag_first_key != true){
+//                     ranges.push_back(std::make_pair(start, end));
+//                   }
+//                   start = keys[i];
+//                 }else{
+//                   end = keys[i];
+//                 }
+//                 flag_first_key = false;
+//             }
+//             if(start > end){
+//                 std::cerr << "Error: start > end" << " " << __FILE__ << ":" << __LINE__ << std::endl;
+//                 std::cout << "Error: start > end" << " " << __FILE__ << ":" << __LINE__ << std::endl;
+//                 assert(start > end);
+//             }
+//             ranges.push_back(std::make_pair(start, end));
+//         }
+//     }
+
+//     // return ranges;
+//     return SuRFRangesAndSplitPoints{.ranges = ranges, .split_points = split_points};
+// }
 
 
 SuRF_RDF::SuRF_RDF(SuRF_RDF::RDF_MODE rdf_mode_in) {
@@ -1042,7 +1144,8 @@ void SuRF_RDF::shiftRDFToOutputLevel(std::vector<pss> &rd_merged, uint32_t dst_l
                     i_rd++;
                 }
             }else{
-                while(i_rd < len_rd && rd_merged[i_rd].second < file_boundary.first){
+                // while(i_rd < len_rd && rd_merged[i_rd].second < file_boundary.first){
+                while(i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.first){
                     i_rd++;
                 }
             }
@@ -1110,7 +1213,8 @@ void SuRF_RDF::shiftRDFWithPointKeysToOutputLevel(std::vector<pss> &rd_merged, s
                     i_rd++;
                 }
             }else{
-                while(i_rd < len_rd && rd_merged[i_rd].second < file_boundary.first){
+                // while(i_rd < len_rd && rd_merged[i_rd].second < file_boundary.first){
+                while(i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.first){
                     i_rd++;
                 }
             }
