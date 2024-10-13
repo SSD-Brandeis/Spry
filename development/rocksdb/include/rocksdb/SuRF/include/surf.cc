@@ -1846,7 +1846,7 @@ void SuRF_RDF::checkProperUsageOfFlagKeyMayDeleted(){
 // Alive:  O  xxx   O xxxx O
 // left :  1        1      0
 // right:  0        1      1
-#define DEBUG_SURF_GET_PATH
+// #define DEBUG_SURF_GET_PATH
 bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string key, bool flag_bypass_if_same_key) {
     assert(rdf_mode == PER_FILE);
     assert(level < level_file_surf_rdf.size());
@@ -1882,7 +1882,9 @@ bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string k
     bool non_overlapping = true;
 
     if(surf->getLoudsDenseHeight() > 0){
+#ifdef DEBUG_SURF_GET_PATH  
         std::cout << "height > 0 iter.isValid()=" << iter.isValid() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+#endif
         if(iter.isValid()){
             non_overlapping = false;
             std::string key_found = iter.getKey();
@@ -1905,7 +1907,9 @@ bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string k
                     // if(iter2.isValid()){
                     if((iter2--) == true){
                         std::string key_found2 = iter2.getKey();
+#ifdef DEBUG_SURF_GET_PATH  
                         std::cout << "(dense) iter2-- key_found = " << key_found << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+#endif
                         // key_found.size() >= key.size() not exist
                         if(key.substr(0,key_found2.size()) == key_found2){
                             non_overlapping = true;
@@ -1965,17 +1969,23 @@ bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string k
                     // if(iter.getSparseIter()->getRightParenthesis() == true){
                     if(iter.getSparseIter()->getLeftParenthesis() == true && iter.getSparseIter()->getRightParenthesis() == true){
                         // (1,1) -- end of a range is the start of an another range 
+#ifdef DEBUG_SURF_GET_PATH  
                         std::cout << "Error: shouldn't exist left, right = true for the non overlapped ranges case " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+#endif
                     }else if(iter.getSparseIter()->getLeftParenthesis() == false && iter.getSparseIter()->getRightParenthesis() == true){
                         // (0,1) -- end, or split point_key within a range
                         non_overlapping = true;
                         // setFlagKeyMayDeleted();
+#ifdef DEBUG_SURF_GET_PATH  
                         std::cout << "key_found == key " << key << " left false right_parenthesis = true, flag_may_Deleted " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+#endif
                     }else if(iter.getSparseIter()->getLeftParenthesis() == false && iter.getSparseIter()->getRightParenthesis() == false){
                         // (0,0) -- split point_key at range start
                         non_overlapping = true;
                         // setFlagKeyMayDeleted(); 
+#ifdef DEBUG_SURF_GET_PATH  
                         std::cout << "key_found == key " << key << " left false right_parenthesis = false, flag_may_Deleted " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+#endif
                     }else{
                         // (1,0) -- start
                         non_overlapping = false;
@@ -2018,7 +2028,9 @@ bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string k
             }
         }
     }else{
+#ifdef DEBUG_SURF_GET_PATH  
         std::cout << "height == 0 iter.getSparseIter()->isValid()=" << iter.getSparseIter()->isValid() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+#endif
         if(iter.getSparseIter()->isValid()){
             non_overlapping = false;
             std::string key_found = iter.getSparseIter()->getKey();
@@ -2029,11 +2041,13 @@ bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string k
                     setFlagKeyMayDeleted();
                     return non_overlapping;
                 }else{
+#ifdef DEBUG_SURF_GET_PATH  
 SuRF::Iter iter3 = surf->moveToNextCommonPrefixKey(key);
 while((iter3--) ==true){
     std::string key_found3 = iter3.getSparseIter()->getKey();
     std::cout << "iter3-- key_found3 = " << key_found3 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 }
+#endif
                     // SuRF::Iter iter2 = surf->moveToNextCommonPrefixKey(key);
                     SuRF::Iter &iter2 = iter;
                     // iter2--;
@@ -2046,7 +2060,9 @@ while((iter3--) ==true){
                     // if(iter2.isValid()){
                     if((iter2--) == true){
                         std::string key_found2 = iter2.getSparseIter()->getKey();
+#ifdef DEBUG_SURF_GET_PATH  
                         std::cout << "iter2-- key_found2 = " << key_found2 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+#endif
                         // key_found.size() >= key.size() not exist
                         if(key.substr(0,key_found2.size()) == key_found2){
                             non_overlapping = true;
@@ -2057,7 +2073,9 @@ while((iter3--) ==true){
                         }
                     }else{
                         //key >= key_found2
+#ifdef DEBUG_SURF_GET_PATH  
                         std::cout << "iter2-- = false  " << "key = " << key << " key_found = " << key_found << " getFlagKeyMayDeleted " << getFlagKeyMayDeleted() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+#endif
                         non_overlapping = true;
                         return non_overlapping;
                     }
@@ -2100,17 +2118,23 @@ while((iter3--) ==true){
                     // if(iter.getSparseIter()->getRightParenthesis() == true){
                     if(iter.getSparseIter()->getLeftParenthesis() == true && iter.getSparseIter()->getRightParenthesis() == true){
                         // (1,1) -- end of a range is the start of an another range 
+#ifdef DEBUG_SURF_GET_PATH  
                         std::cout << "Error: shouldn't exist left, right = true for the non overlapped ranges case " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+#endif
                     }else if(iter.getSparseIter()->getLeftParenthesis() == false && iter.getSparseIter()->getRightParenthesis() == true){
                         // (0,1) -- end, or split point_key within a range
                         non_overlapping = true;
                         // setFlagKeyMayDeleted();
+#ifdef DEBUG_SURF_GET_PATH  
                         std::cout << "key_found == key " << key << " left false right_parenthesis = true, flag_may_Deleted " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+#endif
                     }else if(iter.getSparseIter()->getLeftParenthesis() == false && iter.getSparseIter()->getRightParenthesis() == false){
                         // (0,0) -- split point_key at range start
                         non_overlapping = true;
                         // setFlagKeyMayDeleted(); 
+#ifdef DEBUG_SURF_GET_PATH  
                         std::cout << "key_found == key " << key << " left false right_parenthesis = false, flag_may_Deleted " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+#endif
                     }else{
                         // (1,0) -- start
                         non_overlapping = false;
@@ -2158,10 +2182,14 @@ while((iter3--) ==true){
             if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
                 // uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
                 auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(key);
+#ifdef DEBUG_SURF_GET_PATH  
                 std::cout << "Invalid @fd = " <<  fd << " key =" << key << " flag_bypass_if_same_key = " << ks << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+#endif
             }else{
+#ifdef DEBUG_SURF_GET_PATH  
                 std::cout << "Invalid @fd = " <<  fd << " key =" << key << " flag_bypass_if_same_key = " << flag_bypass_if_same_key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-            }
+#endif
+           }
         }
     }
     return non_overlapping;

@@ -1668,16 +1668,28 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
               // file_boundary_list = vx;
             }
 
-            // (this->surf__level_file_split_rdf_prime)->RemoveSuRF(src_level_list, src_fd_list2d);
-            // std::vector<pss> range_tombstone_merged;
+            (this->surf__level_file_split_rdf_prime)->RemoveSuRF(src_level_list, src_fd_list2d);
+            std::vector<pss> range_tombstone_merged;
             //TODO: update this part, remove repetition parts, don't collect ranges from surf
             // std::vector<pss> range_tombstone_merged = 
             //   (this->surf__level_file_rdf_prime)->gatherSortedRangeTombstonesAndRemoveSuRF(
             //     src_level_list, src_fd_list2d, surf_flag__allow_range_boundary_overlapped);
             std::sort(merged_sorted_range_tombstones_str.begin(), merged_sorted_range_tombstones_str.end());
             
-            // std::cout << "range_tombstone_merged " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-            // for(auto &x: range_tombstone_merged){
+            // // std::cout << "range_tombstone_merged " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            // // for(auto &x: range_tombstone_merged){
+            // //   if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+            // //     auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.first);
+            // //     auto ke = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.second);
+
+            // //     std::cout << "(" << ks << ", " << ke << ") ";
+            // //   }else{
+            // //     std::cout << "(" << x.first << ", " << x.second << ") ";
+            // //   }
+            // // }
+            // // std::cout << std::endl;
+            // std::cout << "merged_sorted_range_tombstones_str " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            // for(auto &x: merged_sorted_range_tombstones_str){
             //   if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
             //     auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.first);
             //     auto ke = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.second);
@@ -1688,19 +1700,7 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
             //   }
             // }
             // std::cout << std::endl;
-            std::cout << "merged_sorted_range_tombstones_str " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-            for(auto &x: merged_sorted_range_tombstones_str){
-              if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
-                auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.first);
-                auto ke = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.second);
-
-                std::cout << "(" << ks << ", " << ke << ") ";
-              }else{
-                std::cout << "(" << x.first << ", " << x.second << ") ";
-              }
-            }
-            std::cout << std::endl;
-            std::cout << std::endl;
+            // std::cout << std::endl;
             range_tombstone_merged = merged_sorted_range_tombstones_str;
 
             size_t len_rd = range_tombstone_merged.size();
@@ -1867,8 +1867,8 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
 
 
                 
-            // (this->surf__level_file_split_rdf_prime)->RemoveSuRF(src_level_list, src_fd_list2d);
-            // std::vector<pss> range_tombstone_merged;
+            (this->surf__level_file_split_rdf_prime)->RemoveSuRF(src_level_list, src_fd_list2d);
+            std::vector<pss> range_tombstone_merged;
             //TODO: update this part, remove repetition parts, don't collect ranges from surf
             // std::vector<pss> range_tombstone_merged = 
             //   (this->surf__level_file_split_rdf_prime)->gatherSortedRangeTombstonesAndRemoveSuRF(
@@ -1876,8 +1876,20 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
             std::sort(merged_sorted_range_tombstones_str.begin(), merged_sorted_range_tombstones_str.end());
             // std::sort(merged_sorted_range_tombstones_str_on_output_level.begin(), merged_sorted_range_tombstones_str_on_output_level.end());
             
-            // std::cout << "range_tombstone_merged " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-            // for(auto &x: range_tombstone_merged){
+            // // std::cout << "range_tombstone_merged " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            // // for(auto &x: range_tombstone_merged){
+            // //   if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+            // //     auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.first);
+            // //     auto ke = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.second);
+
+            // //     std::cout << "(" << ks << ", " << ke << ") ";
+            // //   }else{
+            // //     std::cout << "(" << x.first << ", " << x.second << ") ";
+            // //   }
+            // // }
+            // // std::cout << std::endl;
+            // std::cout << "merged_sorted_range_tombstones_str " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            // for(auto &x: merged_sorted_range_tombstones_str){
             //   if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
             //     auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.first);
             //     auto ke = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.second);
@@ -1888,31 +1900,19 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
             //   }
             // }
             // std::cout << std::endl;
-            std::cout << "merged_sorted_range_tombstones_str " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-            for(auto &x: merged_sorted_range_tombstones_str){
-              if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
-                auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.first);
-                auto ke = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.second);
-
-                std::cout << "(" << ks << ", " << ke << ") ";
-              }else{
-                std::cout << "(" << x.first << ", " << x.second << ") ";
-              }
-            }
-            std::cout << std::endl;
-            std::cout << std::endl;
-            // std::cout << "merged_sorted_range_tombstones_str_on_output_level " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-            // for(auto &x: merged_sorted_range_tombstones_str_on_output_level){
-            //   if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
-            //     auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.first);
-            //     auto ke = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.second);
-
-            //     std::cout << "(" << ks << ", " << ke << ") ";
-            //   }else{
-            //     std::cout << "(" << x.first << ", " << x.second << ") ";
-            //   }
-            // }
             // std::cout << std::endl;
+            // // std::cout << "merged_sorted_range_tombstones_str_on_output_level " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            // // for(auto &x: merged_sorted_range_tombstones_str_on_output_level){
+            // //   if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+            // //     auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.first);
+            // //     auto ke = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.second);
+
+            // //     std::cout << "(" << ks << ", " << ke << ") ";
+            // //   }else{
+            // //     std::cout << "(" << x.first << ", " << x.second << ") ";
+            // //   }
+            // // }
+            // // std::cout << std::endl;
             range_tombstone_merged = merged_sorted_range_tombstones_str;
             // merged_sorted_range_tombstones_str_on_output_level;
 
@@ -1939,7 +1939,7 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
                 //   }
                 // }
               }
-  #define CHECK_SPLITTING_POINT_KEY_IN_ASCENDING_ORDER
+  // #define CHECK_SPLITTING_POINT_KEY_IN_ASCENDING_ORDER
   #ifdef CHECK_SPLITTING_POINT_KEY_IN_ASCENDING_ORDER
   std::vector<std::string> tmp_point_keys(this->surf_level_file_split__in_coming_point_keys);
   for(uint32_t i_pk = 1; i_pk < this->surf_level_file_split__in_coming_point_keys.size(); i_pk++){
