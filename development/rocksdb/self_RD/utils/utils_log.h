@@ -15,7 +15,7 @@
 
 
 void print_perf_iostats_context(std::ostream& ofile, int N_repetitions);
-void write_log2(std::ostream &outStream, EmuEnv* _env);
+void write_log2(std::ostream &outStream, EmuEnv* _env, surf::SuRF_Env* _surf_env);
 void io_timing_test(DB* db);
 
 
@@ -172,7 +172,7 @@ void print_perf_iostats_context(std::ostream& ofile, int N_repetitions){
 }
 
 
-void write_log2(std::ostream &outStream, EmuEnv* _env){
+void write_log2(std::ostream &outStream, EmuEnv* _env, surf::SuRF_Env* _surf_env){
   outStream << ",\"T\" : " <<_env->size_ratio << std::endl;
   outStream << ",\"P\" : " <<_env->buffer_size_in_pages << std::endl;
   outStream << ",\"B\" : " <<_env->entries_per_page << std::endl;
@@ -192,6 +192,19 @@ void write_log2(std::ostream &outStream, EmuEnv* _env){
   outStream << ",\"num_levels\" : " <<_env->num_levels << std::endl;
   outStream << ",\"max_write_buffer_number\" : " <<_env->max_write_buffer_number << std::endl;
   outStream << ",\"level0_file_num_compaction_trigger\" : " <<_env->level0_file_num_compaction_trigger << std::endl;
+
+  outStream << ",\"surf__key_len_in_bytes\" : " <<_surf_env->getSuRFKeyLenInBytes() << std::endl;
+  outStream << ",\"surf__hash_suffix_len\" : " <<_surf_env->getSuRFHashSuffixLen() << std::endl;
+  outStream << ",\"surf__real_suffix_len\" : " <<_surf_env->getSuRFRealSuffixLen() << std::endl;
+  outStream << ",\"surf__include_dense\" : " <<_surf_env->getSuRFIncludeDense() << std::endl;
+  outStream << ",\"surf__sparse_dense_ratio\" : " <<_surf_env->getSuRFSparseDenseRatio() << std::endl;
+  outStream << ",\"surf__flag_bypass_if_same_key\" : " <<_surf_env->getFlagBypassIfSameKey() << std::endl;
+  outStream << ",\"surf__flag_allow_range_boundary_overlapped\" : " <<_surf_env->getFlagAllowRangeBoundaryOverlapped() << std::endl;
+  outStream << ",\"surf__flag_use_condensed_digit_key\" : " <<_surf_env->getFlagSurfUseCondensedDigitKey() << std::endl;
+  outStream << ",\"surf__length_of_condensed_digit_key\" : " <<_surf_env->getLengthOfCondensedDigitKey() << std::endl;
+  outStream << ",\"show_surf_compaction_info\" : " <<_surf_env->getShowSurfCompactionInfo() << std::endl;
+  outStream << ",\"use_surf_base\" : " <<_surf_env->getFlagUseSuRFBase() << std::endl;
+  outStream << ",\"surf_base_store_key_to_k_diff\" : " <<_surf_env->getSuRFBaseStoreKeyToKDiff() << std::endl;
 }
 
 

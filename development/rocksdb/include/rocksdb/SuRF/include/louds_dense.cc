@@ -6,6 +6,7 @@
 
 // #include "bitvector.hpp"
 #include "louds_dense.hpp"
+#include "surf.hpp"
 
 namespace surf {
 
@@ -371,8 +372,34 @@ uint64_t LoudsDense::getMemoryUsage() const {
 }
 
 uint64_t LoudsDense::getMemoryUsageInBitsSelf() const {
-	return (sizeof(LoudsDense)
-		+ label_bitmaps_->numBits()
+	surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
+	if(_surf_env->getShowSurfCompactionInfo()){
+		std::cout << "@surf dense getMemoryUsageInBitsSelf start-------------" << std::endl
+          << " (sizeof(LoudsDense) = " << sizeof(LoudsDense) << " B"
+          << ", label_bits = " << label_bitmaps_->numBits() << " bits"
+          << ", label_rankLutSize = " << label_bitmaps_->rankLutSize() << " bits"
+          << ", child_indicator_bits = " << child_indicator_bitmaps_->numBits() << " bits"
+          << ", child_indicator_rankLutSize = " << child_indicator_bitmaps_->rankLutSize() << " bits"
+          << ", prefixkey_bits = " << prefixkey_indicator_bits_->numBits() << " bits" 
+          << ", prefixkey_rankLutSize = " << prefixkey_indicator_bits_->rankLutSize() << " bits" 
+          << ", suffixes_bits = " << suffixes_->numBits() << " bits"
+          << ", left_parentheses_bits = " << left_parentheses_->numBits() << " bits"
+          << ", right_parentheses_bits = " << right_parentheses_->numBits() << " bits )" 
+		  << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+	}
+
+	// return (sizeof(LoudsDense)
+	// 	+ label_bitmaps_->numBits()
+	// 	+ label_bitmaps_->rankLutSize()
+	// 	+ child_indicator_bitmaps_->numBits()
+	// 	+ child_indicator_bitmaps_->rankLutSize()
+	// 	+ prefixkey_indicator_bits_->numBits() 
+	// 	+ prefixkey_indicator_bits_->rankLutSize() 
+	// 	+ suffixes_->numBits()
+	// 	+ left_parentheses_->numBits()
+	// 	+ right_parentheses_->numBits());
+
+	return (label_bitmaps_->numBits()
 		+ label_bitmaps_->rankLutSize()
 		+ child_indicator_bitmaps_->numBits()
 		+ child_indicator_bitmaps_->rankLutSize()

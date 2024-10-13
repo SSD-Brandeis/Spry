@@ -434,17 +434,31 @@ uint64_t LoudsSparse::getMemoryUsage() const {
 uint64_t LoudsSparse::getMemoryUsageInBitsSelf() const {
 	surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
 	if(_surf_env->getShowSurfCompactionInfo()){
-		std::cout << "getMemoryUsageInBitsSelf" << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-		std::cout << "labels_->getNumBytes() * 8: " << labels_->getNumBytes() * 8 << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-		std::cout << "child_indicator_bits_->numBits(): " << child_indicator_bits_->numBits() << " " << "child_indicator_bits_->rankLutSize(): " << child_indicator_bits_->rankLutSize() << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-		std::cout << "louds_bits_->numBits(): " << louds_bits_->numBits() << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-		std::cout << "suffixes_->numBits(): " << suffixes_->numBits() << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-		std::cout << "left_parentheses_->numBits(): " << left_parentheses_->numBits() << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-		std::cout << "right_parentheses_->numBits(): " << right_parentheses_->numBits() << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
-  	}
+		std::cout << "@surf sparse getMemoryUsageInBitsSelf start-------------" << std::endl
+				<< "(sizeof(this): " << sizeof(this) * 8 << " B "
+				<< ", labels_->getNumBytes() * 8: " << labels_->getNumBytes() * 8 << " bits "
+				<< ", child_indicator_bits_->numBits(): " << child_indicator_bits_->numBits() << " bits, "
+				<< ", child_indicator_bits_->rankLutSize(): " << child_indicator_bits_->rankLutSize() << " bits "
+				<< ", louds_bits_->numBits(): " << louds_bits_->numBits() << " bits "
+				<< ", suffixes_->numBits(): " << suffixes_->numBits() << " bits "
+				<< ", left_parentheses_->numBits(): " << left_parentheses_->numBits() << " bits "
+				<< ", right_parentheses_->numBits(): " << right_parentheses_->numBits() << " bits)"
+		  		<< " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+	}
 
-	return (sizeof(this)
-	    + labels_->getNumBytes() * 8
+	// return (sizeof(this)
+	//     + labels_->getNumBytes() * 8
+	//     + child_indicator_bits_->numBits()
+	//     + child_indicator_bits_->rankLutSize()
+	//     + louds_bits_->numBits()
+	//     + suffixes_->numBits()
+	// 	// YCHUANG_ADDED START
+	// 	+ left_parentheses_->numBits()
+	// 	+ right_parentheses_->numBits()
+	// 	// YCHUANG_ADDED END
+	// 	);
+	return (
+	    labels_->getNumBytes() * 8
 	    + child_indicator_bits_->numBits()
 	    + child_indicator_bits_->rankLutSize()
 	    + louds_bits_->numBits()

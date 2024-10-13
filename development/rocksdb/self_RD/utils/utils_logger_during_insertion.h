@@ -80,7 +80,9 @@ void LoggerDuringInsertion::start(EmuEnv* _env){
     testing_result_file_during_insertion.open(testing_result_file_name_during_insertion);
     testing_result_file_during_insertion << "{"<< std::endl;
     testing_result_file_during_insertion << "\"start\" : \"start\""<< std::endl;
-    write_log2(testing_result_file_during_insertion, _env);
+    
+    surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
+    write_log2(testing_result_file_during_insertion, _env, _surf_env);
 }
 
 

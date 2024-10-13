@@ -58,6 +58,9 @@ SkyLineRDF verification_runner::skyline_rdf_prime;
 void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op, EmuEnv* _env){
   DB* db = *db_ptr2;
   Status s;
+  
+  surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
+
 
   checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
   int KEY_SIZE = checking::SystemVerifier::getSystemVerifier()->getKeySize();
@@ -82,11 +85,12 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
 
   std::string testing_result_file_name = _env->logging_filename + ".testing_log";
   std::string testing_result_file_name2 = "output_statistics/" + _env->logging_filename + ".json";
+std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   testing_result_file.open(testing_result_file_name);
   testing_result_file2.open(testing_result_file_name2);
   testing_result_file2 << "{"<< std::endl;
   testing_result_file2 << "\"start\" : \"start\""<< std::endl;
-  write_log2(testing_result_file2, _env);
+  write_log2(testing_result_file2, _env, _surf_env);
 
   testing_result_file << "PLRDF Number Of Total Ranges: " << db->getPLRDFNumberOfTotalRanges() << std::endl;
   testing_result_file << "Split PLRDF Number Of Total Ranges: " << db->getSplitPLRDFNumberOfTotalRanges() << std::endl;
@@ -229,7 +233,7 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
 
 
 
-                                                
+#define DEBUG_VERIFICATION                                               
 void verification_runner::runPQVerification(DB** db_ptr2, 
                                             Options& op, 
                                             WriteOptions& write_op, 

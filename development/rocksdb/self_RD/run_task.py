@@ -15,7 +15,7 @@ params = {
     "--load_pq_workload": [0],
     #"--max_open_files": [999],
     "--max_open_files": [20],
-    "--skip_reading_RD_blocks": [0],
+    "--skip_reading_RD_blocks": [1], # control on block_based_table_reader, but not on table_cache, cannot set to 1 (skip range) if RDF will answer keyMayBeDeleted, basically just set it to 0 if each time just running on 1 RDF_TYPE
     #"--number_of_PQ": [5000*100],
     "--number_of_PQ": [5000], # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
     "--system_check_test_on_all_PQ": [0], # for debugging, 0: off, 1: on, equal to "--number_of_PQ": [-1]
@@ -31,8 +31,26 @@ params = {
     "--run_pq_during_insertion_interval": [200], # default: 200
     "--using_rdf_types": ["NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,TOP_LEVEL_RDF,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY"],
     "--show_surf_compaction_info": [0],
-    "--show_tombstones_during_compaction_info": [0],
+    "--show_tombstones_during_compaction_info": [0], 
+    "--flag_skip_compaction_trivial_move": [0], # if TOP_LEVEL_RDF is in --using_rdf_types, then no matter what value is set, compaction trivial move will always be skip
+    "--use_surf_base": [0], # 1: true, 0: false
+    "--surf_base_store_key_to_k_diff": [1] # is used when --use_surf_base = [1], value can only be nature number (> 0 integer)
 }
+
+# logic for surf__flag_bypass_if_same_key, surf__flag_allow_range_boundary_overlapped
+# if(use_surf_base == true){
+#     surf__flag_bypass_if_same_key = true;
+#     surf__flag_allow_range_boundary_overlapped = true;
+# }else{
+#     //key_size_to_insert this is the clipped off length
+#     if(surf_use_condensed_digit_key){
+#       surf__flag_bypass_if_same_key = surf__key_len_in_bytes <= length_of_condensed_digit_key; // whether to skip RDF checking if searding key is the same as the next greater key in the SuRF
+#       surf__flag_allow_range_boundary_overlapped = surf__key_len_in_bytes <= length_of_condensed_digit_key;
+#     }else{
+#       surf__flag_bypass_if_same_key = surf__key_len_in_bytes <= key_size_to_insert; // whether to skip RDF checking if searding key is the same as the next greater key in the SuRF
+#       surf__flag_allow_range_boundary_overlapped = surf__key_len_in_bytes <= key_size_to_insert;
+#     }
+# }
 
 def set_B_E_list_to_task(
         params: dict,
@@ -160,9 +178,9 @@ def get_task_with_parallelling_parameters(
 params3 = deepcopy(params)
 params3["-P"] = [16]
 params3["-T"] = [4]
-# params3["--insert_before_range_delete"] = [0.999]
+params3["--insert_before_range_delete"] = [0.999]
 # params3["--insert_before_range_delete"] = [0.8]
-params3["--insert_before_range_delete"] = [0.7]
+# params3["--insert_before_range_delete"] = [0.7]
 # params3["--run_pq_during_insertion_interval"] = [20]
 
 # params3["--gen_workload"] = [1]
@@ -177,8 +195,8 @@ params3["--skip_reading_RD_blocks"] = [1]
 # params3["--run_pq_during_insertion_interval"] = [200000]
 params3["--system_check_test_on_all_PQ"] = [0] # for debugging, 0: off, 1: on
 # params3["--system_check_test_on_all_PQ"] = [1] # for debugging, 0: off, 1: on
-
-
+params3["--use_surf_base"] = [0] 
+params3["--surf_base_store_key_to_k_diff"] = [1] 
 
 
 B_list = [4]
@@ -192,14 +210,26 @@ workload_filename_list = [
     f"workload/workload2113.txt",
 ]
 
+   
 
+
+# params3["--surf_use_condensed_digit_key"] = [0]
+params3["--surf_use_condensed_digit_key"] = [1]
 # params3["-i"] = [1000]
 # sel_list = [0.1,0.1,0.1]
 # rd_list = [10,10,10]
+# params3["--show_surf_compaction_info"] = [1] 
+# params3[ "--surf__key_len_in_bytes"] = [13]
+params3[ "--surf__key_len_in_bytes"] = [6]
+# params3[ "--surf__key_len_in_bytes"] = [3]
+# params3[ "--skip_reading_RD_blocks"] = [0]
+params3[ "--flag_skip_compaction_trivial_move"] = [1]
+# params3[ "--surf__key_len_in_bytes"] = [5]
+params3[ "--skip_reading_RD_blocks"] = [1]
+# params3[ "--show_surf_compaction_info"] = [1]
 
-
-if True:
-# if False:
+# if True:
+if False:
     for rd, sel, workload_filename in zip(rd_list, sel_list, workload_filename_list):
         print("Gen I/RD workload")
         gen_insertion_workload(
@@ -221,13 +251,48 @@ if True:
 
 
 # ["NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,TOP_LEVEL_RDF,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY"]
-rdf_types = ["NONE", "PLRDF", "SPLIT_PLRDF", "TOP_LEVEL_RDF", "SKYLINE_RDF", "SuRF_LF_RDF", "SuRF_LF_SPLIT_RDF"]
-for i_rdf, rdf_type in enumerate(rdf_types):
-    # if i_rdf < 5:
-    #    continue
+# rdf_types = ["NONE", "PLRDF", "SPLIT_PLRDF", "TOP_LEVEL_RDF", "SKYLINE_RDF", "SuRF_LF_RDF", "SuRF_LF_SPLIT_RDF"]
+# rdf_types = ["NONE", "PLRDF", "SPLIT_PLRDF", "TOP_LEVEL_RDF", "SKYLINE_RDF", "SuRF_LF_RDF", "SuRF_LF_SPLIT_RDF"]
+rdf_types = [
+    {"--using_rdf_types": ["NONE"], },
+    {"--using_rdf_types": ["PLRDF"], },
+    {"--using_rdf_types": ["SPLIT_PLRDF"], },
+    {"--using_rdf_types": ["TOP_LEVEL_RDF"], },
+    {"--using_rdf_types": ["SKYLINE_RDF"], },
+    {"--using_rdf_types": ["SuRF_LF_RDF"]},
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]},
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0]},
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0]}
+]
+# rdf_types = {
+#     "NONE": {},
+#     "PLRDF": {},
+#     "SPLIT_PLRDF": {},
+#     "TOP_LEVEL_RDF": {},
+#     "SKYLINE_RDF": {},
+#     "SuRF_LF_RDF": {},
+#     "SuRF_LF_SPLIT_RDF": {},
+#     # "SuRF_LF_RDF": {"--surf__key_len_in_bytes": [3]},
+#     # "SuRF_LF_SPLIT_RDF": {"--surf__key_len_in_bytes": [3]}
+# }
+
+
+# for i_rdf, (rdf_type, local_param) in enumerate(rdf_types.items()):
+for i_rdf, rdf_param in enumerate(rdf_types):
+    if i_rdf < 5:
+    # if i_rdf < 6:
+    # if i_rdf < 7:
+    # if i_rdf < 8:
+    # if i_rdf < 9:
+       continue
     test_num = 21 + i_rdf
-    params3["--using_rdf_types"] = [rdf_type]
-    tasks3 = set_B_E_list_to_task(params3, B_list = B_list, E_list = E_list)
+    # params3["--using_rdf_types"] = [rdf_type]
+    params3_local = deepcopy(params3)
+    params3_local.update(rdf_param) # delta changes for different rdf_type
+    # print(params3_local)
+    tasks3 = set_B_E_list_to_task(params3_local, B_list = B_list, E_list = E_list)
     tasks3 = get_task_with_parallelling_parameters(tasks=tasks3, param_dict={"--RD":rd_list, "--selectivity":sel_list,
                                                                           "--workload_filename": workload_filename_list,
                                                                           "--logging_filename": [

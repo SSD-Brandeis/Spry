@@ -2358,7 +2358,6 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
                   bool* key_exists, SequenceNumber* seq, ReadCallback* callback,
                   bool* is_blob, bool do_merge) {
 
-
   Slice ikey = k.internal_key();
   Slice user_key = k.user_key();
 
@@ -2478,6 +2477,8 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       return;
     }
   }else if(rdf_type == "SuRF_LF_RDF"){
+    surf::SuRF_Env::getInstance()->clearFlagKeyMayDeleted();
+
     //SuRF_LEVEL_FILE_RDF
     surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
     bool flag_bypass_if_same_key = _surf_env->getFlagBypassIfSameKey();
@@ -2507,11 +2508,15 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       if(surf_level_file__is_alive_after_hit_file_level == false){
         checking::SystemVerifier::getSystemVerifier()->set_flag_is_RDF_filtered_entry();
         checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+      }else{
+         surf::SuRF_Env::getInstance()->setFlagKeyMayDeleted(isKeyMayDeletedAfterSuRFLevelFileRDFilter());
       }
     }
   }
-  //Split PLRDF
+  //SuRF Split RDF
   else if(rdf_type == "SuRF_LF_SPLIT_RDF"){
+    surf::SuRF_Env::getInstance()->clearFlagKeyMayDeleted();
+
     //SuRF_LEVEL_FILE_SPLIT_RDF
     surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
     bool flag_bypass_if_same_key = _surf_env->getFlagBypassIfSameKey();
@@ -2546,6 +2551,8 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
     checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
     // Self Added End: timing
         return;
+      }else{
+         surf::SuRF_Env::getInstance()->setFlagKeyMayDeleted(isKeyMayDeletedAfterSuRFLevelFileSplitRDFilter());
       }
     }
    
@@ -2590,12 +2597,13 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
         is_filter_skipped,
         fp.GetHitFileLevel(), max_file_size_for_l0_meta_pin_);
 
-checking::SystemVerifier::getSystemVerifier()
-    ->logPQTracingInfo(
-      std::stoll(user_key.ToString()),
-      (f->fd).GetNumber(),
-      fp.GetHitFileLevel()
-    );
+    surf::SuRF_Env::getInstance()->clearFlagKeyMayDeleted();
+    checking::SystemVerifier::getSystemVerifier()
+        ->logPQTracingInfo(
+          std::stoll(user_key.ToString()),
+          (f->fd).GetNumber(),
+          fp.GetHitFileLevel()
+        );
 
     // TODO: examine the behavior for corrupted key
     if (timer_enabled) {
@@ -2842,6 +2850,8 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
           
           if(surf_level_file__is_alive_after_hit_file_level == false){
             checking::SystemVerifier::getSystemVerifier()->set_flag_is_RDF_filtered_entry();
+          }else{
+            surf::SuRF_Env::getInstance()->setFlagKeyMayDeleted(isKeyMayDeletedAfterSuRFLevelFileRDFilter());
           }
         }
       }else if(rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" && rdf_type != "NONE2" && rdf_type != "PLRDF" 
@@ -2890,6 +2900,8 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
         checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
         // Self Added End: timing
             return;
+          }else{
+            surf::SuRF_Env::getInstance()->setFlagKeyMayDeleted(isKeyMayDeletedAfterSuRFLevelFileSplitRDFilter());
           }
         }
       }else if(rdf_type == "SPLIT_PLRDF"){

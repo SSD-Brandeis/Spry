@@ -1418,8 +1418,6 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
       }
     }
 
-    
-
     if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
       || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
       this->split__flush_to_level0_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
@@ -1433,15 +1431,27 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
       if(surf__flush_to_level0_RD_vector != nullptr){
         uint64_t fd_out = surf__flush_to_level0_RD_vector->dst_fd;
         std::vector<pss> &rd_list = surf__flush_to_level0_RD_vector->rd_list;
-        
         if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+          // for(auto &x: rd_list){
+          //   uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+          //   x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+          //   x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
+          //   x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+          //   x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+          //   std::cout << "len_condensed_key = " << len_condensed_key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          //   std::cout << "x.first.size() = " << x.first.size() << " "
+          //          << "x.second.size() = " << x.second.size() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          // }
+          // surf::vpss vx;
           for(auto &x: rd_list){
             uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
             x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
             x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
             x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
             x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+            // if(x.first != x.second){vx.emplace_back(x);}
           }
+          // rd_list = vx;
         }
         
         if(rd_list.size() != 0){
@@ -1463,13 +1473,23 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
         std::vector<pss> &rd_list = surf_level_file_split__flush_to_level0_RD_vector->rd_list;
         
         if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+          // for(auto &x: rd_list){
+          //   uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+          //   x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+          //   x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
+          //   x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+          //   x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+          // }
+          // surf::vpss vx;
           for(auto &x: rd_list){
             uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
             x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
             x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
             x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
             x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+            // if(x.first != x.second){vx.emplace_back(x);}
           }
+          // rd_list = vx;
         }
 
         if(rd_list.size() != 0){
@@ -1618,18 +1638,70 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
               }
             } 
           }else{
-
             std::vector<uint32_t> src_level_list;
             std::vector<std::vector<uint64_t>> src_fd_list2d;
+            // std::vector<std::vector<pss>> range_tombstones_str_list2d;
+            std::vector<pss> merged_sorted_range_tombstones_str;
             for(auto &src_level_info: src_level_info_list){
               uint32_t &src_level = src_level_info.src_level;
               std::vector<uint64_t> &src_fd_list = src_level_info.src_fd_list;
+              std::vector<pss> &range_tombstones_str = src_level_info.range_tombstones_str;
               src_level_list.push_back(src_level);
               src_fd_list2d.push_back(src_fd_list);
+              // range_tombstones_str_list2d.push_back(range_tombstones_str);
+              merged_sorted_range_tombstones_str.insert(
+                  merged_sorted_range_tombstones_str.end(),
+                  range_tombstones_str.begin(),
+                  range_tombstones_str.end()
+              );
             }
-            std::vector<pss> range_tombstone_merged = 
-              (this->surf__level_file_rdf_prime)->gatherSortedRangeTombstonesAndRemoveSuRF(
-                src_level_list, src_fd_list2d, surf_flag__allow_range_boundary_overlapped);
+            
+            if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+              for(auto &x: merged_sorted_range_tombstones_str){
+                uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+                x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+                x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
+                x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+                x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+                // if(x.first != x.second){vx.emplace_back(x);}
+              }
+              // file_boundary_list = vx;
+            }
+
+            // (this->surf__level_file_split_rdf_prime)->RemoveSuRF(src_level_list, src_fd_list2d);
+            // std::vector<pss> range_tombstone_merged;
+            //TODO: update this part, remove repetition parts, don't collect ranges from surf
+            // std::vector<pss> range_tombstone_merged = 
+            //   (this->surf__level_file_rdf_prime)->gatherSortedRangeTombstonesAndRemoveSuRF(
+            //     src_level_list, src_fd_list2d, surf_flag__allow_range_boundary_overlapped);
+            std::sort(merged_sorted_range_tombstones_str.begin(), merged_sorted_range_tombstones_str.end());
+            
+            // std::cout << "range_tombstone_merged " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            // for(auto &x: range_tombstone_merged){
+            //   if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+            //     auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.first);
+            //     auto ke = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.second);
+
+            //     std::cout << "(" << ks << ", " << ke << ") ";
+            //   }else{
+            //     std::cout << "(" << x.first << ", " << x.second << ") ";
+            //   }
+            // }
+            // std::cout << std::endl;
+            std::cout << "merged_sorted_range_tombstones_str " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            for(auto &x: merged_sorted_range_tombstones_str){
+              if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+                auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.first);
+                auto ke = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.second);
+
+                std::cout << "(" << ks << ", " << ke << ") ";
+              }else{
+                std::cout << "(" << x.first << ", " << x.second << ") ";
+              }
+            }
+            std::cout << std::endl;
+            std::cout << std::endl;
+            range_tombstone_merged = merged_sorted_range_tombstones_str;
 
             size_t len_rd = range_tombstone_merged.size();
             if(len_rd > 0){
@@ -1652,13 +1724,23 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
               }
 
               if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+                // for(auto &x: file_boundary_list){
+                //   uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+                //   x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+                //   x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
+                //   x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+                //   x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+                // }
+                // surf::vpss vx;
                 for(auto &x: file_boundary_list){
                   uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
                   x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
                   x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
                   x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
                   x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+                  // if(x.first != x.second){vx.emplace_back(x);}
                 }
+                // file_boundary_list = vx;
               }
 
               (this->surf__level_file_rdf_prime)->shiftRDFToOutputLevel(
@@ -1732,15 +1814,108 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
 
             std::vector<uint32_t> src_level_list;
             std::vector<std::vector<uint64_t>> src_fd_list2d;
+            // std::vector<std::vector<pss>> range_tombstones_str_list2d;
+            std::vector<pss> merged_sorted_range_tombstones_str;
+            // std::vector<pss> merged_sorted_range_tombstones_str_on_output_level;
             for(auto &src_level_info: src_level_info_list){
               uint32_t &src_level = src_level_info.src_level;
               std::vector<uint64_t> &src_fd_list = src_level_info.src_fd_list;
+              // bool is_on_output_level = src_level_info.is_on_output_level;
+              std::vector<pss> &range_tombstones_str = src_level_info.range_tombstones_str;
               src_level_list.push_back(src_level);
               src_fd_list2d.push_back(src_fd_list);
+              // range_tombstones_str_list2d.push_back(range_tombstones_str);
+              merged_sorted_range_tombstones_str.insert(
+                  merged_sorted_range_tombstones_str.end(),
+                  range_tombstones_str.begin(),
+                  range_tombstones_str.end()
+              );
+              // if(is_on_output_level == true){
+              //   merged_sorted_range_tombstones_str_on_output_level.insert(
+              //       merged_sorted_range_tombstones_str_on_output_level.end(),
+              //       range_tombstones_str.begin(),
+              //       range_tombstones_str.end()
+              //   );
+              // }else{
+              //   // merged_sorted_range_tombstones_str.insert(
+              //   //     merged_sorted_range_tombstones_str.end(),
+              //   //     range_tombstones_str.begin(),
+              //   //     range_tombstones_str.end()
+              //   // );
+              // }
             }
-            std::vector<pss> range_tombstone_merged = 
-              (this->surf__level_file_split_rdf_prime)->gatherSortedRangeTombstonesAndRemoveSuRF(
-                src_level_list, src_fd_list2d, surf_flag__allow_range_boundary_overlapped);
+            
+            if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+              for(auto &x: merged_sorted_range_tombstones_str){
+                uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+                x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+                x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
+                x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+                x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+                // if(x.first != x.second){vx.emplace_back(x);}
+              }
+              // file_boundary_list = vx;
+              // for(auto &x: merged_sorted_range_tombstones_str_on_output_level){
+              //   uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+              //   x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
+              //   x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
+              //   x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
+              //   x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+              //   // if(x.first != x.second){vx.emplace_back(x);}
+              // }
+            }
+
+
+                
+            // (this->surf__level_file_split_rdf_prime)->RemoveSuRF(src_level_list, src_fd_list2d);
+            // std::vector<pss> range_tombstone_merged;
+            //TODO: update this part, remove repetition parts, don't collect ranges from surf
+            // std::vector<pss> range_tombstone_merged = 
+            //   (this->surf__level_file_split_rdf_prime)->gatherSortedRangeTombstonesAndRemoveSuRF(
+            //     src_level_list, src_fd_list2d, surf_flag__allow_range_boundary_overlapped);
+            std::sort(merged_sorted_range_tombstones_str.begin(), merged_sorted_range_tombstones_str.end());
+            // std::sort(merged_sorted_range_tombstones_str_on_output_level.begin(), merged_sorted_range_tombstones_str_on_output_level.end());
+            
+            // std::cout << "range_tombstone_merged " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            // for(auto &x: range_tombstone_merged){
+            //   if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+            //     auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.first);
+            //     auto ke = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.second);
+
+            //     std::cout << "(" << ks << ", " << ke << ") ";
+            //   }else{
+            //     std::cout << "(" << x.first << ", " << x.second << ") ";
+            //   }
+            // }
+            // std::cout << std::endl;
+            std::cout << "merged_sorted_range_tombstones_str " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            for(auto &x: merged_sorted_range_tombstones_str){
+              if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+                auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.first);
+                auto ke = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.second);
+
+                std::cout << "(" << ks << ", " << ke << ") ";
+              }else{
+                std::cout << "(" << x.first << ", " << x.second << ") ";
+              }
+            }
+            std::cout << std::endl;
+            std::cout << std::endl;
+            // std::cout << "merged_sorted_range_tombstones_str_on_output_level " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            // for(auto &x: merged_sorted_range_tombstones_str_on_output_level){
+            //   if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+            //     auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.first);
+            //     auto ke = surf::SuRF_Utils::decode_byte_string_to_digit_string(x.second);
+
+            //     std::cout << "(" << ks << ", " << ke << ") ";
+            //   }else{
+            //     std::cout << "(" << x.first << ", " << x.second << ") ";
+            //   }
+            // }
+            // std::cout << std::endl;
+            range_tombstone_merged = merged_sorted_range_tombstones_str;
+            // merged_sorted_range_tombstones_str_on_output_level;
+
 
             size_t len_rd = range_tombstone_merged.size();
             if(len_rd > 0){
@@ -1781,12 +1956,17 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
               if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
                 
                 uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+                // std::vector<std::string> v_str;
                 for(uint32_t i_pk = 0; i_pk < this->surf_level_file_split__in_coming_point_keys.size(); i_pk++){
                   auto x = this->surf_level_file_split__in_coming_point_keys[i_pk];
                   x = surf::SuRF_Utils::encode_digit_string_to_byte_string(x);
                   x = surf::SuRF_Utils::extend_string_to_length(x, len_condensed_key, (char)0);
+                  // if(v_str.empty() || (x != v_str.back())){
+                  //   v_str.emplace_back(x);
+                  // }
                   this->surf_level_file_split__in_coming_point_keys[i_pk] = x;
                 }
+                // this->surf_level_file_split__in_coming_point_keys = v_str;
               }
 
   #ifdef CHECK_SPLITTING_POINT_KEY_IN_ASCENDING_ORDER      
@@ -1807,15 +1987,18 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
   #endif
 
               if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+                // surf::vpss vx;
                 for(auto &x: file_boundary_list){
                   uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
                   x.first = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.first);
                   x.first = surf::SuRF_Utils::extend_string_to_length(x.first, len_condensed_key, (char)0);
                   x.second = surf::SuRF_Utils::encode_digit_string_to_byte_string(x.second);
                   x.second = surf::SuRF_Utils::extend_string_to_length(x.second, len_condensed_key, (char)0);
+                  // if(x.first != x.second){vx.emplace_back(x);}
                 }
+                // file_boundary_list = vx;
               }
-
+            
               (this->surf__level_file_split_rdf_prime)->shiftRDFWithPointKeysToOutputLevel(
                 range_tombstone_merged, 
                 this->surf_level_file_split__in_coming_point_keys,

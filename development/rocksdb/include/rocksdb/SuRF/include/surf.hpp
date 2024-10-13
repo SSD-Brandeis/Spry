@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <unordered_map>
+#include <sstream>
 
 #include <climits>
 #include <cmath>
@@ -90,6 +91,18 @@ class SuRF_Env {
             return surf__flag_allow_range_boundary_overlapped;
         }
         
+        // Start: used during Get()
+        void setFlagKeyMayDeleted(bool flag){
+            flag_key_may_deleted = flag;
+        }
+        bool getFlagKeyMayDeleted(){
+            return flag_key_may_deleted;
+        }
+        void clearFlagKeyMayDeleted(){
+            flag_key_may_deleted = false;
+        }
+        // End: used during Get()
+
         void setFlagSurfUseCondensedDigitKey(bool flag){
             surf__flag_use_condensed_digit_key = flag;
         }
@@ -114,9 +127,26 @@ class SuRF_Env {
             return show_surf_compaction_info;
         }
         
+
+        void setFlagUseSuRFBase(bool flag){
+            use_surf_base = flag;
+        }
+        bool getFlagUseSuRFBase(){
+            return use_surf_base;
+        }
+
+        void setSuRFBaseStoreKeyToKDiff(uint32_t k_diff){
+            assert(k_diff >= 1);
+            surf_base_store_key_to_k_diff = k_diff;
+        }
+        uint32_t getSuRFBaseStoreKeyToKDiff(){
+            return surf_base_store_key_to_k_diff;
+        }
+
     private:
         SuRF_Env() {}
         static SuRF_Env* surf_env_ptr;
+        bool flag_key_may_deleted = false; // used during get()
 
         int surf__key_len_in_bytes = 12;
         uint32_t surf__hash_suffix_len = 0;
@@ -129,6 +159,9 @@ class SuRF_Env {
         uint32_t surf__length_of_condensed_digit_key = 5;
 
         bool show_surf_compaction_info = false;
+
+        bool use_surf_base = false;
+        uint32_t surf_base_store_key_to_k_diff = 1;
 };
 
 
@@ -173,6 +206,7 @@ class SuRF_Utils {
             }
 
             reverse(out.begin(), out.end());
+// std::cout << "input digit_string = " << digit_string << ", encoded_str = " << out << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
             return out;
         }
@@ -249,8 +283,52 @@ class SuRF_Utils {
             
             // Convert stringstream to string and return
             return hex_stream.str();
+        }        
+                
+        // Function to truncate based on the first k_diff differing characters between two strings
+        static std::string truncateToFirstKDifference(const std::string& str1, const std::string& str2, int k_diff = 1) {
+            size_t minLen = std::min(str1.length(), str2.length());
+            size_t i = 0;
+            int diff_count = 0;
+            
+            assert(k_diff > 0);
+
+            // Iterate over both strings and count differences until k_diff differences are found
+            while (i < minLen) {
+                if (str1[i] != str2[i]) {
+                    diff_count++;
+                }
+                if (diff_count == k_diff) {
+                    break;
+                }
+                ++i;
+            }
+            
+            // Return the substring from str1 up to i+1
+            return str1.substr(0, i + 1);
         }
-        
+
+        // Process the list of words to truncate based on k_diff differences from previous word
+        static std::vector<std::string> processStringsToFirstKDifference(std::vector<std::string>& vec, int k_diff = 1) {
+            // Sort the vector of strings
+            std::sort(vec.begin(), vec.end());
+
+            if (vec.size() <= 1) {
+                return vec;  // Return the vector as is if it contains 1 or no elements
+            }
+
+            std::vector<std::string> result;
+            // Store the first string as is (no previous string to compare with)
+            result.push_back(vec[0]);
+
+            // Compare each string with the previous one and store the truncated version
+            for (size_t i = 1; i < vec.size(); ++i) {
+                result.push_back(truncateToFirstKDifference(vec[i], vec[i - 1], k_diff));
+            }
+
+            return result;
+        }
+
     private:
 };
 
@@ -289,6 +367,10 @@ class SuRF_RDF {
 
         uint64_t getMemoryUsageAtIthLevel(int level);
 
+        uint64_t getDensePartMemoryUsageInBitsSelf();
+
+        uint64_t getSparsePartMemoryUsageInBitsSelf();
+
         uint64_t getNumberOfTotalMemoryUsage();
 
         void logCurrentTotalNumbersOfRanges();
@@ -306,6 +388,8 @@ class SuRF_RDF {
 
         std::unordered_map<uint64_t,std::pair<int, SuRF*>> getLevelFileRDFAtIthLevel(int level);
 
+        void RemoveSuRF(std::vector<uint32_t> &src_level_list, 
+                        std::vector<std::vector<uint64_t>> &src_fd_list2d);
 
         std::vector<pss>  gatherSortedRangeTombstonesAndRemoveSuRF(std::vector<uint32_t> &src_level_list, 
                                                                     std::vector<std::vector<uint64_t>> &src_fd_list2d, 
@@ -326,12 +410,16 @@ class SuRF_RDF {
         RDF_MODE getRDFMode();
 
         static vpss mergeRanges(vpss ranges_1, vpss ranges_2, bool allow_boundary_overlap_not_merged = false);
-        
-        bool isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string key, bool flag_bypass_if_same_key) const;
+        void setFlagKeyMayDeleted();
+        bool getFlagKeyMayDeleted();
+        void clearFlagKeyMayDeleted();
+        void incKeySearchCountKME();
+        void checkProperUsageOfFlagKeyMayDeleted();
+        bool isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string key, bool flag_bypass_if_same_key);
 
-        bool isEntryAlive(level_t level, std::string key, bool flag_bypass_if_same_key) const;
+        // bool isEntryAlive(level_t level, std::string key, bool flag_bypass_if_same_key);
 
-        bool isEntryAlive(level_t level, std::string key, uint64_t fd, bool flag_bypass_if_same_key) const;
+        // bool isEntryAlive(level_t level, std::string key, uint64_t fd, bool flag_bypass_if_same_key);
 
         void print(bool flag_allow_boundary_overlapped);
 
@@ -341,6 +429,8 @@ class SuRF_RDF {
         VMP level_file_surf_rdf; // fd->(#ranges, SuRF*) per level
         std::vector<int> numbers_of_ranges_in_RDF_log; //for level > 0, number of ranges in RDF
         std::vector<int> memory_usage_in_RDF_log; //for level > 0, number of ranges in RDF
+        bool flag_key_may_deleted = false;
+        uint32_t key_search_count_kme = 0;
 };
 
 
@@ -463,6 +553,8 @@ public:
 
     uint64_t serializedSize() const;
     uint64_t getMemoryUsage() const;
+    uint64_t getDensePartMemoryUsageInBitsSelf() const;
+    uint64_t getSparsePartMemoryUsageInBitsSelf() const;
     uint64_t getMemoryUsageInBitsSelf() const;
     level_t getHeight() const;
     level_t getSparseStartLevel() const;

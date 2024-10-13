@@ -168,6 +168,7 @@ namespace checking {
 
     bool flag_open_table = false;
     bool flag_pq_tracing_on = false;
+    bool flag_skip_trivial_move = false;
     unordered_map<long long, vector<tuple<unsigned long long, unsigned int, bool>>> map_pq_tracing_info; // key -> {(fd, LSM level, open file), ...}
     vector<tuple<unsigned long long, unsigned int, bool>> v_pq_tracing_info; // {(fd, LSM level, open file), ...}
   public:
@@ -283,6 +284,12 @@ namespace checking {
       return result.str();
     }
 
+    void setSkipCompactionTrivialMove(bool flag){
+      flag_skip_trivial_move = flag;
+    }
+    bool getSkipCompactionTrivialMove(){
+      return flag_skip_trivial_move;
+    }
     void setSkipReadingRangeDeleteBlock(bool flag){
       flag_skip_reading_range_delete_block = flag;
     }
@@ -554,6 +561,7 @@ namespace checking {
       }
       return false;
     }
+
 
     int RDFType_chosed = 0;
         

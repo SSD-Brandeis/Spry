@@ -1220,7 +1220,24 @@ class Version {
     if(surf__level_file_split_rdf == NULL){
       return true;
     }
-    return (this->surf__level_file_split_rdf)->isEntryAliveAtLevelOfFd(level, fd, key, flag_bypass_if_same_key);
+    bool is_alive =  (this->surf__level_file_split_rdf)->isEntryAliveAtLevelOfFd(level, fd, key, flag_bypass_if_same_key);
+    std::cout << "level= " << level << " fd=" << fd << " key=" << key << " flag_bypass_if_same_key=" << flag_bypass_if_same_key << " is_alive=" << is_alive << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    return is_alive;
+  }
+  
+  //start: can only be called after isAliveAfterSuRFLevelFileRDFilter is called
+  bool isKeyMayDeletedAfterSuRFLevelFileRDFilter(){
+    if(surf__level_file_rdf == NULL){
+      return false;
+    }
+    return (this->surf__level_file_rdf)->getFlagKeyMayDeleted();
+  }
+  //start: can only be called after isAliveAfterSuRFLevelFileSplitRDFilter is called
+  bool isKeyMayDeletedAfterSuRFLevelFileSplitRDFilter(){
+    if(surf__level_file_split_rdf == NULL){
+      return false;
+    }
+    return (this->surf__level_file_split_rdf)->getFlagKeyMayDeleted();
   }
 
   void printPLRDF(){

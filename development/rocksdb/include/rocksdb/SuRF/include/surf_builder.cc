@@ -12,6 +12,9 @@ namespace surf {
 
 void SuRFBuilder::build(const std::vector<std::string>& keys) {
     assert(keys.size() > 0);
+    // YCHUANG ADDED START
+    sparse_start_level_ = 0;
+	// YCHUANG_ADDED END
     buildSparse(keys);
     if (include_dense_) {
 	determineCutoffLevel();
@@ -25,6 +28,7 @@ void SuRFBuilder::build(const std::vector<std::string>& keys) {
 // YCHUANG ADDED START
 void SuRFBuilder::build(const std::vector<std::string>& keys, const std::vector<bool>& left_parentheses, const std::vector<bool>& right_parentheses, const uint16_t max_num_level) {
     assert(keys.size() > 0);
+    sparse_start_level_ = 0;
     buildSparseWithparentheses(keys, left_parentheses, right_parentheses, max_num_level);
     if (include_dense_) {
 	determineCutoffLevel();

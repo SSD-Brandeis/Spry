@@ -183,12 +183,13 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   args::ValueFlag<bool> surf__include_dense_cmd(group1, "surf__include_dense", "surf__include_dense [def:1 (true)]", {"surf__include_dense"});
   args::ValueFlag<uint32_t> surf__sparse_dense_ratio_cmd(group1, "surf__sparse_dense_ratio", "surf__sparse_dense_ratio [def:16]", {"surf__sparse_dense_ratio"});
   args::ValueFlag<bool> surf_use_condensed_digit_key_cmd(group1, "surf_use_condensed_digit_key", "surf_use_condensed_digit_key [def:1 (true)]", {"surf_use_condensed_digit_key"});
-  
   args::ValueFlag<bool> show_surf_compaction_info_cmd(group1, "show_surf_compaction_info", "show_surf_compaction_info [def:0 (false)]", {"show_surf_compaction_info"});
+  args::ValueFlag<bool> use_surf_base_cmd(group1, "use_surf_base", "use_surf_base [def:0 (false)]", {"use_surf_base"});
+  args::ValueFlag<uint32_t> surf_base_store_key_to_k_diff_cmd(group1, "surf_base_store_key_to_k_diff", "surf_base_store_key_to_k_diff [def:1 (uint32_t > 0)]", {"surf_base_store_key_to_k_diff"});
+  
   args::ValueFlag<bool> show_tombstones_during_compaction_info_cmd(group1, "show_tombstones_during_compaction_info", "show_tombstones_during_compaction_info [def:0 (false)]", {"show_tombstones_during_compaction_info"});
+  args::ValueFlag<bool> flag_skip_compaction_trivial_move_cmd(group1, "flag_skip_compaction_trivial_move", "show_tombstones_during_compaction_info [def:0 (false)]", {"flag_skip_compaction_trivial_move"});
   //YuCheng Added End
-
-
 
 
 
@@ -294,11 +295,28 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   uint32_t surf__hash_suffix_len = surf__hash_suffix_len_cmd ? args::get(surf__hash_suffix_len_cmd) : 0;
   uint32_t surf__real_suffix_len = surf__real_suffix_len_cmd ? args::get(surf__real_suffix_len_cmd) : 0;
   bool surf__include_dense = surf__include_dense_cmd ? args::get(surf__include_dense_cmd) : true;
+  // std::cout << "surf__include_dense = " << surf__include_dense << "  args::get(surf__include_dense_cmd) = " << args::get(surf__include_dense_cmd) << std::endl;
   uint32_t surf__sparse_dense_ratio = surf__sparse_dense_ratio_cmd ? args::get(surf__sparse_dense_ratio_cmd) : 16;
-  bool surf__flag_bypass_if_same_key = surf__key_len_in_bytes < key_size_to_insert; // whether to skip RDF checking if searding key is the same as the next greater key in the SuRF
-  bool surf__flag_allow_range_boundary_overlapped = surf__key_len_in_bytes < key_size_to_insert;
   bool surf_use_condensed_digit_key = surf_use_condensed_digit_key_cmd ? (args::get(surf_use_condensed_digit_key_cmd) != 0) : true;
   uint32_t length_of_condensed_digit_key = 1.0 * key_size_to_insert * log(10) / log(256) + 1;
+  bool surf__flag_bypass_if_same_key = false; // whether to skip RDF checking if searding key is the same as the next greater key in the SuRF
+  bool surf__flag_allow_range_boundary_overlapped = false;
+  bool use_surf_base = use_surf_base_cmd ? (args::get(use_surf_base_cmd) != 0) : false;
+  if(use_surf_base == true){
+    surf__flag_bypass_if_same_key = true;
+    surf__flag_allow_range_boundary_overlapped = true;
+  }else{
+    //key_size_to_insert this is the clipped off length
+    if(surf_use_condensed_digit_key){
+      surf__flag_bypass_if_same_key = surf__key_len_in_bytes <= length_of_condensed_digit_key; // whether to skip RDF checking if searding key is the same as the next greater key in the SuRF
+      surf__flag_allow_range_boundary_overlapped = surf__key_len_in_bytes <= length_of_condensed_digit_key;
+    }else{
+      surf__flag_bypass_if_same_key = surf__key_len_in_bytes <= key_size_to_insert; // whether to skip RDF checking if searding key is the same as the next greater key in the SuRF
+      surf__flag_allow_range_boundary_overlapped = surf__key_len_in_bytes <= key_size_to_insert;
+    }
+  }
+  uint32_t surf_base_store_key_to_k_diff = surf_base_store_key_to_k_diff_cmd ? args::get(surf_base_store_key_to_k_diff_cmd) : 1;
+
   _surf_env->setSuRFKeyLenInBytes(surf__key_len_in_bytes);
   _surf_env->setSuRFHashSuffixLen(surf__hash_suffix_len);
   _surf_env->setSuRFRealSuffixLen(surf__real_suffix_len);
@@ -310,11 +328,15 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   if(surf_use_condensed_digit_key == true){
     _surf_env->setLengthOfCondensedDigitKey(length_of_condensed_digit_key);
   }
-
   bool show_surf_compaction_info = show_surf_compaction_info_cmd ? (args::get(show_surf_compaction_info_cmd) != 0) : false;
-  _surf_env->setShowSurfCompactionInfo(show_surf_compaction_info);
+  _surf_env->setFlagUseSuRFBase(use_surf_base);
+  _surf_env->setSuRFBaseStoreKeyToKDiff(surf_base_store_key_to_k_diff);
+
+  
   bool show_tombstones_during_compaction_info = show_tombstones_during_compaction_info_cmd ? (args::get(show_tombstones_during_compaction_info_cmd) != 0) : false;
+  bool flag_skip_compaction_trivial_move = flag_skip_compaction_trivial_move_cmd ? (args::get(flag_skip_compaction_trivial_move_cmd) != 0) : false;
   system_verifier->setShowTombstonesDuringCompactionInfo(show_tombstones_during_compaction_info);
+  system_verifier->setSkipCompactionTrivialMove(flag_skip_compaction_trivial_move);
   //YuCheng Added End
   return 0;
 }

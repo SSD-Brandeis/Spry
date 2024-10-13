@@ -549,8 +549,12 @@ Status TableCache::Get(
     }else if(rdf_type == "SKYLINE_RDF"){
       rdf_skip_range_deletions = true;
 
-    }else if(rdf_type == "SuRF_LF_RDF"){
-      rdf_skip_range_deletions = true;
+    // }else if(rdf_type == "SuRF_LF_RDF"){
+    }else if(rdf_type == "SuRF_LF_RDF" && rdf_type == "SuRF_LF_SPLIT_RDF"){
+      // surf::SuRF_Env::getInstance()->setFlagBypassIfSameKey is called in utils_gen_workload.h
+      // rdf_skip_range_deletions = !surf::SuRF_Env::getInstance()->getFlagBypassIfSameKey();
+      rdf_skip_range_deletions = !surf::SuRF_Env::getInstance()->getFlagKeyMayDeleted();
+      // std::cout << "SuRF_LF_SPLIT_RDF rdf_skip_range_deletions = " << rdf_skip_range_deletions << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
     }else if(rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" && rdf_type != "NONE2" 
             && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" 

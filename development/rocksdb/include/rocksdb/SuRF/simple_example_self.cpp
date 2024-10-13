@@ -171,7 +171,7 @@ void testRangesToSurfToRanges(){
 
 
     //retrieve ranges from SuRf
-    std::vector<std::pair<std::string, std::string>> ranges2 = SuRF::surfToRanges(surf_);
+    std::vector<std::pair<std::string, std::string>> ranges2 = SuRF::surfToRanges(surf_, flag_allow_boundary_overlapped);
     assert(ranges == ranges2);
     std::cout << "testRangesToSurfToRanges passed" << std::endl;
 }
@@ -480,34 +480,7 @@ void test1(){
 
 }
 
-int main() {
-    //// test1
-    // test1();
-    
-    //// test2
-    // std::cout << std::endl << std::endl;
-    // int test_count2 = 1000;
-    // while(test_count2){
-    //     // test_find_next_string(surf::kHash, 8, 0);
-    //     // test_find_next_string(surf::kReal, 0, 8);
-    //     // test_find_next_string(surf::kMixed, 4, 4);
-    //     test_find_next_string(surf::kHash, 0, 0);
-    //     test_find_next_string(surf::kReal, 0, 0);
-    //     test_find_next_string(surf::kMixed, 0, 0);
-    //     test_count2--;
-    // }
-    // std::cout << std::endl << std::endl;
-
-    //// test3
-    int test_count3 = 1000;
-    while(test_count3){
-        testRangesToSurfToRanges();
-        test_count3--;
-    }
-
-
-    
-    // usage
+void test_iter(){
     std::vector<std::pair<std::string, std::string>> ranges = {
         {"aa", "abc"},
         {"acc", "acdd"},
@@ -529,10 +502,113 @@ int main() {
                             hash_suffix_len, real_suffix_len, include_dense, 
                             sparse_dense_ratio, flag_allow_boundary_overlapped);
     
-    //retrieve ranges from SuRf
-    std::vector<std::pair<std::string, std::string>> ranges2 = SuRF::surfToRanges(surf_);
-    assert(ranges == ranges2);
-    std::cout << "testRangesToSurfToRanges passed" << std::endl;
+    SuRF::Iter iter = surf_->moveToFirst();
+    // std::string key = iter.getKey();
+    // std::cout << "key: " << key << std::endl;
+    // key = iter.getKey();
+    // std::cout << "key: " << key << std::endl;
+    // int num = 10;
+    while(iter.isValid()){
+        std::string key = iter.getKey();
+        std::cout << "(iter++) key: " << key << std::endl;
+
+        bool left_paenthesis = iter.getLeftParenthesis();
+        bool right_parenthesis = iter.getRightParenthesis();
+
+        std::cout << "left_paenthesis: " << left_paenthesis << " right_parenthesis: " << right_parenthesis << std::endl;
+
+        bool x = iter++;
+        std::cout << "bool iter++ = " << x << std::endl;
+        // num--;
+        // break;
+    }
+
+    
+    // SuRF::Iter iter2 = surf_->moveToLast();
+    SuRF::Iter &iter2 = iter;
+    if(iter2.isValid() == false){
+        iter2 = surf_->moveToLast();
+    }else{
+        // iter2 = iter;
+        // iter--;
+    }
+    
+    // std::string key = iter.getKey();
+    // std::cout << "key: " << key << std::endl;
+    // key = iter.getKey();
+    // std::cout << "key: " << key << std::endl;
+    // int num = 10;
+    while(iter2.isValid()){
+        std::string key = iter2.getKey();
+        std::cout << "(iter--) key: " << key << std::endl;
+
+        bool left_paenthesis = iter.getLeftParenthesis();
+        bool right_parenthesis = iter.getRightParenthesis();
+
+        std::cout << "left_paenthesis: " << left_paenthesis << " right_parenthesis: " << right_parenthesis << std::endl;
+
+        bool x = iter2--;
+        std::cout << "bool iter2-- = " << x << std::endl;
+        // num--;
+    }
+}
+
+int main() {
+    //// test1
+    // test1();
+    
+    //// test2
+    // std::cout << std::endl << std::endl;
+    // int test_count2 = 1000;
+    // while(test_count2){
+    //     // test_find_next_string(surf::kHash, 8, 0);
+    //     // test_find_next_string(surf::kReal, 0, 8);
+    //     // test_find_next_string(surf::kMixed, 4, 4);
+    //     test_find_next_string(surf::kHash, 0, 0);
+    //     test_find_next_string(surf::kReal, 0, 0);
+    //     test_find_next_string(surf::kMixed, 0, 0);
+    //     test_count2--;
+    // }
+    // std::cout << std::endl << std::endl;
+
+    // //// test3
+    // int test_count3 = 1000;
+    // while(test_count3){
+    //     testRangesToSurfToRanges();
+    //     test_count3--;
+    // }
+
+    // test_iter
+    test_iter();
+
+
+    
+    // usage
+    // std::vector<std::pair<std::string, std::string>> ranges = {
+    //     {"aa", "abc"},
+    //     {"acc", "acdd"},
+    //     {"bcde", "bcdef"}
+    // };
+    // int key_len_in_bytes = 5;
+    // surf::level_t hash_suffix_len = 0;
+    // surf::level_t real_suffix_len = 8;
+    // bool include_dense = true;
+    // uint32_t sparse_dense_ratio = 16;
+    // bool flag_build_until_unique = false;
+
+    // bool flag_allow_boundary_overlapped = false;
+    // // build SuREF from ranges
+    // // SuRF* surf_ = SuRF::rangesToSurf(ranges, key_len_in_bytes, surf::SuffixType::kReal, 
+    // //                         hash_suffix_len, real_suffix_len, include_dense, 
+    // //                         sparse_dense_ratio, flag_build_until_unique);
+    // SuRF* surf_ = SuRF::rangesToSurf(ranges, key_len_in_bytes, surf::SuffixType::kReal, 
+    //                         hash_suffix_len, real_suffix_len, include_dense, 
+    //                         sparse_dense_ratio, flag_allow_boundary_overlapped);
+    
+    // //retrieve ranges from SuRf
+    // std::vector<std::pair<std::string, std::string>> ranges2 = SuRF::surfToRanges(surf_, flag_allow_boundary_overlapped);
+    // assert(ranges == ranges2);
+    // std::cout << "testRangesToSurfToRanges passed" << std::endl;
 
     return 0;
 }

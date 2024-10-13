@@ -77,6 +77,8 @@ namespace ROCKSDB_NAMESPACE {
   struct SuRFCompactionSourceLevelInfo{
     uint32_t src_level;
     std::vector<uint64_t> src_fd_list;
+    bool is_on_output_level;
+    std::vector<pss> range_tombstones_str;
 
     void check_filled(){
       assert(src_fd_list.size() > 0);
