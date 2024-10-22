@@ -1221,7 +1221,7 @@ class Version {
       return true;
     }
     bool is_alive =  (this->surf__level_file_split_rdf)->isEntryAliveAtLevelOfFd(level, fd, key, flag_bypass_if_same_key);
-    std::cout << "level= " << level << " fd=" << fd << " key=" << key << " flag_bypass_if_same_key=" << flag_bypass_if_same_key << " is_alive=" << is_alive << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // std::cout << "level= " << level << " fd=" << fd << " key=" << key << " flag_bypass_if_same_key=" << flag_bypass_if_same_key << " is_alive=" << is_alive << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     return is_alive;
   }
   
@@ -1298,7 +1298,30 @@ class Version {
     }
     return surf__level_file_split_rdf->getNumberOfTotalRanges();
   }
-
+  int getPLRDFNumberOfTotalMemoryUsage(){
+    return plrdf.getNumberOfTotalMemoryUsage();
+  }
+  int getSplitPLRDFNumberOfTotalMemoryUsage(){
+    return split_plrdf.getNumberOfTotalMemoryUsage();
+  }
+  int getTopLevelRDFNumberOfTotalMemoryUsage(){
+    return top_level_rdf.getNumberOfTotalMemoryUsage();
+  }
+  int getSkylineRDFNumberOfTotalMemoryUsage(){
+    return skyline_rdf.getNumberOfTotalMemoryUsage();
+  }
+  int getSuRFLevelFileRDFNumberOfTotalMemoryUsage(){
+    if(surf__level_file_rdf == NULL){
+      return 0;
+    }
+    return surf__level_file_rdf->getNumberOfTotalMemoryUsage();
+  }
+  int getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage(){
+    if(surf__level_file_split_rdf == NULL){
+      return 0;
+    }
+    return surf__level_file_split_rdf->getNumberOfTotalMemoryUsage();
+  }
   int getPLRDFNumberOfTotalLevels(){
     return plrdf.getNumberOfTotalLevels();
   }
@@ -1384,6 +1407,32 @@ class Version {
     }
     return surf__level_file_split_rdf->getMemoryUsageInRDFLog();
   }
+
+  
+  double getFilterFalsePositiveRateInSuRFLevelFileRDF() {
+    if(surf__level_file_rdf == NULL){
+      return -1;
+    }
+    return surf__level_file_rdf->getFilterFalsePositiveRate();
+  };
+  double getFilterFalsePositiveRateInSuRFLevelFileSplitRDF() {
+    if(surf__level_file_split_rdf == NULL){
+      return -1;
+    }
+    return surf__level_file_split_rdf->getFilterFalsePositiveRate();
+  };
+  void clearFilterFalsePositiveRateInSuRFLevelFileRDF() {
+    if(surf__level_file_rdf == NULL){
+      return;
+    }
+    return surf__level_file_rdf->clearFilterFalsePositiveRate();
+  };
+  void clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF() {
+    if(surf__level_file_split_rdf == NULL){
+      return;
+    }
+    return surf__level_file_split_rdf->clearFilterFalsePositiveRate();
+  };
 
 
   void inc_installSuperversion_count(){

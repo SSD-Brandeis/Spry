@@ -757,7 +757,7 @@ std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(SuRF* surf_,
             left_parentheses.push_back(left_parenthesis);
             right_parentheses.push_back(right_parenthesis);
             iter.sparse_iter_++;
-            std::cout << key << "("<<left_parenthesis << "," << right_parenthesis << ") ";
+            // std::cout << key << "("<<left_parenthesis << "," << right_parenthesis << ") ";
         }
         std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     }else{
@@ -1591,14 +1591,14 @@ uint64_t SuRF_RDF::getNumberOfTotalMemoryUsage(){
     for(int i = 0; i < level; i++){
         num += getMemoryUsageAtIthLevel(i);
     }
-    return num;
+    return num / 8;  //bits --> bytes
 }
 void SuRF_RDF::logCurrentTotalNumbersOfRanges() {
     int num = getNumberOfTotalRanges();
     numbers_of_ranges_in_RDF_log.push_back(num);
 }
 void SuRF_RDF::logCurrentTotalMemoryUsage(){
-    uint64_t num = getNumberOfTotalMemoryUsage() / 8; //bits --> bytes
+    uint64_t num = getNumberOfTotalMemoryUsage();
     memory_usage_in_RDF_log.push_back(num);
 }
 
@@ -1728,7 +1728,40 @@ vpss SuRF_RDF::mergeRanges(vpss ranges_1, vpss ranges_2, bool allow_boundary_ove
 // Start: flag_key_may_deleted helper functions
 // Make sure reset clearFlagKeyMayDeleted before each keySearching
 // checkProperUsageOfFlagKeyMayDeleted helps to check
+void SuRF_RDF::clearFilterFalsePositiveRate(){
+    clearKeySearchCount();
+    clearKeyMayDeletedCount();
+}
+double SuRF_RDF::getFilterFalsePositiveRate(){
+    uint32_t total_key_search_count = getKeySearchCount();
+    if(total_key_search_count == 0){return -1;}
+    return 1.0*getKeyMayDeletedCount()/total_key_search_count;
+}
+// use clearFilterFalsePositiveRate for public called
+void SuRF_RDF::clearKeySearchCount(){
+    key_search_count = 0;
+}
+void SuRF_RDF::incKeySearchCount(){
+    if(key_search_count == std::numeric_limits<decltype(key_search_count)>::max()){
+        std::cerr << "Error: overflow of key_search_count " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    key_search_count += 1;
+}
+uint32_t SuRF_RDF::getKeySearchCount(){
+    return key_search_count;
+}
+// use clearFilterFalsePositiveRate for public called
+void SuRF_RDF::clearKeyMayDeletedCount(){
+    key_may_deleted_count = 0;
+}
+uint32_t SuRF_RDF::getKeyMayDeletedCount(){
+    return key_may_deleted_count;
+}
 void SuRF_RDF::setFlagKeyMayDeleted(){
+    if(key_may_deleted_count == std::numeric_limits<decltype(key_may_deleted_count)>::max()){
+        std::cerr << "Error: overflow of key_may_deleted_count " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    key_may_deleted_count += 1;
     flag_key_may_deleted = true;
 }
 bool SuRF_RDF::getFlagKeyMayDeleted(){
@@ -1737,13 +1770,13 @@ bool SuRF_RDF::getFlagKeyMayDeleted(){
 }
 void SuRF_RDF::clearFlagKeyMayDeleted(){
     flag_key_may_deleted = false;
-    key_search_count_kme = 0;
+    key_search_count_kmd = 0;
 }
-void SuRF_RDF::incKeySearchCountKME(){
-    key_search_count_kme += 1;
+void SuRF_RDF::incKeySearchCountKMD(){
+    key_search_count_kmd += 1;
 }
 void SuRF_RDF::checkProperUsageOfFlagKeyMayDeleted(){
-    if(key_search_count_kme > 1){
+    if(key_search_count_kmd > 1){
         std::cout << "Error: key_search_count_kme shall be 0 or 1."
                  << " Make sure clearFlagKeyMayDeleted is called in the beginning of all the series of isEntryAlive functions"
                  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -1851,7 +1884,8 @@ bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string k
     assert(rdf_mode == PER_FILE);
     assert(level < level_file_surf_rdf.size());
     clearFlagKeyMayDeleted();
-    incKeySearchCountKME();
+    incKeySearchCountKMD();
+    incKeySearchCount();
     if(level >= level_file_surf_rdf.size()){
         return true;
     }
@@ -1919,7 +1953,7 @@ bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string k
                             //key > key_found2
                         }
                     }else{
-                        //key >= key_found2
+                        //key < key_found (must be the start key)
                         non_overlapping = true;
                         return non_overlapping;
                     }
@@ -2072,7 +2106,7 @@ while((iter3--) ==true){
                             //key > key_found2
                         }
                     }else{
-                        //key >= key_found2
+                        //key < key_found (must be the start key)
 #ifdef DEBUG_SURF_GET_PATH  
                         std::cout << "iter2-- = false  " << "key = " << key << " key_found = " << key_found << " getFlagKeyMayDeleted " << getFlagKeyMayDeleted() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
@@ -2199,7 +2233,7 @@ while((iter3--) ==true){
 //     assert(level < level_file_surf_rdf.size());
 //     assert(rdf_mode == PER_FILE);
 //     clearFlagKeyMayDeleted();
-//     incKeySearchCountKME();
+//     incKeySearchCountKMD();
 
 //     auto it_level_file_surf = level_file_surf_rdf[level].find(fd);
 //     if(it_level_file_surf == level_file_surf_rdf[level].end()){

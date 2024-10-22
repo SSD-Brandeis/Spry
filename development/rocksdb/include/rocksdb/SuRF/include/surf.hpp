@@ -8,6 +8,7 @@
 #include <sstream>
 
 #include <climits>
+#include <limits>
 #include <cmath>
 #include <iomanip>
 
@@ -410,10 +411,14 @@ class SuRF_RDF {
         RDF_MODE getRDFMode();
 
         static vpss mergeRanges(vpss ranges_1, vpss ranges_2, bool allow_boundary_overlap_not_merged = false);
+        
+        void clearFilterFalsePositiveRate();
+        double getFilterFalsePositiveRate();
+
         void setFlagKeyMayDeleted();
         bool getFlagKeyMayDeleted();
         void clearFlagKeyMayDeleted();
-        void incKeySearchCountKME();
+        void incKeySearchCountKMD();
         void checkProperUsageOfFlagKeyMayDeleted();
         bool isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string key, bool flag_bypass_if_same_key);
 
@@ -430,7 +435,17 @@ class SuRF_RDF {
         std::vector<int> numbers_of_ranges_in_RDF_log; //for level > 0, number of ranges in RDF
         std::vector<int> memory_usage_in_RDF_log; //for level > 0, number of ranges in RDF
         bool flag_key_may_deleted = false;
-        uint32_t key_search_count_kme = 0;
+        uint32_t key_search_count_kmd = 0; // kmd = key may deleted, just for functionality verification
+        uint32_t key_search_count = 0;
+        uint32_t key_may_deleted_count = 0;
+        
+        // use clearFilterFalsePositiveRate for public called
+        void clearKeySearchCount();
+        void incKeySearchCount();
+        uint32_t getKeySearchCount();
+        // use clearFilterFalsePositiveRate for public called
+        void clearKeyMayDeletedCount();
+        uint32_t getKeyMayDeletedCount();
 };
 
 

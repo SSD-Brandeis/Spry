@@ -548,6 +548,12 @@ class DBImpl : public DB {
   virtual int getSkylineRDFNumberOfTotalRanges() override;
   virtual int getSuRFLevelFileRDFNumberOfTotalRanges() override;
   virtual int getSuRFLevelFileSplitRDFNumberOfTotalRanges() override;
+  virtual int getPLRDFNumberOfTotalMemoryUsage() override;
+  virtual int getSplitPLRDFNumberOfTotalMemoryUsage() override;
+  virtual int getTopLevelRDFNumberOfTotalMemoryUsage() override;
+  virtual int getSkylineRDFNumberOfTotalMemoryUsage() override;
+  virtual int getSuRFLevelFileRDFNumberOfTotalMemoryUsage() override;
+  virtual int getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() override;
   std::vector<int> getLogOfNumbersOfRangesInOrigin() override;
   std::vector<int> getLogOfNumbersOfRangesInPLRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() override;
@@ -562,6 +568,12 @@ class DBImpl : public DB {
   std::vector<int> getLogOfMemoryUsageInSkylineRDF() override;
   std::vector<int> getLogOfMemoryUsageInSuRFLevelFileRDF() override;
   std::vector<int> getLogOfMemoryUsageInSuRFLevelFileSplitRDF() override;
+  
+  double getFilterFalsePositiveRateInSuRFLevelFileRDF() override;
+  double getFilterFalsePositiveRateInSuRFLevelFileSplitRDF() override;
+  void clearFilterFalsePositiveRateInSuRFLevelFileRDF() override;
+  void clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF() override;
+
   // std::vector<int> getLogOfMemoryUsageInSuRFTopLevelRDF() override;
   std::mutex self_single_flush_mutex_;
 

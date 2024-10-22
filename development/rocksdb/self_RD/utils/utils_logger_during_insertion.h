@@ -220,8 +220,16 @@ void LoggerDuringInsertion::writeRecord(DB** db_ptr2){
   testing_result_file_during_insertion << ",\"SuRF Level File RDF Number Of Total Ranges\" : " << db->getSuRFLevelFileRDFNumberOfTotalRanges() << std::endl;
   testing_result_file_during_insertion << ",\"SuRF Level File Split RDF Number Of Total Ranges\" : " << db->getSuRFLevelFileSplitRDFNumberOfTotalRanges() << std::endl;
 
-  
-  
+
+  testing_result_file_during_insertion << ",\"RocksDB Number Of Total Memory Usage\" : " << memory_usage_log_Origin[memory_usage_log_Origin.size()-1] << " bytes" << std::endl;
+  testing_result_file_during_insertion << ",\"PLRDF Number Of Total Memory Usage\" : " << memory_usage_log_PLRDF[memory_usage_log_PLRDF.size()-1] << std::endl;
+  testing_result_file_during_insertion << ",\"Split PLRDF Number Of Total Memory Usage\" : " << memory_usage_log_SplitPLRDF[memory_usage_log_SplitPLRDF.size()-1] << " bytes" << std::endl;
+  testing_result_file_during_insertion << ",\"TopLevel RDF Number Of Total Memory Usage\" : " << memory_usage_log_TopLevelRDF[memory_usage_log_TopLevelRDF.size()-1] << " bytes" << std::endl;
+  testing_result_file_during_insertion << ",\"Skyline RDF Number Of Total Memory Usage\" : " << memory_usage_log_SkylineRDF[memory_usage_log_SkylineRDF.size()-1] << " bytes" << std::endl;
+  testing_result_file_during_insertion << ",\"SuRF Level File RDF Number Of Total Memory Usage\" : " << memory_usage_log_SuRFLevelFileRDF[memory_usage_log_SuRFLevelFileRDF.size()-1] << " bytes" << std::endl;
+  testing_result_file_during_insertion << ",\"SuRF Level File Split RDF Number Of Total Memory Usage\" : " << memory_usage_log_SuRFLevelFileSplitRDF[memory_usage_log_SuRFLevelFileSplitRDF.size()-1] << " bytes" << std::endl;
+
+
   /*Numbers of Range Tombstones*/
   testing_result_file_during_insertion << ",\"Log Of Numbers Of Ranges In Origin\" : [";
   for(int i = 0; i < ranges_log_Origin.size(); i++){

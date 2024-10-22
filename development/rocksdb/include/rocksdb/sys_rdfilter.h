@@ -206,13 +206,13 @@ using namespace ROCKSDB_NAMESPACE;
       }
       // void print();
       void logCurrentTotalNumbersOfRanges(){
-        numbers_of_ranges_in_RDF_log.push_back(rd_list.size());
+        numbers_of_ranges_in_RDF_log.push_back(getNumberOfTotalRanges());
       }
       std::vector<int> getNumbersOfRangesInRDFLog(){
         return numbers_of_ranges_in_RDF_log;
       }
       void logCurrentTotalMemoryUsage(){
-        memory_usage_in_RDF_log.push_back(rd_list.size()*sizeof(t3ll));
+        memory_usage_in_RDF_log.push_back(getNumberOfTotalMemoryUsage());
       }
       std::vector<int> getMemoryUsageInRDFLog(){
         return memory_usage_in_RDF_log;
@@ -220,6 +220,10 @@ using namespace ROCKSDB_NAMESPACE;
 
       int getNumberOfTotalRanges(){
         return rd_list.size();
+      }
+
+      int getNumberOfTotalMemoryUsage(){
+        return rd_list.size()*sizeof(t3ll);
       }
 
       long long getMaxSeq(long long key){
@@ -916,6 +920,15 @@ class PLRDF{
       return num;
     }
 
+    
+    int getNumberOfTotalMemoryUsage(){
+      int num = 0;
+      for(auto it = rd_filter.begin(); it != rd_filter.end(); it++){
+        num += it->size();
+      }
+      return num*sizeof(pll); // size of a ranges is the size of pair<long long, long long> = 16 bytes
+    }
+
     void print(){
       // init();
       // std::lock_guard<std::mutex> guard(update_mutex);
@@ -1037,7 +1050,7 @@ class PLRDF{
     }
     
     void logCurrentTotalMemoryUsage(){
-      memory_usage_in_RDF_log.push_back(getNumberOfTotalRanges()*sizeof(pll));
+      memory_usage_in_RDF_log.push_back(getNumberOfTotalMemoryUsage());
     }
     std::vector<int> getMemoryUsageInRDFLog(){
       return memory_usage_in_RDF_log;

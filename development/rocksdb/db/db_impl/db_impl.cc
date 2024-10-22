@@ -4885,6 +4885,48 @@ int DBImpl::getSuRFLevelFileSplitRDFNumberOfTotalRanges(){
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getSuRFLevelFileSplitRDFNumberOfTotalRanges();
 }
+int DBImpl::getPLRDFNumberOfTotalMemoryUsage(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getPLRDFNumberOfTotalMemoryUsage();
+}
+int DBImpl::getSplitPLRDFNumberOfTotalMemoryUsage(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getSplitPLRDFNumberOfTotalMemoryUsage();
+}
+int DBImpl::getTopLevelRDFNumberOfTotalMemoryUsage(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getTopLevelRDFNumberOfTotalMemoryUsage();
+}
+int DBImpl::getSkylineRDFNumberOfTotalMemoryUsage(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getSkylineRDFNumberOfTotalMemoryUsage();
+}
+int DBImpl::getSuRFLevelFileRDFNumberOfTotalMemoryUsage(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getSuRFLevelFileRDFNumberOfTotalMemoryUsage();
+}
+int DBImpl::getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage();
+}
 std::vector<int> DBImpl::getLogOfNumbersOfRangesInOrigin(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
@@ -4989,6 +5031,35 @@ std::vector<int> DBImpl::getLogOfMemoryUsageInSuRFLevelFileSplitRDF() {
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfMemoryUsageInSuRFLevelFileSplitRDF();
 }
+
+double DBImpl::getFilterFalsePositiveRateInSuRFLevelFileRDF() {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+};
+double DBImpl::getFilterFalsePositiveRateInSuRFLevelFileSplitRDF() {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+};
+void DBImpl::clearFilterFalsePositiveRateInSuRFLevelFileRDF(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+};
+void DBImpl::clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+};
 
 const PLRDF *DBImpl::getPLRDF(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(

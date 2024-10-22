@@ -106,6 +106,24 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   testing_result_file2 << ",\"Skyline RDF Number Of Total Ranges\" : " << db->getSkylineRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"SuRF Level File RDF Number Of Total Ranges\" : " << db->getSuRFLevelFileRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"SuRF Level File Split RDF Number Of Total Ranges\" : " << db->getSuRFLevelFileSplitRDFNumberOfTotalRanges() << std::endl;
+  testing_result_file2 << std::endl;
+
+  
+  testing_result_file << "PLRDF Number Of Total Memory Usage: " << db->getPLRDFNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file << "Split PLRDF Number Of Total Memory Usage: " << db->getSplitPLRDFNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file << "TopLevel RDF Number Of Total Memory Usage: " << db->getTopLevelRDFNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file << "Skyline RDF Number Of Total Memory Usage: " << db->getSkylineRDFNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file << "SuRF Level File RDF Number Of Total Memory Usage: " << db->getSuRFLevelFileRDFNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file << "SuRF Level File Split RDF Number Of Total Memory Usage: " << db->getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file << std::endl;
+
+  testing_result_file2 << ",\"PLRDF Number Of Total Memory Usage\" : " << db->getPLRDFNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file2 << ",\"Split PLRDF Number Of Total Memory Usage\" : " << db->getSplitPLRDFNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file2 << ",\"TopLevel RDF Number Of Total Memory Usage\" : " << db->getTopLevelRDFNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file2 << ",\"Skyline RDF Number Of Total Memory Usage\" : " << db->getSkylineRDFNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file2 << ",\"SuRF Level File RDF Number Of Total Memory Usage\" : " << db->getSuRFLevelFileRDFNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file2 << ",\"SuRF Level File Split RDF Number Of Total Memory Usage\" : " << db->getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file2 << std::endl;
 
   
   
@@ -288,6 +306,17 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
     system_verifier->resetAllCount();
     system_verifier->resetAllDuration();
     
+    if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
+      double filter_false_positive_rate = -1;
+      if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
+        // filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+        db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
+        // filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+        db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }
+    }
+
     if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
       s = db->SetOptions({{"max_open_files", "1"}}); // is there any compaction happended after this????
     }else{
@@ -394,6 +423,18 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
     testing_result_file2 << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
     testing_result_file2 << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
 
+    if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
+      double filter_false_positive_rate = -1;
+      if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }
+      testing_result_file << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
+      testing_result_file2 << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
+    }
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
     // print_perf_iostats_context(std::cout, 1);
   }
@@ -416,6 +457,17 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
     system_verifier->resetAllCount();
     system_verifier->resetAllDuration();
     
+    if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
+      double filter_false_positive_rate = -1;
+      if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
+        // filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+        db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
+        // filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+        db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }
+    }
+
     if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
       s = db->SetOptions({{"max_open_files", "1"}}); // is there any compaction happended after this????
     }else{
@@ -521,6 +573,18 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
     testing_result_file2 << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
     testing_result_file2 << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
 
+    if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
+      double filter_false_positive_rate = -1;
+      if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }
+      testing_result_file << ",\"" + prefix + " filter false positive rate\" : " << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
+      testing_result_file2 << ",\"" + prefix + " filter false positive rate\" : " << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
+    }
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
     // print_perf_iostats_context(std::cout, 1);
   }
@@ -544,6 +608,17 @@ system_verifier->startPQTracing();
     system_verifier->resetAllCount();
     system_verifier->resetAllDuration();
     
+    if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
+      double filter_false_positive_rate = -1;
+      if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
+        // filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+        db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
+        // filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+        db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }
+    }
+
     if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
       s = db->SetOptions({{"max_open_files", "1"}}); // is there any compaction happended after this????
     }else{
@@ -660,6 +735,18 @@ system_verifier->startPQTracing();
     testing_result_file2 << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
     testing_result_file2 << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
 
+    if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
+      double filter_false_positive_rate = -1;
+      if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }
+      testing_result_file << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
+      testing_result_file2 << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
+    }
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
     // print_perf_iostats_context(std::cout, 1);
   }
@@ -683,6 +770,17 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
     system_verifier->setRDFTypeChosed(t);
     system_verifier->resetAllCount();
     system_verifier->resetAllDuration();
+    
+    if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
+      double filter_false_positive_rate = -1;
+      if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
+        // filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+        db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
+        // filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+        db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }
+    }
     
     if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
       s = db->SetOptions({{"max_open_files", "1"}}); // is there any compaction happended after this????
@@ -788,6 +886,18 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
     testing_result_file2 << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
     testing_result_file2 << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
 
+    if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
+      double filter_false_positive_rate = -1;
+      if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }
+      testing_result_file << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
+      testing_result_file2 << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
+    }
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
     print_perf_iostats_context(std::cout, 1);
   }

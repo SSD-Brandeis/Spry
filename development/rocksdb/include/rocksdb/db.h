@@ -349,6 +349,12 @@ class DB {
   virtual int getSkylineRDFNumberOfTotalRanges() {return -1;}
   virtual int getSuRFLevelFileRDFNumberOfTotalRanges() {return -1;}
   virtual int getSuRFLevelFileSplitRDFNumberOfTotalRanges() {return -1;}
+  virtual int getPLRDFNumberOfTotalMemoryUsage() {return -1;}
+  virtual int getSplitPLRDFNumberOfTotalMemoryUsage() {return -1;}
+  virtual int getTopLevelRDFNumberOfTotalMemoryUsage() {return -1;}
+  virtual int getSkylineRDFNumberOfTotalMemoryUsage() {return -1;}
+  virtual int getSuRFLevelFileRDFNumberOfTotalMemoryUsage() {return -1;}
+  virtual int getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() {return -1;}
   virtual std::vector<int> getLogOfNumbersOfRangesInOrigin() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInPLRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() {return {-1, -1, -1};}
@@ -363,7 +369,11 @@ class DB {
   virtual std::vector<int> getLogOfMemoryUsageInSkylineRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSuRFLevelFileRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSuRFLevelFileSplitRDF() {return {-1, -1, -1};}
-  
+
+  virtual double getFilterFalsePositiveRateInSuRFLevelFileRDF() {return -1;};
+  virtual double getFilterFalsePositiveRateInSuRFLevelFileSplitRDF() {return -1;};
+  virtual void clearFilterFalsePositiveRateInSuRFLevelFileRDF() {return;};
+  virtual void clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF() {return;};
 
 
   virtual const PLRDF *getPLRDF() {return NULL;}
