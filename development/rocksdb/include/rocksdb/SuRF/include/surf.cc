@@ -95,16 +95,19 @@ bool SuRF::lookupKey(const std::string& key) const {
 }
 
 // YCHUANG ADDED START
-SuRF::Iter SuRF::moveToNextCommonPrefixKey(const std::string& key) const {
+SuRF::Iter SuRF::moveToNextCommonPrefixKey(const std::string& key,
+                                    bool flag_direct_return_if_found_key_end_with_same_prefix) const {
     SuRF::Iter iter(this);
+
+    // std::cout << "louds_dense_->getHeight() = " <<louds_dense_->getHeight() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     
     if(louds_dense_->getHeight() == 0){
         iter.passToSparse();
-        iter.could_be_fp_ = louds_sparse_->moveToNextCommonPrefixKey(key, iter.sparse_iter_);
+        iter.could_be_fp_ = louds_sparse_->moveToNextCommonPrefixKey(key, iter.sparse_iter_, flag_direct_return_if_found_key_end_with_same_prefix);
 	    return iter;
     }
 
-    iter.could_be_fp_ = louds_dense_->moveToNextCommonPrefixKey(key, iter.dense_iter_);
+    iter.could_be_fp_ = louds_dense_->moveToNextCommonPrefixKey(key, iter.dense_iter_, flag_direct_return_if_found_key_end_with_same_prefix);
 
     if (!iter.dense_iter_.isValid())
 	return iter;
@@ -114,7 +117,7 @@ SuRF::Iter SuRF::moveToNextCommonPrefixKey(const std::string& key) const {
     
     if (!iter.dense_iter_.isSearchComplete()) {
         iter.passToSparse();
-        iter.could_be_fp_ = louds_sparse_->moveToNextCommonPrefixKey(key, iter.sparse_iter_);
+        iter.could_be_fp_ = louds_sparse_->moveToNextCommonPrefixKey(key, iter.sparse_iter_, flag_direct_return_if_found_key_end_with_same_prefix);
         if (!iter.sparse_iter_.isValid()){
             iter.incrementDenseIter();
         }
@@ -716,8 +719,30 @@ if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
         }
     }
     if(surf::SuRF_Env::getInstance()->getFlagUseSuRFBase() == true){
+
+        std::cout << "before processStringsToFirstKDifference " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        for(uint32_t i = 0; i < keys.size(); i++){
+            if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+                auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(keys[i]);
+                std::cout << "key =  " << ks << " (" << left_parentheses[i] << "," << right_parentheses[i] << ") " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            }else{
+                std::cout << "key =  " << keys[i] << " (" << left_parentheses[i] << "," << right_parentheses[i] << ") " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            }
+        }
+
         int surf_base_store_key_to_k_diff = surf::SuRF_Env::getInstance()->getSuRFBaseStoreKeyToKDiff();
         keys = surf::SuRF_Utils::processStringsToFirstKDifference(keys, surf_base_store_key_to_k_diff);
+        
+        std::cout << "after processStringsToFirstKDifference " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        for(uint32_t i = 0; i < keys.size(); i++){
+            if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+                auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(keys[i]);
+                std::cout << "key =  " << ks << " (" << left_parentheses[i] << "," << right_parentheses[i] << ") " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            }else{
+                std::cout << "key =  " << keys[i] << " (" << left_parentheses[i] << "," << right_parentheses[i] << ") " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            }
+        }
+
     }
 
     // string_length
@@ -1903,13 +1928,21 @@ bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string k
 
     surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
     uint32_t surf_key_length_in_bytes = _surf_env->getSuRFKeyLenInBytes();
-    //for surf with all the same key length
-    if(key.size() > surf_key_length_in_bytes){
-// std::cout << "key = " << key;
-        key = key.substr(0, surf_key_length_in_bytes);
-// std::cout << " key = " << key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+    bool flag_direct_return_if_found_key_end_with_same_prefix = false;
+    if(surf::SuRF_Env::getInstance()->getFlagUseSuRFBase() == true){
+        flag_direct_return_if_found_key_end_with_same_prefix = true;
+    }else{
+        //for surf with all the same key length
+        if(key.size() > surf_key_length_in_bytes){
+    // std::cout << "key = " << key;
+            key = key.substr(0, surf_key_length_in_bytes);
+    // std::cout << " key = " << key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        }
     }
-    SuRF::Iter iter = surf->moveToNextCommonPrefixKey(key);
+
+    // SuRF::Iter iter = surf->moveToNextCommonPrefixKey(key);
+    SuRF::Iter iter = surf->moveToNextCommonPrefixKey(key, flag_direct_return_if_found_key_end_with_same_prefix);
     //TODO: for surf with different key length --> return the iter also if surf key ends and 
     //completely matching the prefix of the searching_key
 
@@ -1922,43 +1955,47 @@ bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string k
         if(iter.isValid()){
             non_overlapping = false;
             std::string key_found = iter.getKey();
-            // //TODO: To be added
             if(surf::SuRF_Env::getInstance()->getFlagUseSuRFBase() == true){
-                if(key == key_found){
-                    non_overlapping = true;
-                    setFlagKeyMayDeleted();
-                    return non_overlapping;
-                }else{
-                    // SuRF::Iter iter2 = surf->moveToNextCommonPrefixKey(key);
-                    SuRF::Iter &iter2 = iter;
-                    // iter2--;
-                    // if(iter2.isValid() == false){
-                    //     iter2 = surf->moveToLast();
-                    // }else{
-                    //     iter2 = iter;
-                    //     iter--;
-                    // }
-                    // if(iter2.isValid()){
-                    if((iter2--) == true){
-                        std::string key_found2 = iter2.getKey();
-#ifdef DEBUG_SURF_GET_PATH  
-                        std::cout << "(dense) iter2-- key_found = " << key_found << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-#endif
-                        // key_found.size() >= key.size() not exist
-                        if(key.substr(0,key_found2.size()) == key_found2){
-                            non_overlapping = true;
-                            setFlagKeyMayDeleted();
-                            return non_overlapping;
-                        }else{
-                            //key > key_found2
-                        }
-                    }else{
-                        //key < key_found (must be the start key)
-                        non_overlapping = true;
-                        return non_overlapping;
-                    }
-                }
+                key = key.substr(0, key_found.size());
             }
+
+//             // //TODO: To be added
+//             if(surf::SuRF_Env::getInstance()->getFlagUseSuRFBase() == true){
+//                 if(key == key_found){
+//                     non_overlapping = true;
+//                     setFlagKeyMayDeleted();
+//                     return non_overlapping;
+//                 }else{
+//                     // SuRF::Iter iter2 = surf->moveToNextCommonPrefixKey(key);
+//                     SuRF::Iter &iter2 = iter;
+//                     // iter2--;
+//                     // if(iter2.isValid() == false){
+//                     //     iter2 = surf->moveToLast();
+//                     // }else{
+//                     //     iter2 = iter;
+//                     //     iter--;
+//                     // }
+//                     // if(iter2.isValid()){
+//                     if((iter2--) == true){
+//                         std::string key_found2 = iter2.getKey();
+// #ifdef DEBUG_SURF_GET_PATH  
+//                         std::cout << "(dense) iter2-- key_found = " << key_found << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// #endif
+//                         // key_found.size() >= key.size() not exist
+//                         if(key.substr(0,key_found2.size()) == key_found2){
+//                             non_overlapping = true;
+//                             setFlagKeyMayDeleted();
+//                             return non_overlapping;
+//                         }else{
+//                             //key > key_found2
+//                         }
+//                     }else{
+//                         //key < key_found (must be the start key)
+//                         non_overlapping = true;
+//                         return non_overlapping;
+//                     }
+//                 }
+//             }
     #ifdef DEBUG_SURF_GET_PATH
     if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
         // uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
@@ -1971,6 +2008,7 @@ bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string k
     #endif
 
             if(key_found < key){
+            // if(key_found < key.substr(0, key_found.size())){
                 assert(false);
                 std::cout << "Error: key_found < key " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
             }
@@ -2068,53 +2106,60 @@ bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string k
         if(iter.getSparseIter()->isValid()){
             non_overlapping = false;
             std::string key_found = iter.getSparseIter()->getKey();
-            // //TODO: To be added
             if(surf::SuRF_Env::getInstance()->getFlagUseSuRFBase() == true){
-                if(key == key_found){
-                    non_overlapping = true;
-                    setFlagKeyMayDeleted();
-                    return non_overlapping;
-                }else{
-#ifdef DEBUG_SURF_GET_PATH  
-SuRF::Iter iter3 = surf->moveToNextCommonPrefixKey(key);
-while((iter3--) ==true){
-    std::string key_found3 = iter3.getSparseIter()->getKey();
-    std::cout << "iter3-- key_found3 = " << key_found3 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-}
-#endif
-                    // SuRF::Iter iter2 = surf->moveToNextCommonPrefixKey(key);
-                    SuRF::Iter &iter2 = iter;
-                    // iter2--;
-                    // if(iter2.isValid() == false){
-                    //     iter2 = surf->moveToLast();
-                    // }else{
-                    //     iter2 = iter;
-                    //     iter--;
-                    // }
-                    // if(iter2.isValid()){
-                    if((iter2--) == true){
-                        std::string key_found2 = iter2.getSparseIter()->getKey();
-#ifdef DEBUG_SURF_GET_PATH  
-                        std::cout << "iter2-- key_found2 = " << key_found2 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-#endif
-                        // key_found.size() >= key.size() not exist
-                        if(key.substr(0,key_found2.size()) == key_found2){
-                            non_overlapping = true;
-                            setFlagKeyMayDeleted();
-                            return non_overlapping;
-                        }else{
-                            //key > key_found2
-                        }
-                    }else{
-                        //key < key_found (must be the start key)
-#ifdef DEBUG_SURF_GET_PATH  
-                        std::cout << "iter2-- = false  " << "key = " << key << " key_found = " << key_found << " getFlagKeyMayDeleted " << getFlagKeyMayDeleted() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-#endif
-                        non_overlapping = true;
-                        return non_overlapping;
-                    }
-                }
+                key = key.substr(0, key_found.size());
             }
+
+//             // //TODO: To be added
+//             if(surf::SuRF_Env::getInstance()->getFlagUseSuRFBase() == true){
+//                 if(key == key_found){
+//                     non_overlapping = true;
+//                     setFlagKeyMayDeleted();
+//                     return non_overlapping;
+//                 }else{
+// #ifdef DEBUG_SURF_GET_PATH  
+// SuRF::Iter iter3 = surf->moveToNextCommonPrefixKey(key);
+// while((iter3--) ==true){
+//     std::string key_found3 = iter3.getSparseIter()->getKey();
+//     std::cout << "iter3-- key_found3 = " << key_found3 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// }
+// #endif
+//                     // SuRF::Iter iter2 = surf->moveToNextCommonPrefixKey(key);
+//                     SuRF::Iter &iter2 = iter;
+//                     // iter2--;
+//                     // if(iter2.isValid() == false){
+//                     //     iter2 = surf->moveToLast();
+//                     // }else{
+//                     //     iter2 = iter;
+//                     //     iter--;
+//                     // }
+//                     // if(iter2.isValid()){
+//                     if((iter2--) == true){
+//                         std::string key_found2 = iter2.getSparseIter()->getKey();
+// #ifdef DEBUG_SURF_GET_PATH  
+//                         std::cout << "iter2-- key_found2 = " << key_found2 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// #endif
+// std::cout << "iter2-- key_found2 = " << key_found2 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+//                         // key_found.size() >= key.size() not exist
+//                         if(key.substr(0,key_found2.size()) == key_found2){
+//                             non_overlapping = true;
+//                             setFlagKeyMayDeleted();
+//                             return non_overlapping;
+//                         }else{
+//                             //key > key_found2
+//                         }
+//                     }else{
+//                         //key < key_found (must be the start key)
+// #ifdef DEBUG_SURF_GET_PATH  
+//                         std::cout << "iter2-- = false  " << "key = " << key << " key_found = " << key_found << " getFlagKeyMayDeleted " << getFlagKeyMayDeleted() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// #endif
+// std::cout << "iter2-- = false  " << "key = " << key << " key_found = " << key_found << " getFlagKeyMayDeleted " << getFlagKeyMayDeleted() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+//                         non_overlapping = true;
+//                         return non_overlapping;
+//                     }
+//                 }
+//             }
     #ifdef DEBUG_SURF_GET_PATH 
     if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
         // uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
@@ -2145,6 +2190,15 @@ while((iter3--) ==true){
             // left :  1       1      0
             // right:  0       1      1
             else if(key_found == key){
+
+// if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+//     // uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+//     auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(key);
+//     auto kf = surf::SuRF_Utils::decode_byte_string_to_digit_string(key_found);
+//     std::cout << "key_found = " << kf << " key = " << ks << " flag_bypass_if_same_key = " << flag_bypass_if_same_key << " " << __FILE__ << ":" <<__LINE__ << " " << std::endl;
+// }else{
+//     std::cout << "key_found = " << key_found << " key = " << key << " flag_bypass_if_same_key = " << flag_bypass_if_same_key << " " << __FILE__ << ":" <<__LINE__ << " " << std::endl;
+// }
                 if(flag_bypass_if_same_key == true){
                     non_overlapping = true;
                     setFlagKeyMayDeleted();
@@ -2181,6 +2235,15 @@ while((iter3--) ==true){
                 std::cout << "left_parenthesis = " << iter.getSparseIter()->getLeftParenthesis() << " " << " right_parenthesis = " << iter.getSparseIter()->getRightParenthesis() << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
 #endif
             }else{
+
+// if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+//     // uint32_t len_condensed_key = surf::SuRF_Env::getInstance()->getLengthOfCondensedDigitKey();
+//     auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(key);
+//     auto kf = surf::SuRF_Utils::decode_byte_string_to_digit_string(key_found);
+//     std::cout << "key_found = " << kf << " > key = " << ks << " flag_bypass_if_same_key = " << flag_bypass_if_same_key << " " << __FILE__ << ":" <<__LINE__ << " " << std::endl;
+// }else{
+//     std::cout << "key_found = " << key_found << " > key = " << key << " flag_bypass_if_same_key = " << flag_bypass_if_same_key << " " << __FILE__ << ":" <<__LINE__ << " " << std::endl;
+// }
                 if(flag_bypass_if_same_key == true){
                     // (1,0), (0,0) --> true
                     // (0,1), (1,1) --> false

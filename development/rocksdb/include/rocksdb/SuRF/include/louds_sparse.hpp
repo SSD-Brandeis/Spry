@@ -83,7 +83,9 @@ public:
 				  
 	// YCHUANG_ADDED START
 	bool moveToNextCommonPrefixKey(const std::string& key, 
-						LoudsSparse::Iter& iter) const;
+						LoudsSparse::Iter& iter,
+						bool flag_direct_return_if_found_key_end_with_same_prefix=false
+						) const;
 	// YCHUANG_ADDED END
 
     uint64_t approxCount(const LoudsSparse::Iter* iter_left,

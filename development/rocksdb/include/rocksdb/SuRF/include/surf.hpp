@@ -313,14 +313,27 @@ class SuRF_Utils {
         static std::vector<std::string> processStringsToFirstKDifference(std::vector<std::string>& vec, int k_diff = 1) {
             // Sort the vector of strings
             std::sort(vec.begin(), vec.end());
+            
+            // std::cout << "@ processStringsToFirstKDifference " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            // for(uint32_t i = 0; i < vec.size(); i++){
+            //     if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+            //         auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(vec[i]);
+            //         std::cout << "key =  " << ks << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            //     }else{
+            //         std::cout << "key =  " << vec[i] << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            //     }
+            // }
 
             if (vec.size() <= 1) {
-                return vec;  // Return the vector as is if it contains 1 or no elements
+                // return vec;  // Return the vector as is if it contains 1 or no elements
+                vec[0] = truncateToFirstKDifference("", vec[0], k_diff);  // Return the vector as is if it contains 1 or no elements
+                return vec;
             }
 
             std::vector<std::string> result;
             // Store the first string as is (no previous string to compare with)
-            result.push_back(vec[0]);
+            // result.push_back(vec[0]);
+            result.push_back(truncateToFirstKDifference(vec[1], vec[0], k_diff));
 
             // Compare each string with the previous one and store the truncated version
             for (size_t i = 1; i < vec.size(); ++i) {
@@ -556,7 +569,8 @@ public:
     // and the stored key prefix matches key, iter stays at this key prefix.
     SuRF::Iter moveToKeyGreaterThan(const std::string& key, const bool inclusive) const;
     // YCHUANG ADDED START
-     SuRF::Iter moveToNextCommonPrefixKey(const std::string& key) const;
+    SuRF::Iter moveToNextCommonPrefixKey(const std::string& key,
+                bool flag_direct_return_if_found_key_end_with_same_prefix=false) const;
     // YCHUANG ADDED END
     SuRF::Iter moveToFirst() const;
     SuRF::Iter moveToLast() const;

@@ -254,7 +254,8 @@ if False:
 # rdf_types = ["NONE", "PLRDF", "SPLIT_PLRDF", "TOP_LEVEL_RDF", "SKYLINE_RDF", "SuRF_LF_RDF", "SuRF_LF_SPLIT_RDF"]
 # rdf_types = ["NONE", "PLRDF", "SPLIT_PLRDF", "TOP_LEVEL_RDF", "SKYLINE_RDF", "SuRF_LF_RDF", "SuRF_LF_SPLIT_RDF"]
 rdf_types = [
-    {"--using_rdf_types": ["NONE"], },
+    # {"--using_rdf_types": ["NONE"], },
+    {"--using_rdf_types": ["NONE_CACHE_RANGETOMBSTONE_TRACING"], },
     {"--using_rdf_types": ["PLRDF"], },
     {"--using_rdf_types": ["SPLIT_PLRDF"], },
     {"--using_rdf_types": ["TOP_LEVEL_RDF"], },
@@ -263,8 +264,8 @@ rdf_types = [
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]},
     {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
-    {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0]},
-    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0]}
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]},
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}
 ]
 # rdf_types = {
 #     "NONE": {},
@@ -281,11 +282,14 @@ rdf_types = [
 
 # for i_rdf, (rdf_type, local_param) in enumerate(rdf_types.items()):
 for i_rdf, rdf_param in enumerate(rdf_types):
-    if i_rdf < 5:
+    # if i_rdf > 0:
+    #     break
+    # if i_rdf < 5:
     # if i_rdf < 6:
     # if i_rdf < 7:
     # if i_rdf < 8:
-    # if i_rdf < 9:
+    if i_rdf < 9:
+    # if i_rdf < 10:
        continue
     test_num = 21 + i_rdf
     # params3["--using_rdf_types"] = [rdf_type]

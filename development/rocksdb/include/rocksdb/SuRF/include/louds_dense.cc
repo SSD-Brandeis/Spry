@@ -158,10 +158,13 @@ bool LoudsDense::lookupKey(const std::string& key, position_t& out_node_num) con
 
 // YCHUANG ADDED START
 bool LoudsDense::moveToNextCommonPrefixKey(const std::string& key, 
-				    LoudsDense::Iter& iter) const {
+				    LoudsDense::Iter& iter,
+					bool flag_direct_return_if_found_key_end_with_same_prefix) const {
 	bool could_be_fp_ = false;
     position_t node_num = 0;
     position_t pos = 0;
+
+	level_t max_matching_full_prefix_key_level = 1e8;
     for (level_t level = 0; level < height_; level++) {
 		// if is_at_prefix_key_, pos is at the next valid position in the child node
 		pos = node_num * kNodeFanout;
@@ -182,15 +185,48 @@ bool LoudsDense::moveToNextCommonPrefixKey(const std::string& key,
 
 		// if no exact match
 		if (!label_bitmaps_->readBit(pos)) {
+
+			// if there's a complete prefix key fully matches the prefix of the search key
+			if(flag_direct_return_if_found_key_end_with_same_prefix == true
+				&& max_matching_full_prefix_key_level < ((level_t)1e8) ){ // For SuRF_Base in SuRF_RDF (yucheng)
+				iter.is_valid_ = true;
+				// iter.append(key[level], pos);
+				iter.key_len_ = max_matching_full_prefix_key_level;
+				return could_be_fp_;
+			}
+
 			iter++;
 			return could_be_fp_;
 		}
+
+		// log the complete prefix key that ends with the same prefix of the search key
+		if (flag_direct_return_if_found_key_end_with_same_prefix == true 
+			&& (prefixkey_indicator_bits_->readBit(pos)== true)) {
+			max_matching_full_prefix_key_level = level;
+		}
+
 		//if trie branch terminates
 		if (!child_indicator_bitmaps_->readBit(pos)){
+
+			if(flag_direct_return_if_found_key_end_with_same_prefix == true){ // For SuRF_Base in SuRF_RDF (yucheng)
+    			iter.setFlags(true, true, true, true);
+				return could_be_fp_;
+			}
+
 			if(level == key.size() - 1) { // same as  the key
     			iter.setFlags(true, true, true, true);
 				return could_be_fp_;
 			}else{ 
+				
+				// if there's a complete prefix key fully matches the prefix of the search key
+				if(flag_direct_return_if_found_key_end_with_same_prefix == true
+					&& max_matching_full_prefix_key_level < ((level_t)1e8) ){ // For SuRF_Base in SuRF_RDF (yucheng)
+    				iter.setFlags(true, true, true, true);
+					// iter.append(key[level], pos);
+					iter.key_len_ = max_matching_full_prefix_key_level;
+					return could_be_fp_;
+				}
+
 				iter++;
 				return could_be_fp_;
 			}
@@ -199,6 +235,22 @@ bool LoudsDense::moveToNextCommonPrefixKey(const std::string& key,
 		}
 		node_num = getChildNodeNum(pos);
     }
+
+	// if there's a complete prefix key fully matches the prefix of the search key
+	if(flag_direct_return_if_found_key_end_with_same_prefix == true
+		&& max_matching_full_prefix_key_level < ((level_t)1e8) ){ // For SuRF_Base in SuRF_RDF (yucheng)
+    	// valid, search INCOMPLETE, moveLeft complete, moveRight complete
+    	iter.setFlags(true, false, true, true);
+		// iter.append(key[level], pos);
+		iter.key_len_ = max_matching_full_prefix_key_level;
+		iter.setSendOutNodeNum(node_num);
+		// TODO: needs to take in to the consideration of the maximum matching may exist in the Sparse part or not,  unimplemented
+		// which means the max_matching_full_prefix_key_level in the louds_dense shall be recorded
+		// if the maximum prefix matching key exists in Sparse Part, then use the one in the sparse part,
+		// Otherwise use the maximum prefix matching key in the Dense Part, if the height of the Dense part > 0
+		assert(false);
+		return could_be_fp_;
+	}
 
     //search will continue in LoudsSparse
     iter.setSendOutNodeNum(node_num);

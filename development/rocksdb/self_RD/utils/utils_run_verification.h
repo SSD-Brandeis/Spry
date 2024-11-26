@@ -345,6 +345,7 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
         reopen_DB(db_ptr2, op, write_op, read_op, _env, kDBPath);
         set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
       }
+      std::vector<uint64_t> cache_tombstone_bytes;
       for(auto x: system_verifier->getAllExistingKeysAtNRound(i)){
         bool gt_is_exist = system_verifier->isKeyExist(x);
         std::string gt_value = system_verifier->get(x);
@@ -366,6 +367,10 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
           continue;
         }
+        if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
+          uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
+          cache_tombstone_bytes.push_back(bytes);
+        }
         size_t separator_pos = value.find("|");
         time_stamp = value.substr(separator_pos + 1);
         value = value.substr(0, separator_pos);
@@ -386,6 +391,26 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
         continue;
+      }
+      if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
+        string i_round_str = "i_round="+std::to_string(i)+" ";
+        std::string prefix = " (Existing Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        testing_result_file << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
+        testing_result_file2 << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
+        int len_ctb = cache_tombstone_bytes.size();
+        int i_ctb = 0;
+        if(i_ctb < len_ctb){
+          testing_result_file << cache_tombstone_bytes[i_ctb];
+          testing_result_file2 << cache_tombstone_bytes[i_ctb];
+          i_ctb++;
+        }
+        for(;i_ctb < len_ctb; i_ctb++){
+          auto &x = cache_tombstone_bytes[i_ctb];
+          testing_result_file << ", " << x;
+          testing_result_file2 << ", " << x;
+        }
+        testing_result_file << "]" << std::endl;
+        testing_result_file2 << "]" << std::endl;
       }
       disk_access_count += system_verifier->getDiskAccessCount();
 
@@ -496,6 +521,7 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
         set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
       }
 
+      std::vector<uint64_t> cache_tombstone_bytes;
       for(auto x: system_verifier->getHistoricExistingKeysAtNRound(i)){
         bool gt_is_exist = system_verifier->isKeyExist(x);
         std::string gt_value = system_verifier->get(x);
@@ -515,6 +541,10 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
         point_query_time += duration_pq.count();
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
           continue;
+        }
+        if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
+          uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
+          cache_tombstone_bytes.push_back(bytes);
         }
         size_t separator_pos = value.find("|");
         time_stamp = value.substr(separator_pos + 1);
@@ -536,6 +566,26 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
         continue;
+      }
+      if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
+        string i_round_str = "i_round="+std::to_string(i)+" ";
+        std::string prefix = " (Historcially Exist Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        testing_result_file << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
+        testing_result_file2 << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
+        int len_ctb = cache_tombstone_bytes.size();
+        int i_ctb = 0;
+        if(i_ctb < len_ctb){
+          testing_result_file << cache_tombstone_bytes[i_ctb];
+          testing_result_file2 << cache_tombstone_bytes[i_ctb];
+          i_ctb++;
+        }
+        for(;i_ctb < len_ctb; i_ctb++){
+          auto &x = cache_tombstone_bytes[i_ctb];
+          testing_result_file << ", " << x;
+          testing_result_file2 << ", " << x;
+        }
+        testing_result_file << "]" << std::endl;
+        testing_result_file2 << "]" << std::endl;
       }
       disk_access_count += system_verifier->getDiskAccessCount();
 
@@ -651,6 +701,7 @@ system_verifier->startPQTracing();
         set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
       }
 
+      std::vector<uint64_t> cache_tombstone_bytes;
       for(auto x: system_verifier->getCurrentlyDeletedKeysAtNRound(i)){
         bool gt_is_exist = system_verifier->isKeyExist(x);
         std::string gt_value = system_verifier->get(x);
@@ -670,6 +721,10 @@ system_verifier->startPQTracing();
         point_query_time_on_currently_deleted_all_ns += duration_pq.count();
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
           continue;
+        }
+        if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
+          uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
+          cache_tombstone_bytes.push_back(bytes);
         }
         size_t separator_pos = value.find("|");
         time_stamp = value.substr(separator_pos + 1);
@@ -691,6 +746,26 @@ system_verifier->startPQTracing();
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
         continue;
+      }
+      if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
+        string i_round_str = "i_round="+std::to_string(i)+" ";
+        std::string prefix = " (Currently Deleted Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        testing_result_file << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
+        testing_result_file2 << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
+        int len_ctb = cache_tombstone_bytes.size();
+        int i_ctb = 0;
+        if(i_ctb < len_ctb){
+          testing_result_file << cache_tombstone_bytes[i_ctb];
+          testing_result_file2 << cache_tombstone_bytes[i_ctb];
+          i_ctb++;
+        }
+        for(;i_ctb < len_ctb; i_ctb++){
+          auto &x = cache_tombstone_bytes[i_ctb];
+          testing_result_file << ", " << x;
+          testing_result_file2 << ", " << x;
+        }
+        testing_result_file << "]" << std::endl;
+        testing_result_file2 << "]" << std::endl;
       }
       disk_access_count += system_verifier->getDiskAccessCount();
 
@@ -810,6 +885,8 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
         // set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
         set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
       }
+
+      std::vector<uint64_t> cache_tombstone_bytes;
     //   for(auto &x: system_verifier->getCurrentlyNonInsertedKeys()){ // test on 1000 keys
       for(auto x: system_verifier->getCurrentlyNonInsertedKeysAtNRound(i)){ // test on 1000 keys
         bool gt_is_exist = system_verifier->isKeyExist(x); // should be false
@@ -830,6 +907,10 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
           continue;
         }
+        if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
+          uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
+          cache_tombstone_bytes.push_back(bytes);
+        }
         size_t separator_pos = value.find("|");
         time_stamp = value.substr(separator_pos + 1);
         value = value.substr(0, separator_pos);
@@ -849,6 +930,26 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
         continue;
+      }
+      if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
+        string i_round_str = "i_round="+std::to_string(i)+" ";
+        std::string prefix = " (Currently Non-Inserted Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        testing_result_file << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
+        testing_result_file2 << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
+        int len_ctb = cache_tombstone_bytes.size();
+        int i_ctb = 0;
+        if(i_ctb < len_ctb){
+          testing_result_file << cache_tombstone_bytes[i_ctb];
+          testing_result_file2 << cache_tombstone_bytes[i_ctb];
+          i_ctb++;
+        }
+        for(;i_ctb < len_ctb; i_ctb++){
+          auto &x = cache_tombstone_bytes[i_ctb];
+          testing_result_file << ", " << x;
+          testing_result_file2 << ", " << x;
+        }
+        testing_result_file << "]" << std::endl;
+        testing_result_file2 << "]" << std::endl;
       }
       disk_access_count += system_verifier->getDiskAccessCount();
  

@@ -169,12 +169,14 @@ bool LoudsSparse::lookupKey(const std::string& key, const position_t in_node_num
 
 // YCHUANG_ADDED START
 bool LoudsSparse::moveToNextCommonPrefixKey(const std::string& key, 
-					LoudsSparse::Iter& iter) const {
+					LoudsSparse::Iter& iter,
+					bool flag_direct_return_if_found_key_end_with_same_prefix) const {
 	bool could_be_fp_ = false;
     position_t node_num = iter.getStartNodeNum();
     position_t pos = getFirstLabelPos(node_num);
 
     level_t level;
+	level_t max_matching_full_prefix_key_level = 1e8;
     for (level = start_level_; level < key.length(); level++) {
 		position_t node_size = nodeSize(pos);
 		
@@ -188,6 +190,16 @@ bool LoudsSparse::moveToNextCommonPrefixKey(const std::string& key,
 			std::cout << " sparse diverge " << " level: " << level << " key:" << key << " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;	
 			std::cout << " sparse diverge " << " pos: " << pos << " node_label:" << labels_->read(pos)  << " node_size:" << node_size << " key[level]:" << key[level] << " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
 			#endif //DEBUG_LOUDS_SPARSE
+
+			// if there's a complete prefix key fully matches the prefix of the search key
+			// std::cout << "iter.key_len_ = " << iter.key_len_ << " max_matching_full_prefix_key_level = " << max_matching_full_prefix_key_level << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+			if(flag_direct_return_if_found_key_end_with_same_prefix == true
+				&& max_matching_full_prefix_key_level < ((level_t)1e8) ){ // For SuRF_Base in SuRF_RDF (yucheng)
+				iter.is_valid_ = true;
+				// iter.append(key[level], pos);
+				iter.key_len_ = max_matching_full_prefix_key_level;
+				return could_be_fp_;
+			}
 			
 			moveToLeftInNextSubtrie(pos, node_size, key[level], iter);
 
@@ -196,7 +208,12 @@ bool LoudsSparse::moveToNextCommonPrefixKey(const std::string& key,
 			pos = pos_search;
 		}
 
-		// iter.append(key[level], pos);
+		// // std::cout << "level = " << level << ", (*labels_)[" << pos << "]  = " << (*labels_)[pos] << " node_size = " << nodeSize(pos) << "  getFirstLabelPos(node_num) = " <<  getFirstLabelPos(node_num) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+		// for(uint32_t i_pos = 0; i_pos < (*labels_).getNumBytes(); i_pos++){
+		// 	std::cout <<  (*labels_)[i_pos]  << " "; 
+		// }
+		// std::cout << std::endl;
+		// // iter.append(key[level], pos);
 
 		// if trie branch terminates
 		if (!child_indicator_bits_->readBit(pos)){
@@ -205,11 +222,28 @@ bool LoudsSparse::moveToNextCommonPrefixKey(const std::string& key,
 			std::cout << "sparse trie branch terminates" <<  " level:" << level << " key:" << key << " " <<  __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
 			#endif //DEBUG_LOUDS_SPARSE
 
-			if(level == key.size() - 1) { // same as  the key
+			// if it fully matches the prefix and doesn't have any successor
+			if(flag_direct_return_if_found_key_end_with_same_prefix == true){ // For SuRF_Base in SuRF_RDF (yucheng)
+				iter.is_valid_ = true;
+				iter.append(key[level], pos);
+				return could_be_fp_;
+			}
+
+			if(level == key.size() - 1) { // same as the key
 				iter.is_valid_ = true;
 				iter.append(key[level], pos);
 				return could_be_fp_;
 			}else{ 
+				
+				// if there's a complete prefix key fully matches the prefix of the search key
+				if(flag_direct_return_if_found_key_end_with_same_prefix == true
+					&& max_matching_full_prefix_key_level < ((level_t)1e8) ){ // For SuRF_Base in SuRF_RDF (yucheng)
+					iter.is_valid_ = true;
+					// iter.append(key[level], pos);
+					iter.key_len_ = max_matching_full_prefix_key_level;
+					return could_be_fp_;
+				}
+
 				iter.append(key[level], pos);
 				iter++; //already at the end
 				// moveToLeftInNextSubtrie(pos_search, node_size-(pos_search-pos), key[level], iter);
@@ -231,7 +265,26 @@ bool LoudsSparse::moveToNextCommonPrefixKey(const std::string& key,
 		// move to child
 		node_num = getChildNodeNum(pos);
 		pos = getFirstLabelPos(node_num);
+
+		// std::cout << "next_pos = " << pos << " " << __FILE__ << ":" << __LINE__ << " " << std::endl;
+		// log the complete prefix key that ends with the same prefix of the search key
+		if (flag_direct_return_if_found_key_end_with_same_prefix == true 
+			// && child_indicator_bits_->readBit(pos)
+			&& nodeSize(pos) > 1    // if there's only 1 255 as its child, it cannot be the kTerminator 
+			&&((*labels_)[pos] == kTerminator) // kTerminator can only exist as the first child key
+			) {
+			max_matching_full_prefix_key_level = level;
+		}
     }
+
+	// if there's a complete prefix key fully matches the prefix of the search key
+	if(flag_direct_return_if_found_key_end_with_same_prefix == true
+		&& max_matching_full_prefix_key_level < ((level_t)1e8) ){ // For SuRF_Base in SuRF_RDF (yucheng)
+		iter.is_valid_ = true;
+		// iter.append(key[level], pos);
+		iter.key_len_ = max_matching_full_prefix_key_level;
+		return could_be_fp_;
+	}
 
     if ((labels_->read(pos) == kTerminator)
 	&& (!child_indicator_bits_->readBit(pos))
