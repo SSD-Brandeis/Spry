@@ -298,7 +298,7 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   // std::cout << "surf__include_dense = " << surf__include_dense << "  args::get(surf__include_dense_cmd) = " << args::get(surf__include_dense_cmd) << std::endl;
   uint32_t surf__sparse_dense_ratio = surf__sparse_dense_ratio_cmd ? args::get(surf__sparse_dense_ratio_cmd) : 16;
   bool surf_use_condensed_digit_key = surf_use_condensed_digit_key_cmd ? (args::get(surf_use_condensed_digit_key_cmd) != 0) : true;
-  uint32_t length_of_condensed_digit_key = 1.0 * key_size_to_insert * log(10) / log(256) + 1;
+  uint32_t length_of_condensed_digit_key = 1.0 * key_size_to_insert * log(10) / log(256) + 1; // () base 10 --> to () base 16
   bool surf__flag_bypass_if_same_key = false; // whether to skip RDF checking if searding key is the same as the next greater key in the SuRF
   bool surf__flag_allow_range_boundary_overlapped = false;
   bool use_surf_base = use_surf_base_cmd ? (args::get(use_surf_base_cmd) != 0) : false;

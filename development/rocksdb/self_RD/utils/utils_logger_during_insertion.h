@@ -88,7 +88,7 @@ void LoggerDuringInsertion::start(EmuEnv* _env){
 
 void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   DB* db = *db_ptr2;
-  running_log_during_insertion << "recordCurrentMemoryFootprint Start " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // running_log_during_insertion << "recordCurrentMemoryFootprint Start " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   vector<int> tmp;
   tmp = db->getLogOfNumbersOfRangesInOrigin();
@@ -97,7 +97,7 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }else{
     ranges_log_Origin.push_back(0);
   }
-  running_log_during_insertion << "recordCurrentMemoryFootprint A0B0 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // running_log_during_insertion << "recordCurrentMemoryFootprint A0B0 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   tmp = db->getLogOfMemoryUsageInOrigin();
   if(tmp.size() > 0){
@@ -105,7 +105,7 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }else{
     memory_usage_log_Origin.push_back(0);
   }
-  running_log_during_insertion << "recordCurrentMemoryFootprint A0B1 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // running_log_during_insertion << "recordCurrentMemoryFootprint A0B1 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   tmp = db->getLogOfNumbersOfRangesInPLRDF();
   if(tmp.size() > 0){
@@ -113,7 +113,7 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }else{
     ranges_log_PLRDF.push_back(0);
   }
-  running_log_during_insertion << "recordCurrentMemoryFootprint A1 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // running_log_during_insertion << "recordCurrentMemoryFootprint A1 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   tmp = db->getLogOfNumbersOfRangesInSplitPLRDF();
   if(tmp.size() > 0){
@@ -121,7 +121,7 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }else{
     ranges_log_SplitPLRDF.push_back(0);
   }
-  running_log_during_insertion << "recordCurrentMemoryFootprint A2 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // running_log_during_insertion << "recordCurrentMemoryFootprint A2 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   tmp = db->getLogOfNumbersOfRangesInTopLevelRDF();
   if(tmp.size() > 0){
@@ -129,7 +129,7 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }else{
     ranges_log_TopLevelRDF.push_back(0);
   }
-  running_log_during_insertion << "recordCurrentMemoryFootprint A3 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // running_log_during_insertion << "recordCurrentMemoryFootprint A3 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   tmp = db->getLogOfNumbersOfRangesInSkylineRDF();
   if(tmp.size() > 0){
@@ -137,7 +137,7 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }else{
     ranges_log_SkylineRDF.push_back(0);
   }
-  running_log_during_insertion << "recordCurrentMemoryFootprint A4 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // running_log_during_insertion << "recordCurrentMemoryFootprint A4 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   tmp = db->getLogOfNumbersOfRangesInSuRFLevelFileRDF();
   if(tmp.size() > 0){
@@ -145,7 +145,7 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }else{
     ranges_log_SuRFLevelFileRDF.push_back(0);
   }
-  running_log_during_insertion << "recordCurrentMemoryFootprint A5 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // running_log_during_insertion << "recordCurrentMemoryFootprint A5 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   tmp = db->getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF();
   if(tmp.size() > 0){
@@ -153,7 +153,7 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }else{
     ranges_log_SuRFLevelFileSplitRDF.push_back(0);
   }
-  running_log_during_insertion << "recordCurrentMemoryFootprint A6 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // running_log_during_insertion << "recordCurrentMemoryFootprint A6 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
 
   tmp = db->getLogOfMemoryUsageInPLRDF();
@@ -162,7 +162,7 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }else{
     memory_usage_log_PLRDF.push_back(0);
   }
-  running_log_during_insertion << "recordCurrentMemoryFootprint A7 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // running_log_during_insertion << "recordCurrentMemoryFootprint A7 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   tmp = db->getLogOfMemoryUsageInSplitRDF();
   if(tmp.size() > 0){
@@ -170,7 +170,7 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }else{
     memory_usage_log_SplitPLRDF.push_back(0);
   }
-  running_log_during_insertion << "recordCurrentMemoryFootprint A8 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // running_log_during_insertion << "recordCurrentMemoryFootprint A8 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   tmp = db->getLogOfMemoryUsageInTopLevelRDF();
   if(tmp.size() > 0){
@@ -178,7 +178,7 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }else{
     memory_usage_log_TopLevelRDF.push_back(0);
   }
-  running_log_during_insertion << "recordCurrentMemoryFootprint A9 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // running_log_during_insertion << "recordCurrentMemoryFootprint A9 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   tmp = db->getLogOfMemoryUsageInSkylineRDF();
   if(tmp.size() > 0){
@@ -186,7 +186,7 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }else{
     memory_usage_log_SkylineRDF.push_back(0);
   }
-  running_log_during_insertion << "recordCurrentMemoryFootprint A10 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // running_log_during_insertion << "recordCurrentMemoryFootprint A10 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   tmp = db->getLogOfMemoryUsageInSuRFLevelFileRDF();
   if(tmp.size() > 0){
@@ -194,7 +194,7 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }else{
     memory_usage_log_SuRFLevelFileRDF.push_back(0);
   }
-  running_log_during_insertion << "recordCurrentMemoryFootprint A11 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // running_log_during_insertion << "recordCurrentMemoryFootprint A11 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   tmp = db->getLogOfMemoryUsageInSuRFLevelFileSplitRDF();
   if(tmp.size() > 0){
@@ -203,7 +203,7 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
     memory_usage_log_SuRFLevelFileSplitRDF.push_back(0);
   }
 
-  running_log_during_insertion << "recordCurrentMemoryFootprint End " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // running_log_during_insertion << "recordCurrentMemoryFootprint End " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 }
 
 

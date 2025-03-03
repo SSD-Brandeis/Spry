@@ -24,10 +24,10 @@ params = {
     "--surf__key_len_in_bytes": [13],
     "--surf__hash_suffix_len": [0],
     "--surf__real_suffix_len": [0],
-    "--surf__include_dense": [0],    # 1: true, 0: false
+    "--surf__include_dense": [0], # 1: true, 0: false
     "--surf__sparse_dense_ratio": [16],
-    "--log_during_insertion": [1],    # 1: true, 0: false
-    "--surf_use_condensed_digit_key": [1],    # 1: true, 0: false # digit_key to condensed_char_keys
+    "--log_during_insertion": [1], # 1: true, 0: false
+    "--surf_use_condensed_digit_key": [1], # 1: true, 0: false # digit_key to condensed_char_keys
     "--run_pq_during_insertion_interval": [200], # default: 200
     "--using_rdf_types": ["NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,TOP_LEVEL_RDF,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY"],
     "--show_surf_compaction_info": [0],
@@ -264,8 +264,30 @@ rdf_types = [
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]},
     {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
-    {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]},
-    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #9
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #10
+    
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0]}, #11
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0]}, #12
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #13
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #14
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #15
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #16
+
+    # check total_time & insertion time
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #17
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #18
+    {"--using_rdf_types": ["NONE_CACHE_RANGETOMBSTONE_TRACING"], }, #19
+    {"--using_rdf_types": ["PLRDF"], }, #20
+    {"--using_rdf_types": ["SPLIT_PLRDF"], }, #21
+    {"--using_rdf_types": ["TOP_LEVEL_RDF"], }, #22
+    {"--using_rdf_types": ["SKYLINE_RDF"], }, #23
+
+    
+    {"--using_rdf_types": ["SuRF_LF_RDF"]}, #24
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]}, #25
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]}, #26
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]}, #27
 ]
 # rdf_types = {
 #     "NONE": {},
@@ -288,9 +310,16 @@ for i_rdf, rdf_param in enumerate(rdf_types):
     # if i_rdf < 6:
     # if i_rdf < 7:
     # if i_rdf < 8:
-    if i_rdf < 9:
-    # if i_rdf < 10:
-       continue
+    # if i_rdf < 9:
+    # # if i_rdf < 10:
+    # # if i_rdf < 11:
+    #    continue
+    # if i_rdf > 10 and i_rdf < 15:
+    #     continue
+    # if i_rdf < 17:
+    if i_rdf < 21:
+        continue
+
     test_num = 21 + i_rdf
     # params3["--using_rdf_types"] = [rdf_type]
     params3_local = deepcopy(params3)

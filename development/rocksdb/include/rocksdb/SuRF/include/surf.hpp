@@ -300,13 +300,19 @@ class SuRF_Utils {
                     diff_count++;
                 }
                 if (diff_count == k_diff) {
-                    break;
+                    return str1.substr(0, i + 1);
+                    // break;
                 }
                 ++i;
             }
             
-            // Return the substring from str1 up to i+1
-            return str1.substr(0, i + 1);
+            
+            
+            // Return the substring from str1 up to k_diff or original str
+            int parse_len = str1.size() < (minLen+k_diff-diff_count)? str1.size(): (minLen+k_diff-diff_count);
+            return str1.substr(0, parse_len);
+            // // Return the substring from str1 up to i+1
+            // return str1.substr(0, i + 1);
         }
 
         // Process the list of words to truncate based on k_diff differences from previous word
@@ -326,14 +332,16 @@ class SuRF_Utils {
 
             if (vec.size() <= 1) {
                 // return vec;  // Return the vector as is if it contains 1 or no elements
-                vec[0] = truncateToFirstKDifference("", vec[0], k_diff);  // Return the vector as is if it contains 1 or no elements
+                // vec[0] = truncateToFirstKDifference("", vec[0], k_diff);  // Return the vector as is if it contains 1 or no elements
+                vec[0] = truncateToFirstKDifference(vec[0], " ", k_diff);  // Return the vector as is if it contains 1 or no elements
                 return vec;
             }
 
             std::vector<std::string> result;
             // Store the first string as is (no previous string to compare with)
             // result.push_back(vec[0]);
-            result.push_back(truncateToFirstKDifference(vec[1], vec[0], k_diff));
+            // result.push_back(truncateToFirstKDifference(vec[1], vec[0], k_diff));
+            result.push_back(truncateToFirstKDifference(vec[0], vec[1], k_diff));
 
             // Compare each string with the previous one and store the truncated version
             for (size_t i = 1; i < vec.size(); ++i) {
