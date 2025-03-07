@@ -1895,6 +1895,9 @@ Status CompactionJob::FinishCompactionOutputFile(
   return s;
 }
 
+//yucheng Added Start
+#define DEBUG_COMPACTION_IN_OUT_FILE
+//yucheng Added End
 Status CompactionJob::InstallCompactionResults(
     const MutableCFOptions& mutable_cf_options) {
   assert(compact_);
@@ -2050,19 +2053,33 @@ Status CompactionJob::InstallCompactionResults(
             TableCache* table_cache = cfd->table_cache();
             std::unique_ptr<FragmentedRangeTombstoneIterator> tombstone_iter;
 
+            #ifdef DEBUG_COMPACTION_IN_OUT_FILE
+            std::cout << " (install compaction results) (-) fd = " << file_meta->fd.GetNumber() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+            std::cout << " (install compaction results) range_tombstones = "; 
+            #endif
+
             Status s = table_cache->GetRangeTombstoneIterator(
                 read_options, cfd->internal_comparator(), *file_meta,
                 cfd->GetLatestMutableCFOptions()->block_protection_bytes_per_key,
                 &tombstone_iter);
+            std::string file_start_key = (file_meta->smallest).user_key().ToString();
+            std::string file_end_key = (file_meta->largest).user_key().ToString();
             if (tombstone_iter) {
               tombstone_iter->SeekToFirst();
               while (tombstone_iter->Valid()) {
+                #ifdef DEBUG_COMPACTION_IN_OUT_FILE
+                  std::cout << "(" << tombstone_iter->start_key().ToString() << "," << tombstone_iter->end_key().ToString() << "), ";
+                #endif
                 if(checking::SystemVerifier::getSystemVerifier()->getShowTombstonesDuringCompactionInfo()){
                   std::cout << "tombstone_iter->start_key().ToString() = " << tombstone_iter->start_key().ToString() 
-                      << " tombstone_iter->end_key().ToString() = " << tombstone_iter->end_key().ToString() 
-                      << " " << __FILE__ << ":" << __LINE__ << " " << __FILE__ << std::endl;
+                      << " tombstone_iter->end_key().ToStrixng() = " << tombstone_iter->end_key().ToString() 
+                      << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
                 }
-                range_tombstones_str.push_back(std::make_pair(tombstone_iter->start_key().ToString(), tombstone_iter->end_key().ToString())); 
+                // range_tombstones_str.push_back(std::make_pair(tombstone_iter->start_key().ToString(), tombstone_iter->end_key().ToString())); 
+                string rd_start_key = max(file_start_key, tombstone_iter->start_key().ToString());
+                string rd_end_key = min(file_end_key, tombstone_iter->end_key().ToString());
+                range_tombstones_str.push_back(std::make_pair(rd_start_key, rd_end_key)); // 2025/03/07
+
                 tombstone_iter->Next();
               }
               tombstone_iter.reset();

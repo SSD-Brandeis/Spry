@@ -1304,6 +1304,9 @@ bool ColumnFamilyData::ReturnThreadLocalSuperVersion(SuperVersion* sv) {
 }
 
 //Self Added
+#define DEBUG_FILE_IN_OUT_COMPACTION
+#define DEBUG_SURF_FILE_IN_OUT_COMPACTION
+
 //shall be called before InstallSuperVersion for flush and compaction
 //old version: old_superversion->current, new version: current_
 //opt: 1 for flush, 2 for compaction, 3: for compaction direcly deleted flie
@@ -1514,6 +1517,7 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
     const std::vector<uint64_t> &fd_in = file_in_out_ptr->fd_in;
     const std::vector<std::tuple<uint64_t, long long, long long>> &file_out = file_in_out_ptr->file_out;
     std::vector<t3ll> RD_seq_vector;
+
     for (auto fd : fd_in){
       for( auto &RD_seq : this->fd_RDs_map[fd]){
         RD_seq_vector.push_back(RD_seq);
@@ -1540,6 +1544,36 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
       std::sort(RD_seq_vector2.begin(), RD_seq_vector2.end());
       this->fd_RDs_map[fd] = RD_seq_vector2;
     }
+    
+    #ifdef DEBUG_FILE_IN_OUT_COMPACTION
+      std::cout << "Deleted file during compaction " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << endl;
+      for (auto fd : fd_in){
+        std::cout << "\t(-) fd = " << fd << ", RDs = ";
+        for( auto &RD_seq : this->fd_RDs_map[fd]){
+          std::cout << "(" << std::get<0>(RD_seq) << "," << std::get<1>(RD_seq) << "," << std::get<2>(RD_seq) << "), ";
+        }
+        std::cout << std::endl;
+      }
+      std::cout << std::endl;
+
+      std::cout << "Created file during compaction " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << endl;
+      for(auto &file : file_out){
+        auto fd = std::get<0>(file);
+        auto min_range = std::get<1>(file);
+        auto max_range = std::get<2>(file);
+        std::cout << "\t(+) fd = " << fd << ", fd_range_seq = ";
+        for(auto &RD_seq : RD_seq_vector){
+          auto new_min_range = std::max(std::get<0>(RD_seq), min_range);
+          auto new_max_range = std::min(std::get<1>(RD_seq), max_range+1);
+          if(new_min_range >= new_max_range){
+            continue;
+          }
+          std::cout << "(" << new_min_range << "," << new_max_range << "," << std::get<2>(RD_seq) << "), ";
+        }
+        std::cout << std::endl;
+      }
+      std::cout << std::endl;
+    #endif //DEBUG_FILE_IN_OUT_COMPACTION
     this->reset_file_in_out_ptr();
 
 
@@ -1656,6 +1690,26 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
                   range_tombstones_str.end()
               );
             }
+
+            #ifdef DEBUG_SURF_FILE_IN_OUT_COMPACTION
+            for(auto &src_level_info: src_level_info_list){
+              uint32_t &src_level = src_level_info.src_level;
+              std::vector<uint64_t> &src_fd_list = src_level_info.src_fd_list;
+              std::vector<pss> &range_tombstones_str = src_level_info.range_tombstones_str;
+              
+              std::cout << "(SuRF) src_level = " << src_level << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+              std::cout << "(SuRF) src fd: ";
+              for(auto &src_fd: src_fd_list){
+                std::cout << src_fd << ", ";
+              }
+              std::cout<<std::endl;
+              std::cout << "(SuRF) range_tombstone: ";
+              for(auto &rd: range_tombstones_str){
+                std::cout << "(" << rd.first << ", " << rd.second << "), ";
+              }
+              std::cout<<std::endl;
+            }
+            #endif //DEBUG_SURF_FILE_IN_OUT_COMPACTION
             
             if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
               for(auto &x: sorted_range_tombstones_str){
@@ -1860,6 +1914,26 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
               //   // );
               // }
             }
+
+            #ifdef DEBUG_SURF_FILE_IN_OUT_COMPACTION
+            for(auto &src_level_info: src_level_info_list){
+              uint32_t &src_level = src_level_info.src_level;
+              std::vector<uint64_t> &src_fd_list = src_level_info.src_fd_list;
+              std::vector<pss> &range_tombstones_str = src_level_info.range_tombstones_str;
+              
+              std::cout << "(SuRF) src_level = " << src_level << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+              std::cout << "(SuRF) src fd: ";
+              for(auto &src_fd: src_fd_list){
+                std::cout << src_fd << ", ";
+              }
+              std::cout<<std::endl;
+              std::cout << "(SuRF) range_tombstone: ";
+              for(auto &rd: range_tombstones_str){
+                std::cout << "(" << rd.first << ", " << rd.second << "), " << std::endl;
+              }
+            }
+            std::cout<<std::endl;
+            #endif //DEBUG_SURF_FILE_IN_OUT_COMPACTION
             
             if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
               for(auto &x: sorted_range_tombstones_str){

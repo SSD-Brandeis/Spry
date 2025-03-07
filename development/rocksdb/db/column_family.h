@@ -1256,6 +1256,12 @@ class ColumnFamilyData {
   std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  compaction_moving_RD_vector;
   std::tuple<int, std::vector<pll>, std::vector<uint64_t>> compaction_direct_delete_RD_vector = std::make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
   
+  // for plrdf_prime_pss
+  std::tuple<uint64_t, std::vector<pss>, std::vector<uint64_t>> flush_to_level0_RD_vector_pss = std::make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
+  std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>  compaction_moving_RD_vector_pss;
+  std::tuple<int, std::vector<pss>, std::vector<uint64_t>> compaction_direct_delete_RD_vector_pss = std::make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
+  
+
   int flush_install_count_clr = 0;
   int compaction_install_count_clr = 0;
   int call_before_install_superversion_count = 0;
@@ -1269,6 +1275,15 @@ class ColumnFamilyData {
   std::vector<long long> split__level_points;
   std::mutex split__level_update_mtx;
 
+  //for split_plrdf_prime_pss
+  std::tuple<uint64_t, std::vector<pss>, std::vector<uint64_t>> split__flush_to_level0_RD_vector_pss = std::make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
+  std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>  split__compaction_moving_RD_vector_pss;
+  std::tuple<int, std::vector<pss>, std::vector<uint64_t>> split__compaction_direct_delete_RD_vector_pss = std::make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
+  std::vector<pss> split__level_ranges_pss;
+  std::vector<pss> split__level_ranges_updated_pss;
+  std::vector<pss> split__level_points_pss;
+  // std::mutex split__level_update_mtx;
+
   int split__flush_install_count_clr = 0;
   int split__compaction_install_count_clr = 0;
   int split__call_before_install_superversion_count = 0;
@@ -1277,11 +1292,18 @@ class ColumnFamilyData {
   int split__fin_flag = 0;
   int split__level_range_idx = 0;
 
+  //for top_level_rdf 
   uint64_t flush_in_file_num = 0;
   std::vector<pll> top_level__level_ranges;
   std::vector<long long> top_level__level_points;
   std::tuple<int, std::vector<pll>, std::vector<uint64_t>> top_level__trivial_move__delete_RD_vector = std::make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
   int top_level__level_range_idx = 0;
+
+  //for top_level_rdf_pss
+  std::vector<pss> top_level__level_ranges_pss;
+  std::vector<std::string> top_level__level_points_pss;
+  std::tuple<int, std::vector<pss>, std::vector<uint64_t>> top_level__trivial_move__delete_RD_vector_pss = std::make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
+  int top_level__level_range_idx_pss = 0;
   // //Self Added End
 
   FileInOut *surf__file_in_out_ptr = nullptr; //compaction, currently not used

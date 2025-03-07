@@ -1204,7 +1204,10 @@ std::vector<pss> SuRF_RDF::getRangeTombstonesAtLevelOfFd(uint32_t src_level, uin
 void SuRF_RDF::removeSuRFAtLevelOfFd(uint32_t src_level, uint64_t fd){
     assert(rdf_mode == surf::SuRF_RDF::RDF_MODE::PER_FILE);
     if(src_level >= level_file_surf_rdf.size()){return;}
-    if(level_file_surf_rdf[src_level].count(fd) == 0){return;}
+    if(level_file_surf_rdf[src_level].count(fd) == 0){
+std::cout << "@SuRF remove file. fd = " << fd << " src_level = " << src_level << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;    
+        return;
+    }
 
     delete level_file_surf_rdf[src_level][fd].second;
     level_file_surf_rdf[src_level].erase(fd);
@@ -1904,7 +1907,7 @@ void SuRF_RDF::checkProperUsageOfFlagKeyMayDeleted(){
 // Alive:  O  xxx   O xxxx O
 // left :  1        1      0
 // right:  0        1      1
-// #define DEBUG_SURF_GET_PATH
+#define DEBUG_SURF_GET_PATH
 bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string key, bool flag_bypass_if_same_key) {
     assert(rdf_mode == PER_FILE);
     assert(level < level_file_surf_rdf.size());

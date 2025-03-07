@@ -275,19 +275,19 @@ rdf_types = [
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #16
 
     # check total_time & insertion time
-    {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #17
-    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #18
-    {"--using_rdf_types": ["NONE_CACHE_RANGETOMBSTONE_TRACING"], }, #19
-    {"--using_rdf_types": ["PLRDF"], }, #20
-    {"--using_rdf_types": ["SPLIT_PLRDF"], }, #21
-    {"--using_rdf_types": ["TOP_LEVEL_RDF"], }, #22
-    {"--using_rdf_types": ["SKYLINE_RDF"], }, #23
+    #{"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #17
+    #{"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #18
+    #{"--using_rdf_types": ["NONE_CACHE_RANGETOMBSTONE_TRACING"], }, #19
+    #{"--using_rdf_types": ["PLRDF"], }, #20
+    #{"--using_rdf_types": ["SPLIT_PLRDF"], }, #21
+    #{"--using_rdf_types": ["TOP_LEVEL_RDF"], }, #22
+    #{"--using_rdf_types": ["SKYLINE_RDF"], }, #23
 
     
-    {"--using_rdf_types": ["SuRF_LF_RDF"]}, #24
-    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]}, #25
-    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]}, #26
-    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]}, #27
+    #{"--using_rdf_types": ["SuRF_LF_RDF"]}, #24
+    #{"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]}, #25
+    #{"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]}, #26
+    #{"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]}, #27
 ]
 # rdf_types = {
 #     "NONE": {},
