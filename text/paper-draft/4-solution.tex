@@ -1,0 +1,84 @@
+
+\subsection{Solution Design}
+    
+    \begin{figure*}
+        % \centering
+        \includegraphics[width=0.98 \textwidth]{Figures/PQ_flow/PQ_flow.png}
+        \Description[<short description>]{<long description>}
+        \caption{\label{fig:PQ_flow} The flow of the PQ in RocksDB.}
+    \end{figure*}
+
+    
+    \begin{figure*}
+        % \centering
+        \includegraphics[width=0.98 \textwidth]{Figures/PQ_flow/PQ_flow_types_01.png}
+        \Description[<short description>]{<long description>}
+        \caption{\label{fig:PQ_flow_types} The difference of the PQ flow for each of the RDF.}
+    \end{figure*}
+
+    \begin{figure*}
+        % \centering
+        \includegraphics[width=0.8 \textwidth]{Figures/PQ_flow/PQ_flow_types_02.png}
+        \Description[<short description>]{<long description>}
+        \caption{\label{fig:PQ_flow_types_02} The difference of the PQ flow for each of the RDF.}
+    \end{figure*}
+
+    The flow of the point query in RocksDB, as illustrated in \ref{fig:PQ_flow}, involves several steps. Initially, the key is searched in the memtable, followed by a search in the SST from level 0 to the bottom level. The file range metadata on each level is consulted to identify a potential wfile containing the key. If the file is not present in the buffer, it is opened with its index block, RD, and bloom filter prefetched into the buffer. The RD information forms the RDF that used to filtered out the deleted keys. The key undergoes filtering through the bloom filter and index block before initiating a disk IO to retrieve the data block from the SST. Subsequently, the existence of the data is checked with RDF, and if found, the process concludes; otherwise, it proceeds to the next level.
+
+    For PLRDF, Split-PLRDF, and TopLevel-RDF, RD is stored on levels without a sequence number. This design allows overlapping RD to be consolidated, reducing the memory footprint in the buffer. However, without a timetag, these RDFs only support PQ that occurs after all previous insertions and RD has been written into the database in order.
+
+    In the case of PLRDF, Split-PLRDF, RDs are stored on each level, while TopLevel-RDF stores RD only on the top level. During range deletes flushed to disk, range deletes are merged and stored on level 0 in PLRDF. Subsequently, during compaction, corresponding range deletes are moved and merged to the next level vector. During flush or compaction, range deletes from the top the k level remove obsolete entries from the files they compacted to on the k+1 level, so that no keys that can be deleted by the RD in the same file exist. 
+
+    Figure \ref{fig:PQ_flow_types_02} illustrates the PQ flow for each RDF, highlighting differences in how they check if a key is deleted. These differences are outlined below:
+
+    RocksDB(None): Before searching for a key on a given level, range deletes covering the key are collected from the SST, incurring a disk IO if the data is not in the buffer. These range deletes, along with their timestamps, are then compared with the retrieved data to determine if the key is deleted.
+
+    PLRDF: Similar to RocksDB, but range deletes are stored in the buffer, eliminating the need for disk IO to retrieve RD information. RDF is checked after each retrieval from the SST to validate that the retrieved data is not deleted.
+
+    Split-PLRDF: Due to the splitting of range deletes when a newer key is added to the SST, RDF can be applied before SST block retrieval, saving disk IOs.
+
+    TopLevel-RDF: RDF is stored only on the top level, keeping track of all RD on the disk. The splitting functionality ensures it does not return false negatives for newly inserted keys.
+
+    Skyline-RDF: Similar to PLRDF in PQ flow, but RD is stored with a timetag to determine the existence of a key from any level. This RDF is only called when a key is found, without pruning on the searching branches, making it the worst-performing RDF.
+
+
+
+
+
+\subsection{Solution Memory Footprint}
+    Benefiting from the RD filter, there's the cost of memory footprint. In this section, we will discuss the memory footprint of each RDF. \\
+    Representing range delete with a tuple or a triple, there's an start key and an end key each takes a byte. For recording the order, a sequence number of b byte is required. \\
+    Furthermore, let $\alpha$ be the range split ratio in an RDF, $\beta$ be the range absorb ratio and $\gamma$ be the inserted-keys-driven split factor. All these ratio may vary with time. \\
+    Suppose there are N range deletes in the RDF, then the memory footprint of each RDF is as follows: \\
+
+    \begin{center}
+        \begin{tabular}{ |c|c|c| } 
+         \hline
+          & memory footprint  \\ 
+         \hline
+         RocksDB(None) & O(\#opened files * avg \#RD in a file)  \\ 
+         \hline
+         PLRDF & O($N(1-\beta)2\alpha$)  \\ 
+         \hline
+         Split-PLRDF & O($N(1-\beta)(1+\gamma)2\alpha$)  \\ 
+         \hline
+         TopLevel-RDF & O($N(1-\beta)(1+\gamma)2\alpha$)  \\ 
+         \hline
+         Skyline-RDF &  O($N(1+\alpha-\beta)(2\alpha-\beta)$)  \\ 
+         \hline
+        \end{tabular}
+        \end{center}
+
+    \begin{itemize}    
+        \item \textbf{RocksDB(None).} Default RocksDB stores range deletes in each SST file where they belong to. Range Deletes are loaded when SST files are opened. The memory footprint depends on the number of opened SST files and the number of range deletes in those files. \\
+        \item \textbf{PLRDF.} Memory footprint = O($N(1-\beta)2\alpha$) bytes. Tuples are enough to represent range deletes. When ranges on the same level intersect with one another, they are absorbed into one, which increases the $\beta$, range absorb ratio. However, overlapped range deletes may cumulate on different levels, which decreases $\beta$.\\
+                                    It is favorable to have ranges accumulated on limited levels.
+        \item \textbf{Split-PLRDF.} Memory footprint = O($N(1-\beta)(1+\gamma)2\alpha$) bytes. Similar to PLRDF, but this one suffered from inserted-keys-driven split. When a new key falls in the region of a range delete, it splitted into 2 ranges, which contributes to $\gamma$, inserted-keys-driven split factor. \\
+                                    It is favorable to have less inserted keys fall into the range deletes.
+        \item \textbf{TopLevel-RDF.} Memory footprint = O($N(1-\beta)(1+\gamma)2\alpha$) bytes. Like Split-PLRDF, instead ranges don't move down to the next level, so it sufferes more from the inserted-keys-driven split. \\
+                                    The worst case can be a range keep split by all the inserted keys, causing an amplification of number of inserted keys.
+        \item \textbf{Skyline-RDF.} Memory footprint = O($N(1+\alpha-\beta)(2\alpha-\beta)$) bytes. Triples are used to represent range deletes. When small range falls within the larger range the range split into tree segments which contributes to the $\alpha$, range split ratio; In opposite, when a larger range comes in and contain the smaller range, the ranges are absorbed into one, which contributes to the $\beta$, range absorb ratio. \\
+                                    It is favorable to have larger ranges come in and absorb the old ranges.
+    \end{itemize}
+
+

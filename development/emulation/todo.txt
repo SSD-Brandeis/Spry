@@ -1,0 +1,7 @@
+./emu_runner -i 100000 -P128 -B4 -E32 -h64 -T2
+
+- Make the code more structured. Use OOP.
+- While compacting, check overlapping.
+- Make a version for tiered LSM tree?
+
+- Remove same sort_key in a level

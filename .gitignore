@@ -1,0 +1,17 @@
+*.o
+# *example*
+
+# .vscode
+.vscode/*
+
+*callgrind*
+
+# build
+**/build/**
+
+# log
+**/*.log
+
+# text
+*.txt
+secret.txt

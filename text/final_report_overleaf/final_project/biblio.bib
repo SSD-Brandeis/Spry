@@ -1,0 +1,70 @@
+@article{Bloom,
+author = {Bloom, Burton H.},
+journal = {Communications of the ACM},
+number = {7},
+pages = {422--426},
+title = {{Space/Time Trade-offs in Hash Coding with Allowable Errors}},
+url = {http://dl.acm.org/citation.cfm?id=362686.362692},
+volume = {13},
+year = {1970}
+}
+
+@inproceedings{Lethe,
+author = {Sarkar, Subhadeep and Papon, Tarikul Islam and Staratzis, Dimitris and Athanassoulis, Manos},
+title = {Lethe: A Tunable Delete-Aware LSM Engine},
+year = {2020},
+isbn = {9781450367356},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3318464.3389757},
+doi = {10.1145/3318464.3389757},
+booktitle = {Proceedings of the 2020 ACM SIGMOD International Conference on Management of Data},
+pages = {893–908},
+numpages = {16},
+keywords = {lethe, kiwi, compaction trigger, sort key, LSM-trees, compaction policy, delete key, delete persistence, out-of-place deletes, fade, delete persistence threshold, interweaved storage layout, compaction, delete persistence latency, TTL-driven compaction},
+location = {Portland, OR, USA},
+series = {SIGMOD '20}
+}
+
+@online{RD_RocksDB,
+  author = {Abhishek Madan and Andrew Kryczka},
+  title = {DeleteRange: A New Native RocksDB Operation},
+  year = 2018,
+  url = {https://rocksdb.org/blog/2018/11/21/delete-range.html},
+  urldate = {2018-11-21}
+}
+
+@inproceedings{BF_reducing_CPU_overload,
+author = {Zhu, Zichen and Mun, Ju Hyoung and Raman, Aneesh and Athanassoulis, Manos},
+title = {Reducing Bloom Filter CPU Overhead in LSM-Trees on Modern Storage Devices},
+year = {2021},
+isbn = {9781450385565},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3465998.3466002},
+doi = {10.1145/3465998.3466002},
+abstract = {Bloom filters (BFs) accelerate point lookups in Log-Structured Merge (LSM) trees by reducing unnecessary storage accesses to levels that do not contain the desired key. BFs are particularly beneficial when there is a significant performance difference between querying a BF (hashing and accessing memory) and accessing data (on secondary storage). This gap, however, is decreasing as modern storage devices (SSDs and NVMs) have increasingly lower latency, to the point that the cost of accessing data can be comparable to that of filter probing and hashing, especially for large key sizes that exhibit high hashing cost. In an LSM-tree, BFs are employed when querying each level of the tree, thus, exacerbating the CPU cost as the data size - and thus, the tree height - grows. To address the increasing CPU cost of BFs in LSM-trees, we propose to re-use hash calculations aggressively within and across BFs, as well as between different levels, and we show both analytically and experimentally that we can maintain a close-to-ideal false positive rate while significantly reducing the runtime. The reduced CPU cost for queries using the proposed hash sharing leads to 10% higher lookup performance in an LSM-tree with 22GB of data (5 levels) stored in a state-of-the-art PCIe SSD. The benefit further increases for faster underlying storage. Specifically, we show that for faster NVM devices, hash sharing leads to performance gains up to 40%.},
+booktitle = {Proceedings of the 17th International Workshop on Data Management on New Hardware (DaMoN 2021)},
+articleno = {1},
+numpages = {10},
+location = {Virtual Event, China},
+series = {DAMON'21}
+}
+
+@inproceedings{rangeFilter,
+author = {Luo, Siqiang and Chatterjee, Subarna and Ketsetsidis, Rafael and Dayan, Niv and Qin, Wilson and Idreos, Stratos},
+title = {Rosetta: A Robust Space-Time Optimized Range Filter for Key-Value Stores},
+year = {2020},
+isbn = {9781450367356},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3318464.3389731},
+doi = {10.1145/3318464.3389731},
+abstract = {We introduce Rosetta, a probabilistic range filter designed specifically for LSM-tree based key-value stores. The core intuition is that we can sacrifice filter probe time because it is not visible in end-to-end key-value store performance, which in turn allows us to significantly reduce the filter false positive rate for every level of the tree. Rosetta indexes all binary prefixes of a key using a hierarchically arranged set of Bloom filters. It then converts each range query into multiple probes, one for each non-overlapping binary prefix. Rosetta has the ability to track workload patterns and adopt a beneficial tuning for each individual LSM-tree run by adjusting the number of Bloom filters it uses and how memory is spread among them to optimize the FPR/CPU cost balance. We show how to integrate Rosetta in a full system, RocksDB, and we demonstrate that it brings as much as a 40x improvement compared to default RocksDB and 2-5x improvement compared to state-of-the-art range filters in a variety of workloads and across different levels of the memory hierarchy (memory, SSD, hard disk). We also show that, unlike state-of-the-art filters, Rosetta brings a net benefit in RocksDB's overall performance, i.e., it improves range queries without losing any performance for point queries.},
+booktitle = {Proceedings of the 2020 ACM SIGMOD International Conference on Management of Data},
+pages = {2071–2086},
+numpages = {16},
+keywords = {range filters, NoSQL},
+location = {Portland, OR, USA},
+series = {SIGMOD '20}
+}
