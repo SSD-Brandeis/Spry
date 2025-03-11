@@ -2241,7 +2241,8 @@ Status CompactionJob::InstallCompactionResults(
           if(true){
             bool flag_has_range_tombstone = (min_start_key_RT <= max_end_key_RT);
             if(flag_has_range_tombstone == true){
-              smallest_largest_boundries.push_back(std::make_pair(min_start_key_RT, max_end_key_RT));
+              // smallest_largest_boundries.push_back(std::make_pair(min_start_key_RT, max_end_key_RT));
+              smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
             }else{
               //dummy (smallest,smallest)
               // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->smallest.user_key().ToString())));
