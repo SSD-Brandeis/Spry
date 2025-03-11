@@ -2347,8 +2347,8 @@ void Version::MultiGetBlob(
 }
 
 // YCHuang Added Start
-#define DEBUG_SURF_GET_PATH
-#define DEBUG_PLRDF_GET_PATH
+// #define DEBUG_SURF_GET_PATH
+// #define DEBUG_PLRDF_GET_PATH
 // YCHuang Added End
 void Version::Get(const ReadOptions& read_options, const LookupKey& k,
                   PinnableSlice* value, PinnableWideColumns* columns,

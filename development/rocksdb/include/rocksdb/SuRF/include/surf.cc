@@ -1907,7 +1907,7 @@ void SuRF_RDF::checkProperUsageOfFlagKeyMayDeleted(){
 // Alive:  O  xxx   O xxxx O
 // left :  1        1      0
 // right:  0        1      1
-#define DEBUG_SURF_GET_PATH
+// #define DEBUG_SURF_GET_PATH
 bool SuRF_RDF::isEntryAliveAtLevelOfFd(level_t level, uint64_t fd, std::string key, bool flag_bypass_if_same_key) {
     assert(rdf_mode == PER_FILE);
     assert(level < level_file_surf_rdf.size());

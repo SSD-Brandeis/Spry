@@ -1304,8 +1304,8 @@ bool ColumnFamilyData::ReturnThreadLocalSuperVersion(SuperVersion* sv) {
 }
 
 //Self Added
-#define DEBUG_FILE_IN_OUT_COMPACTION
-#define DEBUG_SURF_FILE_IN_OUT_COMPACTION
+// #define DEBUG_FILE_IN_OUT_COMPACTION
+// #define DEBUG_SURF_FILE_IN_OUT_COMPACTION
 
 //shall be called before InstallSuperVersion for flush and compaction
 //old version: old_superversion->current, new version: current_

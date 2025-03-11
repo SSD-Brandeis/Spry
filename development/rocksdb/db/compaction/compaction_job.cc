@@ -1896,7 +1896,7 @@ Status CompactionJob::FinishCompactionOutputFile(
 }
 
 //yucheng Added Start
-#define DEBUG_COMPACTION_IN_OUT_FILE
+// #define DEBUG_COMPACTION_IN_OUT_FILE
 //yucheng Added End
 Status CompactionJob::InstallCompactionResults(
     const MutableCFOptions& mutable_cf_options) {
