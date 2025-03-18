@@ -5,17 +5,6 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
-// #include <filesystem>
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
-// #if __cplusplus >= 201703L
-//     #include <filesystem>
-//     namespace fs = std::filesystem;
-// #else
-//     #include <experimental/filesystem>
-//     namespace fs = std::experimental::filesystem;
-// #endif
-
 
 #include "../workload/args.hxx"
 #include "../workload/workload_generator.h"
@@ -92,24 +81,11 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
   system_verifier->disable_log__deleted_keys__max_sequnce_number();
 
 
-  // auto createDirsForFilePath = [](const std::string& filePath) {
-  //       fs::path dirPath = fs::path(filePath).parent_path();
-        
-  //       if (!dirPath.empty() && !fs::exists(dirPath)) {
-  //           if (fs::create_directories(dirPath)) {
-  //               std::cout << "Directories created: " << dirPath << std::endl;
-  //           } else {
-  //               std::cerr << "Failed to create directories: " << dirPath << std::endl;
-  //           }
-  //       }
-  //   };
 
 
   std::string testing_result_file_name = _env->logging_filename + ".testing_log";
   std::string testing_result_file_name2 = "output_statistics/" + _env->logging_filename + ".json";
 std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  // createDirsForFilePath(testing_result_file_name);
-  // createDirsForFilePath(testing_result_file_name2);
   testing_result_file.open(testing_result_file_name);
   testing_result_file2.open(testing_result_file_name2);
   testing_result_file2 << "{"<< std::endl;
@@ -132,7 +108,7 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   testing_result_file2 << ",\"SuRF Level File Split RDF Number Of Total Ranges\" : " << db->getSuRFLevelFileSplitRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << std::endl;
 
-  
+  testing_result_file << "RocksDB Number Of Total Memory Usage: " << db->getRTRocksDBNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "PLRDF Number Of Total Memory Usage: " << db->getPLRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "Split PLRDF Number Of Total Memory Usage: " << db->getSplitPLRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "TopLevel RDF Number Of Total Memory Usage: " << db->getTopLevelRDFNumberOfTotalMemoryUsage() << std::endl;
@@ -141,6 +117,7 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   testing_result_file << "SuRF Level File Split RDF Number Of Total Memory Usage: " << db->getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << std::endl;
 
+  testing_result_file2 << ",\"RocksDB Number Of Total Memory Usage\" : " <<db->getRTRocksDBNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"PLRDF Number Of Total Memory Usage\" : " << db->getPLRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"Split PLRDF Number Of Total Memory Usage\" : " << db->getSplitPLRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"TopLevel RDF Number Of Total Memory Usage\" : " << db->getTopLevelRDFNumberOfTotalMemoryUsage() << std::endl;

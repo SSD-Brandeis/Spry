@@ -1166,6 +1166,64 @@ class Version {
     return size;
   }
 
+  
+  uint32_t getSizeOfTablesRangeTombstonesOfAllLSMTree() {
+    uint32_t size = 0;
+
+    ReadOptions read_options;
+    for (int level = 0; level < storage_info_.num_levels_; level++) {
+      for (auto file_meta : storage_info_.files_[level]) {
+        // auto fname =
+        //     TableFileName(cfd_->ioptions()->cf_paths, file_meta->fd.GetNumber(),
+        //                   file_meta->fd.GetPathId());
+
+        // TableCache* table_cache = cfd_->table_cache();
+        // std::unique_ptr<FragmentedRangeTombstoneIterator> tombstone_iter;
+
+        // Status s = table_cache->GetRangeTombstoneIterator(
+        //     read_options, cfd_->internal_comparator(), *file_meta,
+        //     cfd_->GetLatestMutableCFOptions()->block_protection_bytes_per_key,
+        //     &tombstone_iter);
+        // if (!s.ok()) {
+        //   return s;
+        // }
+
+        
+        // const FileDescriptor& fd = file_meta->fd;
+
+        auto* cfd = this->cfd_;
+        TableCache* table_cache = cfd->table_cache();
+        std::unique_ptr<FragmentedRangeTombstoneIterator> tombstone_iter;
+        // ReadOptions read_options;
+
+        Status s = table_cache->GetRangeTombstoneIterator(
+            read_options, cfd->internal_comparator(), *file_meta,
+            cfd->GetLatestMutableCFOptions()->block_protection_bytes_per_key,
+            &tombstone_iter);
+
+        // TableReader* t = fd.table_reader;
+        // if (t == nullptr) {continue;}
+        // FragmentedRangeTombstoneIterator* tombstone_iter = t->NewRangeTombstoneIterator(read_options);
+
+        if (tombstone_iter) {
+          tombstone_iter->SeekToFirst();
+          // TODO: print timestamp
+          while (tombstone_iter->Valid()) {
+            std::cout << "start: " << tombstone_iter->start_key().ToString(true)
+              << " end: " << tombstone_iter->end_key().ToString(true)
+              << " seq: " << tombstone_iter->seq() 
+              << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<'\n';
+            size += tombstone_iter->start_key().ToString(true).size();
+            size += tombstone_iter->end_key().ToString(true).size();
+            size += sizeof(tombstone_iter->seq());
+            tombstone_iter->Next();
+          }
+        }
+      }
+    }
+    return size;
+  }
+
   void setOriginInfo(OriginInfo origin_info_in){
     origin_info = origin_info_in;
   }

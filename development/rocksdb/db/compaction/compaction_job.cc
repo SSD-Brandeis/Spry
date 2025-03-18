@@ -1323,7 +1323,7 @@ void CompactionJob::ProcessKeyValueCompaction(SubcompactionState* sub_compact) {
       if(current_level ==  sub_compact->compaction->output_level()){
         for (auto file_meta : *(sub_compact->compaction->inputs(lvl))){     
           auto fd = file_meta->fd.GetNumber() ;
-          auto RDs_seq_vec = sub_compact->compaction->column_family_data()->get_RDs_by_fd((u_int64_t)fd);
+          auto RDs_seq_vec = sub_compact->compaction->column_family_data()->get_RDs_by_fd((u_int64_t)fd).rds;
           for(auto RD_seq : RDs_seq_vec){
             auto start_key = std::get<0>(RD_seq);
             auto end_key = std::get<1>(RD_seq);
@@ -1344,7 +1344,7 @@ void CompactionJob::ProcessKeyValueCompaction(SubcompactionState* sub_compact) {
 
         for (auto file_meta : *(sub_compact->compaction->inputs(lvl))){
             auto fd = file_meta->fd.GetNumber() ;
-            auto RDs_seq_vec = sub_compact->compaction->column_family_data()->get_RDs_by_fd((u_int64_t)fd);
+            auto RDs_seq_vec = sub_compact->compaction->column_family_data()->get_RDs_by_fd((u_int64_t)fd).rds;
             for(auto RD_seq : RDs_seq_vec){
               auto start_key = std::get<0>(RD_seq);
               auto end_key = std::get<1>(RD_seq);
@@ -2123,7 +2123,7 @@ Status CompactionJob::InstallCompactionResults(
         {
           //RDs_seq_vec update has some issues
           auto RDs_seq_vec = compaction->column_family_data()
-              ->get_RDs_by_fd((u_int64_t)file_meta->fd.GetNumber());
+              ->get_RDs_by_fd((u_int64_t)file_meta->fd.GetNumber()).rds;
           long long max_end_key = 0;
           long long min_start_key = LONG_LONG_MAX;
           std::string max_end_key_str = "";

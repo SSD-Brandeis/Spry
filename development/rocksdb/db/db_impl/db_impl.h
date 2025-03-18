@@ -548,6 +548,7 @@ class DBImpl : public DB {
   virtual int getSkylineRDFNumberOfTotalRanges() override;
   virtual int getSuRFLevelFileRDFNumberOfTotalRanges() override;
   virtual int getSuRFLevelFileSplitRDFNumberOfTotalRanges() override;
+  virtual int getRTRocksDBNumberOfTotalMemoryUsage() override;
   virtual int getPLRDFNumberOfTotalMemoryUsage() override;
   virtual int getSplitPLRDFNumberOfTotalMemoryUsage() override;
   virtual int getTopLevelRDFNumberOfTotalMemoryUsage() override;

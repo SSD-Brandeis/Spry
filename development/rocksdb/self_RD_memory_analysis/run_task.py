@@ -233,6 +233,7 @@ params3[ "--flag_skip_compaction_trivial_move"] = [1]
 # params3[ "--surf__key_len_in_bytes"] = [5]
 params3[ "--skip_reading_RD_blocks"] = [1]
 # params3[ "--show_surf_compaction_info"] = [1]
+# params3["--max_open_files"] = [1]
 
 #if True:
 if False:
@@ -314,7 +315,7 @@ rdf_types = [
 # for i_rdf, (rdf_type, local_param) in enumerate(rdf_types.items()):
 for i_rdf, rdf_param in enumerate(rdf_types):
     # if i_rdf > 0:
-    #     break
+    #    break
     # if i_rdf < 1:
     #    continue;
     # if i_rdf > 1:
@@ -333,8 +334,8 @@ for i_rdf, rdf_param in enumerate(rdf_types):
     #    continue
     # if i_rdf > 10 and i_rdf < 15:
     #     continue
-    if i_rdf < 16:
-       continue
+    #if i_rdf < 16:
+    #   continue
     #if i_rdf > 18:
     #    continue
     # if i_rdf < 17:

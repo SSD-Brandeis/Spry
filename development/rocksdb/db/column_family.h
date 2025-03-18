@@ -46,6 +46,74 @@
 namespace ROCKSDB_NAMESPACE {
 
   //Self Added Start
+  struct FileRDs
+  {
+    // std::vector<uint64_t> fd_in;
+    std::vector<t3ll> rds;
+    std::vector<std::tuple<std::string, std::string, long long>> string_rds;
+
+    void set_rds(const std::vector<t3ll> &rds_in){
+      this->rds = rds_in;
+    }
+
+    void set_string_rds(const std::vector<std::tuple<std::string, std::string, long long>> &rds_in){
+      this->string_rds = rds_in;
+    }
+    
+    // void push_back(std::tuple<std::string, std::string, long long> &rd){
+    //   rds.push_back(rd);
+    // }
+
+    // std::vector<std::tuple<std::string, std::string, long long>>::iterator find(){
+    //   return rds.find();
+    // }
+
+    void print(){
+      // std::cout << "fd_in: ";
+      // for (auto i : fd_in){
+      //   std::cout << i << " ";
+      // }
+      // std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      std::cout << "file_out: ";
+      for (auto rd : rds){
+        std::cout << " (" << std::get<0>(rd) << ", " << std::get<1>(rd) << ") " << std::get<2>(rd);
+      }
+      std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+
+    
+    void print_string_rds(){
+      // std::cout << "fd_in: ";
+      // for (auto i : fd_in){
+      //   std::cout << i << " ";
+      // }
+      // std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      std::cout << "file_out: ";
+      for (auto rd : string_rds){
+        std::cout << " (" << std::get<0>(rd) << ", " << std::get<1>(rd) << ") " << std::get<2>(rd);
+      }
+      std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+
+    size_t get_rds_size(){
+      size_t size = 0;
+      for(auto &rd: rds){
+        auto &[s, e, time] = rd;
+        size += sizeof(s) + sizeof(e) + sizeof(time);
+      }
+      return size;
+    }
+    
+    size_t get_string_rds_size(){
+      size_t size = 0;
+      for(auto &rd: string_rds){
+        auto &[s, e, time] = rd;
+        size += s.size() + e.size() + sizeof(time);
+      }
+      return size;
+    }
+  };
+
   struct FileInOut
   {
     std::vector<uint64_t> fd_in;
@@ -1182,7 +1250,8 @@ class ColumnFamilyData {
   
 
 
-  std::vector<t3ll> get_RDs_by_fd(u_int64_t fd){
+  // std::vector<t3ll> get_RDs_by_fd(u_int64_t fd){
+  FileRDs get_RDs_by_fd(u_int64_t fd){
     if(fd_RDs_map.find(fd) == fd_RDs_map.end()){
       std::cerr << "Error: fd_RDs_map[fd] doesn't exist, fd = " << fd << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       exit(1);
@@ -1190,14 +1259,16 @@ class ColumnFamilyData {
     return fd_RDs_map[fd];
   }
 
-  void set_fd_RD_in_ptr(std::pair<u_int64_t, std::vector<t3ll>>* ptr){
-    fd_RD_in_ptr = ptr;
+  // void set_fd_RD_in_ptr(std::pair<u_int64_t, std::vector<t3ll>>* ptr){
+  void set_fd_RD_in_ptr(std::pair<u_int64_t, FileRDs>* ptr){
+      fd_RD_in_ptr = ptr;
   }
   void reset_fd_RD_in_ptr(){
     fd_RD_in_ptr = nullptr;
   }
-  std::pair<u_int64_t, std::vector<t3ll>>* get_fd_RD_in_ptr(){
-    return fd_RD_in_ptr;
+  // std::pair<u_int64_t, std::vector<t3ll>>* get_fd_RD_in_ptr(){
+  std::pair<u_int64_t, FileRDs>* get_fd_RD_in_ptr(){
+      return fd_RD_in_ptr;
   }
 
   void set_file_in_out_ptr(FileInOut* ptr){
@@ -1239,8 +1310,9 @@ class ColumnFamilyData {
   Version* update_RDF_version_pre = nullptr;
   Version* install_version_pre = nullptr;
 
-  std::unordered_map<uint64_t, std::vector<t3ll>> fd_RDs_map;
-  std::pair<u_int64_t, std::vector<t3ll>>* fd_RD_in_ptr = nullptr; //flush
+  // std::unordered_map<uint64_t, std::vector<t3ll>> fd_RDs_map;
+  std::unordered_map<uint64_t, FileRDs> fd_RDs_map;
+  std::pair<u_int64_t, FileRDs>* fd_RD_in_ptr = nullptr; //flush
   FileInOut* file_in_out_ptr = nullptr; //compaction
   
   OriginInfo origin_info_prime;

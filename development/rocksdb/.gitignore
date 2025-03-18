@@ -98,3 +98,4 @@ third-party/folly/
 .cache
 
 *run*.sh
+log*

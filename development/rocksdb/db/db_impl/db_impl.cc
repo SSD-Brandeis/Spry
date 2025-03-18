@@ -4885,6 +4885,13 @@ int DBImpl::getSuRFLevelFileSplitRDFNumberOfTotalRanges(){
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getSuRFLevelFileSplitRDFNumberOfTotalRanges();
 }
+int DBImpl::getRTRocksDBNumberOfTotalMemoryUsage(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getSizeOfTablesRangeTombstonesOfAllLSMTree();
+}
 int DBImpl::getPLRDFNumberOfTotalMemoryUsage(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());

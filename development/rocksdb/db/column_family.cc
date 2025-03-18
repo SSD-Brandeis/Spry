@@ -1372,7 +1372,7 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
   if(opt == 1){ //flush
     //Skyline RDF
     if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SKYLINE_RDF")){
-      auto RDs = std::get<1>(*this->fd_RD_in_ptr);
+      auto RDs = std::get<1>(*this->fd_RD_in_ptr).rds;
       this->addRangeToSkylineRDFPrime(RDs);
     }
 
@@ -1519,7 +1519,7 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
     std::vector<t3ll> RD_seq_vector;
 
     for (auto fd : fd_in){
-      for( auto &RD_seq : this->fd_RDs_map[fd]){
+      for( auto &RD_seq : (this->fd_RDs_map[fd]).rds){
         RD_seq_vector.push_back(RD_seq);
       }
     }
@@ -1542,7 +1542,7 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
         );
       }
       std::sort(RD_seq_vector2.begin(), RD_seq_vector2.end());
-      this->fd_RDs_map[fd] = RD_seq_vector2;
+      (this->fd_RDs_map[fd]).rds = RD_seq_vector2;
     }
     
     #ifdef DEBUG_FILE_IN_OUT_COMPACTION

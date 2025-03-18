@@ -349,6 +349,7 @@ class DB {
   virtual int getSkylineRDFNumberOfTotalRanges() {return -1;}
   virtual int getSuRFLevelFileRDFNumberOfTotalRanges() {return -1;}
   virtual int getSuRFLevelFileSplitRDFNumberOfTotalRanges() {return -1;}
+  virtual int getRTRocksDBNumberOfTotalMemoryUsage(){return -1;}
   virtual int getPLRDFNumberOfTotalMemoryUsage() {return -1;}
   virtual int getSplitPLRDFNumberOfTotalMemoryUsage() {return -1;}
   virtual int getTopLevelRDFNumberOfTotalMemoryUsage() {return -1;}

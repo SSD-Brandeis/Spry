@@ -877,8 +877,10 @@ Status FlushJob::WriteLevel0Table() {
 
 //Self Added Start
 if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
-  std::pair<u_int64_t, std::vector<t3ll>>* fd_RD_in_ptr = new std::pair<u_int64_t, std::vector<t3ll>>;
+  // std::pair<u_int64_t, std::vector<t3ll>>* fd_RD_in_ptr = new std::pair<u_int64_t, std::vector<t3ll>>;
+  std::pair<u_int64_t, FileRDs>* fd_RD_in_ptr = new std::pair<u_int64_t, FileRDs>;
   std::vector<t3ll> RD_seq;
+  std::vector<std::tuple<std::string, std::string, long long>> RD_seq_string;
 
   std::vector<pll> range_delete_list_in;
   std::vector<pss> range_delete_list_in_str;
@@ -888,13 +890,17 @@ if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == t
     for (range_del_iter2->SeekToFirst(); range_del_iter2->Valid(); range_del_iter2->Next()) {
       auto tombstone = range_del_iter2->Tombstone();
       RD_seq.push_back(std::make_tuple(std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()), tombstone.seq_));
+      RD_seq_string.push_back(std::make_tuple(tombstone.start_key_.ToString(), tombstone.end_key_.ToString(), tombstone.seq_));
       range_delete_list_in.push_back(std::make_pair( std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) ));
       range_delete_list_in_str.push_back(std::make_pair(tombstone.start_key_.ToString(), tombstone.end_key_.ToString() ));
     }
   }
 
+  FileRDs file_rd_RD_seq;
+  file_rd_RD_seq.rds = RD_seq;
+  file_rd_RD_seq.string_rds = RD_seq_string;
   fd_RD_in_ptr->first = meta_.fd.GetNumber();
-  fd_RD_in_ptr->second = RD_seq;
+  fd_RD_in_ptr->second = file_rd_RD_seq;
   if(cfd_->get_fd_RD_in_ptr() != nullptr){
     std::cerr << " flush job fd_RD_in_ptr is not nullptr " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     exit(1);

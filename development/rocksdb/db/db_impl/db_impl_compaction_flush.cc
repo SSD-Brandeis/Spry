@@ -3687,7 +3687,7 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
             {
               //RDs_seq_vec update has some issues
               auto RDs_seq_vec = c->column_family_data()
-                  ->get_RDs_by_fd((u_int64_t)file_meta->fd.GetNumber());
+                  ->get_RDs_by_fd((u_int64_t)file_meta->fd.GetNumber()).rds;
               long long max_end_key = 0;
               long long min_start_key = LONG_LONG_MAX;
               std::string max_end_key_str = "";

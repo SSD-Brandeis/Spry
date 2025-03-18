@@ -108,7 +108,7 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   testing_result_file2 << ",\"SuRF Level File Split RDF Number Of Total Ranges\" : " << db->getSuRFLevelFileSplitRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << std::endl;
 
-  
+  testing_result_file << "RocksDB Number Of Total Memory Usage: " << db->getRTRocksDBNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "PLRDF Number Of Total Memory Usage: " << db->getPLRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "Split PLRDF Number Of Total Memory Usage: " << db->getSplitPLRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "TopLevel RDF Number Of Total Memory Usage: " << db->getTopLevelRDFNumberOfTotalMemoryUsage() << std::endl;
@@ -117,6 +117,7 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   testing_result_file << "SuRF Level File Split RDF Number Of Total Memory Usage: " << db->getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << std::endl;
 
+  testing_result_file2 << ",\"RocksDB Number Of Total Memory Usage\" : " <<db->getRTRocksDBNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"PLRDF Number Of Total Memory Usage\" : " << db->getPLRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"Split PLRDF Number Of Total Memory Usage\" : " << db->getSplitPLRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"TopLevel RDF Number Of Total Memory Usage\" : " << db->getTopLevelRDFNumberOfTotalMemoryUsage() << std::endl;
