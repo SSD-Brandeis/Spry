@@ -171,7 +171,12 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   args::ValueFlag<int> load_pq_workload_cmd(group1, "load_pq_workload", "want to load pq workload [def:1]", {"load_pq_workload"});
   args::ValueFlag<int> max_open_files_cmd(group1, "max_open_files", "maximum number of opened SST [def:1]", {"max_open_files"});
   args::ValueFlag<int> skip_reading_RD_blocks_cmd(group1, "skip reading RD blocks", "skip_reading_RD_blocks [def:0 (false)]", {"skip_reading_RD_blocks"});
-  args::ValueFlag<int> number_of_PQ_cmd(group1, "number_of_PQ", "number_of_PQ [def:5000]", {"number_of_PQ"});
+  // args::ValueFlag<int> number_of_PQ_cmd(group1, "number_of_PQ", "number_of_PQ [def:5000]", {"number_of_PQ"});
+  args::ValueFlag<int> number_of_PQ_on_existing_keys_cmd(group1, "number_of_PQ_on_existing_keys", "number_of_PQs_on_existing_keys [def:5000]", {"number_of_PQ_on_existing_keys"});
+  args::ValueFlag<int> number_of_PQ_on_historic_existing_keys_cmd(group1, "number_of_PQ_on_historic_existing_keys", "number_of_PQ_on_historic_existing_keys [def:5000]", {"number_of_PQ_on_historic_existing_keys"});
+  args::ValueFlag<int> number_of_PQ_on_currently_deleted_keys_cmd(group1, "number_of_PQ_on_currently_deleted_keys", "number_of_PQ_on_currently_deleted_keys [def:5000]", {"number_of_PQ_on_currently_deleted_keys"});
+  args::ValueFlag<int> number_of_PQ_on_currently_non_inserted_keys_cmd(group1, "number_of_PQ_on_currently_non_inserted_keys", "number_of_PQ_on_currently_non_inserted_keys [def:5000]", {"number_of_PQ_on_currently_non_inserted_keys"});
+  
   args::ValueFlag<bool> system_check_test_on_all_PQ_cmd(group1, "system_check_test_on_all_PQ", "system_check_test_on_all_PQ [def:0]", {"system_check_test_on_all_PQ"});
 
   args::ValueFlag<bool> log_during_insertion_cmd(group1, "log_during_insertion", "log_during_insertion [def:0 (false)]", {"log_during_insertion"});
@@ -271,7 +276,11 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   bool load_pq_workload = load_pq_workload_cmd ? (args::get(load_pq_workload_cmd) != 0) : 1;
   int max_open_files = max_open_files_cmd ? args::get(max_open_files_cmd) : 9999;
   bool skip_reading_RD_blocks = skip_reading_RD_blocks_cmd ? (args::get(skip_reading_RD_blocks_cmd) != 0) : false;
-  int number_of_PQ = number_of_PQ_cmd ? args::get(number_of_PQ_cmd) : 5000;
+  // int number_of_PQ = number_of_PQ_cmd ? args::get(number_of_PQ_cmd) : 5000;
+  int number_of_PQs_on_existing_keys = number_of_PQ_on_existing_keys_cmd ? args::get(number_of_PQ_on_existing_keys_cmd) : 5000;
+  int number_of_PQs_on_historic_existing_keys = number_of_PQ_on_historic_existing_keys_cmd ? args::get(number_of_PQ_on_historic_existing_keys_cmd) : 5000;
+  int number_of_PQs_on_currently_deleted_keys = number_of_PQ_on_currently_deleted_keys_cmd ? args::get(number_of_PQ_on_currently_deleted_keys_cmd) : 5000;
+  int number_of_PQs_on_currently_non_inserted_keys = number_of_PQ_on_currently_non_inserted_keys_cmd ? args::get(number_of_PQ_on_currently_non_inserted_keys_cmd) : 5000;
   bool system_check_test_on_all_PQ = system_check_test_on_all_PQ_cmd ? args::get(system_check_test_on_all_PQ_cmd) : false;
   _env->correlation = correlation;
   _env->rd_count = rd_count;
@@ -283,7 +292,11 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   _env->load_pq_workload = load_pq_workload;
   _env->max_open_files = max_open_files;
   _env->skip_reading_RD_blocks = skip_reading_RD_blocks;
-  _env->number_of_PQ = number_of_PQ;
+  // _env->number_of_PQ = number_of_PQ;
+  _env->number_of_PQs_on_existing_keys = number_of_PQs_on_existing_keys;
+  _env->number_of_PQs_on_historic_existing_keys = number_of_PQs_on_historic_existing_keys;
+  _env->number_of_PQs_on_currently_deleted_keys = number_of_PQs_on_currently_deleted_keys;
+  _env->number_of_PQs_on_currently_non_inserted_keys = number_of_PQs_on_currently_non_inserted_keys;
   _env->system_check_test_on_all_PQ = system_check_test_on_all_PQ;
 
   bool log_during_insertion = log_during_insertion_cmd ? (args::get(log_during_insertion_cmd) != 0) : false;

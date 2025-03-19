@@ -2242,7 +2242,10 @@ Status CompactionJob::InstallCompactionResults(
             bool flag_has_range_tombstone = (min_start_key_RT <= max_end_key_RT);
             if(flag_has_range_tombstone == true){
               // smallest_largest_boundries.push_back(std::make_pair(min_start_key_RT, max_end_key_RT));
-              smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+              // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+              // TODO check: (Current Logic) end-1 because when no key @ the end of the file, Range Tombstone (RT) should move down with [start,end-1], in case a key @ end-1 may not be covered by the range
+              //                                           when key @ the end of the file and is compacted down with the range tombstone (RT), then range can move down with [start, end]
+              smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())-1)); 
             }else{
               //dummy (smallest,smallest)
               // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->smallest.user_key().ToString())));

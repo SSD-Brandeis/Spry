@@ -131,7 +131,12 @@ void runInsertRDWorkload(const string workload_file_name){
 
 
 struct EnvGenPQ{
-  int number_of_PQs = 5000;
+  // int number_of_PQs = 5000;
+  int number_of_PQs_on_existing_keys = 5000;
+  int number_of_PQs_on_historic_existing_keys = 5000;
+  int number_of_PQs_on_currently_deleted_keys = 5000;
+  int number_of_PQs_on_currently_non_inserted_keys = 5000;
+  
   std::string workload_file_name = "";
 };
 
@@ -141,7 +146,12 @@ int parse_arguments(int argc, char *argv[], checking::SystemVerifier *system_ver
 
   args::Group group1(parser, "This group is all exclusive:", args::Group::Validators::DontCare);
   //YuCheng Added Start
-  args::ValueFlag<int> number_of_PQ_cmd(group1, "number_of_PQ", "number_of_PQ [def:5000]", {"number_of_PQ"});
+  // args::ValueFlag<int> number_of_PQ_cmd(group1, "number_of_PQ", "number_of_PQ [def:5000]", {"number_of_PQ"});
+  args::ValueFlag<int> number_of_PQ_on_existing_keys_cmd(group1, "number_of_PQ_on_existing_keys", "number_of_PQ_on_existing_keys [def:5000]", {"number_of_PQ_on_existing_keys"});
+  args::ValueFlag<int> number_of_PQ_on_historic_existing_keys_cmd(group1, "number_of_PQ_on_historic_existing_keys", "number_of_PQ_on_historic_existing_keys [def:5000]", {"number_of_PQ_on_historic_existing_keys"});
+  args::ValueFlag<int> number_of_PQ_on_currently_deleted_keys_cmd(group1, "number_of_PQ_on_currently_deleted_keys", "number_of_PQ_on_currently_deleted_keys [def:5000]", {"number_of_PQ_on_currently_deleted_keys"});
+  args::ValueFlag<int> number_of_PQ_on_currently_non_inserted_keys_cmd(group1, "number_of_PQ_on_currently_non_inserted_keys", "number_of_PQ_on_currently_non_inserted_keys [def:5000]", {"number_of_PQ_on_currently_non_inserted_keys"});
+
   args::ValueFlag<string> workload_filename_cmd(group1, "workload_filename", "workload filename [def:0.001]", {"workload_filename"});
   //YuCheng Added End
 
@@ -163,9 +173,18 @@ int parse_arguments(int argc, char *argv[], checking::SystemVerifier *system_ver
       std::cerr << parser;
       return 1;
   }
-  int number_of_PQs = number_of_PQ_cmd ? args::get(number_of_PQ_cmd) : 5000;
+  // int number_of_PQs = number_of_PQ_cmd ? args::get(number_of_PQ_cmd) : 5000;
+  int number_of_PQs_on_existing_keys = number_of_PQ_on_existing_keys_cmd ? args::get(number_of_PQ_on_existing_keys_cmd) : 5000;
+  int number_of_PQs_on_historic_existing_keys = number_of_PQ_on_historic_existing_keys_cmd ? args::get(number_of_PQ_on_historic_existing_keys_cmd) : 5000;
+  int number_of_PQs_on_currently_deleted_keys = number_of_PQ_on_currently_deleted_keys_cmd ? args::get(number_of_PQ_on_currently_deleted_keys_cmd) : 5000;
+  int number_of_PQs_on_currently_non_inserted_keys = number_of_PQ_on_currently_non_inserted_keys_cmd ? args::get(number_of_PQ_on_currently_non_inserted_keys_cmd) : 5000;
+
   string workload_file_name = workload_filename_cmd ? args::get(workload_filename_cmd) : "workload.txt";
-  env_gen_pq->number_of_PQs = number_of_PQs;
+  // env_gen_pq->number_of_PQs = number_of_PQs;
+  env_gen_pq->number_of_PQs_on_existing_keys = number_of_PQs_on_existing_keys;
+  env_gen_pq->number_of_PQs_on_historic_existing_keys = number_of_PQs_on_historic_existing_keys;
+  env_gen_pq->number_of_PQs_on_currently_deleted_keys = number_of_PQs_on_currently_deleted_keys;
+  env_gen_pq->number_of_PQs_on_currently_non_inserted_keys = number_of_PQs_on_currently_non_inserted_keys;
   env_gen_pq->workload_file_name = workload_file_name;
   return 0;
 }

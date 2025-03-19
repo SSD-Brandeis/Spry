@@ -34,9 +34,18 @@ private:
 
 public:
     static void initPQVerification(DB** db_ptr2, ReadOptions& read_op, EmuEnv* _env);
+    // static void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, 
+    //                         ReadOptions& read_op, EmuEnv* _env, int number_of_PQs = -1,
+    //                         string kDBPath = "/tmp/cs561_project1");
     static void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, 
-                            ReadOptions& read_op, EmuEnv* _env, int number_of_PQs = -1,
+                            ReadOptions& read_op, EmuEnv* _env, 
+                            // int number_of_PQs = -1,
+                            int number_of_PQs_on_existing_keys = -1,
+                            int number_of_PQs_on_historic_existing_keys = -1,
+                            int number_of_PQs_on_currently_deleted_keys = -1,
+                            int number_of_PQs_on_currently_non_inserted_keys = -1,
                             string kDBPath = "/tmp/cs561_project1");
+                            
     static void endPQVerification();
 };
 std::ofstream verification_runner::testing_result_file;
@@ -108,7 +117,8 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   testing_result_file2 << ",\"SuRF Level File Split RDF Number Of Total Ranges\" : " << db->getSuRFLevelFileSplitRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << std::endl;
 
-  testing_result_file << "RocksDB Number Of Total Memory Usage: " << db->getRTRocksDBNumberOfTotalMemoryUsage() << std::endl;
+  
+  testing_result_file << "RocksDB (None) Number Of Total Memory Usage: " << db->getRTRocksDBNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "PLRDF Number Of Total Memory Usage: " << db->getPLRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "Split PLRDF Number Of Total Memory Usage: " << db->getSplitPLRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "TopLevel RDF Number Of Total Memory Usage: " << db->getTopLevelRDFNumberOfTotalMemoryUsage() << std::endl;
@@ -117,7 +127,7 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   testing_result_file << "SuRF Level File Split RDF Number Of Total Memory Usage: " << db->getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << std::endl;
 
-  testing_result_file2 << ",\"RocksDB Number Of Total Memory Usage\" : " <<db->getRTRocksDBNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file2 << ",\"RocksDB (None) Number Of Total Memory Usage\" : " << db->getRTRocksDBNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"PLRDF Number Of Total Memory Usage\" : " << db->getPLRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"Split PLRDF Number Of Total Memory Usage\" : " << db->getSplitPLRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"TopLevel RDF Number Of Total Memory Usage\" : " << db->getTopLevelRDFNumberOfTotalMemoryUsage() << std::endl;
@@ -258,12 +268,33 @@ void verification_runner::runPQVerification(DB** db_ptr2,
                                             WriteOptions& write_op, 
                                             ReadOptions& read_op, 
                                             EmuEnv* _env,
-                                            int number_of_PQs,
+                                            // int number_of_PQs,
+                                            int number_of_PQs_on_existing_keys,
+                                            int number_of_PQs_on_historic_existing_keys,
+                                            int number_of_PQs_on_currently_deleted_keys,
+                                            int number_of_PQs_on_currently_non_inserted_keys,
                                             string kDBPath){
-std::cout << "number_of_PQ = " << number_of_PQs <<  std::endl; 
-  assert(number_of_PQs != 0);
-  assert(number_of_PQs >= -1);
-  
+// std::cout << "number_of_PQ = " << number_of_PQs <<  std::endl;
+std::cout << "number_of_PQs_on_existing_keys = " << number_of_PQs_on_existing_keys <<  std::endl;
+std::cout << "number_of_PQs_on_historic_existing_keys = " << number_of_PQs_on_historic_existing_keys <<  std::endl;
+std::cout << "number_of_PQs_on_currently_deleted_keys = " << number_of_PQs_on_currently_deleted_keys <<  std::endl; 
+std::cout << "number_of_PQs_on_currently_non_inserted_keys = " << number_of_PQs_on_currently_non_inserted_keys <<  std::endl; 
+
+// assert(number_of_PQs != 0);
+// assert(number_of_PQs >= -1);
+
+assert(number_of_PQs_on_existing_keys != 0);
+assert(number_of_PQs_on_existing_keys >= -1);
+
+assert(number_of_PQs_on_historic_existing_keys != 0);
+assert(number_of_PQs_on_historic_existing_keys >= -1);
+
+assert(number_of_PQs_on_currently_deleted_keys != 0);
+assert(number_of_PQs_on_currently_deleted_keys >= -1);
+
+assert(number_of_PQs_on_currently_non_inserted_keys != 0);
+assert(number_of_PQs_on_currently_non_inserted_keys >= -1);
+
 
   DB* db = *db_ptr2;
   Status s;
@@ -278,19 +309,53 @@ std::cout << "number_of_PQ = " << number_of_PQs <<  std::endl;
   long long disk_access_count = 0;
 
   
-  std::string prefix_number_of_PQs = "";
-  if(number_of_PQs != -1){
-    prefix_number_of_PQs = "fixed #PQ = " + std::to_string(number_of_PQs);
+  // std::string prefix_number_of_PQs = "";
+  // if(number_of_PQs_on_existing_keys != -1){
+  //   prefix_number_of_PQs = "fixed #PQ = " + std::to_string(number_of_PQs_on_existing_keys);
+  // }
+  
+  std::string prefix_number_of_PQs_on_existing_keys = "";
+  if(number_of_PQs_on_existing_keys != -1){
+    prefix_number_of_PQs_on_existing_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_existing_keys);
   }
   
-  if(_env->load_pq_workload == false){
-    system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, number_of_PQs);
-  }else{
-    system_verifier->load_workload_with_numbers_of_PQ(N_repetitions, number_of_PQs, _env->workload_file_name);
+  std::string prefix_number_of_PQs_on_historic_existing_keys = "";
+  if(number_of_PQs_on_historic_existing_keys != -1){
+    prefix_number_of_PQs_on_historic_existing_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_historic_existing_keys);
   }
-  testing_result_file2 << system_verifier->getCurrentlyDeletedKeysVec2dString(",", "\"", prefix_number_of_PQs) << std::endl;
-
-
+  
+  std::string prefix_number_of_PQs_on_currently_deleted_keys = "";
+  if(number_of_PQs_on_currently_deleted_keys != -1){
+    prefix_number_of_PQs_on_currently_deleted_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_currently_deleted_keys);
+  }
+  
+  std::string prefix_number_of_PQs_on_currently_non_inserted_keys = "";
+  if(number_of_PQs_on_currently_non_inserted_keys != -1){
+    prefix_number_of_PQs_on_currently_non_inserted_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_currently_non_inserted_keys);
+  }
+  
+  // prefix_number_of_PQs_on_existing_keys, prefix_number_of_PQs_on_historic_existing_keys, prefix_number_of_PQs_on_currently_deleted_keys, prefix_number_of_PQs_on_currently_non_inserted_keys
+  // std::cout << "number_of_PQs_on_existing_keys = " << number_of_PQs_on_existing_keys <<  std::endl;
+  // std::cout << "number_of_PQs_on_historic_existing_keys = " << number_of_PQs_on_historic_existing_keys <<  std::endl;
+  // std::cout << "number_of_PQs_on_currently_deleted_keys = " << number_of_PQs_on_currently_deleted_keys <<  std::endl; 
+  // std::cout << "number_of_PQs_on_currently_non_inserted_keys = " << number_of_PQs_on_currently_non_inserted_keys <<  std::endl; 
+  
+  // number_of_PQs_on_existing_keys, number_of_PQs_on_historic_existing_keys, number_of_PQs_on_currently_deleted_keys, number_of_PQs_on_currently_non_inserted_keys
+  if(_env->load_pq_workload == false){
+    // system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, number_of_PQs);
+    system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, 
+      number_of_PQs_on_existing_keys, number_of_PQs_on_historic_existing_keys,
+      number_of_PQs_on_currently_deleted_keys, number_of_PQs_on_currently_non_inserted_keys);
+  }else{
+    // system_verifier->load_workload_with_numbers_of_PQ(N_repetitions, number_of_PQs, _env->workload_file_name);
+    system_verifier->load_workload_with_numbers_of_PQ(N_repetitions, 
+      number_of_PQs_on_existing_keys, number_of_PQs_on_historic_existing_keys, 
+      number_of_PQs_on_currently_deleted_keys, number_of_PQs_on_currently_non_inserted_keys, 
+      _env->workload_file_name);
+  }
+  // testing_result_file2 << system_verifier->getCurrentlyDeletedKeysVec2dString(",", "\"", prefix_number_of_PQs) << std::endl;
+  testing_result_file2 << system_verifier->getCurrentlyDeletedKeysVec2dString(",", "\"", prefix_number_of_PQs_on_currently_deleted_keys) << std::endl;
+  
   auto start_pq = std::chrono::high_resolution_clock::now();
   auto stop_pq = std::chrono::high_resolution_clock::now();
   auto duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
@@ -324,7 +389,9 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
       s = db->SetOptions({{"max_open_files", std::to_string(_env->max_open_files)}}); // is there any compaction happended after this????
     }
 
-    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
+    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs_on_existing_keys << std::endl;
+
     disk_access_count = 0;
     point_query_time = 0;
     start_pq = std::chrono::high_resolution_clock::now();
@@ -395,7 +462,8 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
         string i_round_str = "i_round="+std::to_string(i)+" ";
-        std::string prefix = " (Existing Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        // std::string prefix = " (Existing Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        std::string prefix = " (Existing Keys " + i + prefix_number_of_PQs_on_existing_keys + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
         testing_result_file << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         testing_result_file2 << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         int len_ctb = cache_tombstone_bytes.size();
@@ -429,22 +497,34 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e6 << " (ms) " << std::endl << std::endl;
     testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
-    if (number_of_PQs == -1){
+    // if (number_of_PQs == -1){
+    //   testing_result_file << "number of PQ = " << system_verifier->getAllExistingKeys().size() << std::endl;
+    // }else{
+    //   testing_result_file << "number of PQ = " << number_of_PQs << std::endl;
+    // }
+    if (number_of_PQs_on_existing_keys == -1){
       testing_result_file << "number of PQ = " << system_verifier->getAllExistingKeys().size() << std::endl;
     }else{
-      testing_result_file << "number of PQ = " << number_of_PQs << std::endl;
+      testing_result_file << "number of PQ = " << number_of_PQs_on_existing_keys << std::endl;
     }
     testing_result_file << system_verifier->getAllCount("", "", "", N_repetitions) << std::endl;
     testing_result_file << "block_read_cpu_time = " << 1.0*block_read_cpu_time/N_repetitions/1e3  << "" << std::endl;
  
+
     // std::string prefix = " (Exist Keys) " + system_verifier->getStringOfRDFTypeChosed() + " ";
-    std::string prefix = " (Exist Keys " + prefix_number_of_PQs + ") "+ system_verifier->getStringOfRDFTypeChosed() + " ";
+    // std::string prefix = " (Exist Keys " + prefix_number_of_PQs + ") "+ system_verifier->getStringOfRDFTypeChosed() + " ";
+    std::string prefix = " (Exist Keys " + prefix_number_of_PQs_on_existing_keys + ") "+ system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file2 << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e6 << std::endl;
     testing_result_file2 << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
-    if (number_of_PQs == -1){
+    // if (number_of_PQs == -1){
+    //   testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getAllExistingKeys().size() << std::endl;
+    // }else{
+    //   testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+    // }
+    if (number_of_PQs_on_existing_keys == -1){
       testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getAllExistingKeys().size() << std::endl;
     }else{
-      testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+      testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs_on_existing_keys << std::endl;
     }
     testing_result_file2 << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
     testing_result_file2 << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
@@ -464,7 +544,8 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
     // print_perf_iostats_context(std::cout, 1);
   }
-std::cout << prefix_number_of_PQs << " point_query_time_on_existing_keys_ns = " << point_query_time_on_existing_keys_ns << std::endl;
+  // std::cout << prefix_number_of_PQs << " point_query_time_on_existing_keys_ns = " << point_query_time_on_existing_keys_ns << std::endl;
+  std::cout << prefix_number_of_PQs_on_existing_keys << " point_query_time_on_existing_keys_ns = " << point_query_time_on_existing_keys_ns << std::endl;
 
 std::cout << "!!! Testing On historic-existing Keys " << std::endl;
 system_verifier->set_flag_testing_on_currently_deleted_keys();
@@ -500,7 +581,8 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
       s = db->SetOptions({{"max_open_files", std::to_string(_env->max_open_files)}}); // is there any compaction happended after this????
     }
 
-    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
+    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs_on_historic_existing_keys << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
     start_pq = std::chrono::high_resolution_clock::now();
@@ -570,8 +652,9 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
         string i_round_str = "i_round="+std::to_string(i)+" ";
-        std::string prefix = " (Historcially Exist Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
-        testing_result_file << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
+    // std::string prefix = " (Historcially Exist Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    std::string prefix = " (Historcially Exist Keys " + i + prefix_number_of_PQs_on_historic_existing_keys + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    testing_result_file << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         testing_result_file2 << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         int len_ctb = cache_tombstone_bytes.size();
         int i_ctb = 0;
@@ -604,22 +687,33 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e6 << " (ms) " << std::endl << std::endl;
     testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
-    if (number_of_PQs == -1){
+    // if (number_of_PQs == -1){
+    //   testing_result_file << "number of PQ = " << system_verifier->getHistoricExistingKeys().size() << std::endl;
+    // }else{
+    //   testing_result_file << "number of PQ = " << number_of_PQs << std::endl;
+    // }
+    if (number_of_PQs_on_historic_existing_keys == -1){
       testing_result_file << "number of PQ = " << system_verifier->getHistoricExistingKeys().size() << std::endl;
     }else{
-      testing_result_file << "number of PQ = " << number_of_PQs << std::endl;
+      testing_result_file << "number of PQ = " << number_of_PQs_on_historic_existing_keys << std::endl;
     }
     testing_result_file << system_verifier->getAllCount("", "", "", N_repetitions) << std::endl;
     testing_result_file << "block_read_cpu_time = " << 1.0*block_read_cpu_time/N_repetitions/1e3  << "" << std::endl;
 
     // std::string prefix = " (Historcially Exist Keys) " + system_verifier->getStringOfRDFTypeChosed() + " ";
-    std::string prefix = " (Historcially Exist Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    // std::string prefix = " (Historcially Exist Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    std::string prefix = " (Historcially Exist Keys " + prefix_number_of_PQs_on_historic_existing_keys + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file2 << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e6 << std::endl;
     testing_result_file2 << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
-    if (number_of_PQs == -1){
+    // if (number_of_PQs == -1){
+    //   testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getHistoricExistingKeys().size() << std::endl;
+    // }else{
+    //   testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+    // }
+    if (number_of_PQs_on_historic_existing_keys == -1){
       testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getHistoricExistingKeys().size() << std::endl;
     }else{
-      testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+      testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs_on_historic_existing_keys << std::endl;
     }
     testing_result_file2 << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
     testing_result_file2 << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
@@ -676,7 +770,8 @@ system_verifier->startPQTracing();
       s = db->SetOptions({{"max_open_files", std::to_string(_env->max_open_files)}}); // is there any compaction happended after this????
     }
 
-    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
+    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs_on_currently_deleted_keys << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
     start_pq = std::chrono::high_resolution_clock::now();
@@ -750,7 +845,8 @@ system_verifier->startPQTracing();
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
         string i_round_str = "i_round="+std::to_string(i)+" ";
-        std::string prefix = " (Currently Deleted Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        // std::string prefix = " (Currently Deleted Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        std::string prefix = " (Currently Deleted Keys " + i + prefix_number_of_PQs_on_currently_deleted_keys + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
         testing_result_file << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         testing_result_file2 << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         int len_ctb = cache_tombstone_bytes.size();
@@ -775,7 +871,8 @@ system_verifier->startPQTracing();
       testing_logger.set_to_end(op, testing_result_file);
 
 
-      std::string prefix = " (Currently Deleted Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+      // std::string prefix = " (Currently Deleted Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+      std::string prefix = " (Currently Deleted Keys " + prefix_number_of_PQs_on_currently_deleted_keys + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
       testing_result_file2 << system_verifier->getMapPQTracingInfo(",", "\"", prefix, i) << std::endl;
       testing_result_file2 << system_verifier->getVPQTracingInfo(",", "\"", prefix, i) << std::endl;
       // system_verifier->clearMapPQTracingInfo();
@@ -792,21 +889,32 @@ system_verifier->startPQTracing();
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e6 << " (ms) " << std::endl << std::endl;
     testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
-    if (number_of_PQs == -1){
+    // if (number_of_PQs == -1){
+    //   testing_result_file << "number of PQ = " << system_verifier->getCurrentlyDeletedKeys().size() << std::endl;
+    // }else{
+    //   testing_result_file << "number of PQ = " << number_of_PQs << std::endl;
+    // }
+    if (number_of_PQs_on_currently_deleted_keys == -1){
       testing_result_file << "number of PQ = " << system_verifier->getCurrentlyDeletedKeys().size() << std::endl;
     }else{
-      testing_result_file << "number of PQ = " << number_of_PQs << std::endl;
+      testing_result_file << "number of PQ = " << number_of_PQs_on_currently_deleted_keys << std::endl;
     }
     testing_result_file << system_verifier->getAllCount("", "", "", N_repetitions) << std::endl;
     testing_result_file << "block_read_cpu_time = " << 1.0*block_read_cpu_time/N_repetitions/1e3  << "" << std::endl;
 
-    std::string prefix = " (Currently Deleted Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    // std::string prefix = " (Currently Deleted Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    std::string prefix = " (Currently Deleted Keys " + prefix_number_of_PQs_on_currently_deleted_keys + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file2 << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e6 << std::endl;
     testing_result_file2 << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
-    if (number_of_PQs == -1){
+    // if (number_of_PQs == -1){
+    //   testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getCurrentlyDeletedKeys().size() << std::endl;
+    // }else{
+    //   testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+    // }
+    if (number_of_PQs_on_currently_deleted_keys == -1){
       testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getCurrentlyDeletedKeys().size() << std::endl;
     }else{
-      testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+      testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs_on_currently_deleted_keys << std::endl;
     }
     testing_result_file2 << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
     testing_result_file2 << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
@@ -828,7 +936,8 @@ system_verifier->startPQTracing();
   }
 system_verifier->reset_flag_testing_on_currently_deleted_keys();
 system_verifier->endPQTracing();
-std::cout << prefix_number_of_PQs << " point_query_time_on_currently_deleted_all_ns = " << point_query_time_on_currently_deleted_all_ns << std::endl;
+// std::cout << prefix_number_of_PQs << " point_query_time_on_currently_deleted_all_ns = " << point_query_time_on_currently_deleted_all_ns << std::endl;
+std::cout << prefix_number_of_PQs_on_currently_deleted_keys << " point_query_time_on_currently_deleted_all_ns = " << point_query_time_on_currently_deleted_all_ns << std::endl;
 
 std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 
@@ -864,7 +973,8 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
       s = db->SetOptions({{"max_open_files", std::to_string(_env->max_open_files)}}); // is there any compaction happended after this????
     }
 
-    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
+    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs_on_currently_non_inserted_keys << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
     start_pq = std::chrono::high_resolution_clock::now();
@@ -934,7 +1044,8 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
         string i_round_str = "i_round="+std::to_string(i)+" ";
-        std::string prefix = " (Currently Non-Inserted Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        // std::string prefix = " (Currently Non-Inserted Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        std::string prefix = " (Currently Non-Inserted Keys " + i + prefix_number_of_PQs_on_currently_non_inserted_keys + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
         testing_result_file << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         testing_result_file2 << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         int len_ctb = cache_tombstone_bytes.size();
@@ -969,21 +1080,32 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e6 << " (ms) " << std::endl << std::endl;
     testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
-    if (number_of_PQs == -1){
+    // if (number_of_PQs == -1){
+    //   testing_result_file << "number of PQ = " << system_verifier->getCurrentlyNonInsertedKeys().size() << std::endl;
+    // }else{
+    //   testing_result_file << "number of PQ = " << number_of_PQs << std::endl;
+    // }
+    if (number_of_PQs_on_currently_non_inserted_keys == -1){
       testing_result_file << "number of PQ = " << system_verifier->getCurrentlyNonInsertedKeys().size() << std::endl;
     }else{
-      testing_result_file << "number of PQ = " << number_of_PQs << std::endl;
+      testing_result_file << "number of PQ = " << number_of_PQs_on_currently_non_inserted_keys << std::endl;
     }
     testing_result_file << system_verifier->getAllCount("", "", "", N_repetitions) << std::endl;
     testing_result_file << "block_read_cpu_time = " << 1.0*block_read_cpu_time/N_repetitions/1e3  << "" << std::endl;
 
-    std::string prefix = " (Non-inserted Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    // std::string prefix = " (Non-inserted Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    std::string prefix = " (Non-inserted Keys " + prefix_number_of_PQs_on_currently_non_inserted_keys + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file2 << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e6 << std::endl;
     testing_result_file2 << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
-    if (number_of_PQs == -1){
+    // if (number_of_PQs == -1){
+    //   testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getCurrentlyNonInsertedKeys().size() << std::endl;
+    // }else{
+    //   testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+    // }
+    if (number_of_PQs_on_currently_non_inserted_keys == -1){
       testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getCurrentlyNonInsertedKeys().size() << std::endl;
     }else{
-      testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+      testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs_on_currently_non_inserted_keys << std::endl;
     }
     testing_result_file2 << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
     testing_result_file2 << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;

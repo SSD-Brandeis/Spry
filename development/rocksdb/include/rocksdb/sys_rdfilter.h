@@ -549,7 +549,10 @@ class PLRDF{
         */
         if (itf == one_level_compaction_file_boundaries.end() || (val.second <= file_boundry.first))
         {
-          new_current_level_rdf.push_back(val);
+          // new_current_level_rdf.push_back(val);
+          if(val.first != val.second){
+            new_current_level_rdf.push_back(val);
+          }
           it++;
         }
         /*
@@ -570,8 +573,14 @@ class PLRDF{
         */
         else if (val.first < file_boundry.first && val.second > file_boundry.first && val.second <= file_boundry.second)
         {
-          new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
-          to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, val.second));
+          // new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
+          // to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, val.second));
+          if(val.first != file_boundry.first){
+            new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
+          }
+          if(file_boundry.first != val.second){
+            to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, val.second));
+          }
           it++;
         }
         /*
@@ -582,7 +591,10 @@ class PLRDF{
         */
         else if (val.first >= file_boundry.first && val.second <= file_boundry.second)
         {
-          to_be_added_in_next_level_rdf.push_back(val);
+          // to_be_added_in_next_level_rdf.push_back(val);
+          if(val.first != val.second){
+            to_be_added_in_next_level_rdf.push_back(val);
+          }
           it++;
         }
         /*
@@ -606,7 +618,10 @@ class PLRDF{
         */
         else if (val.first < file_boundry.first && val.second > file_boundry.second)
         {
-          new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
+          // new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
+          if(val.first != file_boundry.first){
+            new_current_level_rdf.push_back(std::make_pair(val.first, file_boundry.first));
+          }
           to_be_added_in_next_level_rdf.push_back(std::make_pair(file_boundry.first, file_boundry.second + 1));
           (*it).first = file_boundry.second + 1;
           if((*it).first >= (*it).second){ it++; } // <------------------------

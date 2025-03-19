@@ -35,12 +35,20 @@ int main(int argc, char *argv[]) {
   // int KEY_SIZE = checking::SystemVerifier::getSystemVerifier()->getKeySize();
   // system_verifier->setRDFTypes(_env->RDFTypes);
   const long long N_repetitions = checking::SystemVerifier::EXPERIMENT_REPETITION_TIMES;
-  int number_of_PQs = env_gen_pq.number_of_PQs;
+//   int number_of_PQs = env_gen_pq.number_of_PQs;
+  int number_of_PQs_on_existing_keys = env_gen_pq.number_of_PQs_on_existing_keys;
+  int number_of_PQs_on_historic_existing_keys = env_gen_pq.number_of_PQs_on_historic_existing_keys;
+  int number_of_PQs_on_currently_deleted_keys = env_gen_pq.number_of_PQs_on_currently_deleted_keys;
+  int number_of_PQs_on_currently_non_inserted_keys = env_gen_pq.number_of_PQs_on_currently_non_inserted_keys;
+
   std::string prefix_number_of_PQs = "";
-  if(number_of_PQs != -1){
-    // prefix_number_of_PQs = "fixed #PQ = " + std::to_string(number_of_PQs);
-  }
-  system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, number_of_PQs);
+    //   if(number_of_PQs != -1){
+    //     // prefix_number_of_PQs = "fixed #PQ = " + std::to_string(number_of_PQs);
+    //   }
+    // system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, number_of_PQs);
+  system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, 
+    number_of_PQs_on_existing_keys, number_of_PQs_on_historic_existing_keys,
+    number_of_PQs_on_currently_deleted_keys, number_of_PQs_on_currently_non_inserted_keys);
 
   
   map<long long, string> ground_truth = system_verifier->getGroundTruth();
@@ -198,10 +206,10 @@ int main(int argc, char *argv[]) {
 
   // #PQ = fixed
   for(int i = 0; i < N_repetitions; i++){
-    const string pq_workload_all_existing_keys_file_name = env_gen_pq.workload_file_name + "_all_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
-    const string pq_workload_historic_existing_keys_file_name = env_gen_pq.workload_file_name + "_historic_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
-    const string pq_workload_currently_deleted_keys_file_name = env_gen_pq.workload_file_name + "_currently_deleted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
-    const string pq_workload_currently_non_inserted_keys_file_name = env_gen_pq.workload_file_name + "_currently_non_inserted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+    const string pq_workload_all_existing_keys_file_name = env_gen_pq.workload_file_name + "_all_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs_on_existing_keys);
+    const string pq_workload_historic_existing_keys_file_name = env_gen_pq.workload_file_name + "_historic_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs_on_historic_existing_keys);
+    const string pq_workload_currently_deleted_keys_file_name = env_gen_pq.workload_file_name + "_currently_deleted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs_on_currently_deleted_keys);
+    const string pq_workload_currently_non_inserted_keys_file_name = env_gen_pq.workload_file_name + "_currently_non_inserted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs_on_currently_non_inserted_keys);
     
     vector<long long> workload_all_existing_keys = system_verifier->getAllExistingKeysAtNRound(i);
     vector<long long> workload_historic_existing_keys = system_verifier->getHistoricExistingKeysAtNRound(i);
@@ -224,10 +232,10 @@ int main(int argc, char *argv[]) {
 
   // #PQ = fixed
   for(int i = 0; i < N_repetitions; i++){
-    const string pq_workload_all_existing_keys_file_name = env_gen_pq.workload_file_name + "_all_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
-    const string pq_workload_historic_existing_keys_file_name = env_gen_pq.workload_file_name + "_historic_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
-    const string pq_workload_currently_deleted_keys_file_name = env_gen_pq.workload_file_name + "_currently_deleted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
-    const string pq_workload_currently_non_inserted_keys_file_name = env_gen_pq.workload_file_name + "_currently_non_inserted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+    const string pq_workload_all_existing_keys_file_name = env_gen_pq.workload_file_name + "_all_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs_on_existing_keys);
+    const string pq_workload_historic_existing_keys_file_name = env_gen_pq.workload_file_name + "_historic_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs_on_historic_existing_keys);
+    const string pq_workload_currently_deleted_keys_file_name = env_gen_pq.workload_file_name + "_currently_deleted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs_on_currently_deleted_keys);
+    const string pq_workload_currently_non_inserted_keys_file_name = env_gen_pq.workload_file_name + "_currently_non_inserted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs_on_currently_non_inserted_keys);
     
     vector<long long> workload_all_existing_keys = system_verifier->getAllExistingKeysAtNRound(i);
     vector<long long> workload_historic_existing_keys = system_verifier->getHistoricExistingKeysAtNRound(i);

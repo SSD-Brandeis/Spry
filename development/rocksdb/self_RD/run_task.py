@@ -17,7 +17,7 @@ params = {
     "--max_open_files": [20],
     "--skip_reading_RD_blocks": [1], # control on block_based_table_reader, but not on table_cache, cannot set to 1 (skip range) if RDF will answer keyMayBeDeleted, basically just set it to 0 if each time just running on 1 RDF_TYPE
     #"--number_of_PQ": [5000*100],
-    "--number_of_PQ": [5000], # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+    # "--number_of_PQ": [5000], # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
     "--system_check_test_on_all_PQ": [0], # for debugging, 0: off, 1: on, equal to "--number_of_PQ": [-1]
     "--bb": [0],
     "--key_size_to_insert": [12],
@@ -112,9 +112,14 @@ def gen_insertion_workload(
 
 def gen_PQ_workload(
         file_path: int,
-        number_of_PQ: int,
+        # number_of_PQ: int,
+        number_of_PQ_on_existing_keys: int,
+        number_of_PQ_on_historic_existing_keys: int,
+        number_of_PQ_on_currently_deleted_keys: int,
+        number_of_PQ_on_currently_non_inserted_keys: int,
 ):
-    task =  "gen_pq_workload/main_gen_workload" + f" --workload_filename {file_path} --number_of_PQ {number_of_PQ}"
+    # task =  "gen_pq_workload/main_gen_workload" + f" --workload_filename {file_path} --number_of_PQ {number_of_PQ}"
+    task =  "gen_pq_workload/main_gen_workload" + f" --workload_filename {file_path}  --number_of_PQ_on_existing_keys {number_of_PQ_on_existing_keys} --number_of_PQ_on_historic_existing_keys {number_of_PQ_on_historic_existing_keys} --number_of_PQ_on_currently_deleted_keys {number_of_PQ_on_currently_deleted_keys} --number_of_PQ_on_currently_non_inserted_keys {number_of_PQ_on_currently_non_inserted_keys}"
     print(task)
     os.system(task)
 
@@ -228,6 +233,12 @@ params3[ "--flag_skip_compaction_trivial_move"] = [1]
 params3[ "--skip_reading_RD_blocks"] = [1]
 # params3[ "--show_surf_compaction_info"] = [1]
 # params3[ "--max_open_files"] = [1]
+# params3["--number_of_PQ"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+params3["--number_of_PQ_on_existing_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+params3["--number_of_PQ_on_historic_existing_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+params3["--number_of_PQ_on_currently_deleted_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+params3["--number_of_PQ_on_currently_non_inserted_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+
 
 # if True:
 if False:
@@ -246,7 +257,11 @@ if False:
         print("Gen PQ workload")
         gen_PQ_workload(
                 file_path=workload_filename,
-                number_of_PQ=params3["--number_of_PQ"][0],
+                # number_of_PQ=params3["--number_of_PQ"][0],
+                number_of_PQ_on_existing_keys=params3["--number_of_PQ_on_existing_keys"][0],
+                number_of_PQ_on_historic_existing_keys=params3["--number_of_PQ_on_historic_existing_keys"][0],
+                number_of_PQ_on_currently_deleted_keys=params3["--number_of_PQ_on_currently_deleted_keys"][0],
+                number_of_PQ_on_currently_non_inserted_keys=params3["--number_of_PQ_on_currently_non_inserted_keys"][0],
         )
 
 

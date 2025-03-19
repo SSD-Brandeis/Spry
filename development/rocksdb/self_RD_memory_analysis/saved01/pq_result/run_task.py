@@ -17,7 +17,7 @@ params = {
     "--max_open_files": [20],
     "--skip_reading_RD_blocks": [1], # control on block_based_table_reader, but not on table_cache, cannot set to 1 (skip range) if RDF will answer keyMayBeDeleted, basically just set it to 0 if each time just running on 1 RDF_TYPE
     #"--number_of_PQ": [5000*100],
-    # "--number_of_PQ": [5000], # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+    "--number_of_PQ": [5000], # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
     "--system_check_test_on_all_PQ": [0], # for debugging, 0: off, 1: on, equal to "--number_of_PQ": [-1]
     "--bb": [0],
     "--key_size_to_insert": [12],
@@ -233,13 +233,6 @@ params3[ "--flag_skip_compaction_trivial_move"] = [1]
 # params3[ "--surf__key_len_in_bytes"] = [5]
 params3[ "--skip_reading_RD_blocks"] = [1]
 # params3[ "--show_surf_compaction_info"] = [1]
-# params3["--max_open_files"] = [1]
-# params3["--number_of_PQ"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
-params3["--number_of_PQ_on_existing_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
-params3["--number_of_PQ_on_historic_existing_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
-params3["--number_of_PQ_on_currently_deleted_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
-params3["--number_of_PQ_on_currently_non_inserted_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
-
 
 #if True:
 if False:
@@ -258,11 +251,7 @@ if False:
         print("Gen PQ workload")
         gen_PQ_workload(
                 file_path=workload_filename,
-                # number_of_PQ=params3["--number_of_PQ"][0],
-                number_of_PQ_on_existing_keys=params3["--number_of_PQ_on_existing_keys"][0],
-                number_of_PQ_on_historic_existing_keys=params3["--number_of_PQ_on_historic_existing_keys"][0],
-                number_of_PQ_on_currently_deleted_keys=params3["--number_of_PQ_on_currently_deleted_keys"][0],
-                number_of_PQ_on_currently_non_inserted_keys=params3["--number_of_PQ_on_currently_non_inserted_keys"][0],
+                number_of_PQ=params3["--number_of_PQ"][0],
         )
 
 
@@ -321,10 +310,11 @@ rdf_types = [
 #     # "SuRF_LF_SPLIT_RDF": {"--surf__key_len_in_bytes": [3]}
 # }
 
+
 # for i_rdf, (rdf_type, local_param) in enumerate(rdf_types.items()):
 for i_rdf, rdf_param in enumerate(rdf_types):
     # if i_rdf > 0:
-    #    break
+    #     break
     # if i_rdf < 1:
     #    continue;
     # if i_rdf > 1:
@@ -343,8 +333,8 @@ for i_rdf, rdf_param in enumerate(rdf_types):
     #    continue
     # if i_rdf > 10 and i_rdf < 15:
     #     continue
-    #if i_rdf < 16:
-    #   continue
+    # if i_rdf < 16:
+    #    continue
     #if i_rdf > 18:
     #    continue
     # if i_rdf < 17:

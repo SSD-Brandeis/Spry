@@ -50,13 +50,29 @@ public:
     void start(EmuEnv* _env);
     void recordCurrentMemoryFootprint(DB** db_ptr2);
     void writeRecord(DB** db_ptr2);
-    void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, 
-                            ReadOptions& read_op, EmuEnv* _env, int number_of_PQs = -1,
-                            string kDBPath = "/tmp/cs561_project1");
+    // void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, 
+    //                         ReadOptions& read_op, EmuEnv* _env, int number_of_PQs = -1,
+    //                         string kDBPath = "/tmp/cs561_project1");
+    // void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, 
+    //                         ReadOptions& read_op, EmuEnv* _env,
+    //                         int number_of_PQs_on_existing_keys = -1,
+    //                         int number_of_PQs_on_historic_existing_keys = -1,
+    //                         int number_of_PQs_on_currently_deleted_keys = -1,
+    //                         int number_of_PQs_on_currently_non_inserted_keys = -1,
+    //                         string kDBPath = "/tmp/cs561_project1");
 
+    // void runPQonCurrentlyDeletedKeys(
+    //   uint i_insertion, DB** db_ptr2, Options& op, WriteOptions& write_op, 
+    //   ReadOptions& read_op, EmuEnv* _env, int number_of_PQs, string kDBPath);
+      
     void runPQonCurrentlyDeletedKeys(
       uint i_insertion, DB** db_ptr2, Options& op, WriteOptions& write_op, 
-      ReadOptions& read_op, EmuEnv* _env, int number_of_PQs, string kDBPath);
+      ReadOptions& read_op, EmuEnv* _env,
+      // int number_of_PQs_on_existing_keys,
+      // int number_of_PQs_on_historic_existing_keys,
+      int number_of_PQs_on_currently_deleted_keys,
+      // int number_of_PQs_on_currently_non_inserted_keys,
+      string kDBPath);
       
     void end();
 };
@@ -359,10 +375,10 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
                                                         ReadOptions& read_op, 
                                                         EmuEnv* _env,
                                                         // int number_of_PQs,
-                                                        int number_of_PQs_on_existing_keys,
-                                                        int number_of_PQs_on_historic_existing_keys,
+                                                        // int number_of_PQs_on_existing_keys,
+                                                        // int number_of_PQs_on_historic_existing_keys,
                                                         int number_of_PQs_on_currently_deleted_keys,
-                                                        int number_of_PQs_on_currently_non_inserted_keys,
+                                                        // int number_of_PQs_on_currently_non_inserted_keys,
                                                         string kDBPath){
                                                           
   DB* db = *db_ptr2;
@@ -383,33 +399,34 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
   //   prefix_number_of_PQs = "fixed #PQ = " + std::to_string(number_of_PQs);
   // }
   
-  std::string prefix_number_of_PQs_on_existing_keys = "";
-  if(number_of_PQs_on_existing_keys != -1){
-    prefix_number_of_PQs_on_existing_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_existing_keys);
-  }
+  // std::string prefix_number_of_PQs_on_existing_keys = "";
+  // if(number_of_PQs_on_existing_keys != -1){
+  //   prefix_number_of_PQs_on_existing_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_existing_keys);
+  // }
   
-  std::string prefix_number_of_PQs_on_historic_existing_keys = "";
-  if(number_of_PQs_on_historic_existing_keys != -1){
-    prefix_number_of_PQs_on_historic_existing_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_historic_existing_keys);
-  }
+  // std::string prefix_number_of_PQs_on_historic_existing_keys = "";
+  // if(number_of_PQs_on_historic_existing_keys != -1){
+  //   prefix_number_of_PQs_on_historic_existing_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_historic_existing_keys);
+  // }
   
   std::string prefix_number_of_PQs_on_currently_deleted_keys = "";
   if(number_of_PQs_on_currently_deleted_keys != -1){
     prefix_number_of_PQs_on_currently_deleted_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_currently_deleted_keys);
   }
   
-  std::string prefix_number_of_PQs_on_currently_non_inserted_keys = "";
-  if(number_of_PQs_on_currently_non_inserted_keys != -1){
-    prefix_number_of_PQs_on_currently_non_inserted_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_currently_non_inserted_keys);
-  }
+  // std::string prefix_number_of_PQs_on_currently_non_inserted_keys = "";
+  // if(number_of_PQs_on_currently_non_inserted_keys != -1){
+  //   prefix_number_of_PQs_on_currently_non_inserted_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_currently_non_inserted_keys);
+  // }
 
   // system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, number_of_PQs);
+  int number_of_PQs_on_existing_keys_tmp = 10, number_of_PQs_on_historic_existing_keys_tmp = 10, number_of_PQs_on_currently_non_inserted_keys_tmp = 10;
   system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, 
-    number_of_PQs_on_existing_keys, number_of_PQs_on_historic_existing_keys,
-    number_of_PQs_on_currently_deleted_keys, number_of_PQs_on_currently_non_inserted_keys);
+    number_of_PQs_on_existing_keys_tmp, number_of_PQs_on_historic_existing_keys_tmp,
+    number_of_PQs_on_currently_deleted_keys, number_of_PQs_on_currently_non_inserted_keys_tmp);
 
   string i_insertion_str = "i_insert="+std::to_string(i_insertion)+" ";
-  testing_result_file_during_insertion << system_verifier->getCurrentlyDeletedKeysVec2dString(",", "\"", i_insertion_str+prefix_number_of_PQs) << std::endl;
+  testing_result_file_during_insertion << system_verifier->getCurrentlyDeletedKeysVec2dString(",", "\"", i_insertion_str+prefix_number_of_PQs_on_currently_deleted_keys) << std::endl;
 
   auto start_pq = std::chrono::high_resolution_clock::now();
   auto stop_pq = std::chrono::high_resolution_clock::now();
@@ -446,7 +463,7 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
       testing_logger.set_to_start(op);
 
       std::vector<uint64_t> cache_tombstone_bytes;
-      for(auto x: system_verifier->getHistoricExistingKeysAtNRound(i)){
+      for(auto x: system_verifier->getCurrentlyDeletedKeysAtNRound(i)){
         bool gt_is_exist = system_verifier->isKeyExist(x);
         std::string gt_value = system_verifier->get(x);
 
@@ -494,7 +511,7 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
         string i_round_str = "i_round="+std::to_string(i)+" ";
-        std::string prefix = " (Historcially Exist Keys " + i_insertion_str + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        std::string prefix = " (Currently Deleted Keys " + i_insertion_str + prefix_number_of_PQs_on_currently_deleted_keys + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
         testing_result_file_during_insertion << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         int len_ctb = cache_tombstone_bytes.size();
         int i_ctb = 0;
@@ -525,17 +542,17 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
     running_log_during_insertion << system_verifier->getAllCount("", "", "", N_repetitions) << std::endl;
     running_log_during_insertion << "block_read_cpu_time = " << 1.0*block_read_cpu_time/N_repetitions/1e3  << "" << std::endl;
 
-    std::string prefix = " (Historcially Exist Keys " + i_insertion_str + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    std::string prefix = " (Currently Deleted Keys " + i_insertion_str + prefix_number_of_PQs_on_currently_deleted_keys + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file_during_insertion << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e6 << std::endl;
     testing_result_file_during_insertion << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
-    if (number_of_PQs == -1){
-      testing_result_file_during_insertion << ",\"" + prefix + " number of PQ\" : " << system_verifier->getHistoricExistingKeys().size() << std::endl;
+    if (number_of_PQs_on_currently_deleted_keys == -1){
+      testing_result_file_during_insertion << ",\"" + prefix + " number of PQ\" : " << system_verifier->getCurrentlyDeletedKeys().size() << std::endl;
     }else{
-      testing_result_file_during_insertion << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+      testing_result_file_during_insertion << ",\"" + prefix + " number of PQ\" : " << prefix_number_of_PQs_on_currently_deleted_keys << std::endl;
     }
     testing_result_file_during_insertion << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
     testing_result_file_during_insertion << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
-
+    
     testing_logger.output_statistics(running_log_during_insertion, testing_result_file_during_insertion, prefix);
   }
   system_verifier->reset_flag_testing_on_currently_deleted_keys();
