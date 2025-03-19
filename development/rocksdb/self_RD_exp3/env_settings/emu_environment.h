@@ -277,7 +277,11 @@ public:
   bool gen_workload = false;
   bool load_pq_workload = true;
   bool skip_reading_RD_blocks = false;
-  int number_of_PQ = 5000;
+  // int number_of_PQ = 5000;
+  int number_of_PQs_on_existing_keys = 5000;
+  int number_of_PQs_on_historic_existing_keys = 5000;
+  int number_of_PQs_on_currently_deleted_keys = 5000;
+  int number_of_PQs_on_currently_non_inserted_keys = 5000;
   bool system_check_test_on_all_PQ = false;
   bool log_during_insertion = false;
   bool surf_use_condensed_digit_key = true;

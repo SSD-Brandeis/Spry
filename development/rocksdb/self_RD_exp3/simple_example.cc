@@ -123,12 +123,28 @@ int main(int argc, char *argv[]) {
     std::cout << "!!! runQPVerification start " << std::endl;
 
     if(_env->system_check_test_on_all_PQ == true){
-      int numbers_of_PQs = -1;
-      verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, numbers_of_PQs, kDBPath);
+      // int numbers_of_PQs = -1;
+      // verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, numbers_of_PQs, kDBPath);      
+      int number_of_PQs_on_existing_keys = -1;
+      int number_of_PQs_on_historic_existing_keys = -1;
+      int number_of_PQs_on_currently_deleted_keys = -1;
+      int number_of_PQs_on_currently_non_inserted_keys = -1;
+      verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, 
+        number_of_PQs_on_existing_keys, number_of_PQs_on_historic_existing_keys, 
+        number_of_PQs_on_currently_deleted_keys, number_of_PQs_on_currently_non_inserted_keys, 
+        kDBPath);
     }
     {
-      int numbers_of_PQs = _env->number_of_PQ;
-      verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, numbers_of_PQs, kDBPath);
+      // int numbers_of_PQs = _env->number_of_PQ;
+      // verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, numbers_of_PQs, kDBPath);
+      int number_of_PQs_on_existing_keys = _env->number_of_PQs_on_existing_keys;  
+      int number_of_PQs_on_historic_existing_keys = _env->number_of_PQs_on_historic_existing_keys;  
+      int number_of_PQs_on_currently_deleted_keys = _env->number_of_PQs_on_currently_deleted_keys;  
+      int number_of_PQs_on_currently_non_inserted_keys = _env->number_of_PQs_on_currently_non_inserted_keys;  
+      verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, 
+        number_of_PQs_on_existing_keys, number_of_PQs_on_historic_existing_keys, 
+        number_of_PQs_on_currently_deleted_keys, number_of_PQs_on_currently_non_inserted_keys, 
+        kDBPath);
     }
     verification_runner::endPQVerification();
   }

@@ -358,7 +358,11 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
                                                         WriteOptions& write_op, 
                                                         ReadOptions& read_op, 
                                                         EmuEnv* _env,
-                                                        int number_of_PQs,
+                                                        // int number_of_PQs,
+                                                        int number_of_PQs_on_existing_keys,
+                                                        int number_of_PQs_on_historic_existing_keys,
+                                                        int number_of_PQs_on_currently_deleted_keys,
+                                                        int number_of_PQs_on_currently_non_inserted_keys,
                                                         string kDBPath){
                                                           
   DB* db = *db_ptr2;
@@ -374,11 +378,35 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
   long long disk_access_count = 0;
 
   
-  std::string prefix_number_of_PQs = "";
-  if(number_of_PQs != -1){
-    prefix_number_of_PQs = "fixed #PQ = " + std::to_string(number_of_PQs);
+  // std::string prefix_number_of_PQs = "";
+  // if(number_of_PQs != -1){
+  //   prefix_number_of_PQs = "fixed #PQ = " + std::to_string(number_of_PQs);
+  // }
+  
+  std::string prefix_number_of_PQs_on_existing_keys = "";
+  if(number_of_PQs_on_existing_keys != -1){
+    prefix_number_of_PQs_on_existing_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_existing_keys);
   }
-  system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, number_of_PQs);
+  
+  std::string prefix_number_of_PQs_on_historic_existing_keys = "";
+  if(number_of_PQs_on_historic_existing_keys != -1){
+    prefix_number_of_PQs_on_historic_existing_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_historic_existing_keys);
+  }
+  
+  std::string prefix_number_of_PQs_on_currently_deleted_keys = "";
+  if(number_of_PQs_on_currently_deleted_keys != -1){
+    prefix_number_of_PQs_on_currently_deleted_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_currently_deleted_keys);
+  }
+  
+  std::string prefix_number_of_PQs_on_currently_non_inserted_keys = "";
+  if(number_of_PQs_on_currently_non_inserted_keys != -1){
+    prefix_number_of_PQs_on_currently_non_inserted_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_currently_non_inserted_keys);
+  }
+
+  // system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, number_of_PQs);
+  system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, 
+    number_of_PQs_on_existing_keys, number_of_PQs_on_historic_existing_keys,
+    number_of_PQs_on_currently_deleted_keys, number_of_PQs_on_currently_non_inserted_keys);
 
   string i_insertion_str = "i_insert="+std::to_string(i_insertion)+" ";
   testing_result_file_during_insertion << system_verifier->getCurrentlyDeletedKeysVec2dString(",", "\"", i_insertion_str+prefix_number_of_PQs) << std::endl;

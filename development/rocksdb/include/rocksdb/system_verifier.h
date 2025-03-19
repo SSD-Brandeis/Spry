@@ -816,65 +816,118 @@ namespace checking {
     vector<vector<long long>> workload_currently_deleted_keys;
     vector<vector<long long>> workload_currently_non_inserted_keys;
 
-    void gen_workload_with_numbers_of_PQ(int N_repetitions, int number_of_PQs){
+    // void gen_workload_with_numbers_of_PQ(int N_repetitions, int number_of_PQs){
+    void gen_workload_with_numbers_of_PQ(int N_repetitions, 
+      int number_of_PQs_on_existing_keys, int number_of_PQs_on_historic_existing_keys,
+      int number_of_PQs_on_currently_deleted_keys, int number_of_PQs_on_currently_non_inserted_keys){
       workload_all_existing_keys.clear();
       workload_historic_existing_keys.clear();
       workload_currently_deleted_keys.clear();
       workload_currently_non_inserted_keys.clear();
 
 
-      genCurrentlyNonInsertedKeys(1000);
+      // genCurrentlyNonInsertedKeys(number_of_PQs);
+      genCurrentlyNonInsertedKeys(number_of_PQs_on_currently_non_inserted_keys);
       
       vector<long long> all_existing_keys = getAllExistingKeys(); 
       vector<long long> historic_existing_keys = getHistoricExistingKeys();
       vector<long long> currently_deleted_keys = getCurrentlyDeletedKeys();
       vector<long long> currently_non_inserted_keys = getCurrentlyNonInsertedKeys();
 
-      if(number_of_PQs == -1){
-        for(int i = 0; i < N_repetitions; i++){
-          workload_all_existing_keys.push_back(all_existing_keys);
-          workload_historic_existing_keys.push_back(historic_existing_keys);
-          workload_currently_deleted_keys.push_back(currently_deleted_keys);
-          workload_currently_non_inserted_keys.push_back(currently_non_inserted_keys);
-        }
+      // if(number_of_PQs == -1){
+      //   for(int i = 0; i < N_repetitions; i++){
+      //     workload_all_existing_keys.push_back(all_existing_keys);
+      //     workload_historic_existing_keys.push_back(historic_existing_keys);
+      //     workload_currently_deleted_keys.push_back(currently_deleted_keys);
+      //     workload_currently_non_inserted_keys.push_back(currently_non_inserted_keys);
+      //   }
 
-        return;
-      }
+      //   return;
+      // }
 
-
-      workload_all_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs));
-      workload_historic_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs));
-      workload_currently_deleted_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs));
-      workload_currently_non_inserted_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs));
+      // int number_of_PQs_on_existing_keys, int number_of_PQs_on_historic_existing_keys,
+      // int number_of_PQs_on_currently_deleted_keys, int number_of_PQs_on_currently_non_inserted_keys
+      
 
       size_t len_all_existing_keys = all_existing_keys.size();
       size_t len_historic_existing_keys = historic_existing_keys.size();
       size_t len_currently_deleted_keys = currently_deleted_keys.size();
       size_t len_currently_non_inserted_keys = currently_non_inserted_keys.size();
-      
-      if(len_currently_deleted_keys <= 0){
-        workload_currently_deleted_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
-      }
-      
-      //random picking num_of_PQs points
-      for(int i = 0; i < N_repetitions; i++){
-        int idx;
-        for(int j = 0; j < number_of_PQs; j++){
-          idx = (int) (rand() % len_all_existing_keys);
-          workload_all_existing_keys[i][j] = all_existing_keys[idx];
 
-          idx = (int) (rand() % len_historic_existing_keys);
-          workload_historic_existing_keys[i][j] = historic_existing_keys[idx];
-
-          if(len_currently_deleted_keys > 0){
-            idx = (int) (rand() % len_currently_deleted_keys);
-            workload_currently_deleted_keys[i][j] = currently_deleted_keys[idx];
+      if(number_of_PQs_on_existing_keys == -1){
+        for(int i = 0; i < N_repetitions; i++){
+          workload_all_existing_keys.push_back(all_existing_keys);
+        }
+      }else{
+        workload_all_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs_on_existing_keys));
+        
+        //random picking num_of_PQs points
+        for(int i = 0; i < N_repetitions; i++){
+          int idx;
+          for(int j = 0; j < number_of_PQs_on_existing_keys; j++){
+            idx = (int) (rand() % len_all_existing_keys);
+            workload_all_existing_keys[i][j] = all_existing_keys[idx];
           }
-
-          idx = (int) (rand() % len_currently_non_inserted_keys);
-          workload_currently_non_inserted_keys[i][j] = currently_non_inserted_keys[idx];
         }
       }
+
+      if(number_of_PQs_on_historic_existing_keys == -1){
+        for(int i = 0; i < N_repetitions; i++){
+          workload_historic_existing_keys.push_back(historic_existing_keys);
+        }
+      }else{
+        workload_historic_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs_on_historic_existing_keys));
+        
+        //random picking num_of_PQs points
+        for(int i = 0; i < N_repetitions; i++){
+          int idx;
+          for(int j = 0; j < number_of_PQs_on_historic_existing_keys; j++){
+            idx = (int) (rand() % len_historic_existing_keys);
+            workload_historic_existing_keys[i][j] = historic_existing_keys[idx];
+          }
+        }
+      }
+
+      if(number_of_PQs_on_currently_deleted_keys == -1){
+        for(int i = 0; i < N_repetitions; i++){
+          workload_currently_deleted_keys.push_back(currently_deleted_keys);
+        }
+      }else{
+        if(len_currently_deleted_keys <= 0){
+          workload_currently_deleted_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
+        }else{
+          workload_currently_deleted_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs_on_currently_deleted_keys));
+          
+          //random picking num_of_PQs points
+          for(int i = 0; i < N_repetitions; i++){
+            int idx;
+            for(int j = 0; j < number_of_PQs_on_currently_deleted_keys; j++){
+              // if(len_currently_deleted_keys > 0){
+              idx = (int) (rand() % len_currently_deleted_keys);
+              workload_currently_deleted_keys[i][j] = currently_deleted_keys[idx];
+              // }
+            }
+          }
+        }
+      }
+
+      if(number_of_PQs_on_currently_non_inserted_keys == -1){
+        for(int i = 0; i < N_repetitions; i++){
+          workload_currently_non_inserted_keys.push_back(currently_non_inserted_keys);
+        }
+      }else{
+        workload_currently_non_inserted_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs_on_currently_non_inserted_keys));
+
+        //random picking num_of_PQs points
+        for(int i = 0; i < N_repetitions; i++){
+          int idx;
+          for(int j = 0; j < number_of_PQs_on_currently_non_inserted_keys; j++){
+            idx = (int) (rand() % len_currently_non_inserted_keys);
+            workload_currently_non_inserted_keys[i][j] = currently_non_inserted_keys[idx];
+          }
+        }
+      }
+      
 
       return;
     }
@@ -958,8 +1011,12 @@ namespace checking {
         return v;
     }
 
-    void load_workload_with_numbers_of_PQ(int N_repetitions, int number_of_PQs, const std::string workload_file_name){
-      {
+    // void load_workload_with_numbers_of_PQ(int N_repetitions, int number_of_PQs, const std::string workload_file_name){
+      void load_workload_with_numbers_of_PQ(int N_repetitions, 
+        int number_of_PQs_on_existing_keys, int number_of_PQs_on_historic_existing_keys,
+        int number_of_PQs_on_currently_deleted_keys, int number_of_PQs_on_currently_non_inserted_keys, 
+        const std::string workload_file_name){
+        {
         // const string pq_workload_ground_truth_file_name = "../../development/self_RD/" + workload_file_name + "_ground_truth";
         // const string pq_workload_historic_existing_file_name = "../../development/self_RD/" +  workload_file_name + "_historic_existing";
         // const string pq_workload_currently_non_existed_file_name = "../../development/self_RD/" + workload_file_name + "_currently_non_existed";
@@ -988,102 +1045,220 @@ namespace checking {
       workload_historic_existing_keys.clear();
       workload_currently_deleted_keys.clear();
       workload_currently_non_inserted_keys.clear();
+
       
-
-      if(number_of_PQs == -1){
-        
+      if(number_of_PQs_on_existing_keys == -1){
         workload_all_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
-        workload_historic_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
-        workload_currently_deleted_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
-        workload_currently_non_inserted_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
+        {
+          const string pq_workload_all_existing_keys_file_name = workload_file_name + "_all_existing_keys";
+          
+          for(int i = 0; i < N_repetitions; i++){
+            // Read the vector back from the file
+            std::cout << "load " << pq_workload_all_existing_keys_file_name << std::endl;
+            auto read_back_vector_all_existing_keys = readVectorFromFile<long long>(pq_workload_all_existing_keys_file_name);
 
-        //All keys
-          {
-            // const string pq_workload_all_existing_keys_file_name = "../../development/self_RD/" + workload_file_name + "_all_existing_keys";
-            // const string pq_workload_historic_existing_keys_file_name = "../../development/self_RD/" + workload_file_name + "_historic_existing_keys";
-            // const string pq_workload_currently_deleted_keys_file_name = "../../development/self_RD/" + workload_file_name + "_currently_deleted_keys";
-            // const string pq_workload_currently_non_inserted_keys_file_name = "../../development/self_RD/" + workload_file_name + "_currently_non_inserted_keys";
-            
-            const string pq_workload_all_existing_keys_file_name = workload_file_name + "_all_existing_keys";
-            const string pq_workload_historic_existing_keys_file_name = workload_file_name + "_historic_existing_keys";
-            const string pq_workload_currently_deleted_keys_file_name = workload_file_name + "_currently_deleted_keys";
-            const string pq_workload_currently_non_inserted_keys_file_name = workload_file_name + "_currently_non_inserted_keys";
-            
-            // vector<long long> workload_all_existing_keys = system_verifier->getAllExistingKeys();
-            // vector<long long> workload_historic_existing_keys = system_verifier->getHistoricExistingKeys();
-            // vector<long long> workload_currently_deleted_keys = system_verifier->getCurrentlyDeletedKeys();
-            // vector<long long> workload_currently_non_inserted_keys = system_verifier->getCurrentlyNonInsertedKeys(); 
-
-            // all_existing_keys = workload_all_existing_keys;
-            // historic_existing_keys = workload_historic_existing_keys;
-            // currently_deleted_keys = workload_currently_deleted_keys;
-            // currently_non_inserted_keys = workload_currently_non_inserted_keys;
-              
-            for(int i = 0; i < N_repetitions; i++){
-              // Read the vector back from the file
-              std::cout << "load " << pq_workload_all_existing_keys_file_name << std::endl;
-              auto read_back_vector_all_existing_keys = readVectorFromFile<long long>(pq_workload_all_existing_keys_file_name);
-
-              // Read the vector back from the file
-              std::cout << "load " << pq_workload_historic_existing_keys_file_name << std::endl;
-              auto read_back_vector_historic_existing_keys = readVectorFromFile<long long>(pq_workload_historic_existing_keys_file_name);
-            
-              // Read the vector back from the file
-              std::cout << "load " << pq_workload_currently_deleted_keys_file_name << std::endl;
-              auto read_back_vector_currently_deleted_keys = readVectorFromFile<long long>(pq_workload_currently_deleted_keys_file_name);
-
-              // Read the vector back from the file
-              std::cout << "load " << pq_workload_currently_non_inserted_keys_file_name << std::endl;
-              auto read_back_vector_currently_non_inserted_keys = readVectorFromFile<long long>(pq_workload_currently_non_inserted_keys_file_name);
-
-              workload_all_existing_keys[i] = (read_back_vector_all_existing_keys);
-              workload_historic_existing_keys[i] = (read_back_vector_historic_existing_keys);
-              workload_currently_deleted_keys[i] = (read_back_vector_currently_deleted_keys);
-              workload_currently_non_inserted_keys[i] = (read_back_vector_currently_non_inserted_keys);
-            }
-            
+            workload_all_existing_keys[i] = (read_back_vector_all_existing_keys);
           }
-        // return;
-      }else{   
-        workload_all_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs));
-        workload_historic_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs));
-        workload_currently_deleted_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs));
-        workload_currently_non_inserted_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs));
+        }
+      }else{
+        workload_all_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs_on_existing_keys));
 
         // #PQ = fixed
         for(int i = 0; i < N_repetitions; i++){
-          // const string pq_workload_all_existing_keys_file_name = "../../development/self_RD/" + workload_file_name + "_all_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
-          // const string pq_workload_historic_existing_keys_file_name = "../../development/self_RD/" + workload_file_name + "_historic_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
-          // const string pq_workload_currently_deleted_keys_file_name = "../../development/self_RD/" + workload_file_name + "_currently_deleted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
-          // const string pq_workload_currently_non_inserted_keys_file_name = "../../development/self_RD/" + workload_file_name + "_currently_non_inserted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
-          
-          const string pq_workload_all_existing_keys_file_name = workload_file_name + "_all_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
-          const string pq_workload_historic_existing_keys_file_name = workload_file_name + "_historic_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
-          const string pq_workload_currently_deleted_keys_file_name = workload_file_name + "_currently_deleted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
-          const string pq_workload_currently_non_inserted_keys_file_name = workload_file_name + "_currently_non_inserted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+          const string pq_workload_all_existing_keys_file_name = workload_file_name + "_all_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs_on_existing_keys);
           
           // Read the vector back from the file
           std::cout << "load " << pq_workload_all_existing_keys_file_name << std::endl;
           auto read_back_vector_all_existing_keys = readVectorFromFile<long long>(pq_workload_all_existing_keys_file_name);
 
+          workload_all_existing_keys[i] = (read_back_vector_all_existing_keys);
+        }
+      }
+      
+
+      if(number_of_PQs_on_historic_existing_keys == -1){
+        workload_historic_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
+        {
+          
+          const string pq_workload_historic_existing_keys_file_name = workload_file_name + "_historic_existing_keys";
+          
+          for(int i = 0; i < N_repetitions; i++){
+
+            // Read the vector back from the file
+            std::cout << "load " << pq_workload_historic_existing_keys_file_name << std::endl;
+            auto read_back_vector_historic_existing_keys = readVectorFromFile<long long>(pq_workload_historic_existing_keys_file_name);
+          
+            workload_historic_existing_keys[i] = (read_back_vector_historic_existing_keys);
+          }
+        }
+      }else{
+        workload_historic_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs_on_historic_existing_keys));
+
+        // #PQ = fixed
+        for(int i = 0; i < N_repetitions; i++){
+          
+          const string pq_workload_historic_existing_keys_file_name = workload_file_name + "_historic_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs_on_historic_existing_keys);
+          
           // Read the vector back from the file
           std::cout << "load " << pq_workload_historic_existing_keys_file_name << std::endl;
           auto read_back_vector_historic_existing_keys = readVectorFromFile<long long>(pq_workload_historic_existing_keys_file_name);
         
+          workload_historic_existing_keys[i] = (read_back_vector_historic_existing_keys);
+        }
+      }
+      
+      if(number_of_PQs_on_currently_deleted_keys == -1){
+        workload_currently_deleted_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
+        {
+          const string pq_workload_currently_deleted_keys_file_name = workload_file_name + "_currently_deleted_keys";
+          
+          for(int i = 0; i < N_repetitions; i++){
+            // Read the vector back from the file
+            std::cout << "load " << pq_workload_currently_deleted_keys_file_name << std::endl;
+            auto read_back_vector_currently_deleted_keys = readVectorFromFile<long long>(pq_workload_currently_deleted_keys_file_name);
+
+            workload_currently_deleted_keys[i] = (read_back_vector_currently_deleted_keys);
+          }
+        }
+      }else{
+        workload_currently_deleted_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs_on_currently_deleted_keys));
+
+        // #PQ = fixed
+        for(int i = 0; i < N_repetitions; i++){          
+          const string pq_workload_currently_deleted_keys_file_name = workload_file_name + "_currently_deleted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs_on_currently_deleted_keys);
+          
           // Read the vector back from the file
           std::cout << "load " << pq_workload_currently_deleted_keys_file_name << std::endl;
           auto read_back_vector_currently_deleted_keys = readVectorFromFile<long long>(pq_workload_currently_deleted_keys_file_name);
 
+          workload_currently_deleted_keys[i] = (read_back_vector_currently_deleted_keys);
+        }
+      }
+      
+      if(number_of_PQs_on_currently_non_inserted_keys == -1){
+        workload_currently_non_inserted_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
+        {
+          const string pq_workload_currently_non_inserted_keys_file_name = workload_file_name + "_currently_non_inserted_keys";
+          
+          for(int i = 0; i < N_repetitions; i++){
+            // Read the vector back from the file
+            std::cout << "load " << pq_workload_currently_non_inserted_keys_file_name << std::endl;
+            auto read_back_vector_currently_non_inserted_keys = readVectorFromFile<long long>(pq_workload_currently_non_inserted_keys_file_name);
+
+            workload_currently_non_inserted_keys[i] = (read_back_vector_currently_non_inserted_keys);
+          }
+        }
+      }else{
+        workload_currently_non_inserted_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs_on_currently_non_inserted_keys));
+
+        // #PQ = fixed
+        for(int i = 0; i < N_repetitions; i++){
+          
+          const string pq_workload_currently_non_inserted_keys_file_name = workload_file_name + "_currently_non_inserted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs_on_currently_non_inserted_keys);
+          
           // Read the vector back from the file
           std::cout << "load " << pq_workload_currently_non_inserted_keys_file_name << std::endl;
           auto read_back_vector_currently_non_inserted_keys = readVectorFromFile<long long>(pq_workload_currently_non_inserted_keys_file_name);
 
-          workload_all_existing_keys[i] = (read_back_vector_all_existing_keys);
-          workload_historic_existing_keys[i] = (read_back_vector_historic_existing_keys);
-          workload_currently_deleted_keys[i] = (read_back_vector_currently_deleted_keys);
           workload_currently_non_inserted_keys[i] = (read_back_vector_currently_non_inserted_keys);
         }
       }
+      
+
+      // if(number_of_PQs == -1){
+        
+      //   workload_all_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
+      //   workload_historic_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
+      //   workload_currently_deleted_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
+      //   workload_currently_non_inserted_keys = vector<vector<long long>>(N_repetitions, vector<long long>());
+
+      //   //All keys
+      //     {
+      //       // const string pq_workload_all_existing_keys_file_name = "../../development/self_RD/" + workload_file_name + "_all_existing_keys";
+      //       // const string pq_workload_historic_existing_keys_file_name = "../../development/self_RD/" + workload_file_name + "_historic_existing_keys";
+      //       // const string pq_workload_currently_deleted_keys_file_name = "../../development/self_RD/" + workload_file_name + "_currently_deleted_keys";
+      //       // const string pq_workload_currently_non_inserted_keys_file_name = "../../development/self_RD/" + workload_file_name + "_currently_non_inserted_keys";
+            
+      //       const string pq_workload_all_existing_keys_file_name = workload_file_name + "_all_existing_keys";
+      //       const string pq_workload_historic_existing_keys_file_name = workload_file_name + "_historic_existing_keys";
+      //       const string pq_workload_currently_deleted_keys_file_name = workload_file_name + "_currently_deleted_keys";
+      //       const string pq_workload_currently_non_inserted_keys_file_name = workload_file_name + "_currently_non_inserted_keys";
+            
+      //       // vector<long long> workload_all_existing_keys = system_verifier->getAllExistingKeys();
+      //       // vector<long long> workload_historic_existing_keys = system_verifier->getHistoricExistingKeys();
+      //       // vector<long long> workload_currently_deleted_keys = system_verifier->getCurrentlyDeletedKeys();
+      //       // vector<long long> workload_currently_non_inserted_keys = system_verifier->getCurrentlyNonInsertedKeys(); 
+
+      //       // all_existing_keys = workload_all_existing_keys;
+      //       // historic_existing_keys = workload_historic_existing_keys;
+      //       // currently_deleted_keys = workload_currently_deleted_keys;
+      //       // currently_non_inserted_keys = workload_currently_non_inserted_keys;
+              
+      //       for(int i = 0; i < N_repetitions; i++){
+      //         // Read the vector back from the file
+      //         std::cout << "load " << pq_workload_all_existing_keys_file_name << std::endl;
+      //         auto read_back_vector_all_existing_keys = readVectorFromFile<long long>(pq_workload_all_existing_keys_file_name);
+
+      //         // Read the vector back from the file
+      //         std::cout << "load " << pq_workload_historic_existing_keys_file_name << std::endl;
+      //         auto read_back_vector_historic_existing_keys = readVectorFromFile<long long>(pq_workload_historic_existing_keys_file_name);
+            
+      //         // Read the vector back from the file
+      //         std::cout << "load " << pq_workload_currently_deleted_keys_file_name << std::endl;
+      //         auto read_back_vector_currently_deleted_keys = readVectorFromFile<long long>(pq_workload_currently_deleted_keys_file_name);
+
+      //         // Read the vector back from the file
+      //         std::cout << "load " << pq_workload_currently_non_inserted_keys_file_name << std::endl;
+      //         auto read_back_vector_currently_non_inserted_keys = readVectorFromFile<long long>(pq_workload_currently_non_inserted_keys_file_name);
+
+      //         workload_all_existing_keys[i] = (read_back_vector_all_existing_keys);
+      //         workload_historic_existing_keys[i] = (read_back_vector_historic_existing_keys);
+      //         workload_currently_deleted_keys[i] = (read_back_vector_currently_deleted_keys);
+      //         workload_currently_non_inserted_keys[i] = (read_back_vector_currently_non_inserted_keys);
+      //       }
+            
+      //     }
+      //   // return;
+      // }else{   
+      //   workload_all_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs));
+      //   workload_historic_existing_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs));
+      //   workload_currently_deleted_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs));
+      //   workload_currently_non_inserted_keys = vector<vector<long long>>(N_repetitions, vector<long long>(number_of_PQs));
+
+      //   // #PQ = fixed
+      //   for(int i = 0; i < N_repetitions; i++){
+      //     // const string pq_workload_all_existing_keys_file_name = "../../development/self_RD/" + workload_file_name + "_all_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+      //     // const string pq_workload_historic_existing_keys_file_name = "../../development/self_RD/" + workload_file_name + "_historic_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+      //     // const string pq_workload_currently_deleted_keys_file_name = "../../development/self_RD/" + workload_file_name + "_currently_deleted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+      //     // const string pq_workload_currently_non_inserted_keys_file_name = "../../development/self_RD/" + workload_file_name + "_currently_non_inserted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+          
+      //     const string pq_workload_all_existing_keys_file_name = workload_file_name + "_all_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+      //     const string pq_workload_historic_existing_keys_file_name = workload_file_name + "_historic_existing_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+      //     const string pq_workload_currently_deleted_keys_file_name = workload_file_name + "_currently_deleted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+      //     const string pq_workload_currently_non_inserted_keys_file_name = workload_file_name + "_currently_non_inserted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs);
+          
+      //     // Read the vector back from the file
+      //     std::cout << "load " << pq_workload_all_existing_keys_file_name << std::endl;
+      //     auto read_back_vector_all_existing_keys = readVectorFromFile<long long>(pq_workload_all_existing_keys_file_name);
+
+      //     // Read the vector back from the file
+      //     std::cout << "load " << pq_workload_historic_existing_keys_file_name << std::endl;
+      //     auto read_back_vector_historic_existing_keys = readVectorFromFile<long long>(pq_workload_historic_existing_keys_file_name);
+        
+      //     // Read the vector back from the file
+      //     std::cout << "load " << pq_workload_currently_deleted_keys_file_name << std::endl;
+      //     auto read_back_vector_currently_deleted_keys = readVectorFromFile<long long>(pq_workload_currently_deleted_keys_file_name);
+
+      //     // Read the vector back from the file
+      //     std::cout << "load " << pq_workload_currently_non_inserted_keys_file_name << std::endl;
+      //     auto read_back_vector_currently_non_inserted_keys = readVectorFromFile<long long>(pq_workload_currently_non_inserted_keys_file_name);
+
+      //     workload_all_existing_keys[i] = (read_back_vector_all_existing_keys);
+      //     workload_historic_existing_keys[i] = (read_back_vector_historic_existing_keys);
+      //     workload_currently_deleted_keys[i] = (read_back_vector_currently_deleted_keys);
+      //     workload_currently_non_inserted_keys[i] = (read_back_vector_currently_non_inserted_keys);
+      //   }
+      // }
 
       return;
     }

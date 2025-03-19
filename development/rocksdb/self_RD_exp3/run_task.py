@@ -17,7 +17,7 @@ params = {
     "--max_open_files": [20],
     "--skip_reading_RD_blocks": [1], # control on block_based_table_reader, but not on table_cache, cannot set to 1 (skip range) if RDF will answer keyMayBeDeleted, basically just set it to 0 if each time just running on 1 RDF_TYPE
     #"--number_of_PQ": [5000*100],
-    "--number_of_PQ": [5000], # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+    # "--number_of_PQ": [5000], # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
     "--system_check_test_on_all_PQ": [0], # for debugging, 0: off, 1: on, equal to "--number_of_PQ": [-1]
     "--bb": [0],
     "--key_size_to_insert": [12],
@@ -112,9 +112,14 @@ def gen_insertion_workload(
 
 def gen_PQ_workload(
         file_path: int,
-        number_of_PQ: int,
+        # number_of_PQ: int,
+        number_of_PQ_on_existing_keys: int,
+        number_of_PQ_on_historic_existing_keys: int,
+        number_of_PQ_on_currently_deleted_keys: int,
+        number_of_PQ_on_currently_non_inserted_keys: int,
 ):
-    task =  "gen_pq_workload/main_gen_workload" + f" --workload_filename {file_path} --number_of_PQ {number_of_PQ}"
+    # task =  "gen_pq_workload/main_gen_workload" + f" --workload_filename {file_path} --number_of_PQ {number_of_PQ}"
+    task =  "gen_pq_workload/main_gen_workload" + f" --workload_filename {file_path}  --number_of_PQ_on_existing_keys {number_of_PQ_on_existing_keys} --number_of_PQ_on_historic_existing_keys {number_of_PQ_on_historic_existing_keys} --number_of_PQ_on_currently_deleted_keys {number_of_PQ_on_currently_deleted_keys} --number_of_PQ_on_currently_non_inserted_keys {number_of_PQ_on_currently_non_inserted_keys}"
     print(task)
     os.system(task)
 
@@ -178,8 +183,8 @@ def get_task_with_parallelling_parameters(
 params3 = deepcopy(params)
 params3["-P"] = [16]
 params3["-T"] = [4]
-#params3["--insert_before_range_delete"] = [0.999]
-params3["--insert_before_range_delete"] = [0.5]
+params3["--insert_before_range_delete"] = [0.999]
+# params3["--insert_before_range_delete"] = [0.5]
 # params3["--insert_before_range_delete"] = [0.8]
 # params3["--insert_before_range_delete"] = [0.7]
 # params3["--run_pq_during_insertion_interval"] = [20]
@@ -187,7 +192,7 @@ params3["--insert_before_range_delete"] = [0.5]
 # params3["--gen_workload"] = [1]
 params3["--gen_workload"] = [0]
 params3["--load_pq_workload"] = [1]
-params3["-i"] = [200000]
+params3["-i"] = [100000]
 params3["--run_pq_during_insertion_interval"] = [200000000]
 params3["--skip_reading_RD_blocks"] = [1]
 # params3["--gen_workload"] = [0]
@@ -229,10 +234,14 @@ params3["--flag_skip_compaction_trivial_move"] = [1]
 params3["--skip_reading_RD_blocks"] = [1]
 # params3[ "--show_surf_compaction_info"] = [1]
 # params3["--max_open_files"] = [1]
-params3["--number_of_PQ"] = [100000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+# params3["--number_of_PQ"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+params3["--number_of_PQ_on_existing_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+params3["--number_of_PQ_on_historic_existing_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+params3["--number_of_PQ_on_currently_deleted_keys"] = [100000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+params3["--number_of_PQ_on_currently_non_inserted_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 
-if True:
-# if False:
+# if True:
+if False:
     for rd, sel, workload_filename in zip(rd_list, sel_list, workload_filename_list):
         print("Gen I/RD workload")
         gen_insertion_workload(
@@ -248,7 +257,11 @@ if True:
         print("Gen PQ workload")
         gen_PQ_workload(
                 file_path=workload_filename,
-                number_of_PQ=params3["--number_of_PQ"][0],
+                # number_of_PQ=params3["--number_of_PQ"][0],
+                number_of_PQ_on_existing_keys=params3["--number_of_PQ_on_existing_keys"][0],
+                number_of_PQ_on_historic_existing_keys=params3["--number_of_PQ_on_historic_existing_keys"][0],
+                number_of_PQ_on_currently_deleted_keys=params3["--number_of_PQ_on_currently_deleted_keys"][0],
+                number_of_PQ_on_currently_non_inserted_keys=params3["--number_of_PQ_on_currently_non_inserted_keys"][0],
         )
 
 
@@ -323,7 +336,7 @@ for i_rdf, rdf_param in enumerate(rdf_types):
     # if i_rdf < 21:
     #   continue
 
-    test_num = 21 + i_rdf
+    test_num = 61 + i_rdf
     # params3["--using_rdf_types"] = [rdf_type]
     params3_local = deepcopy(params3)
     params3_local.update(rdf_param) # delta changes for different rdf_type
