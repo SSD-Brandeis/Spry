@@ -183,8 +183,7 @@ def get_task_with_parallelling_parameters(
 params3 = deepcopy(params)
 params3["-P"] = [16]
 params3["-T"] = [4]
-# params3["--insert_before_range_delete"] = [0.999]
-params3["--insert_before_range_delete"] = [0.5]
+params3["--insert_before_range_delete"] = [0.999]
 # params3["--insert_before_range_delete"] = [0.8]
 # params3["--insert_before_range_delete"] = [0.7]
 # params3["--run_pq_during_insertion_interval"] = [20]
@@ -192,10 +191,8 @@ params3["--insert_before_range_delete"] = [0.5]
 # params3["--gen_workload"] = [1]
 params3["--gen_workload"] = [0]
 params3["--load_pq_workload"] = [1]
-params3["-i"] = [200000]
-#params3["-i"] = [100000]
-# params3["-i"] = [10000]
-params3["--run_pq_during_insertion_interval"] = [200000000]
+params3["-i"] = [100000]
+params3["--run_pq_during_insertion_interval"] = [200000]
 params3["--skip_reading_RD_blocks"] = [1]
 # params3["--gen_workload"] = [0]
 # params3["-i"] = [6400]
@@ -210,14 +207,12 @@ params3["--surf_base_store_key_to_k_diff"] = [1]
 B_list = [4]
 E_list = [1024]
 E = E_list[0]
-# rd_list = [100, 100, 100]
-# sel_list = [0.001, 0.005, 0.01]
-rd_list = [100]
-sel_list = [0.001]
+rd_list = [100, 100, 100]
+sel_list = [0.001, 0.005, 0.01]
 workload_filename_list = [
-    f"workload/workload6111.txt",
-    # f"workload/workload6112.txt",
-    # f"workload/workload6113.txt",
+    f"workload/workload2111.txt",
+    f"workload/workload2112.txt",
+    f"workload/workload2113.txt",
 ]
 
    
@@ -230,19 +225,20 @@ params3["--surf_use_condensed_digit_key"] = [1]
 # rd_list = [10,10,10]
 # params3["--show_surf_compaction_info"] = [1] 
 # params3[ "--surf__key_len_in_bytes"] = [13]
-params3["--surf__key_len_in_bytes"] = [6]
+params3[ "--surf__key_len_in_bytes"] = [6]
 # params3[ "--surf__key_len_in_bytes"] = [3]
 # params3[ "--skip_reading_RD_blocks"] = [0]
-params3["--flag_skip_compaction_trivial_move"] = [1]
+params3[ "--flag_skip_compaction_trivial_move"] = [1]
 # params3[ "--surf__key_len_in_bytes"] = [5]
-params3["--skip_reading_RD_blocks"] = [1]
+params3[ "--skip_reading_RD_blocks"] = [1]
 # params3[ "--show_surf_compaction_info"] = [1]
-params3["--max_open_files"] = [1]
+params3[ "--max_open_files"] = [1]
 # params3["--number_of_PQ"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 params3["--number_of_PQ_on_existing_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 params3["--number_of_PQ_on_historic_existing_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
-params3["--number_of_PQ_on_currently_deleted_keys"] = [100000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+params3["--number_of_PQ_on_currently_deleted_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 params3["--number_of_PQ_on_currently_non_inserted_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+
 
 # if True:
 if False:
@@ -269,6 +265,7 @@ if False:
         )
 
 
+
 # ["NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,TOP_LEVEL_RDF,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY"]
 # rdf_types = ["NONE", "PLRDF", "SPLIT_PLRDF", "TOP_LEVEL_RDF", "SKYLINE_RDF", "SuRF_LF_RDF", "SuRF_LF_SPLIT_RDF"]
 # rdf_types = ["NONE", "PLRDF", "SPLIT_PLRDF", "TOP_LEVEL_RDF", "SKYLINE_RDF", "SuRF_LF_RDF", "SuRF_LF_SPLIT_RDF"]
@@ -278,20 +275,20 @@ rdf_types = [
     {"--using_rdf_types": ["PLRDF"], },
     {"--using_rdf_types": ["SPLIT_PLRDF"], },
     {"--using_rdf_types": ["TOP_LEVEL_RDF"], },
-    # {"--using_rdf_types": ["SKYLINE_RDF"], },
+    {"--using_rdf_types": ["SKYLINE_RDF"], },
     {"--using_rdf_types": ["SuRF_LF_RDF"]},
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]},
     {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
-    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #9
-    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #10
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #9
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #10
     
     {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0]}, #11
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0]}, #12
-    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #13
-    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #14
-    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #15
-    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #16
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #13
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #14
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #15
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #16
 
     # check total_time & insertion time
     #{"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #17
@@ -323,23 +320,23 @@ rdf_types = [
 
 # for i_rdf, (rdf_type, local_param) in enumerate(rdf_types.items()):
 for i_rdf, rdf_param in enumerate(rdf_types):
-    # if i_rdf > 0:
-    #    break
+    if i_rdf > 0:
+       break
     # if i_rdf < 5:
     # if i_rdf < 6:
     # if i_rdf < 7:
-    if i_rdf < 8:
+    # if i_rdf < 8:
     # if i_rdf < 9:
     # # if i_rdf < 10:
     # # if i_rdf < 11:
-       continue
+    #    continue
     # if i_rdf > 10 and i_rdf < 15:
     #     continue
     # if i_rdf < 17:
-    # if i_rdf < 21:
-    #   continue
+    #if i_rdf < 21:
+    #    continue
 
-    test_num = 61 + i_rdf
+    test_num = 21 + i_rdf
     # params3["--using_rdf_types"] = [rdf_type]
     params3_local = deepcopy(params3)
     params3_local.update(rdf_param) # delta changes for different rdf_type
@@ -349,13 +346,13 @@ for i_rdf, rdf_param in enumerate(rdf_types):
                                                                           "--workload_filename": workload_filename_list,
                                                                           "--logging_filename": [
                                                                               f"pq_result/logging{test_num}11.txt",
-                                                                            #   f"pq_result/logging{test_num}12.txt",
-                                                                            #   f"pq_result/logging{test_num}13.txt",
+                                                                              f"pq_result/logging{test_num}12.txt",
+                                                                              f"pq_result/logging{test_num}13.txt",
                                                                           ],
                                                                           ">":[
                                                                               f"log{test_num}11",
-                                                                            #   f"log{test_num}12",
-                                                                            #   f"log{test_num}13",
+                                                                              f"log{test_num}12",
+                                                                              f"log{test_num}13",
                                                                           ]
                                                                           })
     run_tasks(tasks3)

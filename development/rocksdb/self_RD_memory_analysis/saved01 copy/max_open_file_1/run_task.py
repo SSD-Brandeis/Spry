@@ -215,7 +215,7 @@ E = E_list[0]
 rd_list = [100]
 sel_list = [0.001]
 workload_filename_list = [
-    f"workload/workload6111.txt",
+    f"workload/workload4111.txt",
     # f"workload/workload6112.txt",
     # f"workload/workload6113.txt",
 ]
@@ -241,7 +241,7 @@ params3["--max_open_files"] = [1]
 # params3["--number_of_PQ"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 params3["--number_of_PQ_on_existing_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 params3["--number_of_PQ_on_historic_existing_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
-params3["--number_of_PQ_on_currently_deleted_keys"] = [100000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+params3["--number_of_PQ_on_currently_deleted_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 params3["--number_of_PQ_on_currently_non_inserted_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 
 # if True:
@@ -283,15 +283,14 @@ rdf_types = [
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]},
     {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
-    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #9
-    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #10
-    
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #9
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #10
     {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0]}, #11
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0]}, #12
-    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #13
-    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #14
-    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #15
-    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #16
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #13
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #14
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #15
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #16
 
     # check total_time & insertion time
     #{"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #17
@@ -328,18 +327,18 @@ for i_rdf, rdf_param in enumerate(rdf_types):
     # if i_rdf < 5:
     # if i_rdf < 6:
     # if i_rdf < 7:
-    if i_rdf < 8:
+    # if i_rdf < 8:
     # if i_rdf < 9:
     # # if i_rdf < 10:
     # # if i_rdf < 11:
-       continue
+    #    continue
     # if i_rdf > 10 and i_rdf < 15:
     #     continue
     # if i_rdf < 17:
     # if i_rdf < 21:
     #   continue
 
-    test_num = 61 + i_rdf
+    test_num = 41 + i_rdf
     # params3["--using_rdf_types"] = [rdf_type]
     params3_local = deepcopy(params3)
     params3_local.update(rdf_param) # delta changes for different rdf_type
