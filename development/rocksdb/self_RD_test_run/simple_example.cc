@@ -47,11 +47,11 @@ using namespace rocksdb;
 std::string kDBPath = "/tmp/cs561_project1";
 
 void printStats(DB* db, Options& options);
-void print_perf_iostats_context(std::ostream& ofile, int N_repetitions = 1);
+void print_perf_iostats_context(std::ostream& ofile, const std::string &prefix, int N_repetitions = 1);
 void init(DB **db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_op, int max_background_jobs);
 long long parsing_value_from_string(std::string str, std::string pattern);
 void reset_perf_iostats_context();
-
+ 
 
 int main(int argc, char *argv[]) {
   
@@ -99,6 +99,7 @@ int main(int argc, char *argv[]) {
 
   
   PLRDF plrdf_prime, split_plrdf_prime;
+  PLRDF_t<std::string> plrdf_stringkey_prime, split_plrdf_stringkey_prime;
   PLRDF top_level_rdf_prime;
   SkyLineRDF skyline_rdf_prime;
 
@@ -154,9 +155,10 @@ int main(int argc, char *argv[]) {
   unsigned long long all_time_ns = duration_all.count();
   std::cout << "all_time_ns = " << all_time_ns << std::endl;
   
-  print_perf_iostats_context(std::cout, 1);
+  std::string prefix = "main after workload insertion complete ";
+  print_perf_iostats_context(std::cout, prefix, 1);
 
-  set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
+  set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
 
   std::cout << "!!! runQPVerification done " << std::endl;
   

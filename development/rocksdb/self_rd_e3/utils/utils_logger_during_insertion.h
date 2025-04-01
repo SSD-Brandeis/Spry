@@ -26,11 +26,13 @@ private:
     static LoggerDuringInsertion *logger_during_insertion;
 
     bool flag_reopen_db_for_each_RDF_testing = false;
-
+    
 
     vector<int> ranges_log_Origin;
     vector<int> ranges_log_PLRDF;
     vector<int> ranges_log_SplitPLRDF;
+    vector<int> ranges_log_PLRDFStringKey;
+    vector<int> ranges_log_SplitPLRDFStringKey;
     vector<int> ranges_log_TopLevelRDF;
     vector<int> ranges_log_SkylineRDF;
     vector<int> ranges_log_SuRFLevelFileRDF;
@@ -39,6 +41,8 @@ private:
     vector<int> memory_usage_log_Origin;
     vector<int> memory_usage_log_PLRDF;
     vector<int> memory_usage_log_SplitPLRDF;
+    vector<int> memory_usage_log_PLRDFStringKey;
+    vector<int> memory_usage_log_SplitPLRDFStringKey;
     vector<int> memory_usage_log_TopLevelRDF;
     vector<int> memory_usage_log_SkylineRDF;
     vector<int> memory_usage_log_SuRFLevelFileRDF;
@@ -139,6 +143,22 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }
   // running_log_during_insertion << "recordCurrentMemoryFootprint A2 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
+  tmp = db->getLogOfNumbersOfRangesInPLRDFStringKey();
+  if(tmp.size() > 0){
+    ranges_log_PLRDFStringKey.push_back(tmp.back());
+  }else{
+    ranges_log_PLRDFStringKey.push_back(0);
+  }
+  // running_log_during_insertion << "recordCurrentMemoryFootprint XA1 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+  tmp = db->getLogOfNumbersOfRangesInSplitPLRDFStringKey();
+  if(tmp.size() > 0){
+    ranges_log_SplitPLRDFStringKey.push_back(tmp.back());
+  }else{
+    ranges_log_SplitPLRDFStringKey.push_back(0);
+  }
+  // running_log_during_insertion << "recordCurrentMemoryFootprint XA2 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
   tmp = db->getLogOfNumbersOfRangesInTopLevelRDF();
   if(tmp.size() > 0){
     ranges_log_TopLevelRDF.push_back(tmp.back());
@@ -188,6 +208,22 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }
   // running_log_during_insertion << "recordCurrentMemoryFootprint A8 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
+  tmp = db->getLogOfMemoryUsageInPLRDFStringKey();
+  if(tmp.size() > 0){
+    memory_usage_log_PLRDFStringKey.push_back(tmp.back());
+  }else{
+    memory_usage_log_PLRDFStringKey.push_back(0);
+  }
+  // running_log_during_insertion << "recordCurrentMemoryFootprint A7 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+  tmp = db->getLogOfMemoryUsageInSplitRDFStringKey();
+  if(tmp.size() > 0){
+    memory_usage_log_SplitPLRDFStringKey.push_back(tmp.back());
+  }else{
+    memory_usage_log_SplitPLRDFStringKey.push_back(0);
+  }
+  // running_log_during_insertion << "recordCurrentMemoryFootprint A8 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
   tmp = db->getLogOfMemoryUsageInTopLevelRDF();
   if(tmp.size() > 0){
     memory_usage_log_TopLevelRDF.push_back(tmp.back());
@@ -228,9 +264,11 @@ void LoggerDuringInsertion::writeRecord(DB** db_ptr2){
   Status s;
 
   running_log_during_insertion << "writeRecord Start " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-
+  
   testing_result_file_during_insertion << ",\"PLRDF Number Of Total Ranges\" : " << db->getPLRDFNumberOfTotalRanges() << std::endl;
   testing_result_file_during_insertion << ",\"Split PLRDF Number Of Total Ranges\" : " << db->getSplitPLRDFNumberOfTotalRanges() << std::endl;
+  testing_result_file_during_insertion << ",\"PLRDF StringKey Number Of Total Ranges\" : " << db->getPLRDFStringKeyNumberOfTotalRanges() << std::endl;
+  testing_result_file_during_insertion << ",\"Split PLRDF StringKey Number Of Total Ranges\" : " << db->getSplitPLRDFStringKeyNumberOfTotalRanges() << std::endl;
   testing_result_file_during_insertion << ",\"TopLevel RDF Number Of Total Ranges\" : " << db->getTopLevelRDFNumberOfTotalRanges() << std::endl;
   testing_result_file_during_insertion << ",\"Skyline RDF Number Of Total Ranges\" : " << db->getSkylineRDFNumberOfTotalRanges() << std::endl;
   testing_result_file_during_insertion << ",\"SuRF Level File RDF Number Of Total Ranges\" : " << db->getSuRFLevelFileRDFNumberOfTotalRanges() << std::endl;

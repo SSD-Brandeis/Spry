@@ -4788,6 +4788,14 @@ Status DBImpl::printRDF() {
   std::cout << "version --- Split PLRDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
   sv->current->printSplitPLRDF();
   
+  std::cout << "version --- PLRDF STRING KEY " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  // cfd->current()->printPLRDF();
+  sv->current->printPLRDFStringKey();
+
+  // cfd->printPLRDF();
+  std::cout << "version --- Split PLRDF STRING KEY " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  sv->current->printSplitPLRDFStringKey();
+  
   std::cout << "version --- Top Level RDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
   sv->current->printTopLevelRDF();
 
@@ -4857,6 +4865,20 @@ int DBImpl::getSplitPLRDFNumberOfTotalRanges(){
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getSplitPLRDFNumberOfTotalRanges();
 }
+int DBImpl::getPLRDFStringKeyNumberOfTotalRanges(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getPLRDFStringKeyNumberOfTotalRanges();
+}
+int DBImpl::getSplitPLRDFStringKeyNumberOfTotalRanges(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getSplitPLRDFStringKeyNumberOfTotalRanges();
+}
 int DBImpl::getTopLevelRDFNumberOfTotalRanges(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
@@ -4906,6 +4928,20 @@ int DBImpl::getSplitPLRDFNumberOfTotalMemoryUsage(){
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getSplitPLRDFNumberOfTotalMemoryUsage();
 }
+int DBImpl::getPLRDFStringKeyNumberOfTotalMemoryUsage(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getPLRDFStringKeyNumberOfTotalMemoryUsage();
+}
+int DBImpl::getSplitPLRDFStringKeyNumberOfTotalMemoryUsage(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getSplitPLRDFStringKeyNumberOfTotalMemoryUsage();
+}
 int DBImpl::getTopLevelRDFNumberOfTotalMemoryUsage(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
@@ -4954,6 +4990,20 @@ std::vector<int> DBImpl::getLogOfNumbersOfRangesInSplitPLRDF(){
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfNumbersOfRangesInSplitPLRDF();
+}
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInPLRDFStringKey(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfNumbersOfRangesInPLRDFStringKey();
+}
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInSplitPLRDFStringKey(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfNumbersOfRangesInSplitPLRDFStringKey();
 }
 std::vector<int> DBImpl::getLogOfNumbersOfRangesInTopLevelRDF(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
@@ -5010,6 +5060,20 @@ std::vector<int> DBImpl::getLogOfMemoryUsageInSplitRDF() {
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfMemoryUsageInSplitRDF();
 }
+std::vector<int> DBImpl::getLogOfMemoryUsageInPLRDFStringKey() {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfMemoryUsageInPLRDFStringKey();
+}
+std::vector<int> DBImpl::getLogOfMemoryUsageInSplitRDFStringKey() {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfMemoryUsageInSplitRDFStringKey();
+}
 std::vector<int> DBImpl::getLogOfMemoryUsageInTopLevelRDF() {
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
@@ -5038,6 +5102,35 @@ std::vector<int> DBImpl::getLogOfMemoryUsageInSuRFLevelFileSplitRDF() {
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfMemoryUsageInSuRFLevelFileSplitRDF();
 }
+
+double DBImpl::getFilterFalsePositiveRateInPLRDFStringKey() {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getFilterFalsePositiveRateInPLRDFStringKey();
+};
+double DBImpl::getFilterFalsePositiveRateInSplitPLRDFStringKey() {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getFilterFalsePositiveRateInSplitPLRDFStringKey();
+};
+void DBImpl::clearFilterFalsePositiveRateInPLRDFStringKey(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->clearFilterFalsePositiveRateInPLRDFStringKey();
+};
+void DBImpl::clearFilterFalsePositiveRateInSplitPLRDFStringKey(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->clearFilterFalsePositiveRateInSplitPLRDFStringKey();
+};
 
 double DBImpl::getFilterFalsePositiveRateInSuRFLevelFileRDF() {
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
@@ -5079,6 +5172,18 @@ const PLRDF *DBImpl::getSplitPLRDF(){
   DefaultColumnFamily());
   auto cfd = cfh->cfd();
   return cfd->getSplitPLRDF();
+}
+const PLRDF_t<std::string> *DBImpl::getPLRDFStringKey(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  return cfd->getPLRDFStringKey();
+}
+const PLRDF_t<std::string> *DBImpl::getSplitPLRDFStringKey(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  return cfd->getSplitPLRDFStringKey();
 }
 const PLRDF *DBImpl::getTopLevelRDF(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
@@ -5125,6 +5230,24 @@ void DBImpl::setSplitPLRDF( PLRDF *plrdf){
   cfd->setSplitPLRDF(*plrdf);
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   sv->current->setSplitPLRDF(*plrdf);
+}
+void DBImpl::setPLRDFStringKey( PLRDF_t<std::string> *plrdf){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  cfd->setPLRDFStringKey(*plrdf);
+  
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  sv->current->setPLRDFStringKey(*plrdf);
+}
+void DBImpl::setSplitPLRDFStringKey( PLRDF_t<std::string> *plrdf){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+
+  cfd->setSplitPLRDFStringKey(*plrdf);
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  sv->current->setSplitPLRDFStringKey(*plrdf);
 }
 void DBImpl::setTopLevelRDF( PLRDF *plrdf){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(

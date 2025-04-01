@@ -156,7 +156,7 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
 
   //YuCheng Added Start
   args::ValueFlag<std::string> using_rdf_types_cmd(group1, "using_rdf_types", 
-                                                  "using_rdf_types_cmd [def:NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,TOP_LEVEL_RDF,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY]", 
+                                                  "using_rdf_types_cmd [def:NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,PLRDF_STRING_KEY,SPLIT_PLRDF_STRING_KEY,TOP_LEVEL_RDF,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY]", 
                                                   {"using_rdf_types"});
 
   args::ValueFlag<double> key_size_to_insert_cmd(group1, "key_size_to_insert", "key_size_to_insert [def: 12]", {"key_size_to_insert"});
@@ -246,7 +246,8 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
 
 
   //YuCheng Added Start
-  std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE_CACHE_RANGETOMBSTONE_TRACING"}, {2, "NONE"}, {3, "NONE2"}, {4, "PLRDF"}, {5, "SPLIT_PLRDF"}, {6, "TOP_LEVEL_RDF"}, {7, "SKYLINE_RDF"},  {8, "SuRF_LF_RDF"},  {9, "SuRF_LF_SPLIT_RDF"}, {10, "NONE_DUMMY"}};
+  std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE_CACHE_RANGETOMBSTONE_TRACING"}, {2, "NONE"}, {3, "NONE2"}, {4, "PLRDF"}, {5, "SPLIT_PLRDF"}, {6, "PLRDF_STRING_KEY"}, {7, "SPLIT_PLRDF_STRING_KEY"},
+                                                   {8, "TOP_LEVEL_RDF"}, {9, "SKYLINE_RDF"},  {10, "SuRF_LF_RDF"},  {11, "SuRF_LF_SPLIT_RDF"}, {12, "NONE_DUMMY"}};
 
   if(using_rdf_types_cmd){
     std::string tmp = args::get(using_rdf_types_cmd);

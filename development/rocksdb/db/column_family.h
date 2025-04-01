@@ -814,6 +814,25 @@ class ColumnFamilyData {
     split__flush_to_level0_RD_vector = flush_to_level0_RD_vector_in;
   }
 
+  
+  void set_flush_to_level0_RD_vector_stringkey(std::tuple<uint64_t, std::vector<pss>, std::vector<uint64_t>> &flush_to_level0_RD_vector_stringkey_in){
+    auto file_num = std::get<0>(this->flush_to_level0_RD_vector_stringkey);
+    if((int)file_num != -1){
+      std::cerr << "flush_to_level0_RD_vector_stringkey is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+
+    flush_to_level0_RD_vector_stringkey = flush_to_level0_RD_vector_stringkey_in;
+  }
+  
+  void set_split__flush_to_level0_RD_vector_stringkey(std::tuple<uint64_t, std::vector<pss>, std::vector<uint64_t>> &flush_to_level0_RD_vector_stringkey_in){
+    auto file_num = std::get<0>(this->split__flush_to_level0_RD_vector_stringkey);
+    if((int)file_num != -1){
+      std::cerr << "split__flush_to_level0_RD_vector_stringkey is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+
+    split__flush_to_level0_RD_vector_stringkey = flush_to_level0_RD_vector_stringkey_in;
+  }
+
   void set_surf__flush_to_level0_RD_vector(SuRFFlushToLevel0Info *flush_to_level0_RD_vector_in){
     auto flag_previous_already_updated_into_version = (this->surf__flush_to_level0_RD_vector) != nullptr;
     // check the previous result is already written into the Version
@@ -841,6 +860,14 @@ class ColumnFamilyData {
   std::tuple<uint64_t, std::vector<pll>, std::vector<uint64_t>> get_split__flush_to_level0_RD_vector(){
     return split__flush_to_level0_RD_vector;
   }
+  
+  std::tuple<uint64_t, std::vector<pss>, std::vector<uint64_t>> get_flush_to_level0_RD_vector_stringkey(){
+    return flush_to_level0_RD_vector_stringkey;
+  }
+
+  std::tuple<uint64_t, std::vector<pss>, std::vector<uint64_t>> get_split__flush_to_level0_RD_vector_stringkey(){
+    return split__flush_to_level0_RD_vector_stringkey;
+  }
 
   SuRFFlushToLevel0Info *get_surf__flush_to_level0_RD_vector(){
     return surf__flush_to_level0_RD_vector;
@@ -864,6 +891,22 @@ class ColumnFamilyData {
       std::cerr << "split__compaction_moving_RD_vector is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     }
     split__compaction_moving_RD_vector = compaction_moving_RD_vector_in;
+  }
+  
+  void set_compaction_moving_RD_vector_stringkey(std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>  &compaction_moving_RD_vector_stringkey_in){
+    auto len = compaction_moving_RD_vector_stringkey.size();
+    if(len != 0){
+      std::cerr << "compaction_moving_RD_vector_stringkey is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    compaction_moving_RD_vector_stringkey = compaction_moving_RD_vector_stringkey_in;
+  }
+
+  void set_split__compaction_moving_RD_vector_stringkey(std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>  &compaction_moving_RD_vector_stringkey_in){
+    auto len = split__compaction_moving_RD_vector_stringkey.size();
+    if(len != 0){
+      std::cerr << "split__compaction_moving_RD_vector_stringkey is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    split__compaction_moving_RD_vector_stringkey = compaction_moving_RD_vector_stringkey_in;
   }
 
   void set_surf__compaction_moving_RD_vector(SuRFCompactionMovingRDInfo *compaction_moving_RD_vector_in){
@@ -891,6 +934,16 @@ class ColumnFamilyData {
     
     return split__compaction_moving_RD_vector;
   }
+  
+  std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>  get_compaction_moving_RD_vector_stringkey(){
+    
+    return compaction_moving_RD_vector_stringkey;
+  }
+
+  std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>  get_split__compaction_moving_RD_vector_stringkey(){
+    
+    return split__compaction_moving_RD_vector_stringkey;
+  }
 
   SuRFCompactionMovingRDInfo *get_surf__compaction_moving_RD_vector(){
     return surf__compaction_moving_RD_vector;
@@ -916,6 +969,22 @@ class ColumnFamilyData {
     split__compaction_direct_delete_RD_vector = compaction_direct_delete_RD_vector_in;
   }
 
+  void set_compaction_direct_delete_RD_vector_stringkey(std::tuple<int, std::vector<pss>, std::vector<uint64_t>> &compaction_direct_delete_RD_vector_stringkey_in){
+    auto out_lvl = std::get<0>(this->compaction_direct_delete_RD_vector_stringkey);
+    if((int)out_lvl != -1){
+      std::cerr << "compaction_direct_delete_RD_vector_stringkey is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    compaction_direct_delete_RD_vector_stringkey = compaction_direct_delete_RD_vector_stringkey_in;
+  }
+
+  void set_split__compaction_direct_delete_RD_vector_stringkey(std::tuple<int, std::vector<pss>, std::vector<uint64_t>> &compaction_direct_delete_RD_vector_stringkey_in){
+    auto out_lvl = std::get<0>(this->split__compaction_direct_delete_RD_vector_stringkey);
+    if((int)out_lvl != -1){
+      std::cerr << "split__compaction_direct_delete_RD_vector_stringkey is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    split__compaction_direct_delete_RD_vector_stringkey = compaction_direct_delete_RD_vector_stringkey_in;
+  }
+
   void set_surf__compaction_direct_delete_RD_vector(SuRFCompactionDirectRemovalInfo *compaction_direct_delete_RD_vector_in){
     auto flag_previous_already_updated_into_version = (this->surf__compaction_direct_delete_RD_vector) != nullptr;
     if(flag_previous_already_updated_into_version){
@@ -938,6 +1007,14 @@ class ColumnFamilyData {
   
   std::tuple<int, std::vector<pll>, std::vector<uint64_t>> get_split__compaction_direct_delete_RD_vector(){
     return split__compaction_direct_delete_RD_vector;
+  }
+  
+  std::tuple<int, std::vector<pss>, std::vector<uint64_t>> get_compaction_direct_delete_RD_vector_stringkey(){
+    return compaction_direct_delete_RD_vector_stringkey;
+  }
+  
+  std::tuple<int, std::vector<pss>, std::vector<uint64_t>> get_split__compaction_direct_delete_RD_vector_stringkey(){
+    return split__compaction_direct_delete_RD_vector_stringkey;
   }
 
   SuRFCompactionDirectRemovalInfo *get_surf__compaction_direct_delete_RD_vector(){
@@ -974,6 +1051,12 @@ class ColumnFamilyData {
   const PLRDF *getSplitPLRDF(){
     return &split_plrdf_prime;
   }
+  const PLRDF_t<std::string> *getPLRDFStringKey(){
+    return &plrdf_stringkey_prime;
+  }
+  const PLRDF_t<std::string> *getSplitPLRDFStringKey(){
+    return &split_plrdf_stringkey_prime;
+  }
   const PLRDF *getTopLevelRDF(){
     return &top_level_rdf_prime;
   }
@@ -992,6 +1075,12 @@ class ColumnFamilyData {
   }
   void setSplitPLRDF(PLRDF &plrdf_in){
     split_plrdf_prime = plrdf_in;
+  }
+  void setPLRDFStringKey(PLRDF_t<std::string> &plrdf_in){
+    plrdf_stringkey_prime = plrdf_in;
+  }
+  void setSplitPLRDFStringKey(PLRDF_t<std::string> &plrdf_in){
+    split_plrdf_stringkey_prime = plrdf_in;
   }
   void setTopLevelRDF(PLRDF &plrdf_in){
     top_level_rdf_prime = plrdf_in;
@@ -1020,6 +1109,18 @@ class ColumnFamilyData {
     std::cout << "cfd --- split_PLRDF " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
     split_plrdf_prime.printLevel0();
     split_plrdf_prime.print();
+  }
+  
+  void printPLRDFStringKey(){
+    std::cout << "cfd --- PLRDF " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+    plrdf_stringkey_prime.printLevel0();
+    plrdf_stringkey_prime.print();
+  }
+
+  void printSplitPLRDFStringKey(){
+    std::cout << "cfd --- split_PLRDF " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+    split_plrdf_stringkey_prime.printLevel0();
+    split_plrdf_stringkey_prime.print();
   }
   
   void printTopLevelRDF(){
@@ -1052,6 +1153,7 @@ class ColumnFamilyData {
     if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
       //Split RDF
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
+        || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")
         || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")
         || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF") ){
         split__level_update_mtx.lock();
@@ -1069,6 +1171,7 @@ class ColumnFamilyData {
                     << "len2 = " << len2 << std::endl;
         }
         split__level_ranges = split_plrdf_prime.getLevelRanges(out_lvl);
+      
         split__count += 1;
         split__out_level = out_lvl;
         split__level_range_idx = 0;
@@ -1080,6 +1183,24 @@ class ColumnFamilyData {
                     << "split__fin_flag = " << split__fin_flag << std::endl;
         }
       }
+      
+      //Split RDF Stringkey
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+        // auto len = split__level_ranges_stringkey.size();
+        // auto len2 = split__level_ranges_updated_stringkey.size();
+        // if((int)len != 0){
+        //   std::cerr << "split__level_ranges_stringkey is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        // }
+        // if((int)len2 != 0){
+        //   std::cerr << "split__level_ranges_updated_stringkey is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+        //             << "len2 = " << len2 << std::endl;
+        // }
+        // split__level_ranges_stringkey = split_plrdf_stringkey_prime.getLevelRanges(out_lvl);
+        split_plrdf_stringkey__level_points.clear();
+        split_plrdf_stringkey__out_level = out_lvl;
+        // split_plrdf_stringkey__level_range_idx = out_lvl;
+      }
+      
 
       //Top Level RDF
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
@@ -1152,6 +1273,11 @@ class ColumnFamilyData {
                   << "key_in: " << key_in << std::endl;
         exit(1);
       }
+      
+      //Split RDF Stringkey
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+        split_plrdf_stringkey__level_points.push_back(key_in_str);
+      }
     }
   }
 
@@ -1171,7 +1297,12 @@ class ColumnFamilyData {
         split__level_range_idx = 0;
       }
       
+      // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+      //   // split_plrdf_stringkey__level_range_idx = 0;
+      // }
+
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
+        || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")
         || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")
         || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF") ){
         split__level_update_mtx.unlock();
@@ -1215,6 +1346,17 @@ class ColumnFamilyData {
     return split__out_level;
   }
 
+  
+  void clear_split_stringkey__out_level(){
+    std::lock_guard<std::mutex> guard(split__level_update_mtx);
+    split_plrdf_stringkey__out_level = -1;
+  }
+
+  int get_split_stringkey__out_level(){
+    std::lock_guard<std::mutex> guard(split__level_update_mtx);
+    return split_plrdf_stringkey__out_level;
+  }
+
 
 
   void set_flush_in_file_num(uint64_t num){
@@ -1233,6 +1375,12 @@ class ColumnFamilyData {
   }
   std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF(){
     return split_plrdf_prime.getNumbersOfRangesInRDFLog();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInPLRDFStringKey(){
+    return plrdf_stringkey_prime.getNumbersOfRangesInRDFLog();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInSplitPLRDFStringKey(){
+    return split_plrdf_stringkey_prime.getNumbersOfRangesInRDFLog();
   }
   std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF(){
     return top_level_rdf_prime.getNumbersOfRangesInRDFLog();
@@ -1322,16 +1470,18 @@ class ColumnFamilyData {
 
   surf::SuRF_RDF *surf__level_file_rdf_prime = new surf::SuRF_RDF(surf::SuRF_RDF::RDF_MODE::PER_FILE);
   surf::SuRF_RDF *surf__level_file_split_rdf_prime = new surf::SuRF_RDF(surf::SuRF_RDF::RDF_MODE::PER_FILE);
+
+  PLRDF_t<std::string> plrdf_stringkey_prime, split_plrdf_stringkey_prime;
   
   // for plrdf_prime
   std::tuple<uint64_t, std::vector<pll>, std::vector<uint64_t>> flush_to_level0_RD_vector = std::make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
   std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  compaction_moving_RD_vector;
   std::tuple<int, std::vector<pll>, std::vector<uint64_t>> compaction_direct_delete_RD_vector = std::make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
   
-  // for plrdf_prime_pss
-  std::tuple<uint64_t, std::vector<pss>, std::vector<uint64_t>> flush_to_level0_RD_vector_pss = std::make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
-  std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>  compaction_moving_RD_vector_pss;
-  std::tuple<int, std::vector<pss>, std::vector<uint64_t>> compaction_direct_delete_RD_vector_pss = std::make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
+  // for plrdf_string_key_prime
+  std::tuple<uint64_t, std::vector<pss>, std::vector<uint64_t>> flush_to_level0_RD_vector_stringkey = std::make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
+  std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>  compaction_moving_RD_vector_stringkey;
+  std::tuple<int, std::vector<pss>, std::vector<uint64_t>> compaction_direct_delete_RD_vector_stringkey = std::make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
   
 
   int flush_install_count_clr = 0;
@@ -1346,16 +1496,7 @@ class ColumnFamilyData {
   std::vector<pll> split__level_ranges_updated;
   std::vector<long long> split__level_points;
   std::mutex split__level_update_mtx;
-
-  //for split_plrdf_prime_pss
-  std::tuple<uint64_t, std::vector<pss>, std::vector<uint64_t>> split__flush_to_level0_RD_vector_pss = std::make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
-  std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>  split__compaction_moving_RD_vector_pss;
-  std::tuple<int, std::vector<pss>, std::vector<uint64_t>> split__compaction_direct_delete_RD_vector_pss = std::make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
-  std::vector<pss> split__level_ranges_pss;
-  std::vector<pss> split__level_ranges_updated_pss;
-  std::vector<pss> split__level_points_pss;
-  // std::mutex split__level_update_mtx;
-
+  
   int split__flush_install_count_clr = 0;
   int split__compaction_install_count_clr = 0;
   int split__call_before_install_superversion_count = 0;
@@ -1363,6 +1504,17 @@ class ColumnFamilyData {
   int split__out_level = -1;
   int split__fin_flag = 0;
   int split__level_range_idx = 0;
+
+  //for split_plrdf_prime_pss
+  std::tuple<uint64_t, std::vector<pss>, std::vector<uint64_t>> split__flush_to_level0_RD_vector_stringkey = std::make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
+  std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>  split__compaction_moving_RD_vector_stringkey;
+  std::tuple<int, std::vector<pss>, std::vector<uint64_t>> split__compaction_direct_delete_RD_vector_stringkey = std::make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
+  // std::vector<pss> split__level_ranges_stringkey;
+  // std::vector<pss> split__level_ranges_updated_stringkey;
+  std::vector<std::string> split_plrdf_stringkey__level_points;
+  int split_plrdf_stringkey__out_level = -1;
+  // int split_plrdf_stringkey__level_range_idx = 0;
+
 
   //for top_level_rdf 
   uint64_t flush_in_file_num = 0;

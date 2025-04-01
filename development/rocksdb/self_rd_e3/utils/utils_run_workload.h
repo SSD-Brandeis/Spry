@@ -219,8 +219,8 @@ logger_during_insertion->writeRecord(db_ptr2);
       }
     }
   }
-  std::cout << "insertion_time_ns = " << insertion_time_ns << std::endl;
-  std::cout << "rd_time_ns = " << rd_time_ns << std::endl;
+  std::cout << "insertion_time_ns_out = " << insertion_time_ns << std::endl;
+  std::cout << "rd_time_ns_out = " << rd_time_ns << std::endl;
 
 
   std::cout << "!!! Final Flush. (Manually Flush) " << std::endl;
@@ -315,7 +315,8 @@ logger_during_insertion->writeRecord(db_ptr2);
     std::cout << "total_read_count = " << total_read_count_end - total_read_count_start << std::endl;
     std::cout << "total_read_bytes = " << total_read_bytes_end - total_read_bytes_start << std::endl;
 
-    print_perf_iostats_context(std::cout, 1);
+    std::string prefix = "utils_run_worload_test ";
+    print_perf_iostats_context(std::cout, prefix,  1);
   }
 
   std::cout << "!!! several gets done " << std::endl;

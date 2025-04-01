@@ -1426,6 +1426,37 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
       this->split__flush_to_level0_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
     }
 
+    
+    //PLRDF Stringkey
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")){
+      auto &file_num = std::get<0>(this->flush_to_level0_RD_vector_stringkey);
+      auto &range_delete_list_in = std::get<1>(this->flush_to_level0_RD_vector_stringkey);
+      auto &exist_level0_file_nums = std::get<2>(this->flush_to_level0_RD_vector_stringkey);
+      (this->plrdf_stringkey_prime).insertRangeDeleteToLevel0(file_num, 
+                                                    range_delete_list_in, 
+                                                    exist_level0_file_nums);
+
+      this->flush_to_level0_RD_vector_stringkey = make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
+    }
+
+
+    //Split PLRDF StringKey
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+      auto &file_num2 = std::get<0>(this->split__flush_to_level0_RD_vector_stringkey);
+      auto &range_delete_list_in2 = std::get<1>(this->split__flush_to_level0_RD_vector_stringkey);
+      auto &exist_level0_file_nums2 = std::get<2>(this->split__flush_to_level0_RD_vector_stringkey);
+      //Split PLRDF StringKey
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+        (this->split_plrdf_stringkey_prime).insertRangeDeleteToLevel0(file_num2, 
+                                                      range_delete_list_in2, 
+                                                      exist_level0_file_nums2);
+      }
+    }
+
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+      this->split__flush_to_level0_RD_vector_stringkey = make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
+    }
+
     // //SuRF level file RDF
     if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
       surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
@@ -1647,6 +1678,35 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
           this->clear_split__level_ranges_updated();
         }
       }
+
+      //PLRDF Stringkey
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")){
+        (this->plrdf_stringkey_prime).shiftRDFToOutputLevel(&this->compaction_moving_RD_vector_stringkey);
+        this->compaction_moving_RD_vector_stringkey.clear();
+      }
+      
+      //Split PLRDF Stringkey
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+        (this->split_plrdf_stringkey_prime).shiftRDFToOutputLevel(&this->split__compaction_moving_RD_vector_stringkey);
+      }
+
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+        this->split__compaction_moving_RD_vector_stringkey.clear();
+      }
+
+      //Split PLRDF Stringkey
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+        if(split_flag == true){ //complete compaction
+          (this->split_plrdf_stringkey_prime).splitRangesOnLevel((uint)this->get_split_stringkey__out_level(), this->split_plrdf_stringkey__level_points);
+          this->split_plrdf_stringkey__level_points.clear();
+
+          // this->clear_split__count();
+          // this->clear_split__fin_flag();
+          // this->clear_split__out_level();
+          // this->clear_split__level_ranges_updated();
+        }
+      }
+      
 
       //SuRF level file RDF
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
@@ -2160,6 +2220,18 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
         this->split__compaction_direct_delete_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
       }
 
+      //PLRDF Stringkey
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")){
+        (this->plrdf_stringkey_prime).deleteRDFAssociatedWithFilesAtCurrentLevel(&this->compaction_direct_delete_RD_vector_stringkey);
+        this->compaction_direct_delete_RD_vector_stringkey = make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
+      }
+
+      //Split PLRDF Stringkey
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+        (this->split_plrdf_stringkey_prime).deleteRDFAssociatedWithFilesAtCurrentLevel(&this->split__compaction_direct_delete_RD_vector_stringkey);
+        this->split__compaction_direct_delete_RD_vector_stringkey = make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
+      }
+
       //SuRF level file RDF
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
         if(this->surf__compaction_direct_delete_RD_vector != nullptr){
@@ -2237,6 +2309,8 @@ void ColumnFamilyData::logCurrentTotalNumbersOfRangesInEachRDF(uint32_t origin_c
 
   plrdf_prime.logCurrentTotalNumbersOfRanges();
   split_plrdf_prime.logCurrentTotalNumbersOfRanges();
+  plrdf_stringkey_prime.logCurrentTotalNumbersOfRanges();
+  split_plrdf_stringkey_prime.logCurrentTotalNumbersOfRanges();
   top_level_rdf_prime.logCurrentTotalNumbersOfRanges();
   skyline_rdf_prime.logCurrentTotalNumbersOfRanges();
 
@@ -2245,9 +2319,11 @@ void ColumnFamilyData::logCurrentTotalNumbersOfRangesInEachRDF(uint32_t origin_c
 }
 void ColumnFamilyData::logCurrentTotalMmeoryUsageInEachRDF(uint32_t origin_bytes){
   origin_info_prime.logCurrentTotalMemoryUsage(origin_bytes);
-
+  
   plrdf_prime.logCurrentTotalMemoryUsage();
   split_plrdf_prime.logCurrentTotalMemoryUsage();
+  plrdf_stringkey_prime.logCurrentTotalMemoryUsage();
+  split_plrdf_stringkey_prime.logCurrentTotalMemoryUsage();
   top_level_rdf_prime.logCurrentTotalMemoryUsage();
   skyline_rdf_prime.logCurrentTotalMemoryUsage();
   
@@ -2302,6 +2378,16 @@ void ColumnFamilyData::InstallSuperVersion(
       }
       this->clear_split__call_before_install_superversion_count();
     }
+    
+    //PLRDF Stringkey
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")){
+      current_->setPLRDFStringKey(this->plrdf_stringkey_prime);
+    }
+
+    //Split PLRDF Stringkey
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+      current_->setSplitPLRDFStringKey(this->split_plrdf_stringkey_prime);
+    }
 
     //Top Level RDF
     if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
@@ -2346,6 +2432,18 @@ void ColumnFamilyData::InstallSuperVersion(
                   << this->get_split__call_before_install_superversion_count() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       }
       this->clear_split__call_before_install_superversion_count();
+    }
+
+    //PLRDF Stringkey
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")){
+      (this->plrdf_stringkey_prime).deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
+      current_->setPLRDFStringKey(this->plrdf_stringkey_prime);
+    }
+
+    //Split PLRDF Stringkey
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+      (this->split_plrdf_stringkey_prime).deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
+      current_->setSplitPLRDFStringKey(this->split_plrdf_stringkey_prime);
     }
 
     //Top Level RDF

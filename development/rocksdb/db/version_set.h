@@ -1209,10 +1209,10 @@ class Version {
           tombstone_iter->SeekToFirst();
           // TODO: print timestamp
           while (tombstone_iter->Valid()) {
-            std::cout << "start: " << tombstone_iter->start_key().ToString(true)
-              << " end: " << tombstone_iter->end_key().ToString(true)
-              << " seq: " << tombstone_iter->seq() 
-              << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<'\n';
+            // std::cout << "start: " << tombstone_iter->start_key().ToString(true)
+            //   << " end: " << tombstone_iter->end_key().ToString(true)
+            //   << " seq: " << tombstone_iter->seq() 
+            //   << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<'\n';
             size += tombstone_iter->start_key().ToString(true).size();
             size += tombstone_iter->end_key().ToString(true).size();
             size += sizeof(tombstone_iter->seq());
@@ -1234,6 +1234,14 @@ class Version {
 
   void setSplitPLRDF(PLRDF &split_plrdf_in){
     split_plrdf = split_plrdf_in;
+  }
+  
+  void setPLRDFStringKey(PLRDF_t<std::string> plrdf_stringkey_in){
+    plrdf_stringkey = plrdf_stringkey_in;
+  }
+
+  void setSplitPLRDFStringKey(PLRDF_t<std::string> &split_plrdf_stringkey_in){
+    split_plrdf_stringkey = split_plrdf_stringkey_in;
   }
   
   void setTopLevelRDF(PLRDF &top_level_rdf_in){
@@ -1261,6 +1269,14 @@ class Version {
   bool isAliveAfterSplitRDFilter(uint level, long long key){
     return (this->split_plrdf).isEntryAlive(level, key);
   }
+
+  bool isAliveAfterRDFilterStringKey(uint level, std::string key){
+    return (this->plrdf_stringkey).isEntryAlive(level, key);
+  }
+  
+  bool isAliveAfterSplitRDFilterStringKey(uint level, std::string key){
+    return (this->split_plrdf_stringkey).isEntryAlive(level, key);
+  }
   
   bool isAliveAfterTopLevelRDFilter(long long key){
     return (this->top_level_rdf).isEntryAlive(1, key);
@@ -1281,6 +1297,16 @@ class Version {
     bool is_alive =  (this->surf__level_file_split_rdf)->isEntryAliveAtLevelOfFd(level, fd, key, flag_bypass_if_same_key);
     // std::cout << "level= " << level << " fd=" << fd << " key=" << key << " flag_bypass_if_same_key=" << flag_bypass_if_same_key << " is_alive=" << is_alive << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     return is_alive;
+  }
+  
+  //start: can only be called after isAliveAfterPLRDFStringKey is called
+  bool isKeyMayDeletedAfterPLRDFStringKey(){
+    return (this->plrdf_stringkey).getFlagKeyMayDeleted();
+  }
+  
+  //start: can only be called after isAliveAfterSplitPLRDFStringKey is called
+  bool isKeyMayDeletedAfterSplitPLRDFStringKey(){
+    return (this->split_plrdf_stringkey).getFlagKeyMayDeleted();
   }
   
   //start: can only be called after isAliveAfterSuRFLevelFileRDFilter is called
@@ -1306,6 +1332,16 @@ class Version {
   void printSplitPLRDF(){
     split_plrdf.printLevel0();
     split_plrdf.print();
+  }
+
+  void printPLRDFStringKey(){
+    plrdf_stringkey.printLevel0();
+    plrdf_stringkey.print();
+  }
+
+  void printSplitPLRDFStringKey(){
+    split_plrdf_stringkey.printLevel0();
+    split_plrdf_stringkey.print();
   }
 
 
@@ -1338,6 +1374,12 @@ class Version {
   int getSplitPLRDFNumberOfTotalRanges(){
     return split_plrdf.getNumberOfTotalRanges();
   }
+  int getPLRDFStringKeyNumberOfTotalRanges(){
+    return plrdf_stringkey.getNumberOfTotalRanges();
+  }
+  int getSplitPLRDFStringKeyNumberOfTotalRanges(){
+    return split_plrdf_stringkey.getNumberOfTotalRanges();
+  }
   int getTopLevelRDFNumberOfTotalRanges(){
     return top_level_rdf.getNumberOfTotalRanges();
   }
@@ -1362,6 +1404,12 @@ class Version {
   int getSplitPLRDFNumberOfTotalMemoryUsage(){
     return split_plrdf.getNumberOfTotalMemoryUsage();
   }
+  int getPLRDFStringKeyNumberOfTotalMemoryUsage(){
+    return plrdf_stringkey.getNumberOfTotalMemoryUsage();
+  }
+  int getSplitPLRDFStringKeyNumberOfTotalMemoryUsage(){
+    return split_plrdf_stringkey.getNumberOfTotalMemoryUsage();
+  }
   int getTopLevelRDFNumberOfTotalMemoryUsage(){
     return top_level_rdf.getNumberOfTotalMemoryUsage();
   }
@@ -1385,6 +1433,12 @@ class Version {
   }
   int getSplitPLRDFNumberOfTotalLevels(){
     return split_plrdf.getNumberOfTotalLevels();
+  }
+  int getPLRDFStringKeyNumberOfTotalLevels(){
+    return plrdf_stringkey.getNumberOfTotalLevels();
+  }
+  int getSplitPLRDFStringKeyNumberOfTotalLevels(){
+    return split_plrdf_stringkey.getNumberOfTotalLevels();
   }
   int getTopLevelRDFNumberOfTotalLevels(){
     return top_level_rdf.getNumberOfTotalLevels();
@@ -1416,6 +1470,12 @@ class Version {
   std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF(){
     return split_plrdf.getNumbersOfRangesInRDFLog();
   }
+  std::vector<int> getLogOfNumbersOfRangesInPLRDFStringKey(){
+    return plrdf_stringkey.getNumbersOfRangesInRDFLog();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInSplitPLRDFStringKey(){
+    return split_plrdf_stringkey.getNumbersOfRangesInRDFLog();
+  }
   std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF(){
     return top_level_rdf.getNumbersOfRangesInRDFLog();
   }
@@ -1446,6 +1506,12 @@ class Version {
   std::vector<int> getLogOfMemoryUsageInSplitRDF(){
     return split_plrdf.getMemoryUsageInRDFLog();
   }
+  std::vector<int> getLogOfMemoryUsageInPLRDFStringKey(){
+    return plrdf_stringkey.getMemoryUsageInRDFLog();
+  }
+  std::vector<int> getLogOfMemoryUsageInSplitRDFStringKey(){
+    return split_plrdf_stringkey.getMemoryUsageInRDFLog();
+  }
   std::vector<int> getLogOfMemoryUsageInTopLevelRDF(){
     return top_level_rdf.getMemoryUsageInRDFLog();
   }
@@ -1465,6 +1531,32 @@ class Version {
     }
     return surf__level_file_split_rdf->getMemoryUsageInRDFLog();
   }
+  
+  
+  double getFilterFalsePositiveRateInPLRDFStringKey() {
+    // if(plrdf_stringkey.empty()){
+    //   return -1;
+    // }
+    return plrdf_stringkey.getFilterFalsePositiveRate();
+  };
+  double getFilterFalsePositiveRateInSplitPLRDFStringKey() {
+    // if(split_plrdf_stringkey == NULL){
+    //   return -1;
+    // }
+    return split_plrdf_stringkey.getFilterFalsePositiveRate();
+  };
+  void clearFilterFalsePositiveRateInPLRDFStringKey() {
+    // if(plrdf_stringkey == NULL){
+    //   return;
+    // }
+    return plrdf_stringkey.clearFilterFalsePositiveRate();
+  };
+  void clearFilterFalsePositiveRateInSplitPLRDFStringKey() {
+    // if(split_plrdf_stringkey == NULL){
+    //   return;
+    // }
+    return split_plrdf_stringkey.clearFilterFalsePositiveRate();
+  };
 
   
   double getFilterFalsePositiveRateInSuRFLevelFileRDF() {
@@ -1567,12 +1659,37 @@ class Version {
     return compaction_direct_delete_RD_vector;
   }
 
+  void set_flush_to_level0_RD_vector_stringkey(std::pair<uint64_t, std::vector<pss>> flush_to_level0_RD_vector_stringkey_in){
+    flush_to_level0_RD_vector_stringkey = flush_to_level0_RD_vector_stringkey_in;
+  }
+
+  std::pair<uint64_t, std::vector<pss>> get_flush_to_level0_RD_vector_stringkey(){
+    return flush_to_level0_RD_vector_stringkey;
+  }
+
+  void set_compaction_moving_RD_vector_stringkey(std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>  compaction_moving_RD_vector_stringkey_in){
+    compaction_moving_RD_vector_stringkey = compaction_moving_RD_vector_stringkey_in;
+  }
+
+  std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>  get_compaction_moving_RD_vector_stringkey(){
+    return compaction_moving_RD_vector_stringkey;
+  }
+
+  void set_compaction_direct_delete_RD_vector_stringkey(std::tuple<int, std::vector<pss>, std::vector<uint64_t>> compaction_direct_delete_RD_vector_stringkey_in){
+    compaction_direct_delete_RD_vector_stringkey = compaction_direct_delete_RD_vector_stringkey_in;
+  }
+
+  std::tuple<int, std::vector<pss>, std::vector<uint64_t>> get_compaction_direct_delete_RD_vector_stringkey(){
+    return compaction_direct_delete_RD_vector_stringkey;
+  }
+
 
   
  private:
   //Self Added start
   OriginInfo origin_info;
   PLRDF plrdf, split_plrdf;
+  PLRDF_t<std::string> plrdf_stringkey, split_plrdf_stringkey;
   PLRDF top_level_rdf;
   SkyLineRDF skyline_rdf;
   surf::SuRF_RDF *surf__level_file_rdf = nullptr;
@@ -1581,6 +1698,12 @@ class Version {
   std::pair<uint64_t, std::vector<pll>> flush_to_level0_RD_vector;
   std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> compaction_moving_RD_vector;
   std::tuple<int, std::vector<pll>, std::vector<uint64_t>> compaction_direct_delete_RD_vector;
+
+  
+  std::pair<uint64_t, std::vector<pss>> flush_to_level0_RD_vector_stringkey;
+  std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>> compaction_moving_RD_vector_stringkey;
+  std::tuple<int, std::vector<pss>, std::vector<uint64_t>> compaction_direct_delete_RD_vector_stringkey;
+
 
   int installSuperversion_count = 0;
   int flush_install_count = 0;

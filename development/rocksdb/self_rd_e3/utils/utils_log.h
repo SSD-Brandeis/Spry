@@ -14,7 +14,7 @@
 
 
 
-void print_perf_iostats_context(std::ostream& ofile, int N_repetitions);
+void print_perf_iostats_context(std::ostream& ofile, const std::string &prefix, int N_repetitions);
 void write_log2(std::ostream &outStream, EmuEnv* _env, surf::SuRF_Env* _surf_env);
 void io_timing_test(DB* db);
 
@@ -79,11 +79,11 @@ class TestingLogger{
     }
 
 
-    void output_statistics(std::ostream& testing_result_file, std::ostream& testing_result_file2, std::string prefix){
+    void output_statistics(std::ostream& testing_result_file, std::ostream& testing_result_file2, const std::string &prefix){
       testing_result_file << "Avg_read_count = " << std::fixed << std::setprecision(2) << (total_read_count) * 1.0 / i_round << std::endl;
       testing_result_file << "Avg_read_bytes = " << std::fixed << std::setprecision(2) << (total_read_bytes) * 1.0 / i_round << std::endl;
       testing_result_file << std::endl;
-      print_perf_iostats_context(testing_result_file, i_round);
+      print_perf_iostats_context(testing_result_file, prefix, i_round);
       testing_result_file << std::endl;
 
       testing_result_file2 << ",\"" << prefix << "Avg_read_count\" : " << std::fixed << std::setprecision(2) << (total_read_count) * 1.0 / i_round << std::endl;
@@ -97,46 +97,46 @@ class TestingLogger{
 
 
 
-void print_perf_iostats_context(std::ostream& ofile, int N_repetitions){
+void print_perf_iostats_context(std::ostream& ofile, const std::string &prefix, int N_repetitions){
   
     std::string perf_context = rocksdb::get_perf_context()->ToString();
     std::cout << "perf_context = " << perf_context << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // std::cout << " rocksdb::get_perf_context()->bloom_sst_miss_count = " <<  rocksdb::get_perf_context()->bloom_sst_miss_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // std::cout << " rocksdb::get_perf_context()->bloom_sst_hit_count = " <<  rocksdb::get_perf_context()->bloom_sst_hit_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
-    long long get_from_memtable_time = parsing_value_from_string(perf_context, "get_from_memtable_time[^:]*= ([0-9]+)");
-    long long get_from_memtable_count = parsing_value_from_string(perf_context, "get_from_memtable_count[^:]*= ([0-9]+)");
-    long long get_post_process_time = parsing_value_from_string(perf_context, "get_post_process_time[^:]*= ([0-9]+)");
+    long long get_from_memtable_time = parsing_value_from_string(perf_context, "get_from_memtable_time[^:]*=.([0-9]+)");
+    long long get_from_memtable_count = parsing_value_from_string(perf_context, "get_from_memtable_count[^:]*=.([0-9]+)");
+    long long get_post_process_time = parsing_value_from_string(perf_context, "get_post_process_time[^:]*=.([0-9]+)");
 
-    long long bloom_memtable_hit_count = parsing_value_from_string(perf_context, "bloom_memtable_hit_count[^:]*= ([0-9]+)");
-    long long bloom_memtable_miss_count = parsing_value_from_string(perf_context, "bloom_memtable_miss_count[^:]*= ([0-9]+)");
-    long long bloom_sst_hit_count = parsing_value_from_string(perf_context, "bloom_sst_hit_count[^:]*= ([0-9]+)");
-    long long bloom_sst_miss_count = parsing_value_from_string(perf_context, "bloom_sst_miss_count[^:]*= ([0-9]+)");
+    long long bloom_memtable_hit_count = parsing_value_from_string(perf_context, "bloom_memtable_hit_count[^:]*=.([0-9]+)");
+    long long bloom_memtable_miss_count = parsing_value_from_string(perf_context, "bloom_memtable_miss_count[^:]*=.([0-9]+)");
+    long long bloom_sst_hit_count = parsing_value_from_string(perf_context, "bloom_sst_hit_count[^:]*=.([0-9]+)");
+    long long bloom_sst_miss_count = parsing_value_from_string(perf_context, "bloom_sst_miss_count[^:]*=.([0-9]+)");
 
 
-    long long block_read_count = parsing_value_from_string(perf_context, "block_read_count[^:]*= ([0-9]+)");
-    long long block_read_byte = parsing_value_from_string(perf_context, "block_read_byte[^:]*= ([0-9]+)");
-    long long block_read_time = parsing_value_from_string(perf_context, "block_read_time[^:]*= ([0-9]+)");
-    long long block_read_cpu_time = parsing_value_from_string(perf_context, "block_read_cpu_time[^:]*= ([0-9]+)");
-    long long index_block_read_count = parsing_value_from_string(perf_context, "index_block_read_count[^:]*= ([0-9]+)");
-    long long filter_block_read_count = parsing_value_from_string(perf_context, "filter_block_read_count[^:]*= ([0-9]+)");
-    long long compression_dict_block_read_count = parsing_value_from_string(perf_context, "compression_dict_block_read_count[^:]*= ([0-9]+)");
-    long long get_read_bytes = parsing_value_from_string(perf_context, "get_read_bytes[^:]*= ([0-9]+)");
-    long long read_index_block_nanos = parsing_value_from_string(perf_context, "read_index_block_nanos[^:]*= ([0-9]+)");
-    long long read_filter_block_nanos = parsing_value_from_string(perf_context, "read_filter_block_nanos[^:]*= ([0-9]+)");
-    long long internal_key_skipped_count = parsing_value_from_string(perf_context, "internal_key_skipped_count[^:]*= ([0-9]+)");
-    long long internal_delete_skipped_count = parsing_value_from_string(perf_context, "internal_delete_skipped_count[^:]*= ([0-9]+)");
-    long long internal_recent_skipped_count = parsing_value_from_string(perf_context, "internal_recent_skipped_count[^:]*= ([0-9]+)");
-    long long internal_range_del_reseek_count = parsing_value_from_string(perf_context, "internal_range_del_reseek_count[^:]*= ([0-9]+)");
+    long long block_read_count = parsing_value_from_string(perf_context, "block_read_count[^:]*=.([0-9]+)");
+    long long block_read_byte = parsing_value_from_string(perf_context, "block_read_byte[^:]*=.([0-9]+)");
+    long long block_read_time = parsing_value_from_string(perf_context, "block_read_time[^:]*=.([0-9]+)");
+    long long block_read_cpu_time = parsing_value_from_string(perf_context, "block_read_cpu_time[^:]*=.([0-9]+)");
+    long long index_block_read_count = parsing_value_from_string(perf_context, "index_block_read_count[^:]*=.([0-9]+)");
+    long long filter_block_read_count = parsing_value_from_string(perf_context, "filter_block_read_count[^:]*=.([0-9]+)");
+    long long compression_dict_block_read_count = parsing_value_from_string(perf_context, "compression_dict_block_read_count[^:]*=.([0-9]+)");
+    long long get_read_bytes = parsing_value_from_string(perf_context, "get_read_bytes[^:]*=.([0-9]+)");
+    long long read_index_block_nanos = parsing_value_from_string(perf_context, "read_index_block_nanos[^:]*=.([0-9]+)");
+    long long read_filter_block_nanos = parsing_value_from_string(perf_context, "read_filter_block_nanos[^:]*=.([0-9]+)");
+    long long internal_key_skipped_count = parsing_value_from_string(perf_context, "internal_key_skipped_count[^:]*=.([0-9]+)");
+    long long internal_delete_skipped_count = parsing_value_from_string(perf_context, "internal_delete_skipped_count[^:]*=.([0-9]+)");
+    long long internal_recent_skipped_count = parsing_value_from_string(perf_context, "internal_recent_skipped_count[^:]*=.([0-9]+)");
+    long long internal_range_del_reseek_count = parsing_value_from_string(perf_context, "internal_range_del_reseek_count[^:]*=.([0-9]+)");
 
 
     std::string iostats_context = rocksdb::get_iostats_context()->ToString();
     std::cout << "iostats_context = " << iostats_context << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
-    long long bytes_read = parsing_value_from_string(iostats_context, "bytes_read[^:]*= ([0-9]+)");
-    long long bytes_written = parsing_value_from_string(iostats_context, "bytes_written[^:]*= ([0-9]+)");
-    long long read_nanos = parsing_value_from_string(iostats_context, "read_nanos[^:]*= ([0-9]+)");
-    long long write_nanos = parsing_value_from_string(iostats_context, "write_nanos[^:]*= ([0-9]+)");
+    long long bytes_read = parsing_value_from_string(iostats_context, "bytes_read[^:]*=.([0-9]+)");
+    long long bytes_written = parsing_value_from_string(iostats_context, "bytes_written[^:]*=.([0-9]+)");
+    long long read_nanos = parsing_value_from_string(iostats_context, "read_nanos[^:]*=.([0-9]+)");
+    long long write_nanos = parsing_value_from_string(iostats_context, "write_nanos[^:]*=.([0-9]+)");
 
     //print out all the above variable
     ofile << "get_from_memtable_time = " << std::fixed << std::setprecision(2) << get_from_memtable_time * 1.0 / N_repetitions << std::endl;
@@ -169,6 +169,36 @@ void print_perf_iostats_context(std::ostream& ofile, int N_repetitions){
     ofile << "read_nanos = " << std::fixed << std::setprecision(2) << read_nanos * 1.0 / N_repetitions << std::endl;
     ofile << "write_nanos = " << std::fixed << std::setprecision(2) << write_nanos * 1.0 / N_repetitions << std::endl;
     ofile << "--------------------------------------------------------------------" << std::endl;
+
+    // std::cout << prefix + "get_from_memtable_time _out = " << std::fixed << std::setprecision(2) << get_from_memtable_time * 1.0 / N_repetitions << std::endl;
+    // std::cout << prefix + "get_from_memtable_count _out = " << std::fixed << std::setprecision(2) << get_from_memtable_count * 1.0 / N_repetitions << std::endl;
+    // std::cout << prefix + "get_post_process_time _out = " << std::fixed << std::setprecision(2) << get_post_process_time * 1.0 / N_repetitions << std::endl;
+    std::cout << prefix + "bloom_memtable_hit_count _out = " << std::fixed << std::setprecision(2) << bloom_memtable_hit_count * 1.0 / N_repetitions << std::endl;
+    std::cout << prefix + "bloom_memtable_miss_count _out = " << std::fixed << std::setprecision(2) << bloom_memtable_miss_count * 1.0 / N_repetitions << std::endl;
+    std::cout << prefix + "bloom_sst_hit_count _out = " << std::fixed << std::setprecision(2) << bloom_sst_hit_count * 1.0 / N_repetitions << std::endl;
+    std::cout << prefix + "bloom_sst_miss_count _out = " << std::fixed << std::setprecision(2) << bloom_sst_miss_count * 1.0 / N_repetitions << std::endl;
+    
+
+    std::cout << prefix + "block_read_count _out = " << std::fixed << std::setprecision(2) << block_read_count * 1.0 / N_repetitions << std::endl;
+    std::cout << prefix + "block_read_byte _out = " << std::fixed << std::setprecision(2) << block_read_byte * 1.0 / N_repetitions << std::endl;
+    std::cout << prefix + "block_read_time _out = " << std::fixed << std::setprecision(2) << block_read_time * 1.0 / N_repetitions << std::endl;
+    std::cout << prefix + "block_read_cpu_time _out = " << std::fixed << std::setprecision(2) << block_read_cpu_time * 1.0 / N_repetitions << std::endl;
+    std::cout << prefix + "index_block_read_count _out = " << std::fixed << std::setprecision(2) << index_block_read_count * 1.0 / N_repetitions << std::endl;
+    std::cout << prefix + "filter_block_read_count _out = " << std::fixed << std::setprecision(2) << filter_block_read_count * 1.0 / N_repetitions << std::endl;
+    // std::cout << prefix + "compression_dict_block_read_count _out = " << std::fixed << std::setprecision(2) << compression_dict_block_read_count * 1.0 / N_repetitions << std::endl;
+    std::cout << prefix + "get_read_bytes _out = " << std::fixed << std::setprecision(2) << get_read_bytes * 1.0 / N_repetitions << std::endl;
+    // std::cout << prefix + "read_index_block_nanos _out = " << std::fixed << std::setprecision(2) << read_index_block_nanos * 1.0 / N_repetitions << std::endl;
+    // std::cout << prefix + "read_filter_block_nanos _out = " << std::fixed << std::setprecision(2) << read_filter_block_nanos * 1.0 / N_repetitions << std::endl;
+    // std::cout << prefix + "internal_key_skipped_count _out = " << std::fixed << std::setprecision(2) << internal_key_skipped_count * 1.0 / N_repetitions << std::endl;
+    // std::cout << prefix + "internal_delete_skipped_count _out = " << std::fixed << std::setprecision(2) << internal_delete_skipped_count * 1.0 / N_repetitions << std::endl;
+    // std::cout << prefix + "internal_recent_skipped_count _out = " << std::fixed << std::setprecision(2) << internal_recent_skipped_count * 1.0 / N_repetitions << std::endl;
+    // std::cout << prefix + "internal_range_del_reseek_count _out = " << std::fixed << std::setprecision(2) << internal_range_del_reseek_count * 1.0 / N_repetitions << std::endl;
+
+
+    std::cout << prefix + "bytes_read _out = " << std::fixed << std::setprecision(2) << bytes_read * 1.0 / N_repetitions << std::endl;
+    std::cout << prefix + "bytes_written _out = " << std::fixed << std::setprecision(2) << bytes_written * 1.0 / N_repetitions << std::endl;
+    // std::cout << prefix + "read_nanos _out = " << std::fixed << std::setprecision(2) << read_nanos * 1.0 / N_repetitions << std::endl;
+    // std::cout << prefix + "write_nanos _out = " << std::fixed << std::setprecision(2) << write_nanos * 1.0 / N_repetitions << std::endl;
 }
 
 
@@ -211,6 +241,8 @@ void write_log2(std::ostream &outStream, EmuEnv* _env, surf::SuRF_Env* _surf_env
 void io_timing_test(DB* db){
   vector<int> ranges_log_PLRDF = db->getLogOfNumbersOfRangesInPLRDF();
   vector<int> ranges_log_SplitPLRDF = db->getLogOfNumbersOfRangesInSplitPLRDF();
+  vector<int> ranges_log_PLRDFStringKey = db->getLogOfNumbersOfRangesInPLRDFStringKey();
+  vector<int> ranges_log_SplitPLRDFStringKey = db->getLogOfNumbersOfRangesInSplitPLRDFStringKey();
   vector<int> ranges_log_TopLevelRDF = db->getLogOfNumbersOfRangesInTopLevelRDF();
   vector<int> ranges_log_SkylineRDF = db->getLogOfNumbersOfRangesInSkylineRDF();
   vector<int> ranges_log_SuRFLevelFileRDF = db->getLogOfNumbersOfRangesInSuRFLevelFileRDF();
@@ -218,6 +250,8 @@ void io_timing_test(DB* db){
 
   vector<int> memory_usage_log_PLRDF = db->getLogOfMemoryUsageInPLRDF();
   vector<int> memory_usage_log_SplitPLRDF = db->getLogOfMemoryUsageInSplitRDF();
+  vector<int> memory_usage_log_PLRDFStringKey = db->getLogOfMemoryUsageInPLRDFStringKey();
+  vector<int> memory_usage_log_SplitPLRDFStringKey = db->getLogOfMemoryUsageInSplitRDFStringKey();
   vector<int> memory_usage_log_TopLevelRDF = db->getLogOfMemoryUsageInTopLevelRDF();
   vector<int> memory_usage_log_SkylineRDF = db->getLogOfMemoryUsageInSkylineRDF();
   vector<int> memory_usage_log_SuRFLevelFileRDF = db->getLogOfMemoryUsageInSuRFLevelFileRDF();
@@ -231,6 +265,16 @@ void io_timing_test(DB* db){
   std::cout << "Ranges Log Of SplitPLRDF: " << std::endl;
   for (int i = 0; i < ranges_log_SplitPLRDF.size(); i++) {
     std::cout << ranges_log_SplitPLRDF[i] << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "Ranges Log Of PLRDFStringKey: " << std::endl;
+  for (int i = 0; i < ranges_log_PLRDFStringKey.size(); i++) {
+    std::cout << ranges_log_PLRDFStringKey[i] << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "Ranges Log Of SplitPLRDFStringKey: " << std::endl;
+  for (int i = 0; i < ranges_log_SplitPLRDFStringKey.size(); i++) {
+    std::cout << ranges_log_SplitPLRDFStringKey[i] << " ";
   }
   std::cout << std::endl;
   std::cout << "Ranges Log Of TopLevelRDF: " << std::endl;
@@ -263,6 +307,16 @@ void io_timing_test(DB* db){
   std::cout << "Memory Usage Log Of SplitPLRDF: " << std::endl;
   for (int i = 0; i < memory_usage_log_SplitPLRDF.size(); i++) {
     std::cout << memory_usage_log_SplitPLRDF[i] << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "Memory Usage Log Of PLRDFStringKey: " << std::endl;
+  for (int i = 0; i < memory_usage_log_PLRDFStringKey.size(); i++) {
+    std::cout << memory_usage_log_PLRDFStringKey[i] << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "Memory Usage Log Of SplitPLRDFStringKey: " << std::endl;
+  for (int i = 0; i < memory_usage_log_SplitPLRDFStringKey.size(); i++) {
+    std::cout << memory_usage_log_SplitPLRDFStringKey[i] << " ";
   }
   std::cout << std::endl;
   std::cout << "Memory Usage Log Of TopLevelRDF: " << std::endl;

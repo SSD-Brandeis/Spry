@@ -345,6 +345,8 @@ class DB {
   virtual uint getTotalNumberOfSSTFiles() {return -1;}
   virtual int getPLRDFNumberOfTotalRanges() {return -1;}
   virtual int getSplitPLRDFNumberOfTotalRanges() {return -1;}
+  virtual int getPLRDFStringKeyNumberOfTotalRanges() {return -1;}
+  virtual int getSplitPLRDFStringKeyNumberOfTotalRanges() {return -1;}
   virtual int getTopLevelRDFNumberOfTotalRanges() {return -1;}
   virtual int getSkylineRDFNumberOfTotalRanges() {return -1;}
   virtual int getSuRFLevelFileRDFNumberOfTotalRanges() {return -1;}
@@ -352,6 +354,8 @@ class DB {
   virtual int getRTRocksDBNumberOfTotalMemoryUsage(){return -1;}
   virtual int getPLRDFNumberOfTotalMemoryUsage() {return -1;}
   virtual int getSplitPLRDFNumberOfTotalMemoryUsage() {return -1;}
+  virtual int getPLRDFStringKeyNumberOfTotalMemoryUsage() {return -1;}
+  virtual int getSplitPLRDFStringKeyNumberOfTotalMemoryUsage() {return -1;}
   virtual int getTopLevelRDFNumberOfTotalMemoryUsage() {return -1;}
   virtual int getSkylineRDFNumberOfTotalMemoryUsage() {return -1;}
   virtual int getSuRFLevelFileRDFNumberOfTotalMemoryUsage() {return -1;}
@@ -359,6 +363,8 @@ class DB {
   virtual std::vector<int> getLogOfNumbersOfRangesInOrigin() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInPLRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfNumbersOfRangesInPLRDFStringKey() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfNumbersOfRangesInSplitPLRDFStringKey() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF() {return {-1, -1, -1};}
@@ -366,19 +372,29 @@ class DB {
   virtual std::vector<int> getLogOfMemoryUsageInOrigin() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInPLRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSplitRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfMemoryUsageInPLRDFStringKey() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfMemoryUsageInSplitRDFStringKey() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInTopLevelRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSkylineRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSuRFLevelFileRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSuRFLevelFileSplitRDF() {return {-1, -1, -1};}
+
+  
+  virtual double getFilterFalsePositiveRateInPLRDFStringKey() {return -1;};
+  virtual double getFilterFalsePositiveRateInSplitPLRDFStringKey() {return -1;};
+  virtual void clearFilterFalsePositiveRateInPLRDFStringKey() {return;};
+  virtual void clearFilterFalsePositiveRateInSplitPLRDFStringKey() {return;};
 
   virtual double getFilterFalsePositiveRateInSuRFLevelFileRDF() {return -1;};
   virtual double getFilterFalsePositiveRateInSuRFLevelFileSplitRDF() {return -1;};
   virtual void clearFilterFalsePositiveRateInSuRFLevelFileRDF() {return;};
   virtual void clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF() {return;};
 
-
+  
   virtual const PLRDF *getPLRDF() {return NULL;}
   virtual const PLRDF *getSplitPLRDF() {return NULL;}
+  virtual const PLRDF_t<std::string> *getPLRDFStringKey() {return NULL;}
+  virtual const PLRDF_t<std::string> *getSplitPLRDFStringKey() {return NULL;}
   virtual const PLRDF *getTopLevelRDF() {return NULL;}
   virtual const SkyLineRDF *getSkylineRDF() {return NULL;}
   virtual const surf::SuRF_RDF *getSuRFLevelFileRDF() {return NULL;};
@@ -389,6 +405,16 @@ class DB {
     } 
   }
   virtual void setSplitPLRDF( PLRDF *plrdf){
+    if(plrdf == NULL){
+      return;
+    } 
+  }
+  virtual void setPLRDFStringKey( PLRDF_t<std::string> *plrdf){
+    if(plrdf == NULL){
+      return;
+    } 
+  }
+  virtual void setSplitPLRDFStringKey( PLRDF_t<std::string> *plrdf){
     if(plrdf == NULL){
       return;
     } 

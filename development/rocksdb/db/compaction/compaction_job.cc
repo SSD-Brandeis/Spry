@@ -1998,6 +1998,7 @@ Status CompactionJob::InstallCompactionResults(
 
     // Push RDF data down to `output_level`
     std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>();
+    std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>> *file_meta_data_vectors_stringkey = new std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>();
     for (size_t lvl = 0; lvl < compaction->num_input_levels(); lvl++)
     {
       int current_level = compaction->level(lvl);
@@ -2116,7 +2117,7 @@ Status CompactionJob::InstallCompactionResults(
         // FIXME: FOR TESTING (remove the loop as well) 
 
         std::vector<pll> smallest_largest_boundries{};
-        std::vector<pss> smallest_largest_boundries_str{};
+        std::vector<pss> smallest_largest_boundries_stringkey{};
         std::vector<uint64_t> file_numbers;
         std::vector<pss> range_tombstones_str{};
         for (auto file_meta : *(compaction->inputs(lvl)))
@@ -2252,6 +2253,7 @@ Status CompactionJob::InstallCompactionResults(
               //dummy (smallest,largest)
               smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
             }
+            smallest_largest_boundries_stringkey.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), file_meta->largest.user_key().ToString()));
           }else{
             // if(max_end_key != std::stoll(file_meta->largest.user_key().ToString())){
             //   // smallest_largest_boundries.push_back(std::make_pair(min_start_key, max_end_key));
@@ -2270,6 +2272,11 @@ Status CompactionJob::InstallCompactionResults(
           || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
           || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
           file_meta_data_vectors->push_back(std::make_tuple(current_level, compaction->output_level(), smallest_largest_boundries, file_numbers));
+        }
+
+        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+            file_meta_data_vectors_stringkey->push_back(std::make_tuple(current_level, compaction->output_level(), smallest_largest_boundries_stringkey, file_numbers));
         }
 
         if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
@@ -2295,6 +2302,12 @@ Status CompactionJob::InstallCompactionResults(
     if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
       || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
       compaction->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
+    }
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")){
+      compaction->column_family_data()->set_compaction_moving_RD_vector_stringkey(*file_meta_data_vectors_stringkey);
+    }
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+      compaction->column_family_data()->set_split__compaction_moving_RD_vector_stringkey(*file_meta_data_vectors_stringkey);
     }
     // ychuang Added End
 

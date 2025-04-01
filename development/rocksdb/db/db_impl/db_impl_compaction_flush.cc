@@ -3503,12 +3503,14 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
     // std::cout << "(delete compaction) hasRDFTypeOtherThanNone() = " << checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() << std::endl;
     // std::cout << "containsRDFType(PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")<< std::endl;
     // std::cout << "containsRDFType(SPLIT_PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")<< std::endl;
+    // std::cout << "containsRDFType(PLRDF_STRING_KEY) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")<< std::endl;
+    // std::cout << "containsRDFType(SPLIT_PLRDF_STRING_KEY) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")<< std::endl;
     // std::cout << "containsRDFType(TOP_LEVEL_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")<< std::endl;
     // std::cout << "containsRDFType(SuRF_LF_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")<< std::endl;
     // std::cout << "containsRDFType(SuRF_LF_SPLIT_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")<< std::endl;
     if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
       std::vector<pll> smallest_largest_boundries{};
-      // std::vector<pss> smallest_largest_boundries__str_key{};
+      std::vector<pss> smallest_largest_boundries_stringkey{};
       std::vector<uint64_t> file_numbers;
       long long min_start_key_RT = LLONG_MAX, max_end_key_RT = LLONG_MIN; 
       for (auto file_meta : *(c->inputs(0)))
@@ -3561,10 +3563,11 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
         // }
 
         smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+        smallest_largest_boundries_stringkey.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), file_meta->largest.user_key().ToString()));
         // smallest_largest_boundries__str_key.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), file_meta->largest.user_key().ToString()));
         file_numbers.push_back(file_meta->fd.GetNumber());
       }
-
+      
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
         || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
         std::tuple<int, std::vector<pll>, std::vector<uint64_t>> file_meta_data_vectors = std::make_tuple(c->level(), smallest_largest_boundries, file_numbers);
@@ -3573,6 +3576,17 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
         }
         if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
           c->column_family_data()->set_split__compaction_direct_delete_RD_vector(file_meta_data_vectors);
+        }
+      }
+      
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")
+        || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+        std::tuple<int, std::vector<pss>, std::vector<uint64_t>> file_meta_data_vectors_stringkey = std::make_tuple(c->level(), smallest_largest_boundries_stringkey, file_numbers);
+        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")){
+          c->column_family_data()->set_compaction_direct_delete_RD_vector_stringkey(file_meta_data_vectors_stringkey);
+        }
+        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+          c->column_family_data()->set_split__compaction_direct_delete_RD_vector_stringkey(file_meta_data_vectors_stringkey);
         }
       }
 
@@ -3656,6 +3670,7 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
 
     //yucheng Added Start
     std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>();
+    std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>> *file_meta_data_vectors_stringkey = new std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>();
     SuRFCompactionMovingRDInfo *surf__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
     SuRFCompactionMovingRDInfo *surf_level_file_split__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
     std::tuple<int, std::vector<pll>, std::vector<uint64_t>> delete_RD_vector; 
@@ -3669,17 +3684,21 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
       // std::cout << "(trivial move) hasRDFTypeOtherThanNone() = " << checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() << std::endl;
       // std::cout << "containsRDFType(PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")<< std::endl;
       // std::cout << "containsRDFType(SPLIT_PLRDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")<< std::endl;
+      // std::cout << "containsRDFType(PLRDF_STRING_KEY) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")<< std::endl;
+      // std::cout << "containsRDFType(SPLIT_PLRDF_STRING_KEY) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")<< std::endl;
       // std::cout << "containsRDFType(TOP_LEVEL_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")<< std::endl;
       // std::cout << "containsRDFType(SuRF_LF_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")<< std::endl;
       // std::cout << "containsRDFType(SuRF_LF_SPLIT_RDF) = " << checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")<< std::endl;
       if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){          
         if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")
-          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")       
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")
           || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")
           || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
           || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
           std::vector<pll> smallest_largest_boundries{};
-          std::vector<pss> smallest_largest_boundries__str_key{};
+          std::vector<pss> smallest_largest_boundries_stringkey{};
           std::vector<uint64_t> file_numbers;
           std::vector<pss> range_tombstones_str{};
           for (auto file_meta : *(c->inputs(l)))
@@ -3805,13 +3824,19 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
               if(true){
                 bool flag_has_range_tombstone = (min_start_key_RT <= max_end_key_RT);
                 if(flag_has_range_tombstone == true){
-                  smallest_largest_boundries.push_back(std::make_pair(min_start_key_RT, max_end_key_RT));
+                  // smallest_largest_boundries.push_back(std::make_pair(min_start_key_RT, max_end_key_RT));
+                  // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
+                  // TODO check: (Current Logic) end-1 because when no key @ the end of the file, Range Tombstone (RT) should move down with [start,end-1], in case a key @ end-1 may not be covered by the range
+                  //                                           when key @ the end of the file and is compacted down with the range tombstone (RT), then range can move down with [start, end]
+                  smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())-1)); 
+                  // smallest_largest_boundries.push_back(std::make_pair(min_start_key_RT, max_end_key_RT));
                 }else{
                   //dummy (smallest,smallest)
                   // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->smallest.user_key().ToString())));
                   //dummy (smallest,largest)
                   smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
                 }
+                smallest_largest_boundries_stringkey.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), file_meta->largest.user_key().ToString()));
               }else{
                 // if(max_end_key != std::stoll(file_meta->largest.user_key().ToString())){
                 //   // smallest_largest_boundries.push_back(std::make_pair(min_start_key, max_end_key));
@@ -3845,6 +3870,11 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
             || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
             || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
             file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries, file_numbers));
+          }
+          
+          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")
+            || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+            file_meta_data_vectors_stringkey->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries_stringkey, file_numbers));
           }
           if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
             if(c->level(l) == 0){ // coming from level 0
@@ -3930,6 +3960,12 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
         || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
         c->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
+      }
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")){
+        c->column_family_data()->set_compaction_moving_RD_vector_stringkey(*file_meta_data_vectors_stringkey);
+      }
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+        c->column_family_data()->set_split__compaction_moving_RD_vector_stringkey(*file_meta_data_vectors_stringkey);
       }
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
         c->column_family_data()->set_top_level__trivial_move__delete_RD_vector(delete_RD_vector); 

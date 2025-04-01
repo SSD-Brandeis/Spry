@@ -10,6 +10,8 @@
 #include "surf.hpp"
 #include "louds_sparse.hpp"
 
+// #define DEBUG_SURF_COMPACTION
+
 namespace surf {
 
 // YCHUANG ADDED START
@@ -607,16 +609,24 @@ std::pair<SuRF*, size_t> SuRF::rangesWithPointKeysToSurf(std::vector<pss> ranges
         std::string key_start = ranges[i].first;
         std::string key_end = ranges[i].second;
 
+        #ifdef DEBUG_SURF_COMPACTION
         std::cout << "bypassing keys " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        #endif
         while(j_point_keys < len_point_keys && point_keys[j_point_keys] < key_start){
+            #ifdef DEBUG_SURF_COMPACTION
             if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
                 auto pk = surf::SuRF_Utils::decode_byte_string_to_digit_string(point_keys[j_point_keys]);
                 std::cout << pk << " ";
             }else{
                 std::cout << point_keys[j_point_keys] << " ";
             }
+            #endif
             j_point_keys++;
         }
+        #ifdef DEBUG_SURF_COMPACTION
+        std::cout << std::endl;
+        #endif
+
 // std::cout << "surf_key_length_in_bytes = " << surf_key_length_in_bytes << " " << __FILE__ << ":" << __LINE__ << " " << std::endl;
 
         if(key_start.size() > surf_key_length_in_bytes){
@@ -631,12 +641,15 @@ std::pair<SuRF*, size_t> SuRF::rangesWithPointKeysToSurf(std::vector<pss> ranges
         }
         //2024-10
         if(key_start == key_end){
+
+            #ifdef DEBUG_SURF_COMPACTION
             if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
                 auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(key_start);
                 std::cout << "key_start == key_end = " << ks << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
             }else{
                 std::cout << "key_start == key_end = " << key_start << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
             }
+            #endif
 
             if(keys.size() > 0 && key_start == keys.back()){
                 left_parentheses.back() = true;
@@ -668,13 +681,15 @@ std::pair<SuRF*, size_t> SuRF::rangesWithPointKeysToSurf(std::vector<pss> ranges
 
             if(point_key == key_start){
                 
-if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
-    auto pk = surf::SuRF_Utils::decode_byte_string_to_digit_string(point_keys[j_point_keys]);
-    auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(key_start);
-    std::cout << "(==) point_key = " << pk << " key_start = " << ks << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-}else{
-    std::cout << "(==) point_key = " << point_key << " key_start = " << key_start << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-}
+                #ifdef DEBUG_SURF_COMPACTION
+                if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
+                    auto pk = surf::SuRF_Utils::decode_byte_string_to_digit_string(point_keys[j_point_keys]);
+                    auto ks = surf::SuRF_Utils::decode_byte_string_to_digit_string(key_start);
+                    std::cout << "(==) point_key = " << pk << " key_start = " << ks << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                }else{
+                    std::cout << "(==) point_key = " << point_key << " key_start = " << key_start << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                }
+                #endif
                 if(flag_allow_boundary_overlapped == false){
                     // right_parentheses.back() = true;
                     //2024-10
@@ -720,6 +735,7 @@ if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
     }
     if(surf::SuRF_Env::getInstance()->getFlagUseSuRFBase() == true){
 
+        #ifdef DEBUG_SURF_COMPACTION
         std::cout << "before processStringsToFirstKDifference " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         for(uint32_t i = 0; i < keys.size(); i++){
             if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
@@ -729,10 +745,13 @@ if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
                 std::cout << "key =  " << keys[i] << " (" << left_parentheses[i] << "," << right_parentheses[i] << ") " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
             }
         }
+        std::cout << std::endl;
+        #endif
 
         int surf_base_store_key_to_k_diff = surf::SuRF_Env::getInstance()->getSuRFBaseStoreKeyToKDiff();
         keys = surf::SuRF_Utils::processStringsToFirstKDifference(keys, surf_base_store_key_to_k_diff);
         
+        #ifdef DEBUG_SURF_COMPACTION
         std::cout << "after processStringsToFirstKDifference " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         for(uint32_t i = 0; i < keys.size(); i++){
             if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
@@ -742,7 +761,8 @@ if(surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() == true){
                 std::cout << "key =  " << keys[i] << " (" << left_parentheses[i] << "," << right_parentheses[i] << ") " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
             }
         }
-
+        std::cout << std::endl;
+        #endif
     }
 
     // string_length
@@ -1465,7 +1485,6 @@ void SuRF_RDF::shiftRDFToOutputLevel(std::vector<pss> &rd_merged, uint32_t dst_l
     }
 }
 
-// #define DEBUG_SURF_COMPACTION
 void SuRF_RDF::shiftRDFWithPointKeysToOutputLevel(std::vector<pss> &rd_merged, std::vector<std::string> &point_keys, uint32_t dst_level, std::vector<uint64_t> &dst_fd_list, std::vector<pss> &file_boundary_list, bool surf_flag__allow_range_boundary_overlapped){
 #ifdef DEBUG_SURF_COMPACTION
     //check point_keys are sorted and unique-*665

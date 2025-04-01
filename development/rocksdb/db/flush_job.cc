@@ -910,6 +910,7 @@ if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == t
   vector<uint64_t> exist_level0_file_nums = cfd_->current()->getLevelFileNumbers(0);
   // // Do insertion, even if the vector is empty, because we need to set condition_variable of mutex (semaphore) for compaction
   auto level0_RD_vector = std::make_tuple(meta_.fd.GetNumber(), range_delete_list_in, exist_level0_file_nums);
+  auto level0_RD_vector_stringkey = std::make_tuple(meta_.fd.GetNumber(), range_delete_list_in_str, exist_level0_file_nums);
   
   if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")){
     cfd_->set_flush_to_level0_RD_vector(level0_RD_vector);
@@ -917,6 +918,13 @@ if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == t
   if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
     || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
     cfd_->set_split__flush_to_level0_RD_vector(level0_RD_vector);
+  }
+
+  if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")){
+    cfd_->set_flush_to_level0_RD_vector_stringkey(level0_RD_vector_stringkey);
+  }
+  if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+    cfd_->set_split__flush_to_level0_RD_vector_stringkey(level0_RD_vector_stringkey);
   }
 
   if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){

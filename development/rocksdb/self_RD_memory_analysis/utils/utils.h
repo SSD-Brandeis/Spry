@@ -17,6 +17,7 @@
 #include "rocksdb/iostats_context.h" // !YBS-sep01-XX!
 #include "../env_settings/emu_environment.h"
 
+using namespace ROCKSDB_NAMESPACE;
 
 inline void showProgress(const uint64_t& workload_size,
                          const uint64_t& counter) {
@@ -92,7 +93,11 @@ long long parsing_value_from_string(std::string str, std::string pattern){
     std::regex re(pattern);
     std::smatch match;
     if(std::regex_search(str, match, re)){
+// std::cout << str << endl;
+// std::cout << pattern << endl;
+// std::cout << match[0] << endl;
       std::string result = match[1];
+// std::cout << "result = " << result << " " << __FILE__ << ":" << __LINE__ << endl;
       return std::stoll(result);
     }
     //raise error
