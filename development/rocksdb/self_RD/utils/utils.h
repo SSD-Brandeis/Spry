@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <iostream>
 #include <chrono>
+#include <regex>
 #include "utils.h"
 #include "rocksdb/options.h"
 #include "rocksdb/advanced_options.h"

@@ -331,6 +331,8 @@ rdf_types = [
 for i_rdf, rdf_param in enumerate(rdf_types):
     # if i_rdf > 0:
     #    break
+    if i_rdf > 0:
+        break;
     # if i_rdf < 4 or i_rdf > 4:
         #  continue
     #if i_rdf < 7:

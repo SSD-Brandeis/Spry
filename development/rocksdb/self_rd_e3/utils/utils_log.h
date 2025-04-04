@@ -104,39 +104,39 @@ void print_perf_iostats_context(std::ostream& ofile, const std::string &prefix, 
     // std::cout << " rocksdb::get_perf_context()->bloom_sst_miss_count = " <<  rocksdb::get_perf_context()->bloom_sst_miss_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // std::cout << " rocksdb::get_perf_context()->bloom_sst_hit_count = " <<  rocksdb::get_perf_context()->bloom_sst_hit_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
-    long long get_from_memtable_time = parsing_value_from_string(perf_context, "get_from_memtable_time[^:]*=.([0-9]+)");
-    long long get_from_memtable_count = parsing_value_from_string(perf_context, "get_from_memtable_count[^:]*=.([0-9]+)");
-    long long get_post_process_time = parsing_value_from_string(perf_context, "get_post_process_time[^:]*=.([0-9]+)");
+    long long get_from_memtable_time = parsing_value_from_string(perf_context, "get_from_memtable_time[^=]*=.([0-9]+)");
+    long long get_from_memtable_count = parsing_value_from_string(perf_context, "get_from_memtable_count[^=]*=.([0-9]+)");
+    long long get_post_process_time = parsing_value_from_string(perf_context, "get_post_process_time[^=]*=.([0-9]+)");
 
-    long long bloom_memtable_hit_count = parsing_value_from_string(perf_context, "bloom_memtable_hit_count[^:]*=.([0-9]+)");
-    long long bloom_memtable_miss_count = parsing_value_from_string(perf_context, "bloom_memtable_miss_count[^:]*=.([0-9]+)");
-    long long bloom_sst_hit_count = parsing_value_from_string(perf_context, "bloom_sst_hit_count[^:]*=.([0-9]+)");
-    long long bloom_sst_miss_count = parsing_value_from_string(perf_context, "bloom_sst_miss_count[^:]*=.([0-9]+)");
+    long long bloom_memtable_hit_count = parsing_value_from_string(perf_context, "bloom_memtable_hit_count[^=]*=.([0-9]+)");
+    long long bloom_memtable_miss_count = parsing_value_from_string(perf_context, "bloom_memtable_miss_count[^=]*=.([0-9]+)");
+    long long bloom_sst_hit_count = parsing_value_from_string(perf_context, "bloom_sst_hit_count[^=]*=.([0-9]+)");
+    long long bloom_sst_miss_count = parsing_value_from_string(perf_context, "bloom_sst_miss_count[^=]*=.([0-9]+)");
 
 
-    long long block_read_count = parsing_value_from_string(perf_context, "block_read_count[^:]*=.([0-9]+)");
-    long long block_read_byte = parsing_value_from_string(perf_context, "block_read_byte[^:]*=.([0-9]+)");
-    long long block_read_time = parsing_value_from_string(perf_context, "block_read_time[^:]*=.([0-9]+)");
-    long long block_read_cpu_time = parsing_value_from_string(perf_context, "block_read_cpu_time[^:]*=.([0-9]+)");
-    long long index_block_read_count = parsing_value_from_string(perf_context, "index_block_read_count[^:]*=.([0-9]+)");
-    long long filter_block_read_count = parsing_value_from_string(perf_context, "filter_block_read_count[^:]*=.([0-9]+)");
-    long long compression_dict_block_read_count = parsing_value_from_string(perf_context, "compression_dict_block_read_count[^:]*=.([0-9]+)");
-    long long get_read_bytes = parsing_value_from_string(perf_context, "get_read_bytes[^:]*=.([0-9]+)");
-    long long read_index_block_nanos = parsing_value_from_string(perf_context, "read_index_block_nanos[^:]*=.([0-9]+)");
-    long long read_filter_block_nanos = parsing_value_from_string(perf_context, "read_filter_block_nanos[^:]*=.([0-9]+)");
-    long long internal_key_skipped_count = parsing_value_from_string(perf_context, "internal_key_skipped_count[^:]*=.([0-9]+)");
-    long long internal_delete_skipped_count = parsing_value_from_string(perf_context, "internal_delete_skipped_count[^:]*=.([0-9]+)");
-    long long internal_recent_skipped_count = parsing_value_from_string(perf_context, "internal_recent_skipped_count[^:]*=.([0-9]+)");
-    long long internal_range_del_reseek_count = parsing_value_from_string(perf_context, "internal_range_del_reseek_count[^:]*=.([0-9]+)");
+    long long block_read_count = parsing_value_from_string(perf_context, "block_read_count[^=]*=.([0-9]+)");
+    long long block_read_byte = parsing_value_from_string(perf_context, "block_read_byte[^=]*=.([0-9]+)");
+    long long block_read_time = parsing_value_from_string(perf_context, "block_read_time[^=]*=.([0-9]+)");
+    long long block_read_cpu_time = parsing_value_from_string(perf_context, "block_read_cpu_time[^=]*=.([0-9]+)");
+    long long index_block_read_count = parsing_value_from_string(perf_context, "index_block_read_count[^=]*=.([0-9]+)");
+    long long filter_block_read_count = parsing_value_from_string(perf_context, "filter_block_read_count[^=]*=.([0-9]+)");
+    long long compression_dict_block_read_count = parsing_value_from_string(perf_context, "compression_dict_block_read_count[^=]*=.([0-9]+)");
+    long long get_read_bytes = parsing_value_from_string(perf_context, "get_read_bytes[^=]*=.([0-9]+)");
+    long long read_index_block_nanos = parsing_value_from_string(perf_context, "read_index_block_nanos[^=]*=.([0-9]+)");
+    long long read_filter_block_nanos = parsing_value_from_string(perf_context, "read_filter_block_nanos[^=]*=.([0-9]+)");
+    long long internal_key_skipped_count = parsing_value_from_string(perf_context, "internal_key_skipped_count[^=]*=.([0-9]+)");
+    long long internal_delete_skipped_count = parsing_value_from_string(perf_context, "internal_delete_skipped_count[^=]*=.([0-9]+)");
+    long long internal_recent_skipped_count = parsing_value_from_string(perf_context, "internal_recent_skipped_count[^=]*=.([0-9]+)");
+    long long internal_range_del_reseek_count = parsing_value_from_string(perf_context, "internal_range_del_reseek_count[^=]*=.([0-9]+)");
 
 
     std::string iostats_context = rocksdb::get_iostats_context()->ToString();
     std::cout << "iostats_context = " << iostats_context << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
-    long long bytes_read = parsing_value_from_string(iostats_context, "bytes_read[^:]*=.([0-9]+)");
-    long long bytes_written = parsing_value_from_string(iostats_context, "bytes_written[^:]*=.([0-9]+)");
-    long long read_nanos = parsing_value_from_string(iostats_context, "read_nanos[^:]*=.([0-9]+)");
-    long long write_nanos = parsing_value_from_string(iostats_context, "write_nanos[^:]*=.([0-9]+)");
+    long long bytes_read = parsing_value_from_string(iostats_context, "bytes_read[^=]*=.([0-9]+)");
+    long long bytes_written = parsing_value_from_string(iostats_context, "bytes_written[^=]*=.([0-9]+)");
+    long long read_nanos = parsing_value_from_string(iostats_context, "read_nanos[^=]*=.([0-9]+)");
+    long long write_nanos = parsing_value_from_string(iostats_context, "write_nanos[^=]*=.([0-9]+)");
 
     //print out all the above variable
     ofile << "get_from_memtable_time = " << std::fixed << std::setprecision(2) << get_from_memtable_time * 1.0 / N_repetitions << std::endl;
