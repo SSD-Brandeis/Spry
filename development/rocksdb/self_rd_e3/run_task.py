@@ -277,6 +277,8 @@ rdf_types = [
     {"--using_rdf_types": ["NONE_CACHE_RANGETOMBSTONE_TRACING"], },
     {"--using_rdf_types": ["PLRDF"], },
     {"--using_rdf_types": ["SPLIT_PLRDF"], },
+    {"--using_rdf_types": ["PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0]},
+    {"--using_rdf_types": ["SPLIT_PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0]},
     {"--using_rdf_types": ["TOP_LEVEL_RDF"], },
     # {"--using_rdf_types": ["SKYLINE_RDF"], },
     {"--using_rdf_types": ["SuRF_LF_RDF"]},
@@ -328,11 +330,11 @@ for i_rdf, rdf_param in enumerate(rdf_types):
     # if i_rdf < 5:
     # if i_rdf < 6:
     # if i_rdf < 7:
-    if i_rdf < 8:
+    # if i_rdf < 8:
     # if i_rdf < 9:
     # # if i_rdf < 10:
     # # if i_rdf < 11:
-       continue
+    #    continue
     # if i_rdf > 10 and i_rdf < 15:
     #     continue
     # if i_rdf < 17:
