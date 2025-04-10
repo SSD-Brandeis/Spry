@@ -247,8 +247,8 @@ params3["--number_of_PQ_on_historic_existing_keys"] = [5000] # -1: for testing o
 params3["--number_of_PQ_on_currently_deleted_keys"] = [100000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 params3["--number_of_PQ_on_currently_non_inserted_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 
-if True:
-#if False:
+#if True:
+if False:
     for rd, sel, workload_filename in zip(rd_list, sel_list, workload_filename_list):
         print("Gen I/RD workload")
         gen_insertion_workload(
