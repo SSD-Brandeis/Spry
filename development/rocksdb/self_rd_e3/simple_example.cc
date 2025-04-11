@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
   auto stop_all = std::chrono::high_resolution_clock::now();
   auto duration_all = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_all - start_all);
   unsigned long long all_time_ns = duration_all.count();
-  std::cout << "all_time_ns = " << all_time_ns << std::endl;
+  std::cout << "all_time_ns _out = " << all_time_ns << std::endl;
   
   std::string prefix = "main after workload insertion complete ";
   print_perf_iostats_context(std::cout, prefix, 1);
