@@ -822,7 +822,7 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSplitPLRDFStringKey();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
-      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
@@ -1042,7 +1042,7 @@ system_verifier->startPQTracing();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSplitPLRDFStringKey();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
-      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
@@ -1253,7 +1253,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSplitPLRDFStringKey();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
-      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
