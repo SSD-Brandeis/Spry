@@ -24,6 +24,8 @@
 
 using namespace std;
 
+// template<typename KeyT>
+using KeyT = string;
 void runInsertRDWorkload(const string workload_file_name){
   // // opening workload file for the first time
   // const string pq_workload_all_existing_keys_file_name = workload_file_name + "_all_existing_keys";
@@ -66,7 +68,7 @@ void runInsertRDWorkload(const string workload_file_name){
     char instruction;
     // std::string time_stamp;
     // std::stringstream ss_time_stamp;
-    long long key, start_key, end_key;
+    KeyT key, start_key, end_key;
     std::string type;
     std::string value;
     // std::stringstream ss_key, ss_start_key, ss_end_key;

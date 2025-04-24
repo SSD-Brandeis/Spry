@@ -51,9 +51,9 @@ int main(int argc, char *argv[]) {
     number_of_PQs_on_currently_deleted_keys, number_of_PQs_on_currently_non_inserted_keys);
 
   
-  map<long long, string> ground_truth = system_verifier->getGroundTruth();
-  vector<long long>  historic_existing_keys = system_verifier->getHistoricExistingKeys();
-  vector<long long>  currently_non_inserted_keys = system_verifier->getCurrentlyNonInsertedKeys();
+  map<string, string> ground_truth = system_verifier->getGroundTruth();
+  vector<string>  historic_existing_keys = system_verifier->getHistoricExistingKeys();
+  vector<string>  currently_non_inserted_keys = system_verifier->getCurrentlyNonInsertedKeys();
 
 
   
@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
 
   {
     // Read the map back from the file
-    std::map<long long, std::string> read_back_map = readDictFromFile<long long, std::string>(pq_workload_ground_truth_file_name);
+    std::map<std::string, std::string> read_back_map = readDictFromFile<std::string, std::string>(pq_workload_ground_truth_file_name);
 
     // Compare the original and read-back maps
     if (compareMaps(ground_truth, read_back_map)) {
@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Read the vector back from the file
-    std::vector<long long> read_back_vector = readVectorFromFile<long long>(pq_workload_historic_existing_file_name);
+    std::vector<std::string> read_back_vector = readVectorFromFile<std::string>(pq_workload_historic_existing_file_name);
 
     // Compare the original and read-back vectors
     if (compareVectors(historic_existing_keys, read_back_vector)) {
@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Read the vector back from the file
-    std::vector<long long> read_back_vector2 = readVectorFromFile<long long>(pq_workload_currently_non_existed_file_name);
+    std::vector<std::string> read_back_vector2 = readVectorFromFile<std::string>(pq_workload_currently_non_existed_file_name);
 
     // Compare the original and read-back vectors
     if (compareVectors(currently_non_inserted_keys, read_back_vector2)) {
@@ -129,10 +129,10 @@ int main(int argc, char *argv[]) {
     const string pq_workload_currently_deleted_keys_file_name = env_gen_pq.workload_file_name + "_currently_deleted_keys";
     const string pq_workload_currently_non_inserted_keys_file_name = env_gen_pq.workload_file_name + "_currently_non_inserted_keys";
     
-    vector<long long> workload_all_existing_keys = system_verifier->getAllExistingKeys();
-    vector<long long> workload_historic_existing_keys = system_verifier->getHistoricExistingKeys();
-    vector<long long> workload_currently_deleted_keys = system_verifier->getCurrentlyDeletedKeys();
-    vector<long long> workload_currently_non_inserted_keys = system_verifier->getCurrentlyNonInsertedKeys(); 
+    vector<std::string> workload_all_existing_keys = system_verifier->getAllExistingKeys();
+    vector<std::string> workload_historic_existing_keys = system_verifier->getHistoricExistingKeys();
+    vector<std::string> workload_currently_deleted_keys = system_verifier->getCurrentlyDeletedKeys();
+    vector<std::string> workload_currently_non_inserted_keys = system_verifier->getCurrentlyNonInsertedKeys(); 
   
     // Write the vector to a file
     writeVectorToFile(workload_all_existing_keys, pq_workload_all_existing_keys_file_name);
@@ -154,14 +154,14 @@ int main(int argc, char *argv[]) {
     const string pq_workload_currently_deleted_keys_file_name = env_gen_pq.workload_file_name + "_currently_deleted_keys";
     const string pq_workload_currently_non_inserted_keys_file_name = env_gen_pq.workload_file_name + "_currently_non_inserted_keys";
     
-    vector<long long> workload_all_existing_keys = system_verifier->getAllExistingKeys();
-    vector<long long> workload_historic_existing_keys = system_verifier->getHistoricExistingKeys();
-    vector<long long> workload_currently_deleted_keys = system_verifier->getCurrentlyDeletedKeys();
-    vector<long long> workload_currently_non_inserted_keys = system_verifier->getCurrentlyNonInsertedKeys(); 
+    vector<std::string> workload_all_existing_keys = system_verifier->getAllExistingKeys();
+    vector<std::string> workload_historic_existing_keys = system_verifier->getHistoricExistingKeys();
+    vector<std::string> workload_currently_deleted_keys = system_verifier->getCurrentlyDeletedKeys();
+    vector<std::string> workload_currently_non_inserted_keys = system_verifier->getCurrentlyNonInsertedKeys(); 
   
     
     // Read the vector back from the file
-    vector<long long> read_back_vector = readVectorFromFile<long long>(pq_workload_all_existing_keys_file_name);
+    vector<std::string> read_back_vector = readVectorFromFile<std::string>(pq_workload_all_existing_keys_file_name);
 
     // Compare the original and read-back vectors
     if (compareVectors(workload_all_existing_keys, read_back_vector)) {
@@ -172,7 +172,7 @@ int main(int argc, char *argv[]) {
 
     
     // Read the vector back from the file
-    read_back_vector = readVectorFromFile<long long>(pq_workload_historic_existing_keys_file_name);
+    read_back_vector = readVectorFromFile<std::string>(pq_workload_historic_existing_keys_file_name);
 
     // Compare the original and read-back vectors
     if (compareVectors(workload_historic_existing_keys, read_back_vector)) {
@@ -182,7 +182,7 @@ int main(int argc, char *argv[]) {
     }
    
     // Read the vector back from the file
-    read_back_vector = readVectorFromFile<long long>(pq_workload_currently_deleted_keys_file_name);
+    read_back_vector = readVectorFromFile<std::string>(pq_workload_currently_deleted_keys_file_name);
 
     // Compare the original and read-back vectors
     if (compareVectors(workload_currently_deleted_keys, read_back_vector)) {
@@ -193,7 +193,7 @@ int main(int argc, char *argv[]) {
 
 
     // Read the vector back from the file
-    read_back_vector = readVectorFromFile<long long>(pq_workload_currently_non_inserted_keys_file_name);
+    read_back_vector = readVectorFromFile<std::string>(pq_workload_currently_non_inserted_keys_file_name);
 
     // Compare the original and read-back vectors
     if (compareVectors(workload_currently_non_inserted_keys, read_back_vector)) {
@@ -211,10 +211,10 @@ int main(int argc, char *argv[]) {
     const string pq_workload_currently_deleted_keys_file_name = env_gen_pq.workload_file_name + "_currently_deleted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs_on_currently_deleted_keys);
     const string pq_workload_currently_non_inserted_keys_file_name = env_gen_pq.workload_file_name + "_currently_non_inserted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs_on_currently_non_inserted_keys);
     
-    vector<long long> workload_all_existing_keys = system_verifier->getAllExistingKeysAtNRound(i);
-    vector<long long> workload_historic_existing_keys = system_verifier->getHistoricExistingKeysAtNRound(i);
-    vector<long long> workload_currently_deleted_keys = system_verifier->getCurrentlyDeletedKeysAtNRound(i);
-    vector<long long> workload_currently_non_inserted_keys = system_verifier->getCurrentlyNonInsertedKeysAtNRound(i); 
+    vector<std::string> workload_all_existing_keys = system_verifier->getAllExistingKeysAtNRound(i);
+    vector<std::string> workload_historic_existing_keys = system_verifier->getHistoricExistingKeysAtNRound(i);
+    vector<std::string> workload_currently_deleted_keys = system_verifier->getCurrentlyDeletedKeysAtNRound(i);
+    vector<std::string> workload_currently_non_inserted_keys = system_verifier->getCurrentlyNonInsertedKeysAtNRound(i); 
   
     
     // Write the vector to a file
@@ -237,13 +237,13 @@ int main(int argc, char *argv[]) {
     const string pq_workload_currently_deleted_keys_file_name = env_gen_pq.workload_file_name + "_currently_deleted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs_on_currently_deleted_keys);
     const string pq_workload_currently_non_inserted_keys_file_name = env_gen_pq.workload_file_name + "_currently_non_inserted_keys" + "_round_" + to_string(i) + "_number_of_pq_" + to_string(number_of_PQs_on_currently_non_inserted_keys);
     
-    vector<long long> workload_all_existing_keys = system_verifier->getAllExistingKeysAtNRound(i);
-    vector<long long> workload_historic_existing_keys = system_verifier->getHistoricExistingKeysAtNRound(i);
-    vector<long long> workload_currently_deleted_keys = system_verifier->getCurrentlyDeletedKeysAtNRound(i);
-    vector<long long> workload_currently_non_inserted_keys = system_verifier->getCurrentlyNonInsertedKeysAtNRound(i); 
+    vector<std::string> workload_all_existing_keys = system_verifier->getAllExistingKeysAtNRound(i);
+    vector<std::string> workload_historic_existing_keys = system_verifier->getHistoricExistingKeysAtNRound(i);
+    vector<std::string> workload_currently_deleted_keys = system_verifier->getCurrentlyDeletedKeysAtNRound(i);
+    vector<std::string> workload_currently_non_inserted_keys = system_verifier->getCurrentlyNonInsertedKeysAtNRound(i); 
   
     // Read the vector back from the file
-     vector<long long> read_back_vector = readVectorFromFile<long long>(pq_workload_all_existing_keys_file_name);
+     vector<std::string> read_back_vector = readVectorFromFile<std::string>(pq_workload_all_existing_keys_file_name);
 
     // Compare the original and read-back vectors
     if (compareVectors(workload_all_existing_keys, read_back_vector)) {
@@ -253,7 +253,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Read the vector back from the file
-    read_back_vector = readVectorFromFile<long long>(pq_workload_historic_existing_keys_file_name);
+    read_back_vector = readVectorFromFile<std::string>(pq_workload_historic_existing_keys_file_name);
 
     // Compare the original and read-back vectors
     if (compareVectors(workload_historic_existing_keys, read_back_vector)) {
@@ -263,7 +263,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Read the vector back from the file
-    read_back_vector = readVectorFromFile<long long>(pq_workload_currently_deleted_keys_file_name);
+    read_back_vector = readVectorFromFile<std::string>(pq_workload_currently_deleted_keys_file_name);
 
     // Compare the original and read-back vectors
     if (compareVectors(workload_currently_deleted_keys, read_back_vector)) {
@@ -273,7 +273,7 @@ int main(int argc, char *argv[]) {
     }
     
     // Read the vector back from the file
-    read_back_vector = readVectorFromFile<long long>(pq_workload_currently_non_inserted_keys_file_name);
+    read_back_vector = readVectorFromFile<std::string>(pq_workload_currently_non_inserted_keys_file_name);
 
     // Compare the original and read-back vectors
     if (compareVectors(workload_currently_non_inserted_keys, read_back_vector)) {

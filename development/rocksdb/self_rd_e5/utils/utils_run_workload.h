@@ -66,7 +66,8 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
     char instruction;
     std::string time_stamp;
     std::stringstream ss_time_stamp;
-    long long key, start_key, end_key;
+    // long long key, start_key, end_key;
+    std::string key, start_key, end_key;
     std::string type;
     std::string value;
     std::stringstream ss_key, ss_start_key, ss_end_key;
@@ -206,7 +207,7 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
     // }
 
     // run PQ and log memory footprint during insertion
-    vector<long long> currently_deleted_keys = system_verifier->getCurrentlyDeletedKeys();
+    vector<string> currently_deleted_keys = system_verifier->getCurrentlyDeletedKeys();
 
     if (counter % _env->run_pq_during_insertion_interval == 0 && currently_deleted_keys.size() > 100){  
 logger_during_insertion->writeRecord(db_ptr2);  
@@ -270,7 +271,7 @@ logger_during_insertion->writeRecord(db_ptr2);
   std::cout << "!!! Number of SST files = " << num_SST_files << std::endl;
 
   {
-    std::vector<long long> testing_key_list({2500, 5000, 5001});
+    std::vector<string> testing_key_list({"2500", "5000", "5001"});
     long long total_read_count_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
           + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
     long long total_read_bytes_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")

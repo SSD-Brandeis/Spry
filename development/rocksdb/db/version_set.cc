@@ -2699,7 +2699,8 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
         PLRDF_Env::getInstance()->clearFlagKeyMayDeleted();
         checking::SystemVerifier::getSystemVerifier()
         ->logPQTracingInfo(
-          std::stoll(user_key.ToString()),
+          // std::stoll(user_key.ToString()),
+          user_key.ToString(),
           (f->fd).GetNumber(),
           fp.GetHitFileLevel()
         );

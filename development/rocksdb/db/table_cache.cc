@@ -601,7 +601,8 @@ Status TableCache::Get(
   if(*max_covering_tombstone_seq != 0){
     if(checking::SystemVerifier::getSystemVerifier()->is_enable_log__deleted_keys__max_sequnce_number()){
       checking::SystemVerifier::getSystemVerifier()->insert_deleted_keys__max_sequnce_number( 
-        stoll(ExtractUserKey(k).ToString()),
+        // stoll(ExtractUserKey(k).ToString()),
+        ExtractUserKey(k).ToString(),
         *max_covering_tombstone_seq);
     }
 
