@@ -158,7 +158,8 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   args::ValueFlag<std::string> using_rdf_types_cmd(group1, "using_rdf_types", 
                                                   "using_rdf_types_cmd [def:NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,PLRDF_STRING_KEY,SPLIT_PLRDF_STRING_KEY,TOP_LEVEL_RDF,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY]", 
                                                   {"using_rdf_types"});
-
+                                                  
+  args::ValueFlag<int> use_string_key_cmd(group1, "use_string_key", "use_string_key [def: 0 (false -> digit key)]", {"use_string_key"});
   args::ValueFlag<double> key_size_to_insert_cmd(group1, "key_size_to_insert", "key_size_to_insert [def: 12]", {"key_size_to_insert"});
 
   args::ValueFlag<double> cor_cmd(group1, "#correlation", "Correlation between sort key and delete key [def: 0]", {"correlation"});
@@ -248,6 +249,7 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   //YuCheng Added Start
   std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE_CACHE_RANGETOMBSTONE_TRACING"}, {2, "NONE"}, {3, "NONE2"}, {4, "PLRDF"}, {5, "SPLIT_PLRDF"}, {6, "PLRDF_STRING_KEY"}, {7, "SPLIT_PLRDF_STRING_KEY"},
                                                    {8, "TOP_LEVEL_RDF"}, {9, "SKYLINE_RDF"},  {10, "SuRF_LF_RDF"},  {11, "SuRF_LF_SPLIT_RDF"}, {12, "NONE_DUMMY"}};
+  std::unordered_set<std::string> RDFStringKeyTypeSet = {"PLRDF_STRING_KEY", "SPLIT_PLRDF_STRING_KEY", "SuRF_LF_RDF", "SuRF_LF_SPLIT_RDF"};
 
   if(using_rdf_types_cmd){
     std::string tmp = args::get(using_rdf_types_cmd);
@@ -262,6 +264,29 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
     RDFTypes = RDFTypes_tmp;
   }
   _env->RDFTypes = RDFTypes;
+
+  int use_string_key = use_string_key_cmd ? args::get(use_string_key_cmd) : false;
+  system_verifier->setFlagUsingStringKey(use_string_key);
+  if(use_string_key == true){
+    for(auto &[k,v]: RDFTypes){
+      if(v.substr(0,4) == "NONE"){continue;}
+      if(RDFStringKeyTypeSet.count(v) != 1){
+        std::cout << "@using_string_key == 1, " << v << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cerr << "@using_string_key == 1, " << v << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        invalid_flag = true;
+      }
+    }
+  }else{
+    for(auto &[k,v]: RDFTypes){
+      if(v.substr(0,4) == "SuRF"){continue;}
+      if(RDFStringKeyTypeSet.count(v) == 1){
+        std::cout << "@using_string_key == 1, " << v << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cerr << "@using_string_key == 1, " << v << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        invalid_flag = true;
+      }
+    }
+  }
+
 
   int key_size_to_insert = key_size_to_insert_cmd ? args::get(key_size_to_insert_cmd) : 12;
   system_verifier->setKeySize(key_size_to_insert);
@@ -312,6 +337,13 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   // std::cout << "surf__include_dense = " << surf__include_dense << "  args::get(surf__include_dense_cmd) = " << args::get(surf__include_dense_cmd) << std::endl;
   uint32_t surf__sparse_dense_ratio = surf__sparse_dense_ratio_cmd ? args::get(surf__sparse_dense_ratio_cmd) : 16;
   bool surf_use_condensed_digit_key = surf_use_condensed_digit_key_cmd ? (args::get(surf_use_condensed_digit_key_cmd) != 0) : true;
+  if(use_string_key == true){
+    if(surf_use_condensed_digit_key == true){
+      std::cout << "@use_string_key==1, surf_use_condensed_digit_key cannot be 1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      std::cerr << "@use_string_key==1, surf_use_condensed_digit_key cannot be 1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      exit(1);
+    }
+  }
   uint32_t length_of_condensed_digit_key = 1.0 * key_size_to_insert * log(10) / log(256) + 1; // () base 10 --> to () base 16
   bool surf__flag_bypass_if_same_key = false; // whether to skip RDF checking if searding key is the same as the next greater key in the SuRF
   bool surf__flag_allow_range_boundary_overlapped = false;

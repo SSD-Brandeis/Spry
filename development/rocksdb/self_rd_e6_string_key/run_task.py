@@ -228,6 +228,7 @@ workload_filename_list = [
    
 
 
+params3["--use_string_key"] = [1]
 params3["--surf_use_condensed_digit_key"] = [0]
 # params3["--surf_use_condensed_digit_key"] = [1]
 # params3["-i"] = [1000]
@@ -249,7 +250,7 @@ params3["--number_of_PQ_on_historic_existing_keys"] = [5000] # -1: for testing o
 params3["--number_of_PQ_on_currently_deleted_keys"] = [100000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 params3["--number_of_PQ_on_currently_non_inserted_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 
-# if True:
+#if True:
 if False:
     for rd, sel, workload_filename in zip(rd_list, sel_list, workload_filename_list):
         print("Gen I/RD workload")
@@ -337,9 +338,15 @@ rdf_types = [
 
 # for i_rdf, (rdf_type, local_param) in enumerate(rdf_types.items()):
 for i_rdf, rdf_param in enumerate(rdf_types):
+    if i_rdf < 1:
+        continue
     # break
-    if i_rdf > 0:
-       break
+    # if i_rdf > 0:
+    #    break
+    # if i_rdf == 0:
+    #     continue
+    # if i_rdf > 1:
+    #     break
     # if i_rdf < 5:
     # if i_rdf < 6:
     # if i_rdf < 7:

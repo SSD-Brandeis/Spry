@@ -889,11 +889,37 @@ if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == t
   if (range_del_iter2 != nullptr) {
     for (range_del_iter2->SeekToFirst(); range_del_iter2->Valid(); range_del_iter2->Next()) {
       auto tombstone = range_del_iter2->Tombstone();
-      RD_seq.push_back(std::make_tuple(std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()), tombstone.seq_));
       RD_seq_string.push_back(std::make_tuple(tombstone.start_key_.ToString(), tombstone.end_key_.ToString(), tombstone.seq_));
-      range_delete_list_in.push_back(std::make_pair( std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) ));
       range_delete_list_in_str.push_back(std::make_pair(tombstone.start_key_.ToString(), tombstone.end_key_.ToString() ));
+
+      if(checking::SystemVerifier::getSystemVerifier()->usingStringKey() == false){
+        try {
+          size_t s_idx, e_idx;
+          long long s_key = std::stoll(tombstone.start_key_.ToString(), &s_idx);
+          long long e_key = std::stoll(tombstone.end_key_.ToString(), &e_idx);
+
+          // Ensure the entire string was parsed (no trailing characters)
+          if (s_idx != tombstone.start_key_.ToString().size()){
+            std::cerr << "@stoll start_key size_mismatch " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+          }
+          if (e_idx != tombstone.end_key_.ToString().size()){
+            std::cerr << "@stoll end_key size_mismatch " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+          }
+
+          RD_seq.push_back(std::make_tuple(s_key, e_key, tombstone.seq_));
+          range_delete_list_in.push_back(std::make_pair(s_key, e_key));
+        } catch (const std::invalid_argument&) {
+          std::cerr << "@stoll invalid_argument " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+          // Not a number
+          // return false;
+        } catch (const std::out_of_range&) {
+          std::cerr << "@stoll out_of_range " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+          // Too big or small for long long
+          // return false;
+        }
+      }
     }
+
   }
 
   FileRDs file_rd_RD_seq;

@@ -176,6 +176,9 @@ namespace checking {
     bool flag_open_table = false;
     bool flag_pq_tracing_on = false;
     bool flag_skip_trivial_move = false;
+    
+    bool flag_using_string_key = false;
+
     unordered_map<string, vector<tuple<unsigned long long, unsigned int, bool>>> map_pq_tracing_info; // key -> {(fd, LSM level, open file), ...}
     vector<tuple<unsigned long long, unsigned int, bool>> v_pq_tracing_info; // {(fd, LSM level, open file), ...}
   public:
@@ -189,6 +192,14 @@ namespace checking {
       if(system_verifier == NULL){
         system_verifier = new SystemVerifier();
       }
+    }
+
+    bool usingStringKey(){
+      return flag_using_string_key;
+    }
+
+    void setFlagUsingStringKey(bool flag_in){
+      flag_using_string_key = flag_in;
     }
 
     // void using_string_key(){
@@ -562,9 +573,35 @@ namespace checking {
     // std::unordered_map<int, std::string> RDFTypes = {{0, "SuRF_LF_SPLIT_RDF"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "SPLIT_PLRDF"}, {1, "NONE_DUMMY"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "TOP_LEVEL_RDF"}}; 
+    std::unordered_set<std::string> RDFStringKeyTypeSet = {"PLRDF_STRING_KEY", "SPLIT_PLRDF_STRING_KEY", "SuRF_LF_RDF", "SuRF_LF_SPLIT_RDF"};
+
 
     void setRDFTypes(std::unordered_map<int, std::string> rdf_types_in){
       RDFTypes = rdf_types_in;
+      
+      int invalid_flag = false;
+      if(usingStringKey() == true){
+        for(auto &[k,v]: rdf_types_in){
+          if(v.substr(0,4) == "NONE"){continue;}
+          if(RDFStringKeyTypeSet.count(v) != 1){
+            std::cout << "@using_string_key == 1, " << v << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            std::cerr << "@using_string_key == 1, " << v << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            invalid_flag = true;
+          }
+        }
+      }else{
+        for(auto &[k,v]: rdf_types_in){
+          if(v.substr(0,4) == "SuRF"){continue;}
+          if(RDFStringKeyTypeSet.count(v) == 1){
+            std::cout << "@using_string_key == 0, " << v << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            std::cerr << "@using_string_key == 0, " << v << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            invalid_flag = true;
+          }
+        }
+      }
+      if(invalid_flag == true){
+        exit(1);
+      }
     }
 
     bool hasRDFTypeOtherThanNone(){

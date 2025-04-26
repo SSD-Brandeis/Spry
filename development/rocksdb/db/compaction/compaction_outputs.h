@@ -202,8 +202,10 @@ class CompactionOutputs {
       // const ReadOptions read_options(Env::IOActivity::kCompaction);
       for (it_rd_agg->SeekToFirst(); it_rd_agg->Valid(); it_rd_agg->Next()) {
         auto tombstone = it_rd_agg->Tombstone();
-        long long start_key_from_rd_agg = std::stoll(tombstone.start_key_.ToString());
-        long long end_key_from_rd_agg = std::stoll(tombstone.end_key_.ToString());
+        // long long start_key_from_rd_agg = std::stoll(tombstone.start_key_.ToString());
+        // long long end_key_from_rd_agg = std::stoll(tombstone.end_key_.ToString());
+        string start_key_from_rd_agg = tombstone.start_key_.ToString();
+        string end_key_from_rd_agg = tombstone.end_key_.ToString();
         uint64_t seq_from_rd_agg = tombstone.seq_; 
         std::cout << "@ compaction_output"
           << " start_key_from_rd_agg = " << start_key_from_rd_agg 

@@ -1219,9 +1219,11 @@ class ColumnFamilyData {
 
   void split_range(long long key_in, std::string key_in_str){
     if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == true){
-      //Top Level RDF
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
-        top_level__level_points.push_back(key_in);
+      if(checking::SystemVerifier::getSystemVerifier()->usingStringKey() == false){
+        //Top Level RDF
+        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
+          top_level__level_points.push_back(key_in);
+        }
       }
 
       //SuRF levelfile Split 
@@ -1229,49 +1231,51 @@ class ColumnFamilyData {
         surf_level_file_split__in_coming_point_keys.push_back(key_in_str);
       }
 
-      //Split RDF
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
-        split__level_points.push_back(key_in);
-        int &idx = split__level_range_idx;
-        int len = split__level_ranges.size();
-        if(idx >= len){return;}
+      if(checking::SystemVerifier::getSystemVerifier()->usingStringKey() == false){
+        //Split RDF
+        if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){
+          split__level_points.push_back(key_in);
+          int &idx = split__level_range_idx;
+          int len = split__level_ranges.size();
+          if(idx >= len){return;}
 
-        while(idx < len && split__level_ranges[idx].second <= key_in){
-          split__level_ranges_updated.push_back(split__level_ranges[idx]);
-          idx += 1;
-        }
-        if(idx < len && split__level_ranges[idx].first > key_in){
-          return;
-        }
-
-        if(idx < len && split__level_ranges[idx].first == key_in){
-          if(key_in + 1 >= split__level_ranges[idx].second){
+          while(idx < len && split__level_ranges[idx].second <= key_in){
+            split__level_ranges_updated.push_back(split__level_ranges[idx]);
             idx += 1;
-          }else{
-            split__level_ranges[idx].first = key_in + 1;
           }
-          return;
-        }
-
-        if(idx < len && split__level_ranges[idx].first < key_in && split__level_ranges[idx].second  >  key_in){
-          auto tmp = split__level_ranges[idx];
-          tmp.second = key_in;
-          split__level_ranges_updated.push_back(tmp);
-          if(key_in + 1 >= split__level_ranges[idx].second){
-            idx += 1;
-          }else{
-            split__level_ranges[idx].first = key_in + 1;
+          if(idx < len && split__level_ranges[idx].first > key_in){
+            return;
           }
-          return;
-        }
-        
-        if(idx >= len){return;}
 
-        std::cerr << "Error: condition not checked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
-                  << "split__level_ranges[idx].first: " << split__level_ranges[idx].first << std::endl
-                  << "split__level_ranges[idx].second: " << split__level_ranges[idx].second << std::endl
-                  << "key_in: " << key_in << std::endl;
-        exit(1);
+          if(idx < len && split__level_ranges[idx].first == key_in){
+            if(key_in + 1 >= split__level_ranges[idx].second){
+              idx += 1;
+            }else{
+              split__level_ranges[idx].first = key_in + 1;
+            }
+            return;
+          }
+
+          if(idx < len && split__level_ranges[idx].first < key_in && split__level_ranges[idx].second  >  key_in){
+            auto tmp = split__level_ranges[idx];
+            tmp.second = key_in;
+            split__level_ranges_updated.push_back(tmp);
+            if(key_in + 1 >= split__level_ranges[idx].second){
+              idx += 1;
+            }else{
+              split__level_ranges[idx].first = key_in + 1;
+            }
+            return;
+          }
+          
+          if(idx >= len){return;}
+
+          std::cerr << "Error: condition not checked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+                    << "split__level_ranges[idx].first: " << split__level_ranges[idx].first << std::endl
+                    << "split__level_ranges[idx].second: " << split__level_ranges[idx].second << std::endl
+                    << "key_in: " << key_in << std::endl;
+          exit(1);
+        }
       }
       
       //Split RDF Stringkey
