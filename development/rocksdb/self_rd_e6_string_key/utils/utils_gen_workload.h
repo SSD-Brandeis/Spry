@@ -267,24 +267,28 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
 
   int use_string_key = use_string_key_cmd ? args::get(use_string_key_cmd) : false;
   system_verifier->setFlagUsingStringKey(use_string_key);
+  bool invalid_flag = false;
   if(use_string_key == true){
-    for(auto &[k,v]: RDFTypes){
-      if(v.substr(0,4) == "NONE"){continue;}
-      if(RDFStringKeyTypeSet.count(v) != 1){
-        std::cout << "@using_string_key == 1, " << v << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-        std::cerr << "@using_string_key == 1, " << v << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    for(auto &it: RDFTypes){
+      if(it.second.substr(0,4) == "NONE"){continue;}
+      if(RDFStringKeyTypeSet.count(it.second) != 1){
+        std::cout << "@using_string_key == 1, " << it.second << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cerr << "@using_string_key == 1, " << it.second << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         invalid_flag = true;
       }
     }
   }else{
-    for(auto &[k,v]: RDFTypes){
-      if(v.substr(0,4) == "SuRF"){continue;}
-      if(RDFStringKeyTypeSet.count(v) == 1){
-        std::cout << "@using_string_key == 1, " << v << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-        std::cerr << "@using_string_key == 1, " << v << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    for(auto &it: RDFTypes){
+      if(it.second.substr(0,4) == "SuRF"){continue;}
+      if(RDFStringKeyTypeSet.count(it.second) == 1){
+        std::cout << "@using_string_key == 1, " << it.second << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cerr << "@using_string_key == 1, " << it.second << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         invalid_flag = true;
       }
     }
+  }
+  if(invalid_flag == true){
+    exit(1);
   }
 
 

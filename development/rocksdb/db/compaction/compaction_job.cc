@@ -2218,50 +2218,56 @@ Status CompactionJob::InstallCompactionResults(
                         << " " << __FILE__ << ":" << __LINE__ << " " << __FILE__ << std::endl;
                   }
                   range_tombstones_str.push_back(std::make_pair(tombstone_iter->start_key().ToString(), tombstone_iter->end_key().ToString()));
-                  long long tmp_start_key = std::stoll(tombstone_iter->start_key().ToString());
-                  long long tmp_end_key = std::stoll(tombstone_iter->end_key().ToString());
-                  if(tmp_start_key < min_start_key_RT){min_start_key_RT = tmp_start_key;}
-                  if(tmp_end_key > max_end_key_RT){max_end_key_RT = tmp_end_key;}
-                  if(checking::SystemVerifier::getSystemVerifier()->getShowTombstonesDuringCompactionInfo()){
-                    std::cout << "@ compaction" << " "
-                      << "start: " << tombstone_iter->start_key().ToString()
-                      << " end: " << tombstone_iter->end_key().ToString()
-                      << " seq: " << tombstone_iter->seq() 
-                      << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-                  }
+                  // if(checking::SystemVerifier::getSystemVerifier()->usingStringKey() == false){
+                    long long tmp_start_key = std::stoll(tombstone_iter->start_key().ToString());
+                    long long tmp_end_key = std::stoll(tombstone_iter->end_key().ToString());
+                    if(tmp_start_key < min_start_key_RT){min_start_key_RT = tmp_start_key;}
+                    if(tmp_end_key > max_end_key_RT){max_end_key_RT = tmp_end_key;}
+                    if(checking::SystemVerifier::getSystemVerifier()->getShowTombstonesDuringCompactionInfo()){
+                      std::cout << "@ compaction" << " "
+                        << "start: " << tombstone_iter->start_key().ToString()
+                        << " end: " << tombstone_iter->end_key().ToString()
+                        << " seq: " << tombstone_iter->seq() 
+                        << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                    }
+                  // }
                   size += static_cast<std::string>(tombstone_iter->start_key().ToString()).size();
                   size += static_cast<std::string>(tombstone_iter->end_key().ToString()).size();
                   size += sizeof(static_cast<SequenceNumber>(tombstone_iter->seq()));
                   tombstone_iter->Next();
                 }
-                min_start_key_RT = max(min_start_key_RT, std::stoll(file_meta->smallest.user_key().ToString()));
-                // if(max_end_key_RT > std::stoll(file_meta->largest.user_key().ToString())){
-                if(max_end_key_RT >= std::stoll(file_meta->largest.user_key().ToString())){
-                  max_end_key_RT = std::stoll(file_meta->largest.user_key().ToString()) -1;
-                }
-                if(min_start_key_RT >= max_end_key_RT){
-                  std::cout << "Error: " 
-                    << "min_start_key_RT = " << min_start_key_RT << " " 
-                    << "max_end_key_RT = " << max_end_key_RT << " " 
-                    << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-                  assert(min_start_key_RT < max_end_key_RT);
-                }
-                {
-                  if(checking::SystemVerifier::getSystemVerifier()->getShowTombstonesDuringCompactionInfo()){
-                    std::cout << "min_start_key_RT = " << min_start_key_RT << " max_end_key_RT = " << max_end_key_RT << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-                    std::cout << "min_start_key = " << min_start_key << " max_end_key = " << max_end_key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-                    std::cout << "file_meta->smallest.user_key().ToString() = " << file_meta->smallest.user_key().ToString() << " file_meta->largest.user_key().ToString() = " << file_meta->largest.user_key().ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                // if(checking::SystemVerifier::getSystemVerifier()->usingStringKey() == false){
+                  min_start_key_RT = max(min_start_key_RT, std::stoll(file_meta->smallest.user_key().ToString()));
+                  // if(max_end_key_RT > std::stoll(file_meta->largest.user_key().ToString())){
+                  if(max_end_key_RT >= std::stoll(file_meta->largest.user_key().ToString())){
+                    max_end_key_RT = std::stoll(file_meta->largest.user_key().ToString()) -1;
                   }
-                  if(min_start_key_RT != min_start_key){
-                    std::cout << "ych info Mismatch: min_start_key_RT != min_start_key" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                  if(min_start_key_RT >= max_end_key_RT){
+                    std::cout << "Error: " 
+                      << "min_start_key_RT = " << min_start_key_RT << " " 
+                      << "max_end_key_RT = " << max_end_key_RT << " " 
+                      << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                    assert(min_start_key_RT < max_end_key_RT);
                   }
-                  if(max_end_key_RT != max_end_key){
-                    std::cout << "ych info Mismatch: max_end_key_RT != max_end_key" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                  {
+                    if(checking::SystemVerifier::getSystemVerifier()->getShowTombstonesDuringCompactionInfo()){
+                      std::cout << "min_start_key_RT = " << min_start_key_RT << " max_end_key_RT = " << max_end_key_RT << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                      std::cout << "min_start_key = " << min_start_key << " max_end_key = " << max_end_key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                      std::cout << "file_meta->smallest.user_key().ToString() = " << file_meta->smallest.user_key().ToString() << " file_meta->largest.user_key().ToString() = " << file_meta->largest.user_key().ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                    }
+                    if(min_start_key_RT != min_start_key){
+                      std::cout << "ych info Mismatch: min_start_key_RT != min_start_key" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                    }
+                    if(max_end_key_RT != max_end_key){
+                      std::cout << "ych info Mismatch: max_end_key_RT != max_end_key" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                    }
                   }
-                }
+                // }
                 tombstone_iter.reset();
               }
+
             }
+
             // // looping through the range tombstones to get the min_start_key, max_end_key
             // long long min_start_key_RT = LLONG_MAX, max_end_key_RT = LLONG_MIN; 
             // {
@@ -2320,6 +2326,37 @@ Status CompactionJob::InstallCompactionResults(
               //   // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString())+1, std::stoll(file_meta->largest.user_key().ToString())-1));
               //   smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
               // }
+            }
+          }else{
+            {
+              auto* cfd = compaction->column_family_data();
+              TableCache* table_cache = cfd->table_cache();
+              std::unique_ptr<FragmentedRangeTombstoneIterator> tombstone_iter;
+
+              Status s = table_cache->GetRangeTombstoneIterator(
+                  read_options, cfd->internal_comparator(), *file_meta,
+                  cfd->GetLatestMutableCFOptions()->block_protection_bytes_per_key,
+                  &tombstone_iter);
+              size_t size = 0;
+              if (tombstone_iter) {
+                tombstone_iter->SeekToFirst();
+                // TODO: print timestamp
+                while (tombstone_iter->Valid()) {
+                  if(checking::SystemVerifier::getSystemVerifier()->getShowTombstonesDuringCompactionInfo()){
+                    std::cout << "tombstone_iter->start_key().ToString() = " << tombstone_iter->start_key().ToString() 
+                        << " tombstone_iter->end_key().ToString() = " << tombstone_iter->end_key().ToString() 
+                        << " " << __FILE__ << ":" << __LINE__ << " " << __FILE__ << std::endl;
+                  }
+                  range_tombstones_str.push_back(std::make_pair(tombstone_iter->start_key().ToString(), tombstone_iter->end_key().ToString()));
+ 
+                  size += static_cast<std::string>(tombstone_iter->start_key().ToString()).size();
+                  size += static_cast<std::string>(tombstone_iter->end_key().ToString()).size();
+                  size += sizeof(static_cast<SequenceNumber>(tombstone_iter->seq()));
+                  tombstone_iter->Next();
+                }
+                
+                tombstone_iter.reset();
+              }
             }
           }
 

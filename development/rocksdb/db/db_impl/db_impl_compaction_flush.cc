@@ -3859,6 +3859,44 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
                   //   smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
                   // }
                 }
+              }else{
+                {
+                  auto* cfd = c->column_family_data();
+                  TableCache* table_cache = cfd->table_cache();
+                  std::unique_ptr<FragmentedRangeTombstoneIterator> tombstone_iter;
+
+                  Status s = table_cache->GetRangeTombstoneIterator(
+                      read_options, cfd->internal_comparator(), *file_meta,
+                      cfd->GetLatestMutableCFOptions()->block_protection_bytes_per_key,
+                      &tombstone_iter);
+                  size_t size = 0;
+                  if (tombstone_iter) {
+                    tombstone_iter->SeekToFirst();
+                    // TODO: print timestamp
+                    while (tombstone_iter->Valid()) {
+                      if(checking::SystemVerifier::getSystemVerifier()->getShowTombstonesDuringCompactionInfo()){
+                        std::cout << "tombstone_iter->start_key().ToString() = " << tombstone_iter->start_key().ToString() 
+                            << " tombstone_iter->end_key().ToString() = " << tombstone_iter->end_key().ToString() 
+                            << " " << __FILE__ << ":" << __LINE__ << " " << __FILE__ << std::endl;
+                      }
+                      range_tombstones_str.push_back(std::make_pair(tombstone_iter->start_key().ToString(), tombstone_iter->end_key().ToString())); 
+
+                      if(checking::SystemVerifier::getSystemVerifier()->getShowTombstonesDuringCompactionInfo()){
+                        std::cout << "@ compaction" << " "
+                          << "start: " << tombstone_iter->start_key().ToString()
+                          << " end: " << tombstone_iter->end_key().ToString()
+                          << " seq: " << tombstone_iter->seq() 
+                          << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+                      }
+                      size += static_cast<std::string>(tombstone_iter->start_key().ToString()).size();
+                      size += static_cast<std::string>(tombstone_iter->end_key().ToString()).size();
+                      size += sizeof(static_cast<SequenceNumber>(tombstone_iter->seq()));
+                      tombstone_iter->Next();
+                    }
+                    
+                    tombstone_iter.reset();
+                  }
+                }
               }
 
               smallest_largest_boundries_stringkey.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), file_meta->largest.user_key().ToString()));

@@ -581,20 +581,20 @@ namespace checking {
       
       int invalid_flag = false;
       if(usingStringKey() == true){
-        for(auto &[k,v]: rdf_types_in){
-          if(v.substr(0,4) == "NONE"){continue;}
-          if(RDFStringKeyTypeSet.count(v) != 1){
-            std::cout << "@using_string_key == 1, " << v << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-            std::cerr << "@using_string_key == 1, " << v << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        for(auto &it: rdf_types_in){
+          if(it.second.substr(0,4) == "NONE"){continue;}
+          if(RDFStringKeyTypeSet.count(it.second) != 1){
+            std::cout << "@using_string_key == 1, " << it.second << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            std::cerr << "@using_string_key == 1, " << it.second << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
             invalid_flag = true;
           }
         }
       }else{
-        for(auto &[k,v]: rdf_types_in){
-          if(v.substr(0,4) == "SuRF"){continue;}
-          if(RDFStringKeyTypeSet.count(v) == 1){
-            std::cout << "@using_string_key == 0, " << v << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-            std::cerr << "@using_string_key == 0, " << v << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        for(auto &it: rdf_types_in){
+          if(it.second.substr(0,4) == "SuRF"){continue;}
+          if(RDFStringKeyTypeSet.count(it.second) == 1){
+            std::cout << "@using_string_key == 0, " << it.second << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            std::cerr << "@using_string_key == 0, " << it.second << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
             invalid_flag = true;
           }
         }

@@ -22,7 +22,7 @@ params = {
     "--bb": [0],
     # "--key_size_to_insert": [12],
     "--key_size_to_insert": [16],
-    "--surf__key_len_in_bytes": [13],
+    "--surf__key_len_in_bytes": [16],
     "--surf__hash_suffix_len": [0],
     "--surf__real_suffix_len": [0],
     "--surf__include_dense": [0], # 1: true, 0: false
@@ -226,7 +226,7 @@ workload_filename_list = [
 ]
 
    
-
+params3["--show_tombstones_during_compaction_info"] = [1]
 
 params3["--use_string_key"] = [1]
 params3["--surf_use_condensed_digit_key"] = [0]
@@ -338,7 +338,7 @@ rdf_types = [
 
 # for i_rdf, (rdf_type, local_param) in enumerate(rdf_types.items()):
 for i_rdf, rdf_param in enumerate(rdf_types):
-    if i_rdf < 1:
+    if i_rdf < 5:
         continue
     # break
     # if i_rdf > 0:
