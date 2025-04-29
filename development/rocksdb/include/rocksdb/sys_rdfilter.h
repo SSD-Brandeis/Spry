@@ -15,6 +15,7 @@
 #include <unordered_map>
 #include <sstream>
 #include <utility>
+#include <type_traits>
 
 // namespace rdfilter {
 //   // class PerlevelRangeDeleteFilterByVector {
@@ -1054,12 +1055,18 @@ class PLRDF_t{
     
     int getNumberOfTotalMemoryUsage(){
       int num = 0;
-      for(auto it = rd_filter.begin(); it != rd_filter.end(); it++){
-        num += it->size() * sizeof(Pair); // size of a range: sizeof(Pair)
+      
+      if constexpr (std::is_same<KeyType, std::string>::value) {
+      } else {
+          std::cout << "KeyType is not std::string\n";
+          for(auto it = rd_filter.begin(); it != rd_filter.end(); it++){
+            num += sizeof(it->first) + sizeof(it->second); // size of a range: sizeof(Pair)
+          }
+          for(auto it = split_keys.begin(); it != split_keys.end(); it++){
+            num += sizeof(*it); // size of a key: sizeof(KeyType)
+          }
       }
-      for(auto it = split_keys.begin(); it != split_keys.end(); it++){
-        num += it->size() * sizeof(KeyType); // size of a key: sizeof(KeyType)
-      }
+      
       return num;
     }
 

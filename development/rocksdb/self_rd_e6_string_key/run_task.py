@@ -22,7 +22,7 @@ params = {
     "--bb": [0],
     # "--key_size_to_insert": [12],
     "--key_size_to_insert": [16],
-    "--surf__key_len_in_bytes": [16],
+    "--surf__key_len_in_bytes": [17],
     "--surf__hash_suffix_len": [0],
     "--surf__real_suffix_len": [0],
     "--surf__include_dense": [0], # 1: true, 0: false
@@ -226,7 +226,7 @@ workload_filename_list = [
 ]
 
    
-params3["--show_tombstones_during_compaction_info"] = [1]
+# params3["--show_tombstones_during_compaction_info"] = [1]
 
 params3["--use_string_key"] = [1]
 params3["--surf_use_condensed_digit_key"] = [0]
@@ -235,6 +235,7 @@ params3["--surf_use_condensed_digit_key"] = [0]
 # sel_list = [0.1,0.1,0.1]
 # rd_list = [10,10,10]
 # params3["--show_surf_compaction_info"] = [1] 
+params3[ "--surf__key_len_in_bytes"] = [17]
 # params3[ "--surf__key_len_in_bytes"] = [13]
 #params3["--surf__key_len_in_bytes"] = [6]
 # params3[ "--surf__key_len_in_bytes"] = [3]
@@ -290,14 +291,16 @@ rdf_types = [
     # {"--using_rdf_types": ["SKYLINE_RDF"], },
     {"--using_rdf_types": ["SuRF_LF_RDF"]},
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]},
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[0]},
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[0]},
     {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [8], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[0]},
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [8], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[0]},
-    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [10], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[0]},
-    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [10], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[0]},
+    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [10], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[0]},
+    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [10], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[0]},
     {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [12], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[0]},
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [12], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[0]},
-    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [14], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[0]},
-    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [14], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[0]},
+    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [14], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[0]},
+    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [14], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[0]},
     {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [15], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[0]},
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [15], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[0]},
     # {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #9
@@ -338,7 +341,7 @@ rdf_types = [
 
 # for i_rdf, (rdf_type, local_param) in enumerate(rdf_types.items()):
 for i_rdf, rdf_param in enumerate(rdf_types):
-    if i_rdf < 5:
+    if i_rdf < 3:
         continue
     # break
     # if i_rdf > 0:
