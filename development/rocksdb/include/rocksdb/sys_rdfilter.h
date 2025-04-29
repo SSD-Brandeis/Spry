@@ -1057,9 +1057,9 @@ class PLRDF_t{
       int num = 0;
       
       if constexpr (std::is_same<KeyType, std::string>::value) {
-          std::cout << "KeyType is not std::string\n";
+          // std::cout << "KeyType is std::string\n";
           for(auto it = rd_filter.begin(); it != rd_filter.end(); it++){
-            num += it->first.size() + it->second.size(); // size of a range: sizeof(Pair)
+            num += (it->first).size() + (it->second).size(); // size of a range: sizeof(Pair)
           }
           for(auto it = split_keys.begin(); it != split_keys.end(); it++){
             num += it->size(); // size of a key: sizeof(KeyType)
