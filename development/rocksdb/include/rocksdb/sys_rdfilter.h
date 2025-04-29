@@ -1060,12 +1060,12 @@ class PLRDF_t{
           // std::cout << "KeyType is std::string\n";
           for(auto it = rd_filter.begin(); it != rd_filter.end(); it++){
             for(auto it2: *it){
-              num += (it2->first).size() + (it2->second).size(); // size of a range: sizeof(Pair)
+              num += (it2.first).size() + (it2.second).size(); // size of a range: sizeof(Pair)
             }
           }
           for(auto it = split_keys.begin(); it != split_keys.end(); it++){
             for(auto it2: *it){
-              num += it2->size(); // size of a key: sizeof(KeyType)
+              num += it2.size(); // size of a key: sizeof(KeyType)
             }
           }
       } else {
