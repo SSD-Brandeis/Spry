@@ -341,8 +341,8 @@ rdf_types = [
 
 # for i_rdf, (rdf_type, local_param) in enumerate(rdf_types.items()):
 for i_rdf, rdf_param in enumerate(rdf_types):
-    if i_rdf < 3:
-        continue
+    #if i_rdf < 3:
+    #    continue
     # break
     # if i_rdf > 0:
     #    break
