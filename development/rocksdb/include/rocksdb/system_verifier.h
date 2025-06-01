@@ -164,8 +164,11 @@ namespace checking {
     int fetcher__num_range_del_read_count = 0; 
     int fetcher__num_data_read_count = 0; 
     int fetcher__num_total_block_read_count = 0;
-
-
+    int fetcher__num_filter_partition_index_read_count = 0;
+    int fetcher__num_properties_read_count = 0;
+    int fetcher__num_hash_index_meta_read_count = 0;
+    int fetcher__num_hash_index_prefixes_read_count = 0;
+    int fetcher__num_meta_index_read_count = 0;
 
     bool flag_log__deleted_keys__max_sequnce_number = false;
     std::unordered_map<string, uint64_t> deleted_keys__max_sequnce_number;
@@ -178,6 +181,10 @@ namespace checking {
     bool flag_skip_trivial_move = false;
     
     bool flag_using_string_key = false;
+
+    // false: --> using RocksDB default value (True)
+    // true: --> using True value (False)
+    bool prefetch_index_and_filter_in_cache_during_block_based_table_open = true;
 
     unordered_map<string, vector<tuple<unsigned long long, unsigned int, bool>>> map_pq_tracing_info; // key -> {(fd, LSM level, open file), ...}
     vector<tuple<unsigned long long, unsigned int, bool>> v_pq_tracing_info; // {(fd, LSM level, open file), ...}
@@ -242,10 +249,28 @@ namespace checking {
     bool getFlagOpenTable(){
       return flag_open_table;
     }
+
+    void setFlagUsingRocksdbDefaultValueOrFalseAsPrefetchIndexAndFilterInCacheDuringBlockBasedTableOpen(bool flag_in){
+      prefetch_index_and_filter_in_cache_during_block_based_table_open = flag_in;
+    }
+
+    // used in BlockBasedTable::Open
+    bool getFlagUsingRocksdbDefaultValueOrFalseAsPrefetchIndexAndFilterInCacheDuringBlockBasedTableOpen(){
+      return prefetch_index_and_filter_in_cache_during_block_based_table_open;
+    }
+
+
     void startPQTracing(){
       flag_pq_tracing_on = true;
       clearFlagOpenTable();
-    }
+/*************  ✨ Windsurf Command ⭐  *************/
+/**
+ * Stops the PQ tracing by setting the tracing flag to false.
+ * This function should be called to end a tracing session.
+ */
+
+/*******  a1ab71ee-10dd-4c28-9ed1-e5a325c7eeb9  *******/    }
+
     void endPQTracing(){
       flag_pq_tracing_on = false;
     }
@@ -440,6 +465,22 @@ namespace checking {
     void increaseFetcherNumDataReadCount(){
       fetcher__num_data_read_count++;
     }
+    void increaseFetcherNumkFilterPartitionIndexReadCount(){
+      fetcher__num_filter_partition_index_read_count++;
+    }
+    void increaseFetcherNumPropertiesBlockReadCount(){
+      fetcher__num_properties_read_count++;
+    }
+    void increaseFetcherNumHashIndexMetadataReadCount(){
+      fetcher__num_hash_index_meta_read_count++;
+    }
+    void increaseFetcherNumHashIndexPrefixesReadCount(){
+      fetcher__num_hash_index_prefixes_read_count++;
+    }
+    void increaseFetcherNumMetaIndexReadCount(){
+      fetcher__num_meta_index_read_count++;
+    }
+
     void resetFetcherNumCompressionDictBlockReadCount(){
       fetcher__num_compression_dict_block_read_count = 0;
     }
@@ -458,6 +499,22 @@ namespace checking {
     void resetFetcherNumDataReadCount(){
       fetcher__num_data_read_count = 0;
     }
+    void resetFetcherNumkFilterPartitionIndexReadCount(){
+      fetcher__num_filter_partition_index_read_count = 0;
+    }
+    void resetFetcherNumPropertiesBlockReadCount(){
+      fetcher__num_properties_read_count = 0;
+    }
+    void resetFetcherNumHashIndexMetadataReadCount(){
+      fetcher__num_hash_index_meta_read_count = 0;
+    }
+    void resetFetcherNumHashIndexPrefixesReadCount(){
+      fetcher__num_hash_index_prefixes_read_count = 0;
+    }
+    void resetFetcherNumMetaIndexReadCount(){
+      fetcher__num_meta_index_read_count = 0;
+    }
+
     int getFetcherNumCompressionDictBlockReadCount(){
       return fetcher__num_compression_dict_block_read_count;
     }
@@ -476,7 +533,21 @@ namespace checking {
     int getFetcherNumDataReadCount(){
       return fetcher__num_data_read_count;
     }
-
+    int getFetcherNumkFilterPartitionIndexReadCount(){
+      return fetcher__num_filter_partition_index_read_count;
+    }
+    int getFetcherNumPropertiesBlockReadCount(){
+      return fetcher__num_properties_read_count;
+    }
+    int getFetcherNumHashIndexMetadataReadCount(){
+      return fetcher__num_hash_index_meta_read_count;
+    }
+    int getFetcherNumHashIndexPrefixesReadCount(){
+      return fetcher__num_hash_index_prefixes_read_count;
+    }
+    int getFetcherNumMetaIndexReadCount(){
+      return fetcher__num_meta_index_read_count;
+    }
 
     std::string getAllCount(std::string sep, std::string bracket, std::string prefix, int N_repetitions){
       std::stringstream result;
@@ -509,6 +580,11 @@ namespace checking {
       result << sep << bracket << prefix << "fetcher__num_filter_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_filter_read_count / N_repetitions << "\n";
       result << sep << bracket << prefix << "fetcher__num_range_del_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_range_del_read_count / N_repetitions << "\n";
       result << sep << bracket << prefix << "fetcher__num_data_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_data_read_count / N_repetitions << "\n";
+      result << sep << bracket << prefix << "fetcher__num_filter_partition_index_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_filter_partition_index_read_count / N_repetitions << "\n";
+      result << sep << bracket << prefix << "fetcher__num_properties_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_properties_read_count / N_repetitions << "\n";
+      result << sep << bracket << prefix << "fetcher__num_hash_index_meta_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_hash_index_meta_read_count / N_repetitions << "\n";
+      result << sep << bracket << prefix << "fetcher__num_hash_index_prefixes_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_hash_index_prefixes_read_count / N_repetitions << "\n";
+      result << sep << bracket << prefix << "fetcher__num_meta_index_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_meta_index_read_count / N_repetitions << "\n";
       result << sep << bracket << prefix << "fetcher__num_total_block_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_total_block_read_count / N_repetitions << "\n";
       result << "\n";  
 
@@ -535,6 +611,11 @@ namespace checking {
       resetFetcherNumFilterReadCount();
       resetFetcherNumRangeDelReadCount();
       resetFetcherNumDataReadCount();
+      resetFetcherNumkFilterPartitionIndexReadCount();
+      resetFetcherNumPropertiesBlockReadCount();
+      resetFetcherNumHashIndexMetadataReadCount();
+      resetFetcherNumHashIndexPrefixesReadCount();
+      resetFetcherNumMetaIndexReadCount();
       resetFetcherNumTotalBlockReadCount();
     }
 
@@ -1380,10 +1461,14 @@ namespace checking {
     }
 
     std::string getRandomString(size_t length) {
-        static const std::string charset =
+        static std::string charset =
             "0123456789"
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
             "abcdefghijklmnopqrstuvwxyz";
+
+          if(flag_using_string_key == 0){
+            charset = "0123456789";
+          }
     
         static thread_local std::mt19937 rng(
             std::chrono::steady_clock::now().time_since_epoch().count());

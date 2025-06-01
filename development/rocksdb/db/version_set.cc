@@ -2444,6 +2444,8 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
   //PLRDF
   if(rdf_type == "PLRDF"){
     checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
+    std::cout << " user_key = " << user_key.ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
     is_alive_after_hit_file_level = isAliveAfterRDFilter(fp_hit_file_level, std::stoll(user_key.ToString()));
     checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
     

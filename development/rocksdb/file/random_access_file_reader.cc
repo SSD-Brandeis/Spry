@@ -106,6 +106,8 @@ IOStatus RandomAccessFileReader::Read(
     auto prev_perf_level = GetPerfLevel();
     IOSTATS_TIMER_GUARD(read_nanos);
     if (use_direct_io()) {
+      std::cout << "use_direct_io() in file read" << " " << __FILE__ << ":"
+                << __LINE__ << " " << __func__ << std::endl;
       size_t alignment = file_->GetRequiredBufferAlignment();
       size_t aligned_offset =
           TruncateToPageBoundary(alignment, static_cast<size_t>(offset));
@@ -172,6 +174,8 @@ IOStatus RandomAccessFileReader::Read(
       }
       *result = Slice(scratch, res_len);
     } else {
+      std::cout << "not use_direct_io()" << " " << __FILE__ << ":"
+                << __LINE__ << " " << __func__ << std::endl;
       size_t pos = 0;
       const char* res_scratch = nullptr;
       while (pos < n) {

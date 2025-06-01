@@ -161,11 +161,31 @@ Status ReadAndParseBlockFromFile(
   // If prefetch_buffer is not allocated, it will fallback to synchronous
   // reading of block contents.
   if (async_read && prefetch_buffer != nullptr) {
+
+    
+// enum class BlockType : uint8_t {
+//   kData,
+//   kFilter,  // for second level partitioned filters and full filters
+//   kFilterPartitionIndex,  // for top-level index of filter partitions
+//   kProperties,
+//   kCompressionDictionary,
+//   kRangeDeletion,
+//   kHashIndexPrefixes,
+//   kHashIndexMetadata,
+//   kMetaIndex,
+//   kIndex,
+//   // Note: keep kInvalid the last value when adding new enum values.
+//   kInvalid
+// };
+
+    //enum value to name
+std::cout << " ReadAndParseBlockFromFile Async " << " block_type = " << int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     s = block_fetcher.ReadAsyncBlockContents();
     if (!s.ok()) {
       return s;
     }
   } else {
+std::cout << " ReadAndParseBlockFromFile Sync " << " block_type = " << int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     s = block_fetcher.ReadBlockContents();
   }
   if (s.ok()) {
@@ -593,7 +613,12 @@ Status BlockBasedTable::Open(
   ro.io_activity = read_options.io_activity;
 
   // prefetch both index and filters, down to all partitions
-  const bool prefetch_all = prefetch_index_and_filter_in_cache || level == 0;
+  // yucheng Added Start Important: this is only for experimental use
+  // prefetch_index_and_filter_in_cache = checking::SystemVerifier::getSystemVerifier()->getPrefetchIndexAndFilterInCacheDuringBlockBasedTableOpen(); // Rocksdb set it to true by default, but we set it to false here
+  const bool prefetch_all = (prefetch_index_and_filter_in_cache && checking::SystemVerifier::getSystemVerifier()->getFlagUsingRocksdbDefaultValueOrFalseAsPrefetchIndexAndFilterInCacheDuringBlockBasedTableOpen()) || level == 0;
+  // yucheng Added End
+  // const bool prefetch_all = prefetch_index_and_filter_in_cache || level == 0;
+  // const bool prefetch_all = prefetch_index_and_filter_in_cache || level == 0;
   const bool preload_all = !table_options.cache_index_and_filter_blocks;
 
   if (!ioptions.allow_mmap_reads) {
@@ -611,6 +636,13 @@ Status BlockBasedTable::Open(
         0 /* readahead_size */, 0 /* max_readahead_size */, false /* enable */,
         true /* track_min_offset */));
   }
+
+
+  // yucheng Added Start Important: this is only for experimental use
+  prefetch_buffer.reset(new FilePrefetchBuffer(
+      0 /* readahead_size */, 0 /* max_readahead_size */, false /* enable */,
+      true /* track_min_offset */));
+  // yucheng Added End
 
   // Read in the following order:
   //    1. Footer
@@ -939,6 +971,7 @@ Status BlockBasedTable::PrefetchTail(
   IOOptions opts;
   Status s = file->PrepareIOOptions(ro, opts);
   if (s.ok()) {
+std::cout << "BlockBasedTable::PrefetchTail prefetch_buffer->Prefetch " << " tail prefetch_len = " << prefetch_len << " tail prefetch_off = " << prefetch_off << " " << __FILE__ << ":" << __LINE__ << std::endl;
     s = (*prefetch_buffer)
             ->Prefetch(opts, file, prefetch_off, prefetch_len,
                        ro.rate_limiter_priority);
@@ -1773,7 +1806,7 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
     bool use_cache, bool async_read) const {
 
   //Self Added Start: timing
-  checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();\
+  checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
   //Self Added End: timing
   //Self Added Start 
   checking::SystemVerifier::getSystemVerifier()->start_retrieve_block();

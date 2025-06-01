@@ -476,14 +476,14 @@ SuRF* SuRF::rangesToSurf(std::vector<std::pair<std::string, std::string>> ranges
         std::string key_start = ranges[i].first;
         std::string key_end = ranges[i].second;
         if(key_start.size() > surf_key_length_in_bytes){
-std::cout << "key_start = " << key_start;
+// std::cout << "key_start = " << key_start;
             key_start = key_start.substr(0, surf_key_length_in_bytes);
-std::cout << " key_start = " << key_start << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << " key_start = " << key_start << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         }
         if(key_end.size() > surf_key_length_in_bytes){
-std::cout << "key_end = " << key_end;
+// std::cout << "key_end = " << key_end;
             key_end = key_end.substr(0, surf_key_length_in_bytes);
-std::cout << " key_end = " << key_end << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << " key_end = " << key_end << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         }
         //2024-10
         if(key_start == key_end){
