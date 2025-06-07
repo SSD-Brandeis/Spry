@@ -586,6 +586,19 @@ namespace checking {
       result << sep << bracket << prefix << "fetcher__num_hash_index_prefixes_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_hash_index_prefixes_read_count / N_repetitions << "\n";
       result << sep << bracket << prefix << "fetcher__num_meta_index_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_meta_index_read_count / N_repetitions << "\n";
       result << sep << bracket << prefix << "fetcher__num_total_block_read_count" << bracket << ": " << std::fixed << std::setprecision(2) << 1.0*fetcher__num_total_block_read_count / N_repetitions << "\n";
+
+      std::cout << prefix << "fetcher__num_compression_dict_block_read_count" << std::fixed << std::setprecision(2) << 1.0*fetcher__num_compression_dict_block_read_count / N_repetitions << "\n";
+      std::cout << prefix << "fetcher__num_index_read_count" << std::fixed << std::setprecision(2) << 1.0*fetcher__num_index_read_count / N_repetitions << "\n";
+      std::cout << prefix << "fetcher__num_filter_read_count" << std::fixed << std::setprecision(2) << 1.0*fetcher__num_filter_read_count / N_repetitions << "\n";
+      std::cout << prefix << "fetcher__num_range_del_read_count" << std::fixed << std::setprecision(2) << 1.0*fetcher__num_range_del_read_count / N_repetitions << "\n";
+      std::cout << prefix << "fetcher__num_data_read_count" << std::fixed << std::setprecision(2) << 1.0*fetcher__num_data_read_count / N_repetitions << "\n";
+      std::cout << prefix << "fetcher__num_filter_partition_index_read_count" << std::fixed << std::setprecision(2) << 1.0*fetcher__num_filter_partition_index_read_count / N_repetitions << "\n";
+      std::cout << prefix << "fetcher__num_properties_read_count" << std::fixed << std::setprecision(2) << 1.0*fetcher__num_properties_read_count / N_repetitions << "\n";
+      std::cout << prefix << "fetcher__num_hash_index_meta_read_count" << std::fixed << std::setprecision(2) << 1.0*fetcher__num_hash_index_meta_read_count / N_repetitions << "\n";
+      std::cout << prefix << "fetcher__num_hash_index_prefixes_read_count" << std::fixed << std::setprecision(2) << 1.0*fetcher__num_hash_index_prefixes_read_count / N_repetitions << "\n";
+      std::cout << prefix << "fetcher__num_meta_index_read_count" << std::fixed << std::setprecision(2) << 1.0*fetcher__num_meta_index_read_count / N_repetitions << "\n";
+      std::cout << prefix << "fetcher__num_total_block_read_count" << std::fixed << std::setprecision(2) << 1.0*fetcher__num_total_block_read_count / N_repetitions << "\n";
+
       result << "\n";  
 
       return result.str();

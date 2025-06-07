@@ -165,13 +165,13 @@ Status FilePrefetchBuffer::Prefetch(const IOOptions& opts,
   CalculateOffsetAndLen(alignment, offset, roundup_len, curr_,
                         true /*refit_tail*/, chunk_len);
   size_t read_len = static_cast<size_t>(roundup_len - chunk_len);
-std::cout << "FilePrefetchBuffer::Prefetch: "
-          << "offset: " << offset << ", n: " << n
-          << ", rounddown_offset: " << rounddown_offset
-          << ", roundup_len: " << roundup_len
-          << ", chunk_len: " << chunk_len
-          << ", read_len: " << read_len
-          << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
+// std::cout << "FilePrefetchBuffer::Prefetch: "
+//           << "offset: " << offset << ", n: " << n
+//           << ", rounddown_offset: " << rounddown_offset
+//           << ", roundup_len: " << roundup_len
+//           << ", chunk_len: " << chunk_len
+//           << ", read_len: " << read_len
+//           << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
   Status s = Read(opts, reader, rate_limiter_priority, read_len, chunk_len,
                   rounddown_offset, curr_);
   if (usage_ == FilePrefetchBufferUsage::kTableOpenPrefetchTail && s.ok()) {
