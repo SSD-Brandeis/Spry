@@ -3,3 +3,4 @@ ldb*
 simple_example
 workload/workload*.txt*
 load_gen
+main_gen_workload
