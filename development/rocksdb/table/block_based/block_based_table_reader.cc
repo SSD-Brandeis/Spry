@@ -179,13 +179,13 @@ Status ReadAndParseBlockFromFile(
 // };
 
     //enum value to name
-std::cout << " ReadAndParseBlockFromFile Async " << " block_type = " << int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << " ReadAndParseBlockFromFile Async " << " block_type = " << int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     s = block_fetcher.ReadAsyncBlockContents();
     if (!s.ok()) {
       return s;
     }
   } else {
-std::cout << " ReadAndParseBlockFromFile Sync " << " block_type = " << int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+// std::cout << " ReadAndParseBlockFromFile Sync " << " block_type = " << int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     s = block_fetcher.ReadBlockContents();
   }
   if (s.ok()) {
@@ -971,7 +971,7 @@ Status BlockBasedTable::PrefetchTail(
   IOOptions opts;
   Status s = file->PrepareIOOptions(ro, opts);
   if (s.ok()) {
-std::cout << "BlockBasedTable::PrefetchTail prefetch_buffer->Prefetch " << " tail prefetch_len = " << prefetch_len << " tail prefetch_off = " << prefetch_off << " " << __FILE__ << ":" << __LINE__ << std::endl;
+// std::cout << "BlockBasedTable::PrefetchTail prefetch_buffer->Prefetch " << " tail prefetch_len = " << prefetch_len << " tail prefetch_off = " << prefetch_off << " " << __FILE__ << ":" << __LINE__ << std::endl;
     s = (*prefetch_buffer)
             ->Prefetch(opts, file, prefetch_off, prefetch_len,
                        ro.rate_limiter_priority);
@@ -1683,7 +1683,7 @@ BlockBasedTable::MaybeReadBlockAndLoadToCache(
       if (s.ok()) {
         // If filling cache is allowed and a cache is configured, try to put the
         // block to the cache.
-        std::cout << "PutDataBlockToCache" << " " << __FILE__ << ":" << __LINE__ << std::endl;
+        // std::cout << "PutDataBlockToCache" << " " << __FILE__ << ":" << __LINE__ << std::endl;
         s = PutDataBlockToCache(
             key, block_cache, out_parsed_block, std::move(*contents),
             contents_comp_type, uncompression_dict,

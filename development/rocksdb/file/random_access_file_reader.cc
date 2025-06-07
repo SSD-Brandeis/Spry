@@ -106,8 +106,8 @@ IOStatus RandomAccessFileReader::Read(
     auto prev_perf_level = GetPerfLevel();
     IOSTATS_TIMER_GUARD(read_nanos);
     if (use_direct_io()) {
-      std::cout << "use_direct_io() in file read" << " " << __FILE__ << ":"
-                << __LINE__ << " " << __func__ << std::endl;
+      // std::cout << "use_direct_io() in file read" << " " << __FILE__ << ":"
+      //           << __LINE__ << " " << __func__ << std::endl;
       size_t alignment = file_->GetRequiredBufferAlignment();
       size_t aligned_offset =
           TruncateToPageBoundary(alignment, static_cast<size_t>(offset));
