@@ -624,9 +624,9 @@ bool FilePrefetchBuffer::TryReadFromCache(const IOOptions& opts,
                                           Slice* result, Status* status,
                                           Env::IOPriority rate_limiter_priority,
                                           bool for_compaction /* = false */) {
-  std::cout << "FilePrefetchBuffer::TryReadFromCache called with offset: "
-            << offset << ", n: " << n << " " << __FILE__ << ":" << __LINE__ << " " 
-            << __FUNCTION__ << std::endl;
+  // std::cout << "FilePrefetchBuffer::TryReadFromCache called with offset: "
+  //           << offset << ", n: " << n << " " << __FILE__ << ":" << __LINE__ << " " 
+  //           << __FUNCTION__ << std::endl;
   bool ret = TryReadFromCacheUntracked(opts, reader, offset, n, result, status,
                                        rate_limiter_priority, for_compaction);
   if (usage_ == FilePrefetchBufferUsage::kTableOpenPrefetchTail && enable_) {
