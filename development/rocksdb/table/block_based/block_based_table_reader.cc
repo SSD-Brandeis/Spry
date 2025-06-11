@@ -267,7 +267,7 @@ Status ReadAndParseBlockFromFile(
       return s;
     }
   } else {
-std::cout << " ReadAndParseBlockFromFile Sync " << " block_type = " << int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+std::cout << " ReadAndParseBlockFromFile Sync " << " block_type = " << int(block_type) << " TBlocklike::kBlockType = " << int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     s = block_fetcher.ReadBlockContents(block_type);
   }
   if (s.ok()) {
