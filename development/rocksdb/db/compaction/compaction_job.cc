@@ -1536,9 +1536,11 @@ void CompactionJob::ProcessKeyValueCompaction(SubcompactionState* sub_compact) {
       auto point_key = c_iter->user_key().ToString();
       auto point_key_seq = c_iter->ikey().sequence;
       auto point_value_pre = c_iter->value().ToString();
-      auto separator_pos = point_value_pre.find("|");
-      auto point_key_seq2 = point_value_pre.substr(separator_pos + 1);
-      auto point_value = point_value_pre.substr(0, separator_pos);
+      // auto separator_pos = point_value_pre.find("|");
+      // auto point_key_seq2 = point_value_pre.substr(separator_pos + 1);
+      // auto point_value = point_value_pre.substr(0, separator_pos);
+      auto point_value = point_value_pre;
+
       for(auto &rd: range_del_vec_self){ //sorted vector
         auto &start_key = std::get<0>(rd);
         auto &end_key = std::get<1>(rd);
@@ -1565,14 +1567,14 @@ void CompactionJob::ProcessKeyValueCompaction(SubcompactionState* sub_compact) {
                     << " (range_del) seq = " << seq
                     << " (kv pair) ikey.user_key = " << point_key
                     << " (kv pair) ikey.sequence = " << point_key_seq << " "
-                    << " (kv pair) point_key_seq2 = " << point_key_seq2 << " "
+                    // << " (kv pair) point_key_seq2 = " << point_key_seq2 << " "
                     << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
           std::cout << " (compaction) range delete key in compaction"
                     << " (range_del) key = " << start_key << " " << end_key
                     << " (range_del) seq = " << seq
                     << " (kv pair) ikey.user_key = " << point_key
                     << " (kv pair) ikey.sequence = " << point_key_seq << " "
-                    << " (kv pair) point_key_seq2 = " << point_key_seq2 << " "
+                    // << " (kv pair) point_key_seq2 = " << point_key_seq2 << " "
                     << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
           flag_delete_current_entry = true;
           flag_split_RDF = false;

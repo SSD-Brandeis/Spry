@@ -513,9 +513,9 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
           uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
           cache_tombstone_bytes.push_back(bytes);
         }
-        size_t separator_pos = value.find("|");
-        time_stamp = value.substr(separator_pos + 1);
-        value = value.substr(0, separator_pos);
+        // size_t separator_pos = value.find("|");
+        // time_stamp = value.substr(separator_pos + 1);
+        // value = value.substr(0, separator_pos);
 
         if(s.ok() != gt_is_exist){
           #ifdef DEBUG_VERIFICATION
@@ -722,9 +722,9 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
           uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
           cache_tombstone_bytes.push_back(bytes);
         }
-        size_t separator_pos = value.find("|");
-        time_stamp = value.substr(separator_pos + 1);
-        value = value.substr(0, separator_pos);
+        // size_t separator_pos = value.find("|");
+        // time_stamp = value.substr(separator_pos + 1);
+        // value = value.substr(0, separator_pos);
 
         if(s.ok() != gt_is_exist){
           #ifdef DEBUG_VERIFICATION
@@ -934,9 +934,9 @@ system_verifier->startPQTracing();
           uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
           cache_tombstone_bytes.push_back(bytes);
         }
-        size_t separator_pos = value.find("|");
-        time_stamp = value.substr(separator_pos + 1);
-        value = value.substr(0, separator_pos);
+        // size_t separator_pos = value.find("|");
+        // time_stamp = value.substr(separator_pos + 1);
+        // value = value.substr(0, separator_pos);
 
         if(s.ok() != gt_is_exist){
           #ifdef DEBUG_VERIFICATION
@@ -1154,9 +1154,9 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
           uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
           cache_tombstone_bytes.push_back(bytes);
         }
-        size_t separator_pos = value.find("|");
-        time_stamp = value.substr(separator_pos + 1);
-        value = value.substr(0, separator_pos);
+        // size_t separator_pos = value.find("|");
+        // time_stamp = value.substr(separator_pos + 1);
+        // value = value.substr(0, separator_pos);
         if(s.ok() != gt_is_exist){
           #ifdef DEBUG_VERIFICATION
             std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;

@@ -52,7 +52,7 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
   std::cout << "KEY_SIZE = " << KEY_SIZE << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   std::cout << "flag_using_string_key = " << flag_using_string_key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
-  int TIME_STAMP_SIZE = 7;  // shall == rocksdb sequence num 
+  // int TIME_STAMP_SIZE = 7;  // shall == rocksdb sequence num 
   long long i_instruction = 0;
 
   auto start_time = std::chrono::high_resolution_clock::now();
@@ -69,8 +69,8 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
 
 
     char instruction;
-    std::string time_stamp;
-    std::stringstream ss_time_stamp;
+    // std::string time_stamp;
+    // std::stringstream ss_time_stamp;
     // long long key, start_key, end_key;
     std::string key, start_key, end_key;
     std::string type;
@@ -95,10 +95,11 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
         }
 
         // ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
-        ss_time_stamp << std::setfill('0') << std::setw(TIME_STAMP_SIZE) << i_instruction;
+        // ss_time_stamp << std::setfill('0') << std::setw(TIME_STAMP_SIZE) << i_instruction;
         start_time = std::chrono::high_resolution_clock::now();
         // std::cout << "Insert " << ss_key.str() << std::endl;
-        s = db->Put(write_op, ss_key.str(), value + "|" + ss_time_stamp.str());
+        // s = db->Put(write_op, ss_key.str(), value + "|" + ss_time_stamp.str());
+        s = db->Put(write_op, ss_key.str(), value);
         stop_time = std::chrono::high_resolution_clock::now();
         duration_time = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_time - start_time);
         insertion_time_ns += duration_time.count();
@@ -122,9 +123,9 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
         // std::cout << "Query " << key << std::endl;
         // ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
         s = db->Get(read_op, ss_key.str(), &value);
-        separator_pos = value.find("|");
-        time_stamp = value.substr(separator_pos + 1);
-        value = value.substr(0, separator_pos);
+        // separator_pos = value.find("|");
+        // time_stamp = value.substr(separator_pos + 1);
+        // value = value.substr(0, separator_pos);
         counter++;
         break;
 
@@ -323,13 +324,13 @@ logger_during_insertion->writeRecord(db_ptr2);
       std::string gt_value = system_verifier->get(x);
 
       std::string value;
-      std::string time_stamp;
+      // std::string time_stamp;
       std::stringstream searching_key;
       searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
       s = db->Get(read_op, searching_key.str(), &value);
-      size_t separator_pos = value.find("|");
-      time_stamp = value.substr(separator_pos + 1);
-      value = value.substr(0, separator_pos);
+      // size_t separator_pos = value.find("|");
+      // time_stamp = value.substr(separator_pos + 1);
+      // value = value.substr(0, separator_pos);
       std::cout << x << " " << s.ok() << " " << value << std::endl;
       std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
     

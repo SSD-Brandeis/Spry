@@ -526,9 +526,9 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
           uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
           cache_tombstone_bytes.push_back(bytes);
         }
-        size_t separator_pos = value.find("|");
-        time_stamp = value.substr(separator_pos + 1);
-        value = value.substr(0, separator_pos);
+        // size_t separator_pos = value.find("|");
+        // time_stamp = value.substr(separator_pos + 1);
+        // value = value.substr(0, separator_pos);
 
         if(s.ok() != gt_is_exist){
           #ifdef DEBUG_VERIFICATION

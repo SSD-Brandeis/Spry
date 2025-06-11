@@ -2444,7 +2444,7 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
   //PLRDF
   if(rdf_type == "PLRDF"){
     checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
-    std::cout << " user_key = " << user_key.ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // std::cout << " user_key = " << user_key.ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
     is_alive_after_hit_file_level = isAliveAfterRDFilter(fp_hit_file_level, std::stoll(user_key.ToString()));
     checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
@@ -2744,9 +2744,10 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
         //Self Added Start
         if(rdf_type == "SKYLINE_RDF"){
           std::string val_pre = value->ToString();
-          auto separator_pos = val_pre.find("|");
-          long long skyline__user_key_seq = std::stoll(val_pre.substr(separator_pos + 1));
-          auto val = val_pre.substr(0, separator_pos);
+          // auto separator_pos = val_pre.find("|");
+          // long long skyline__user_key_seq = std::stoll(val_pre.substr(separator_pos + 1));
+          // auto val = val_pre.substr(0, separator_pos);
+          auto val = val_pre;
           
           checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
           bool skyline__is_alive_after_hit_file_level = isAliveAfterSkylineRDFilter(std::stoll(user_key.ToString()), skyline__user_key_seq);
