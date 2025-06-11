@@ -2056,8 +2056,8 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
 
   Status s;
   if (use_cache) {
-    // std::cout << "MaybeReadBlockAndLoadToCache" << " "
-    //           << __FILE__ << ":" << __LINE__ << std::endl;
+    std::cout << "MaybeReadBlockAndLoadToCache" << " "
+              << __FILE__ << ":" << __LINE__ << std::endl;
     s = MaybeReadBlockAndLoadToCache(
         prefetch_buffer, ro, handle, uncompression_dict, for_compaction,
         out_parsed_block, get_context, lookup_context,
