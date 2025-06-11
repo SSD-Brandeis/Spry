@@ -194,6 +194,70 @@ Status ReadAndParseBlockFromFile(
   return s;
 }
 
+// yucheng added start
+// Read the block identified by "handle" from "file".
+// The only relevant option is options.verify_checksums for now.
+// On failure return non-OK.
+// On success fill *result and return OK - caller owns *result
+// @param uncompression_dict Data for presetting the compression library's
+//    dictionary.
+template <typename TBlocklike>
+Status ReadAndParseBlockFromFile(
+    RandomAccessFileReader* file, FilePrefetchBuffer* prefetch_buffer,
+    const Footer& footer, const ReadOptions& options, const BlockHandle& handle,
+    std::unique_ptr<TBlocklike>* result, const ImmutableOptions& ioptions,
+    BlockCreateContext& create_context, bool maybe_compressed,
+    const UncompressionDict& uncompression_dict,
+    const PersistentCacheOptions& cache_options,
+    MemoryAllocator* memory_allocator, bool for_compaction, bool async_read, BlockType block_type) {
+  assert(result);
+
+  BlockContents contents;
+  BlockFetcher block_fetcher(
+      file, prefetch_buffer, footer, options, handle, &contents, ioptions,
+      /*do_uncompress*/ maybe_compressed, maybe_compressed,
+      TBlocklike::kBlockType, uncompression_dict, cache_options,
+      memory_allocator, nullptr, for_compaction);
+  Status s;
+  // If prefetch_buffer is not allocated, it will fallback to synchronous
+  // reading of block contents.
+  if (async_read && prefetch_buffer != nullptr) {
+
+    
+// enum class BlockType : uint8_t {
+//   kData,
+//   kFilter,  // for second level partitioned filters and full filters
+//   kFilterPartitionIndex,  // for top-level index of filter partitions
+//   kProperties,
+//   kCompressionDictionary,
+//   kRangeDeletion,
+//   kHashIndexPrefixes,
+//   kHashIndexMetadata,
+//   kMetaIndex,
+//   kIndex,
+//   // Note: keep kInvalid the last value when adding new enum values.
+//   kInvalid
+// };
+
+    //enum value to name
+// std::cout << " ReadAndParseBlockFromFile Async " << " block_type = " << int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    s = block_fetcher.ReadAsyncBlockContents();
+    // yucheng Warning: whether to pass in block_type here?
+    // s = block_fetcher.ReadAsyncBlockContents(block_type);
+    if (!s.ok()) {
+      return s;
+    }
+  } else {
+// std::cout << " ReadAndParseBlockFromFile Sync " << " block_type = " << int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    s = block_fetcher.ReadBlockContents(block_type);
+  }
+  if (s.ok()) {
+    create_context.Create(result, std::move(contents));
+  }
+  return s;
+}
+// yucheng added end
+
 // For hash based index, return false if table_properties->prefix_extractor_name
 // and prefix_extractor both exist and match, otherwise true.
 inline bool PrefixExtractorChangedHelper(
@@ -1577,6 +1641,149 @@ IndexBlockIter* BlockBasedTable::InitBlockIterator<IndexBlockIter>(
       block_contents_pinned);
 }
 
+// ychuang Added Start
+
+// If contents is nullptr, this function looks up the block caches for the
+// data block referenced by handle, and read the block from disk if necessary.
+// If contents is non-null, it skips the cache lookup and disk read, since
+// the caller has already read it. In both cases, if ro.fill_cache is true,
+// it inserts the block into the block cache.
+template <typename TBlocklike>
+WithBlocklikeCheck<Status, TBlocklike>
+BlockBasedTable::MaybeReadBlockAndLoadToCache(
+    FilePrefetchBuffer* prefetch_buffer, const ReadOptions& ro,
+    const BlockHandle& handle, const UncompressionDict& uncompression_dict,
+    bool for_compaction, CachableEntry<TBlocklike>* out_parsed_block,
+    GetContext* get_context, BlockCacheLookupContext* lookup_context,
+    BlockContents* contents, bool async_read, BlockType block_type) const {
+  assert(out_parsed_block != nullptr);
+  const bool no_io = (ro.read_tier == kBlockCacheTier);
+  BlockCacheInterface<TBlocklike> block_cache{
+      rep_->table_options.block_cache.get()};
+
+  // First, try to get the block from the cache
+  //
+  // If either block cache is enabled, we'll try to read from it.
+  Status s;
+  CacheKey key_data;
+  Slice key;
+  bool is_cache_hit = false;
+  if (block_cache) {
+    // create key for block cache
+    key_data = GetCacheKey(rep_->base_cache_key, handle);
+    key = key_data.AsSlice();
+
+    if (!contents) {
+std::cout << "GetDataBlockFromCache" << " " << __FILE__ << ":" << __LINE__ << std::endl;
+      s = GetDataBlockFromCache(key, block_cache, out_parsed_block,
+                                get_context);
+      // Value could still be null at this point, so check the cache handle
+      // and update the read pattern for prefetching
+      if (out_parsed_block->GetValue() || out_parsed_block->GetCacheHandle()) {
+        // TODO(haoyu): Differentiate cache hit on uncompressed block cache and
+        // compressed block cache.
+        is_cache_hit = true;
+        if (prefetch_buffer) {
+          // Update the block details so that PrefetchBuffer can use the read
+          // pattern to determine if reads are sequential or not for
+          // prefetching. It should also take in account blocks read from cache.
+          prefetch_buffer->UpdateReadPattern(
+              handle.offset(), BlockSizeWithTrailer(handle),
+              ro.adaptive_readahead /*decrease_readahead_size*/);
+        }
+      }
+    }
+
+    // Can't find the block from the cache. If I/O is allowed, read from the
+    // file.
+    if (out_parsed_block->GetValue() == nullptr &&
+        out_parsed_block->GetCacheHandle() == nullptr && !no_io &&
+        ro.fill_cache) {
+      Statistics* statistics = rep_->ioptions.stats;
+      const bool maybe_compressed =
+          TBlocklike::kBlockType != BlockType::kFilter &&
+          TBlocklike::kBlockType != BlockType::kCompressionDictionary &&
+          rep_->blocks_maybe_compressed;
+      const bool do_uncompress = maybe_compressed;
+      CompressionType contents_comp_type;
+      // Maybe serialized or uncompressed
+      BlockContents tmp_contents;
+      if (!contents) {
+        Histograms histogram = for_compaction ? READ_BLOCK_COMPACTION_MICROS
+                                              : READ_BLOCK_GET_MICROS;
+        StopWatch sw(rep_->ioptions.clock, statistics, histogram);
+        BlockFetcher block_fetcher(
+            rep_->file.get(), prefetch_buffer, rep_->footer, ro, handle,
+            &tmp_contents, rep_->ioptions, do_uncompress, maybe_compressed,
+            TBlocklike::kBlockType, uncompression_dict,
+            rep_->persistent_cache_options,
+            GetMemoryAllocator(rep_->table_options),
+            /*allocator=*/nullptr);
+
+        // If prefetch_buffer is not allocated, it will fallback to synchronous
+        // reading of block contents.
+        if (async_read && prefetch_buffer != nullptr) {
+          std::cout << "ReadAsyncBlockContents" << " TBlocklike::kBlockType " << int(TBlocklike::kBlockType) << " "
+                    << __FILE__ << ":" << __LINE__ << std::endl;
+          s = block_fetcher.ReadAsyncBlockContents();
+          // yucheng Noticing: do we need to pass block_type here?
+          // s = block_fetcher.ReadAsyncBlockContents(block_type);
+          if (!s.ok()) {
+            return s;
+          }
+        } else {
+          std::cout << "ReadBlockContents" << " TBlocklike::kBlockType " << int(TBlocklike::kBlockType) << " " << __FILE__ << ":"
+                    << __LINE__ << std::endl;
+          s = block_fetcher.ReadBlockContents(block_type);
+        }
+
+        contents_comp_type = block_fetcher.get_compression_type();
+        contents = &tmp_contents;
+        if (get_context) {
+          switch (TBlocklike::kBlockType) {
+            case BlockType::kIndex:
+              ++get_context->get_context_stats_.num_index_read;
+              break;
+            case BlockType::kFilter:
+            case BlockType::kFilterPartitionIndex:
+              ++get_context->get_context_stats_.num_filter_read;
+              break;
+            default:
+              break;
+          }
+        }
+      } else {
+        contents_comp_type = GetBlockCompressionType(*contents);
+      }
+
+      if (s.ok()) {
+        // If filling cache is allowed and a cache is configured, try to put the
+        // block to the cache.
+        // std::cout << "PutDataBlockToCache" << " " << __FILE__ << ":" << __LINE__ << std::endl;
+        s = PutDataBlockToCache(
+            key, block_cache, out_parsed_block, std::move(*contents),
+            contents_comp_type, uncompression_dict,
+            GetMemoryAllocator(rep_->table_options), get_context);
+      }
+
+
+      // yucheng Added Start      
+      // yucheng Added End
+    }
+  }
+
+  // TODO: optimize so that lookup_context != nullptr implies the others
+  if (block_cache_tracer_ && block_cache_tracer_->is_tracing_enabled() &&
+      lookup_context) {
+    SaveLookupContextOrTraceRecord(
+        key, is_cache_hit, ro, out_parsed_block->GetValue(), lookup_context);
+  }
+
+  assert(s.ok() || out_parsed_block->GetValue() == nullptr);
+  return s;
+}
+// ychuang Addded End
+
 // If contents is nullptr, this function looks up the block caches for the
 // data block referenced by handle, and read the block from disk if necessary.
 // If contents is non-null, it skips the cache lookup and disk read, since
@@ -1808,6 +2015,156 @@ void BlockBasedTable::FinishTraceRecord(
                          referenced_key)
       .PermitUncheckedError();
 }
+
+// yucheng Added Start
+template <typename TBlocklike /*, auto*/>
+WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
+    FilePrefetchBuffer* prefetch_buffer, const ReadOptions& ro,
+    const BlockHandle& handle, const UncompressionDict& uncompression_dict,
+    CachableEntry<TBlocklike>* out_parsed_block, GetContext* get_context,
+    BlockCacheLookupContext* lookup_context, bool for_compaction,
+    bool use_cache, bool async_read, BlockType block_type) const {
+
+  //Self Added Start: timing
+  checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+  //Self Added End: timing
+  //Self Added Start 
+  checking::SystemVerifier::getSystemVerifier()->start_retrieve_block();
+  //Self Added End
+
+  assert(out_parsed_block);
+  assert(out_parsed_block->IsEmpty());
+
+  Status s;
+  if (use_cache) {
+    std::cout << "MaybeReadBlockAndLoadToCache" << " "
+              << __FILE__ << ":" << __LINE__ << std::endl;
+    s = MaybeReadBlockAndLoadToCache(
+        prefetch_buffer, ro, handle, uncompression_dict, for_compaction,
+        out_parsed_block, get_context, lookup_context,
+        /*contents=*/nullptr, async_read, block_type);
+
+    if (!s.ok()) {
+      //Self Added Start 
+      checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
+      //Self Added End        
+      //Self Added Start: timing
+      checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+      //Self Added End: timing
+
+      return s;
+    }
+
+    if (out_parsed_block->GetValue() != nullptr ||
+        out_parsed_block->GetCacheHandle() != nullptr) {
+      assert(s.ok());
+      
+      //Self Added Start 
+      checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
+      //Self Added End        
+      //Self Added Start: timing
+      checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+      //Self Added End: timing
+
+      return s;
+    }
+  }
+
+  assert(out_parsed_block->IsEmpty());
+
+  const bool no_io = ro.read_tier == kBlockCacheTier;
+  if (no_io) {
+    //Self Added Start 
+    checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
+    //Self Added End        
+    //Self Added Start: timing
+    checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+    //Self Added End: timing
+
+    return Status::Incomplete("no blocking io");
+  }
+
+  const bool maybe_compressed =
+      TBlocklike::kBlockType != BlockType::kFilter &&
+      TBlocklike::kBlockType != BlockType::kCompressionDictionary &&
+      rep_->blocks_maybe_compressed;
+  std::unique_ptr<TBlocklike> block;
+
+  {
+    Histograms histogram =
+        for_compaction ? READ_BLOCK_COMPACTION_MICROS : READ_BLOCK_GET_MICROS;
+    StopWatch sw(rep_->ioptions.clock, rep_->ioptions.stats, histogram);
+    std::cout << "ReadAndParseBlockFromFile" << " "
+              << __FILE__ << ":" << __LINE__ << std::endl;
+    s = ReadAndParseBlockFromFile(
+        rep_->file.get(), prefetch_buffer, rep_->footer, ro, handle, &block,
+        rep_->ioptions, rep_->create_context, maybe_compressed,
+        uncompression_dict, rep_->persistent_cache_options,
+        GetMemoryAllocator(rep_->table_options), for_compaction, async_read, block_type);
+
+    //Self Added Start 
+    checking::SystemVerifier::getSystemVerifier()->increaseNumTotalBlockReadCount();
+    //Self Added End
+
+    if (get_context) {
+      switch (TBlocklike::kBlockType) {
+        case BlockType::kIndex:
+          ++(get_context->get_context_stats_.num_index_read);
+
+          //Self Added Start 
+          checking::SystemVerifier::getSystemVerifier()->increaseNumIndexReadCount();
+          //Self Added End
+          
+          break;
+        case BlockType::kFilter:
+        case BlockType::kFilterPartitionIndex:
+          ++(get_context->get_context_stats_.num_filter_read);
+
+          //Self Added Start 
+          checking::SystemVerifier::getSystemVerifier()->increaseNumFilterReadCount();
+          //Self Added End
+
+          break;
+
+        //Self Added Start
+        case BlockType::kRangeDeletion:
+          checking::SystemVerifier::getSystemVerifier()->increaseNumRangeDelReadCount();
+          break;
+        //Self Added End
+        
+        
+
+        default:
+          break;
+      }
+    }
+  }
+
+  if (!s.ok()) {
+    //Self Added Start 
+    checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
+    //Self Added End        
+    //Self Added Start: timing
+    checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+    //Self Added End: timing
+
+    return s;
+  }
+
+  out_parsed_block->SetOwnedValue(std::move(block));
+
+  assert(s.ok());
+
+  //Self Added Start 
+  checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
+  //Self Added End        
+  //Self Added Start: timing
+  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+  //Self Added End: timing
+
+  return s;
+}
+// yucheng Added End
 
 template <typename TBlocklike /*, auto*/>
 WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
