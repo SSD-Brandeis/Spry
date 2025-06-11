@@ -102,6 +102,7 @@ CacheAllocationPtr CopyBufferToHeap(MemoryAllocator* allocator, Slice& buf) {
       BlockCacheLookupContext* lookup_context, bool for_compaction,           \
       bool use_cache, bool async_read) const;
 
+
 INSTANTIATE_RETRIEVE_BLOCK(ParsedFullFilterBlock);
 INSTANTIATE_RETRIEVE_BLOCK(UncompressionDict);
 INSTANTIATE_RETRIEVE_BLOCK(Block_kData);
@@ -109,6 +110,24 @@ INSTANTIATE_RETRIEVE_BLOCK(Block_kIndex);
 INSTANTIATE_RETRIEVE_BLOCK(Block_kFilterPartitionIndex);
 INSTANTIATE_RETRIEVE_BLOCK(Block_kRangeDeletion);
 INSTANTIATE_RETRIEVE_BLOCK(Block_kMetaIndex);
+
+// yucheng added start
+#define INSTANTIATE_RETRIEVE_BLOCK_WITH_TYPE(T)                                \
+  template Status BlockBasedTable::RetrieveBlock<T>(                          \
+      FilePrefetchBuffer * prefetch_buffer, const ReadOptions& ro,            \
+      const BlockHandle& handle, const UncompressionDict& uncompression_dict, \
+      CachableEntry<T>* out_parsed_block, GetContext* get_context,            \
+      BlockCacheLookupContext* lookup_context, bool for_compaction,           \
+      bool use_cache, bool async_read) const;
+
+INSTANTIATE_RETRIEVE_BLOCK_WITH_TYPE(Block_kHashIndexPrefixes);
+INSTANTIATE_RETRIEVE_BLOCK_WITH_TYPE(UncompressionDict);
+INSTANTIATE_RETRIEVE_BLOCK_WITH_TYPE(Block_kData);
+INSTANTIATE_RETRIEVE_BLOCK_WITH_TYPE(Block_kIndex);
+INSTANTIATE_RETRIEVE_BLOCK_WITH_TYPE(Block_kFilterPartitionIndex);
+INSTANTIATE_RETRIEVE_BLOCK_WITH_TYPE(Block_kRangeDeletion);
+INSTANTIATE_RETRIEVE_BLOCK_WITH_TYPE(Block_kMetaIndex);
+// yucheng added end
 
 }  // namespace ROCKSDB_NAMESPACE
 
