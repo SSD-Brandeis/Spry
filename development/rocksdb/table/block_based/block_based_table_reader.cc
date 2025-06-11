@@ -1693,7 +1693,7 @@ BlockBasedTable::MaybeReadBlockAndLoadToCache(
     key = key_data.AsSlice();
 
     if (!contents) {
-// std::cout << "GetDataBlockFromCache" << " " << __FILE__ << ":" << __LINE__ << std::endl;
+std::cout << "GetDataBlockFromCache" << " " << __FILE__ << ":" << __LINE__ << std::endl;
       s = GetDataBlockFromCache(key, block_cache, out_parsed_block,
                                 get_context);
       // Value could still be null at this point, so check the cache handle
@@ -1742,8 +1742,8 @@ BlockBasedTable::MaybeReadBlockAndLoadToCache(
         // If prefetch_buffer is not allocated, it will fallback to synchronous
         // reading of block contents.
         if (async_read && prefetch_buffer != nullptr) {
-          // std::cout << "ReadAsyncBlockContents" << " TBlocklike::kBlockType " << int(TBlocklike::kBlockType) << " "
-          //           << __FILE__ << ":" << __LINE__ << std::endl;
+          std::cout << "ReadAsyncBlockContents" << " TBlocklike::kBlockType " << int(TBlocklike::kBlockType) << " "
+                    << __FILE__ << ":" << __LINE__ << std::endl;
           s = block_fetcher.ReadAsyncBlockContents();
           // yucheng Noticing: do we need to pass block_type here?
           // s = block_fetcher.ReadAsyncBlockContents(block_type);
@@ -1751,8 +1751,8 @@ BlockBasedTable::MaybeReadBlockAndLoadToCache(
             return s;
           }
         } else {
-          // std::cout << "ReadBlockContents" << " TBlocklike::kBlockType " << int(TBlocklike::kBlockType) << " " << __FILE__ << ":"
-          //           << __LINE__ << std::endl;
+          std::cout << "ReadBlockContents" << " block_type = " << int(block_type) << " TBlocklike::kBlockType " << int(TBlocklike::kBlockType) << " " << __FILE__ << ":"
+                    << __LINE__ << std::endl;
           s = block_fetcher.ReadBlockContents(block_type);
         }
 
