@@ -118,9 +118,9 @@ INSTANTIATE_RETRIEVE_BLOCK(Block_kMetaIndex);
       const BlockHandle& handle, const UncompressionDict& uncompression_dict, \
       CachableEntry<T>* out_parsed_block, GetContext* get_context,            \
       BlockCacheLookupContext* lookup_context, bool for_compaction,           \
-      bool use_cache, bool async_read) const;
+      bool use_cache, bool async_read, BlockType block_type) const;
 
-INSTANTIATE_RETRIEVE_BLOCK_WITH_TYPE(Block_kHashIndexPrefixes);
+INSTANTIATE_RETRIEVE_BLOCK_WITH_TYPE(ParsedFullFilterBlock);
 INSTANTIATE_RETRIEVE_BLOCK_WITH_TYPE(UncompressionDict);
 INSTANTIATE_RETRIEVE_BLOCK_WITH_TYPE(Block_kData);
 INSTANTIATE_RETRIEVE_BLOCK_WITH_TYPE(Block_kIndex);
