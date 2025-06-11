@@ -82,6 +82,8 @@ TBlockIter* BlockBasedTable::NewDataBlockIterator(
                       for_compaction,
                       /* use_cache */ true, async_read);
   } else {
+    std::cout << "retrieve block (!kData) block_type = " << int(block_type) << " "
+              << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     s = RetrieveBlock(
         prefetch_buffer, ro, handle, UncompressionDict::GetEmptyDict(),
         &block.As<IterBlocklike>(), get_context, lookup_context, for_compaction,

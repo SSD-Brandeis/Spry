@@ -294,6 +294,8 @@ IOStatus BlockFetcher::ReadBlockContents() {
         io_status_ = file_->Read(
             opts, handle_.offset(), block_size_with_trailer_, &slice_, nullptr,
             &direct_io_buf_, read_options_.rate_limiter_priority);
+        
+        std::cout << "BlockFetcher::ReadBlockContents: " << " file_->use_direct_io() " << " block_type_ = " << block_type_ << " " << " block_size_with_trailer_ = " << block_size_with_trailer_ << " " << " handle_.offset() = " << handle_.offset() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         // //Self Added Start 
         // checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
         // //Self Added End        
@@ -319,6 +321,8 @@ IOStatus BlockFetcher::ReadBlockContents() {
         io_status_ = file_->Read(opts, handle_.offset(),
                                  block_size_with_trailer_, &slice_, used_buf_,
                                  nullptr, read_options_.rate_limiter_priority);
+
+        std::cout << "BlockFetcher::ReadBlockContents: " << " !file_->use_direct_io() " << " block_type_ = " << block_type_ << " " << " block_size_with_trailer_ = " << block_size_with_trailer_ << " " << " handle_.offset() = " << handle_.offset() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         // //Self Added Start 
         // checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
         // //Self Added End
