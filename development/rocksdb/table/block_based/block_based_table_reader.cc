@@ -267,7 +267,7 @@ Status ReadAndParseBlockFromFile(
       return s;
     }
   } else {
-// std::cout << " ReadAndParseBlockFromFile Sync " << " block_type = " << int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+std::cout << " ReadAndParseBlockFromFile Sync " << " block_type = " << int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     s = block_fetcher.ReadBlockContents(block_type);
   }
   if (s.ok()) {
@@ -2113,8 +2113,8 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
     Histograms histogram =
         for_compaction ? READ_BLOCK_COMPACTION_MICROS : READ_BLOCK_GET_MICROS;
     StopWatch sw(rep_->ioptions.clock, rep_->ioptions.stats, histogram);
-    // std::cout << "ReadAndParseBlockFromFile" << " "
-    //           << __FILE__ << ":" << __LINE__ << std::endl;
+    std::cout << "ReadAndParseBlockFromFile" << " "
+              << __FILE__ << ":" << __LINE__ << std::endl;
     s = ReadAndParseBlockFromFile(
         rep_->file.get(), prefetch_buffer, rep_->footer, ro, handle, &block,
         rep_->ioptions, rep_->create_context, maybe_compressed,
