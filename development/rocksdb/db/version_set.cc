@@ -2752,20 +2752,20 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
           checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
           std::cout << "Error:: SKYLINE_RDF is Currently Removed " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
           std::cerr << "Error:: SKYLINE_RDF is Currently Removed " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-          assert(false)
+          assert(false);
           // bool skyline__is_alive_after_hit_file_level = isAliveAfterSkylineRDFilter(std::stoll(user_key.ToString()), skyline__user_key_seq);
           checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
 
-          if(skyline__is_alive_after_hit_file_level == false){
-            *status = Status::NotFound();
-            checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+          // if(skyline__is_alive_after_hit_file_level == false){
+          //   *status = Status::NotFound();
+          //   checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
 
 
-            // Self Added Start: timing
-            checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-            // Self Added End: timing
-            return ;   
-          }
+          //   // Self Added Start: timing
+          //   checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+          //   // Self Added End: timing
+          //   return ;   
+          // }
              
       }else if(rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" && rdf_type != "NONE2" 
               && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF"
