@@ -2750,7 +2750,10 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
           auto val = val_pre;
           
           checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
-          bool skyline__is_alive_after_hit_file_level = isAliveAfterSkylineRDFilter(std::stoll(user_key.ToString()), skyline__user_key_seq);
+          std::cout << "Error:: SKYLINE_RDF is Currently Removed " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          std::cerr << "Error:: SKYLINE_RDF is Currently Removed " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          assert(false)
+          // bool skyline__is_alive_after_hit_file_level = isAliveAfterSkylineRDFilter(std::stoll(user_key.ToString()), skyline__user_key_seq);
           checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
 
           if(skyline__is_alive_after_hit_file_level == false){
