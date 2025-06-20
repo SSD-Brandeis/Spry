@@ -36,7 +36,6 @@ params = {
     "--use_surf_base": [0], # 1: true, 0: false
     "--surf_base_store_key_to_k_diff": [1], # is used when --use_surf_base = [1], value can only be nature number (> 0 integer)
     "--use_string_key": [0],
-    '--block_cache': [0], 
 }
 
 
