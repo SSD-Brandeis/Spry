@@ -36,7 +36,9 @@ params = {
     "--use_surf_base": [0], # 1: true, 0: false
     "--surf_base_store_key_to_k_diff": [1], # is used when --use_surf_base = [1], value can only be nature number (> 0 integer)
     "--use_string_key": [0],
+    '--block_cache': [0], 
 }
+
 
 # logic for surf__flag_bypass_if_same_key, surf__flag_allow_range_boundary_overlapped
 # if(use_surf_base == true){
@@ -184,8 +186,8 @@ def get_task_with_parallelling_parameters(
 params3 = deepcopy(params)
 params3["-P"] = [16]
 params3["-T"] = [4]
-# params3["--insert_before_range_delete"] = [0.999]
-params3["--insert_before_range_delete"] = [0.5]
+params3["--insert_before_range_delete"] = [0.999]
+# params3["--insert_before_range_delete"] = [0.5]
 # params3["--insert_before_range_delete"] = [0.8]
 # params3["--insert_before_range_delete"] = [0.7]
 # params3["--run_pq_during_insertion_interval"] = [20]
