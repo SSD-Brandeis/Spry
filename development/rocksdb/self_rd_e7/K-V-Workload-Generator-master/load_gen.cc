@@ -25,11 +25,12 @@
 // #define RD_THRESHOLD 0.9 // RD_THRESHOLD*insert_count number of inserts must be made before Range Deletes may take place (applicable when an empty database is being populated)
 #define PQ_THRESHOLD 0.1 // PQ_THRESHOLD*insert_count number of inserts must be made before Point Queries may take place (applicable when an empty database is being populated)
 #define RQ_THRESHOLD 0.1 // RQ_THRESHOLD*insert_count number of inserts must be made before Range Queries may take place (applicable when an empty database is being populated)
-#define STRING_KEY_ENABLED false
+// #define STRING_KEY_ENABLED false
 // #define STRING_KEY_ENABLED true
 #define FILENAME "workload.txt"
 // YCHuang Added Start
 float ych_rd_threshold = 0.9;
+bool using_string_key = false;
 // YCHuang Added End
 // using namespace std;
 
@@ -95,7 +96,24 @@ float existing_point_lookup_beta_beta = 1.0;
 float existing_point_lookup_zipf_alpha = 1.0;
 Generator* existingPointLookupIndexGenerator = nullptr;
 
-int parse_arguments2(int argc, char *argv[]);
+
+typedef struct params{
+    int insert_count;
+    int update_count;
+    int point_delete_count;
+    int range_delete_count;
+    float range_delete_selectivity;
+    bool using_string_key;
+    int key_size;
+    float lambda;
+    bool load_from_existing_workload;
+    std::string out_filename;
+    int insert_dist;
+    float insert_dist_norm_mean_percentile;
+  } params;
+
+// int parse_arguments2(int argc, char *argv[]);
+params* parse_arguments2(int argc, char *argv[]);
 int get_choice(long, long, long, long, long, long, long, long, long, long, long, long, long, float);
 void generate_workload();
 void print_workload_parameters(int _insert_count, int _update_count, int _point_delete_count,int  _range_delete_count,int _effective_ingestion_count);
@@ -123,7 +141,7 @@ std::vector<std::string> StringSplit(const std::string& arg, char delim) {
     return splits;
 }
 
-void generate_workload() {
+void generate_workload(bool flag_using_string_key) {
 
     //std::cout << "Generating workload ..." << std::endl;
     long total_operation_count = insert_count + update_count + point_delete_count + range_delete_count + point_query_count + range_query_count;
@@ -140,7 +158,8 @@ void generate_workload() {
             while (getline(fin, line)) {
                 splits = StringSplit(line, ' '); 
                 Key key = splits[1];
-                if(!STRING_KEY_ENABLED){
+                // if(!STRING_KEY_ENABLED){
+                if(flag_using_string_key == 0){
                    key = atoi(splits[1].c_str());
                 }
                 if(tmp_insert_pool_set.find(key) == tmp_insert_pool_set.end()){
@@ -186,7 +205,8 @@ void generate_workload() {
     uint32_t num_preserved_bits = 10;
     // generate unique key-value pairs in advance
     
-    if(STRING_KEY_ENABLED){
+    // if(STRING_KEY_ENABLED){
+    if(flag_using_string_key == 1){
         insertIndexGenerator = new Generator(insert_dist, 0, num_char*num_char-1, insert_norm_mean_percentile*num_char*num_char, insert_norm_stddev*num_char, insert_beta_alpha, insert_beta_beta, insert_zipf_alpha, num_char*num_char);
     }else{
         uint32_t int32_preserved_insert_domain_size = pow(2, num_preserved_bits);
@@ -201,14 +221,17 @@ void generate_workload() {
         do{
             
             uint32_t index = insertIndexGenerator->getNext();
-            if(STRING_KEY_ENABLED){
-	        key_suffix = Key::get_key(key_size - 2, STRING_KEY_ENABLED);
+            // if(STRING_KEY_ENABLED){
+            if(flag_using_string_key == 1){
+	        // key_suffix = Key::get_key(key_size - 2, STRING_KEY_ENABLED);
+            key_suffix = Key::get_key(key_size - 2, flag_using_string_key);
 	        prefix[0] = Key::key_alphanum[(index/62)%62];
 	        prefix[1] = Key::key_alphanum[index%62];
 	        key = Key(prefix);
 	        key = key + key_suffix;
             }else{
-	        key_suffix = Key::get_key(32 - num_preserved_bits, STRING_KEY_ENABLED);
+	        // key_suffix = Key::get_key(32 - num_preserved_bits, STRING_KEY_ENABLED);
+            key_suffix = Key::get_key(32 - num_preserved_bits, flag_using_string_key);
                 index <<= (32 - num_preserved_bits);
                 key = Key(key_suffix.key_int32_ | index);
             }
@@ -257,15 +280,25 @@ void generate_workload() {
     long _maximum_unique_non_existing_point_query_count = 0;
     while (_maximum_unique_non_existing_point_query_count < maximum_unique_non_existing_point_query_count) {
         Key key;
-        if (STRING_KEY_ENABLED)
-            key = Key::get_key(key_size, STRING_KEY_ENABLED);
-        else
-            key = Key::get_key(32, STRING_KEY_ENABLED);
+        // if (STRING_KEY_ENABLED)
+        //     key = Key::get_key(key_size, STRING_KEY_ENABLED);
+        // else
+        //     key = Key::get_key(32, STRING_KEY_ENABLED);
+        if(flag_using_string_key == 1){
+            key = Key::get_key(key_size, flag_using_string_key);
+        }else{
+            key = Key::get_key(32, flag_using_string_key);
+        }
         while(tmp_insert_pool_set.find(key) != tmp_insert_pool_set.end() || global_non_existing_key_set.find(key) != global_non_existing_key_set.end()){
-            if (STRING_KEY_ENABLED)
-                key = Key::get_key(key_size, STRING_KEY_ENABLED);
-            else
-                key = Key::get_key(32, STRING_KEY_ENABLED);
+            // if (STRING_KEY_ENABLED)
+            //     key = Key::get_key(key_size, STRING_KEY_ENABLED);
+            // else
+            //     key = Key::get_key(32, STRING_KEY_ENABLED);
+            if(flag_using_string_key == 1){
+                key = Key::get_key(key_size, flag_using_string_key);
+            }else{
+                key = Key::get_key(32, flag_using_string_key);
+            }
         }
         global_non_existing_key_set.insert(key);
         global_non_existing_key_pool.push_back(key);
@@ -274,7 +307,8 @@ void generate_workload() {
     tmp_insert_pool_set.clear();
     sort(global_non_existing_key_pool.begin(), global_non_existing_key_pool.end()); 
     double scaling_ratio = 1.0;
-    if(STRING_KEY_ENABLED) scaling_ratio = num_char;
+    // if(STRING_KEY_ENABLED) scaling_ratio = num_char;
+    if(flag_using_string_key == 1) scaling_ratio = num_char;
     nonExistingPointLookupIndexGenerator = new Generator(non_existing_point_lookup_dist, 0, global_non_existing_key_pool.size() - 1, non_existing_point_lookup_norm_mean_percentile*global_non_existing_key_pool.size(), non_existing_point_lookup_norm_stddev*global_non_existing_key_pool.size()/scaling_ratio, non_existing_point_lookup_beta_alpha, non_existing_point_lookup_beta_beta, non_existing_point_lookup_zipf_alpha, global_non_existing_key_pool.size());
 
      std::vector<int> update_global_index_mapping;
@@ -325,8 +359,9 @@ void generate_workload() {
                     double scaling_ratio = 1.0;
                     sorted = true;
                 
-                    if(STRING_KEY_ENABLED) 
-                        scaling_ratio = num_char;
+                    // if(STRING_KEY_ENABLED) 
+                    //     scaling_ratio = num_char;
+                    if(flag_using_string_key == 1) scaling_ratio = num_char;
 
                     if(updateIndexGenerator != nullptr){
 			std::cout << "renew update generator" << std::endl;
@@ -493,8 +528,11 @@ void generate_workload() {
                         if(existing_point_lookup_dist == 1){
                             sort(insert_pool.begin(), insert_pool.end());
                             double scaling_ratio = 1.0;
-                            if(STRING_KEY_ENABLED) 
+                            // if(STRING_KEY_ENABLED) 
+                            //     scaling_ratio = num_char;
+                            if(flag_using_string_key == 1){
                                 scaling_ratio = num_char;
+                            }
 
                         }
                         if(existing_point_lookup_dist != 0 && existingPointLookupIndexGenerator != nullptr){
@@ -763,7 +801,11 @@ int main(int argc, char *argv[]) {
     }*/
     //std::srand((unsigned int)std::time(NULL));
 
-    if (parse_arguments2(argc, argv)){
+    // if (parse_arguments2(argc, argv)){
+    //     exit(1);
+    // }
+    params* p = parse_arguments2(argc, argv);
+    if(p == nullptr){
         exit(1);
     }
 
@@ -781,7 +823,8 @@ int main(int argc, char *argv[]) {
         exit(0);
     }*/
 
-    generate_workload();
+    // generate_workload();
+    generate_workload(p->using_string_key);
 
     /*
     if (lambda == -1) { // this means, the size of the key is equal to the size of uint32_t, i.e., 4 bytes
@@ -810,8 +853,8 @@ int main(int argc, char *argv[]) {
 }
 
 
-
-int parse_arguments2(int argc, char *argv[]) {
+// int parse_arguments2(int argc, char *argv[]) {
+params* parse_arguments2(int argc, char *argv[]) {
   args::ArgumentParser parser("workload_gen_parser", "");
 
   args::Group group1(parser, "This group is all exclusive:", args::Group::Validators::DontCare);
@@ -875,6 +918,7 @@ int parse_arguments2(int argc, char *argv[]) {
   // add a new argument
   args::ValueFlag<float> ych_rd_threshold_cmd(group1, "rd_threshold", ", def: 0.9]", {"RD_THRESHOLD", "range_delete_threshold"});
   args::ValueFlag<uint32_t> key_size_cmd(group1, "key_size", "Key size (in bytes) [def: -1]", {"key_size", "KEY_SIZE"});
+  args::ValueFlag<uint32_t> using_string_key_cmd(group1, "using_string_key", "Using string key [def: 0]", {"using_string_key", "USING_STRING_KEY"});
   // YCHuang Added End
 
   try {
@@ -887,12 +931,14 @@ int parse_arguments2(int argc, char *argv[]) {
   catch (args::ParseError& e) {
       std::cerr << e.what() << std::endl;
       std::cerr << parser;
-      return 1;
+      // return 1;
+      return nullptr;
   }
   catch (args::ValidationError& e) {
       std::cerr << e.what() << std::endl;
       std::cerr << parser;
-      return 1;
+      // return 1;
+      return nullptr;
   }
 
   insert_count = insert_cmd ? args::get(insert_cmd) : 0;
@@ -907,7 +953,8 @@ int parse_arguments2(int argc, char *argv[]) {
   zero_result_point_lookup_proportion = zero_result_point_lookup_proportion_cmd ? args::get(zero_result_point_lookup_proportion_cmd) : 0;
   if(point_query_count != 0 && ( zero_result_point_lookup_proportion < 0 || zero_result_point_lookup_proportion > 1)){
         std::cerr << "\033[0;31m Error: \033[0m The proportion of zero-result point lookups should be set between 0 and 1" << std::endl;
-	return 1;
+	// return 1;
+    return nullptr;
   }
   entry_size = entry_size_cmd ? args::get(entry_size_cmd) : 8;
 
@@ -925,14 +972,17 @@ int parse_arguments2(int argc, char *argv[]) {
   lambda = lambda_cmd ? args::get(lambda_cmd) : 0.5;
   if(lambda <= 0 || lambda > 1){
         std::cerr << "\033[0;31m ERROR:\033[0m Lambda should be set between 0 and 1" << std::endl;
-	return 1;
+	// return 1;
+    return nullptr;
   }
 
   // ych added start
   key_size = key_size_cmd ? args::get(key_size_cmd) : -1;
+  using_string_key = using_string_key_cmd ? args::get(using_string_key_cmd) : 0;
   // ych added end
   if(key_size == -1){
-    if(!STRING_KEY_ENABLED && (lambda > 0 && lambda < 1)){
+    // if(!STRING_KEY_ENABLED && (lambda > 0 && lambda < 1)){
+    if(using_string_key == 0 && (lambda > 0 && lambda < 1)){
         key_size = sizeof(uint32_t);
     }else if(lambda > 0 && lambda < 1){
         key_size = lambda * entry_size;
@@ -983,10 +1033,28 @@ int parse_arguments2(int argc, char *argv[]) {
       existing_point_lookup_norm_mean_percentile <= 0 || existing_point_lookup_norm_mean_percentile > 1 
        ){
         std::cerr << "\033[0;31m ERROR:\033[0m The percentile of mean in normal distribution should be set between 0 and 1" << std::endl;
-	return 1;
+        // return 1;
+        return nullptr;
    }
 
-    return 0;
+   // YCHuang Added Start
+   params* p = new params();
+    p->insert_count = insert_count;
+    p->update_count = update_count;
+    p->point_delete_count = point_delete_count;
+    p->range_delete_count = range_delete_count;
+    p->range_delete_selectivity = range_delete_selectivity;
+    p->using_string_key = using_string_key;
+    p->key_size = key_size;
+    p->lambda = lambda;
+    p->load_from_existing_workload = load_from_existing_workload;
+    p->out_filename = out_filename;
+    p->insert_dist = insert_dist;
+    p->insert_dist_norm_mean_percentile = insert_norm_mean_percentile;
+   // YCHuang Added End
+
+    // return 0;
+    return p;
 }
 
 inline void showProgress(const uint32_t &workload_size, const uint32_t &counter) {

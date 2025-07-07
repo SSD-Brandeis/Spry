@@ -97,7 +97,7 @@ class TestingLogger{
 
 
 
-void print_perf_iostats_context(std::ostream& ofile, const std::string &prefix, int N_repetitions){
+void print_perf_iostats_context(std::ostream& ofile, const std::string &prefix, int nth_round){
   
     std::string perf_context = rocksdb::get_perf_context()->ToString();
     std::cout << "perf_context = " << perf_context << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -139,54 +139,54 @@ void print_perf_iostats_context(std::ostream& ofile, const std::string &prefix, 
     long long write_nanos = parsing_value_from_string(iostats_context, "write_nanos[^=]*=.([0-9]+)");
 
     //print out all the above variable
-    ofile << "get_from_memtable_time = " << std::fixed << std::setprecision(2) << get_from_memtable_time * 1.0 / N_repetitions << std::endl;
-    ofile << "get_from_memtable_count = " << std::fixed << std::setprecision(2) << get_from_memtable_count * 1.0 / N_repetitions << std::endl;
-    ofile << "get_post_process_time = " << std::fixed << std::setprecision(2) << get_post_process_time * 1.0 / N_repetitions << std::endl;
-    ofile << "bloom_memtable_hit_count = " << std::fixed << std::setprecision(2) << bloom_memtable_hit_count * 1.0 / N_repetitions << std::endl;
-    ofile << "bloom_memtable_miss_count = " << std::fixed << std::setprecision(2) << bloom_memtable_miss_count * 1.0 / N_repetitions << std::endl;
-    ofile << "bloom_sst_hit_count = " << std::fixed << std::setprecision(2) << bloom_sst_hit_count * 1.0 / N_repetitions << std::endl;
-    ofile << "bloom_sst_miss_count = " << std::fixed << std::setprecision(2) << bloom_sst_miss_count * 1.0 / N_repetitions << std::endl;
+    ofile << "nth_round = " << nth_round << " get_from_memtable_time = " << std::fixed << std::setprecision(2) << get_from_memtable_time * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " get_from_memtable_count = " << std::fixed << std::setprecision(2) << get_from_memtable_count * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " get_post_process_time = " << std::fixed << std::setprecision(2) << get_post_process_time * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " bloom_memtable_hit_count = " << std::fixed << std::setprecision(2) << bloom_memtable_hit_count * 1.0  << std::endl;
+    ofile << "nth_round = " << nth_round << " bloom_memtable_miss_count = " << std::fixed << std::setprecision(2) << bloom_memtable_miss_count * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " bloom_sst_hit_count = " << std::fixed << std::setprecision(2) << bloom_sst_hit_count * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " bloom_sst_miss_count = " << std::fixed << std::setprecision(2) << bloom_sst_miss_count * 1.0 << std::endl;
     
 
-    ofile << "block_read_count = " << std::fixed << std::setprecision(2) << block_read_count * 1.0 / N_repetitions << std::endl;
-    ofile << "block_read_byte = " << std::fixed << std::setprecision(2) << block_read_byte * 1.0 / N_repetitions << std::endl;
-    ofile << "block_read_time = " << std::fixed << std::setprecision(2) << block_read_time * 1.0 / N_repetitions << std::endl;
-    ofile << "block_read_cpu_time = " << std::fixed << std::setprecision(2) << block_read_cpu_time * 1.0 / N_repetitions << std::endl;
-    ofile << "index_block_read_count = " << std::fixed << std::setprecision(2) << index_block_read_count * 1.0 / N_repetitions << std::endl;
-    ofile << "filter_block_read_count = " << std::fixed << std::setprecision(2) << filter_block_read_count * 1.0 / N_repetitions << std::endl;
-    ofile << "compression_dict_block_read_count = " << std::fixed << std::setprecision(2) << compression_dict_block_read_count * 1.0 / N_repetitions << std::endl;
-    ofile << "get_read_bytes = " << std::fixed << std::setprecision(2) << get_read_bytes * 1.0 / N_repetitions << std::endl;
-    ofile << "read_index_block_nanos = " << std::fixed << std::setprecision(2) << read_index_block_nanos * 1.0 / N_repetitions << std::endl;
-    ofile << "read_filter_block_nanos = " << std::fixed << std::setprecision(2) << read_filter_block_nanos * 1.0 / N_repetitions << std::endl;
-    ofile << "internal_key_skipped_count = " << std::fixed << std::setprecision(2) << internal_key_skipped_count * 1.0 / N_repetitions << std::endl;
-    ofile << "internal_delete_skipped_count = " << std::fixed << std::setprecision(2) << internal_delete_skipped_count * 1.0 / N_repetitions << std::endl;
-    ofile << "internal_recent_skipped_count = " << std::fixed << std::setprecision(2) << internal_recent_skipped_count * 1.0 / N_repetitions << std::endl;
-    ofile << "internal_range_del_reseek_count = " << std::fixed << std::setprecision(2) << internal_range_del_reseek_count * 1.0 / N_repetitions << std::endl;
+    ofile << "nth_round = " << nth_round << " block_read_count = " << std::fixed << std::setprecision(2) << block_read_count * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " block_read_byte = " << std::fixed << std::setprecision(2) << block_read_byte * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " block_read_time = " << std::fixed << std::setprecision(2) << block_read_time * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " block_read_cpu_time = " << std::fixed << std::setprecision(2) << block_read_cpu_time * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " index_block_read_count = " << std::fixed << std::setprecision(2) << index_block_read_count * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " filter_block_read_count = " << std::fixed << std::setprecision(2) << filter_block_read_count * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " compression_dict_block_read_count = " << std::fixed << std::setprecision(2) << compression_dict_block_read_count * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " get_read_bytes = " << std::fixed << std::setprecision(2) << get_read_bytes * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " read_index_block_nanos = " << std::fixed << std::setprecision(2) << read_index_block_nanos * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " read_filter_block_nanos = " << std::fixed << std::setprecision(2) << read_filter_block_nanos * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " internal_key_skipped_count = " << std::fixed << std::setprecision(2) << internal_key_skipped_count * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " internal_delete_skipped_count = " << std::fixed << std::setprecision(2) << internal_delete_skipped_count * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " internal_recent_skipped_count = " << std::fixed << std::setprecision(2) << internal_recent_skipped_count * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " internal_range_del_reseek_count = " << std::fixed << std::setprecision(2) << internal_range_del_reseek_count * 1.0 << std::endl;
 
 
-    ofile << "bytes_read = " << std::fixed << std::setprecision(2) << bytes_read * 1.0 / N_repetitions << std::endl;
-    ofile << "bytes_written = " << std::fixed << std::setprecision(2) << bytes_written * 1.0 / N_repetitions << std::endl;
-    ofile << "read_nanos = " << std::fixed << std::setprecision(2) << read_nanos * 1.0 / N_repetitions << std::endl;
-    ofile << "write_nanos = " << std::fixed << std::setprecision(2) << write_nanos * 1.0 / N_repetitions << std::endl;
+    ofile << "nth_round = " << nth_round << " bytes_read = " << std::fixed << std::setprecision(2) << bytes_read * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " bytes_written = " << std::fixed << std::setprecision(2) << bytes_written * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " read_nanos = " << std::fixed << std::setprecision(2) << read_nanos * 1.0 << std::endl;
+    ofile << "nth_round = " << nth_round << " write_nanos = " << std::fixed << std::setprecision(2) << write_nanos * 1.0 << std::endl;
     ofile << "--------------------------------------------------------------------" << std::endl;
 
     // std::cout << prefix + "get_from_memtable_time _out = " << std::fixed << std::setprecision(2) << get_from_memtable_time * 1.0 / N_repetitions << std::endl;
     // std::cout << prefix + "get_from_memtable_count _out = " << std::fixed << std::setprecision(2) << get_from_memtable_count * 1.0 / N_repetitions << std::endl;
     // std::cout << prefix + "get_post_process_time _out = " << std::fixed << std::setprecision(2) << get_post_process_time * 1.0 / N_repetitions << std::endl;
-    std::cout << prefix + "bloom_memtable_hit_count _out = " << std::fixed << std::setprecision(2) << bloom_memtable_hit_count * 1.0 / N_repetitions << std::endl;
-    std::cout << prefix + "bloom_memtable_miss_count _out = " << std::fixed << std::setprecision(2) << bloom_memtable_miss_count * 1.0 / N_repetitions << std::endl;
-    std::cout << prefix + "bloom_sst_hit_count _out = " << std::fixed << std::setprecision(2) << bloom_sst_hit_count * 1.0 / N_repetitions << std::endl;
-    std::cout << prefix + "bloom_sst_miss_count _out = " << std::fixed << std::setprecision(2) << bloom_sst_miss_count * 1.0 / N_repetitions << std::endl;
+    std::cout << prefix + "bloom_memtable_hit_count _out = " << std::fixed << std::setprecision(2) << bloom_memtable_hit_count * 1.0 << std::endl;
+    std::cout << prefix + "bloom_memtable_miss_count _out = " << std::fixed << std::setprecision(2) << bloom_memtable_miss_count * 1.0 << std::endl;
+    std::cout << prefix + "bloom_sst_hit_count _out = " << std::fixed << std::setprecision(2) << bloom_sst_hit_count * 1.0 << std::endl;
+    std::cout << prefix + "bloom_sst_miss_count _out = " << std::fixed << std::setprecision(2) << bloom_sst_miss_count * 1.0 << std::endl;
     
 
-    std::cout << prefix + "block_read_count _out = " << std::fixed << std::setprecision(2) << block_read_count * 1.0 / N_repetitions << std::endl;
-    std::cout << prefix + "block_read_byte _out = " << std::fixed << std::setprecision(2) << block_read_byte * 1.0 / N_repetitions << std::endl;
-    std::cout << prefix + "block_read_time _out = " << std::fixed << std::setprecision(2) << block_read_time * 1.0 / N_repetitions << std::endl;
-    std::cout << prefix + "block_read_cpu_time _out = " << std::fixed << std::setprecision(2) << block_read_cpu_time * 1.0 / N_repetitions << std::endl;
-    std::cout << prefix + "index_block_read_count _out = " << std::fixed << std::setprecision(2) << index_block_read_count * 1.0 / N_repetitions << std::endl;
-    std::cout << prefix + "filter_block_read_count _out = " << std::fixed << std::setprecision(2) << filter_block_read_count * 1.0 / N_repetitions << std::endl;
+    std::cout << prefix + "block_read_count _out = " << std::fixed << std::setprecision(2) << block_read_count * 1.0 << std::endl;
+    std::cout << prefix + "block_read_byte _out = " << std::fixed << std::setprecision(2) << block_read_byte * 1.0 << std::endl;
+    std::cout << prefix + "block_read_time _out = " << std::fixed << std::setprecision(2) << block_read_time * 1.0 << std::endl;
+    std::cout << prefix + "block_read_cpu_time _out = " << std::fixed << std::setprecision(2) << block_read_cpu_time * 1.0 << std::endl;
+    std::cout << prefix + "index_block_read_count _out = " << std::fixed << std::setprecision(2) << index_block_read_count * 1.0 << std::endl;
+    std::cout << prefix + "filter_block_read_count _out = " << std::fixed << std::setprecision(2) << filter_block_read_count * 1.0 << std::endl;
     // std::cout << prefix + "compression_dict_block_read_count _out = " << std::fixed << std::setprecision(2) << compression_dict_block_read_count * 1.0 / N_repetitions << std::endl;
-    std::cout << prefix + "get_read_bytes _out = " << std::fixed << std::setprecision(2) << get_read_bytes * 1.0 / N_repetitions << std::endl;
+    std::cout << prefix + "get_read_bytes _out = " << std::fixed << std::setprecision(2) << get_read_bytes * 1.0 << std::endl;
     // std::cout << prefix + "read_index_block_nanos _out = " << std::fixed << std::setprecision(2) << read_index_block_nanos * 1.0 / N_repetitions << std::endl;
     // std::cout << prefix + "read_filter_block_nanos _out = " << std::fixed << std::setprecision(2) << read_filter_block_nanos * 1.0 / N_repetitions << std::endl;
     // std::cout << prefix + "internal_key_skipped_count _out = " << std::fixed << std::setprecision(2) << internal_key_skipped_count * 1.0 / N_repetitions << std::endl;
@@ -195,8 +195,8 @@ void print_perf_iostats_context(std::ostream& ofile, const std::string &prefix, 
     // std::cout << prefix + "internal_range_del_reseek_count _out = " << std::fixed << std::setprecision(2) << internal_range_del_reseek_count * 1.0 / N_repetitions << std::endl;
 
 
-    std::cout << prefix + "bytes_read _out = " << std::fixed << std::setprecision(2) << bytes_read * 1.0 / N_repetitions << std::endl;
-    std::cout << prefix + "bytes_written _out = " << std::fixed << std::setprecision(2) << bytes_written * 1.0 / N_repetitions << std::endl;
+    std::cout << prefix + "bytes_read _out = " << std::fixed << std::setprecision(2) << bytes_read * 1.0 << std::endl;
+    std::cout << prefix + "bytes_written _out = " << std::fixed << std::setprecision(2) << bytes_written * 1.0 << std::endl;
     // std::cout << prefix + "read_nanos _out = " << std::fixed << std::setprecision(2) << read_nanos * 1.0 / N_repetitions << std::endl;
     // std::cout << prefix + "write_nanos _out = " << std::fixed << std::setprecision(2) << write_nanos * 1.0 / N_repetitions << std::endl;
 }

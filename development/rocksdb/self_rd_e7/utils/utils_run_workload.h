@@ -83,12 +83,13 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
     switch (instruction) {
       case 'I':  // insert
         workload_file >> key >> value;
-
+// std::cout << "key = " << key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         if(flag_using_string_key == 0){
           ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
           // std::cout << key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
           key = ss_key.str();
         }
+// std::cout << "key = " << key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
         if(_env->load_pq_workload == false){
           system_verifier->insert(key, value);
@@ -132,19 +133,26 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
       case 'S':  // scan: range query
         workload_file >> start_key >> end_key;
 
+// std::cout << "start_key = " << start_key << " " << "end_key = " << end_key << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         if(flag_using_string_key == 0){
           ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
           ss_end_key << std::setfill('0') << std::setw(KEY_SIZE) << end_key;
           start_key = ss_start_key.str();
           end_key = ss_end_key.str();
         }
+// std::cout << "start_key = " << start_key << " " << "end_key = " << end_key << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
         it->Refresh();
         assert(it->status().ok());
         // ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
         // ss_end_key << std::setfill('0') << std::setw(KEY_SIZE) << end_key;
-        for (it->Seek(ss_start_key.str()); it->Valid(); it->Next()) {
-          if (it->key().ToString() == ss_end_key.str()) {
+        // for (it->Seek(ss_start_key.str()); it->Valid(); it->Next()) {
+        //   if (it->key().ToString() == ss_end_key.str()) {
+        //     break;
+        //   }
+        // }
+        for (it->Seek(start_key); it->Valid(); it->Next()) {
+          if (it->key().ToString() == end_key) {
             break;
           }
         }
@@ -156,13 +164,14 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
 
       case 'D':  // delete
         workload_file >> type >> start_key >> end_key;
-
+std::cout << "start_key = " << start_key << " " << "end_key = " << end_key << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         if(flag_using_string_key == 0){
           ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
           ss_end_key << std::setfill('0') << std::setw(KEY_SIZE) << end_key;
           start_key = ss_start_key.str();
           end_key = ss_end_key.str();
-        }
+        } 
+std::cout << "start_key = " << start_key << " " << "end_key = " << end_key << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         
         if (type == "Range") {
           
@@ -180,8 +189,10 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
           // ss_end_key << std::setfill('0') << std::setw(KEY_SIZE) << end_key;
           // std::cout << "RD " << ss_start_key.str() << " " << ss_end_key.str() << std::endl;
           start_time = std::chrono::high_resolution_clock::now();
+          // s = db->DeleteRange(write_op, db->DefaultColumnFamily(),
+          //                     ss_start_key.str(), ss_end_key.str());
           s = db->DeleteRange(write_op, db->DefaultColumnFamily(),
-                              ss_start_key.str(), ss_end_key.str());
+                              start_key, end_key);
           stop_time = std::chrono::high_resolution_clock::now();
           duration_time = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_time - start_time);
           rd_time_ns += duration_time.count();
@@ -221,8 +232,10 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
         // ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
         // ss_end_key << std::setfill('0') << std::setw(KEY_SIZE) << end_key;
         start_time = std::chrono::high_resolution_clock::now();
+        // s = db->DeleteRange(write_op, db->DefaultColumnFamily(),
+        //                     ss_start_key.str(), ss_end_key.str());
         s = db->DeleteRange(write_op, db->DefaultColumnFamily(),
-                            ss_start_key.str(), ss_end_key.str());
+                            start_key, end_key);
         stop_time = std::chrono::high_resolution_clock::now();
         duration_time = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_time - start_time);
         rd_time_ns += duration_time.count();

@@ -75,6 +75,7 @@ librocksdb:
 	cd .. && $(MAKE) static_lib
 
 genworkload:
+	cd K-V-Workload-Generator-master && make clean 
 	cd K-V-Workload-Generator-master && make
 
 genpqworkload:

@@ -4914,6 +4914,13 @@ int DBImpl::getRTRocksDBNumberOfTotalMemoryUsage(){
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getSizeOfTablesRangeTombstonesOfAllLSMTree();
 }
+int DBImpl::getRTRocksDBNumberOfTotalMemoryUsageIncludedTimestamp(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getSizeOfTablesRangeTombstonesOfAllLSMTreeIncludedTimestamp();
+}
 int DBImpl::getPLRDFNumberOfTotalMemoryUsage(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());

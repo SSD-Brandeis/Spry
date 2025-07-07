@@ -15,3 +15,7 @@
 # text
 *.txt
 secret.txt
+
+tracing_strategy.md
+
+workload_0p*

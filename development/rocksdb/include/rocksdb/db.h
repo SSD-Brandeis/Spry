@@ -352,6 +352,7 @@ class DB {
   virtual int getSuRFLevelFileRDFNumberOfTotalRanges() {return -1;}
   virtual int getSuRFLevelFileSplitRDFNumberOfTotalRanges() {return -1;}
   virtual int getRTRocksDBNumberOfTotalMemoryUsage(){return -1;}
+  virtual int getRTRocksDBNumberOfTotalMemoryUsageIncludedTimestamp(){return -1;}
   virtual int getPLRDFNumberOfTotalMemoryUsage() {return -1;}
   virtual int getSplitPLRDFNumberOfTotalMemoryUsage() {return -1;}
   virtual int getPLRDFStringKeyNumberOfTotalMemoryUsage() {return -1;}

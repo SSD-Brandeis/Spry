@@ -75,7 +75,11 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
 
   checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
   int KEY_SIZE = checking::SystemVerifier::getSystemVerifier()->getKeySize();
+  int flag_using_string_key = checking::SystemVerifier::getSystemVerifier()->usingStringKey();
   // system_verifier->setRDFTypes(_env->RDFTypes);
+
+  std::cout << "KEY_SIZE = " << KEY_SIZE << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  std::cout << "flag_using_string_key = " << flag_using_string_key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
   system_verifier->setRunningPQ();
 
@@ -85,7 +89,15 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
   for(auto x: system_verifier->getCurrentlyDeletedKeys()){
     std::string value;
     std::stringstream searching_key;
-    searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+    // searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+    
+    if(flag_using_string_key == 0){
+      searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+      // std::cout << key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // key = ss_key.str();
+    }else{
+      searching_key << x;
+    }
 
     s = db->Get(read_op, searching_key.str(), &value);
   }
@@ -136,6 +148,7 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   testing_result_file << std::endl;
 
   testing_result_file2 << ",\"RocksDB (None) Number Of Total Memory Usage\" : " << db->getRTRocksDBNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file2 << ",\"RocksDB (None) Number Of Total Memory Usage Included Timestamp\" : " << db->getRTRocksDBNumberOfTotalMemoryUsageIncludedTimestamp() << std::endl;
   testing_result_file2 << ",\"PLRDF Number Of Total Memory Usage\" : " << db->getPLRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"Split PLRDF Number Of Total Memory Usage\" : " << db->getSplitPLRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"PLRDF StringKey Number Of Total Memory Usage\" : " << db->getPLRDFStringKeyNumberOfTotalMemoryUsage() << std::endl;
@@ -146,6 +159,7 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   testing_result_file2 << ",\"SuRF Level File Split RDF Number Of Total Memory Usage\" : " << db->getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << std::endl;
 
+  std::cout << "RocksDB (None) Number Of Total Memory Usage Origin Included Timestamp _out = " << db->getRTRocksDBNumberOfTotalMemoryUsageIncludedTimestamp() << std::endl;
   if(system_verifier->getStringOfRDFTypeChosed().substr(0,4) == "NONE"){
     std::cout << "RocksDB (None) Number Of Total Memory Usage _out = " << db->getRTRocksDBNumberOfTotalMemoryUsage() << std::endl;
   }else if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF"){
@@ -366,6 +380,7 @@ assert(number_of_PQs_on_currently_non_inserted_keys >= -1);
   
   checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
   int KEY_SIZE = checking::SystemVerifier::getSystemVerifier()->getKeySize();
+  int flag_using_string_key = checking::SystemVerifier::getSystemVerifier()->usingStringKey();
 
   long long total_read_count = 0;
   long long total_read_bytes = 0;
@@ -495,7 +510,14 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
         std::string value;
         std::string time_stamp;
         std::stringstream searching_key;
-        searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+        // searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+        if(flag_using_string_key == 0){
+          searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+          // std::cout << key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          // key = ss_key.str();
+        }else{
+          searching_key << x;
+        }
 
         start_pq = std::chrono::high_resolution_clock::now();
         system_verifier->start_remaining_get_path();
@@ -705,7 +727,14 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
         std::string value;
         std::string time_stamp;
         std::stringstream searching_key;
-        searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+        // searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+        if(flag_using_string_key == 0){
+          searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+          // std::cout << key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          // key = ss_key.str();
+        }else{
+          searching_key << x;
+        }
 
         start_pq = std::chrono::high_resolution_clock::now();
         system_verifier->start_remaining_get_path();
@@ -917,7 +946,14 @@ system_verifier->startPQTracing();
         std::string value;
         std::string time_stamp;
         std::stringstream searching_key;
-        searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+        // searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+        if(flag_using_string_key == 0){
+          searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+          // std::cout << key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          // key = ss_key.str();
+        }else{
+          searching_key << x;
+        }
 
         start_pq = std::chrono::high_resolution_clock::now();
         system_verifier->start_remaining_get_path();
@@ -1138,7 +1174,14 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
         std::string value;
         std::string time_stamp;
         std::stringstream searching_key;
-        searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+        // searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+        if(flag_using_string_key == 0){
+          searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+          // std::cout << key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          // key = ss_key.str();
+        }else{
+          searching_key << x;
+        }
 
         start_pq = std::chrono::high_resolution_clock::now();
         system_verifier->start_remaining_get_path();
