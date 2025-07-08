@@ -100,7 +100,8 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
         start_time = std::chrono::high_resolution_clock::now();
         // std::cout << "Insert " << ss_key.str() << std::endl;
         // s = db->Put(write_op, ss_key.str(), value + "|" + ss_time_stamp.str());
-        s = db->Put(write_op, ss_key.str(), value);
+        // s = db->Put(write_op, ss_key.str(), value);
+        s = db->Put(write_op, key, value);
         stop_time = std::chrono::high_resolution_clock::now();
         duration_time = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_time - start_time);
         insertion_time_ns += duration_time.count();
@@ -123,7 +124,8 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
 
         // std::cout << "Query " << key << std::endl;
         // ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
-        s = db->Get(read_op, ss_key.str(), &value);
+        // s = db->Get(read_op, ss_key.str(), &value);
+        s = db->Get(read_op, key, &value);
         // separator_pos = value.find("|");
         // time_stamp = value.substr(separator_pos + 1);
         // value = value.substr(0, separator_pos);
@@ -211,10 +213,10 @@ std::cout << "start_key = " << start_key << " " << "end_key = " << end_key << __
       
       case 'R':
         workload_file >> start_key >> end_key;
-std::cout << "start_key = " << start_key << " " << "end_key = " << end_key << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;  
+std::cout << "start_key = " << start_key << " " << "end_key = " << end_key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;  
         if(flag_using_string_key == 0){
           ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
-          ss_end_key << std::setfill('0') << std::setw(KEY_SIZE) << end_key;
+          ss_end_key << std::setfill('0') << std::setw(KEY_SIZE) << end_key << end_key;
           start_key = ss_start_key.str();
           end_key = ss_end_key.str();
         }
