@@ -79,4 +79,5 @@ genworkload:
 	cd K-V-Workload-Generator-master && make
 
 genpqworkload:
+	cd gen_pq_workload  && make clean
 	cd gen_pq_workload  && make
