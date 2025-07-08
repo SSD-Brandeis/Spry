@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  runInsertRDWorkload(env_gen_pq.workload_file_name);
+  runInsertRDWorkload(env_gen_pq.workload_file_name, system_verifier);
 
   // int KEY_SIZE = checking::SystemVerifier::getSystemVerifier()->getKeySize();
   // system_verifier->setRDFTypes(_env->RDFTypes);

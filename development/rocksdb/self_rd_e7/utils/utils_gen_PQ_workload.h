@@ -26,7 +26,8 @@ using namespace std;
 
 // template<typename KeyT>
 using KeyT = string;
-void runInsertRDWorkload(const string workload_file_name){
+// void runInsertRDWorkload(const string workload_file_name){
+void runInsertRDWorkload(const string workload_file_name, checking::SystemVerifier *system_verifier){
   // // opening workload file for the first time
   // const string pq_workload_all_existing_keys_file_name = workload_file_name + "_all_existing_keys";
   // const string pq_workload_historic_existing_keys_file_name = workload_file_name + "_historic_existing_keys";
@@ -51,7 +52,7 @@ void runInsertRDWorkload(const string workload_file_name){
   assert(workload_file);
 
 
-  checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
+  // checking::SystemVerifier* system_verifier = checking::SystemVerifier::getSystemVerifier();
   system_verifier->resetRunningPQ();
   int KEY_SIZE = checking::SystemVerifier::getSystemVerifier()->getKeySize();
   int flag_using_string_key = checking::SystemVerifier::getSystemVerifier()->usingStringKey();
@@ -185,6 +186,8 @@ int parse_arguments(int argc, char *argv[], checking::SystemVerifier *system_ver
   args::ValueFlag<int> number_of_PQ_on_currently_deleted_keys_cmd(group1, "number_of_PQ_on_currently_deleted_keys", "number_of_PQ_on_currently_deleted_keys [def:5000]", {"number_of_PQ_on_currently_deleted_keys"});
   args::ValueFlag<int> number_of_PQ_on_currently_non_inserted_keys_cmd(group1, "number_of_PQ_on_currently_non_inserted_keys", "number_of_PQ_on_currently_non_inserted_keys [def:5000]", {"number_of_PQ_on_currently_non_inserted_keys"});
 
+  args::ValueFlag<int> using_string_key_cmd(group1, "using_string_key", "Using string key [def: 0]", {"using_string_key", "USING_STRING_KEY"});
+
   args::ValueFlag<string> workload_filename_cmd(group1, "workload_filename", "workload filename [def:0.001]", {"workload_filename"});
   //YuCheng Added End
 
@@ -219,6 +222,10 @@ int parse_arguments(int argc, char *argv[], checking::SystemVerifier *system_ver
   env_gen_pq->number_of_PQs_on_currently_deleted_keys = number_of_PQs_on_currently_deleted_keys;
   env_gen_pq->number_of_PQs_on_currently_non_inserted_keys = number_of_PQs_on_currently_non_inserted_keys;
   env_gen_pq->workload_file_name = workload_file_name;
+
+  int using_string_key = using_string_key_cmd ? args::get(using_string_key_cmd) : 0;
+  system_verifier->setFlagUsingStringKey(using_string_key);
+
   return 0;
 }
 
