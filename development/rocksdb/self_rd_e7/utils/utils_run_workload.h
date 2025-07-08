@@ -211,13 +211,14 @@ std::cout << "start_key = " << start_key << " " << "end_key = " << end_key << __
       
       case 'R':
         workload_file >> start_key >> end_key;
-
+std::cout << "start_key = " << start_key << " " << "end_key = " << end_key << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;  
         if(flag_using_string_key == 0){
           ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
           ss_end_key << std::setfill('0') << std::setw(KEY_SIZE) << end_key;
           start_key = ss_start_key.str();
           end_key = ss_end_key.str();
         }
+std::cout << "start_key = " << start_key << " " << "end_key = " << end_key << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;  
 
         while(db->existFlushJob() == true){
           std::this_thread::sleep_for(std::chrono::milliseconds(10));
