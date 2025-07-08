@@ -21,7 +21,7 @@ params = {
     "--system_check_test_on_all_PQ": [0], # for debugging, 0: off, 1: on, equal to "--number_of_PQ": [-1]
     "--bb": [0],
     "--key_size_to_insert": [256],
-    "--surf__key_len_in_bytes": [13],
+    "--surf__key_len_in_bytes": [257],
     "--surf__hash_suffix_len": [0],
     "--surf__real_suffix_len": [0],
     "--surf__include_dense": [0], # 1: true, 0: false
@@ -238,7 +238,7 @@ params3["--surf_use_condensed_digit_key"] = [0]
 # rd_list = [10,10,10]
 # params3["--show_surf_compaction_info"] = [1] 
 # params3[ "--surf__key_len_in_bytes"] = [13]
-params3["--surf__key_len_in_bytes"] = [6]
+params3["--surf__key_len_in_bytes"] = [257]
 # params3[ "--surf__key_len_in_bytes"] = [3]
 # params3[ "--skip_reading_RD_blocks"] = [0]
 params3["--flag_skip_compaction_trivial_move"] = [1]
