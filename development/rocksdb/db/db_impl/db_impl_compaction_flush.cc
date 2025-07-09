@@ -3699,6 +3699,7 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
           || checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")
           || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")
           || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")
           || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
           || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
           std::vector<pll> smallest_largest_boundries{};
@@ -3927,7 +3928,8 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
           }
           
           if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")
-            || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+            || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")
+            || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
             file_meta_data_vectors_stringkey->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries_stringkey, file_numbers));
           }
           if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
@@ -3935,7 +3937,12 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
               delete_RD_vector = std::make_tuple(1, smallest_largest_boundries, file_numbers);
             }
           }
-        
+          if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
+            if(c->level(l) == 0){ // coming from level 0
+              delete_RD_vector_stringkey = std::make_tuple(1, smallest_largest_boundries_stringkey, file_numbers);
+            }
+          }
+
           if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")
             || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
             SuRFCompactionSourceLevelInfo src_level_info = SuRFCompactionSourceLevelInfo();
@@ -4020,11 +4027,15 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")){
         c->column_family_data()->set_compaction_moving_RD_vector_stringkey(*file_meta_data_vectors_stringkey);
       }
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")
+        || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
         c->column_family_data()->set_split__compaction_moving_RD_vector_stringkey(*file_meta_data_vectors_stringkey);
       }
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
         c->column_family_data()->set_top_level__trivial_move__delete_RD_vector(delete_RD_vector); 
+      }
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
+        c->column_family_data()->set_top_level__trivial_move__delete_RD_vector_stringkey(delete_RD_vector_stringkey);
       }
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
         c->column_family_data()->set_surf__compaction_moving_RD_vector(surf__compaction_moving_RD_vector);

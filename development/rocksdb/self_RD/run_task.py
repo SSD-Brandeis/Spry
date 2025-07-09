@@ -284,7 +284,7 @@ rdf_types = [
     {"--using_rdf_types": ["PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0]},
     {"--using_rdf_types": ["SPLIT_PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0]},
     {"--using_rdf_types": ["TOP_LEVEL_RDF"], },
-    {"--using_rdf_types": ["TOP_LEVEL_RDF_STRING_KEY"], },
+    {"--using_rdf_types": ["TOP_LEVEL_RDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0]},
     #{"--using_rdf_types": ["SKYLINE_RDF"], },
     {"--using_rdf_types": ["SuRF_LF_RDF"]},
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]},
