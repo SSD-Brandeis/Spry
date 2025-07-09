@@ -897,7 +897,7 @@ Status BlockBasedTable::Open(
   // if(rdf_type == "PLRDF"){ //xxx
   if(checking::SystemVerifier::getSystemVerifier()->isSkipReadingRangeDeleteBlock() &&
     checking::SystemVerifier::getSystemVerifier()->isRunningPQ()){
-    if(rdf_type == "PLRDF" || rdf_type == "SPLIT_PLRDF" || rdf_type == "TOP_LEVEL_RDF"
+    if(rdf_type == "PLRDF" || rdf_type == "SPLIT_PLRDF" || rdf_type == "TOP_LEVEL_RDF" || rdf_type == "TOP_LEVEL_RDF_STRING_KEY"
       || rdf_type == "PLRDF_STRING_KEY" || rdf_type == "SPLIT_PLRDF_STRING_KEY"
       || rdf_type == "SuRF_LF_RDF" || rdf_type == "SuRF_LF_SPLIT_RDF"){
       rdf_skip_range_deletions = true;
@@ -905,7 +905,7 @@ Status BlockBasedTable::Open(
       rdf_skip_range_deletions = true;
 
     }else if(rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" && rdf_type != "NONE2" 
-    && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" 
+    && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "TOP_LEVEL_RDF_STRING_KEY"
     && rdf_type != "PLRDF_STRING_KEY" && rdf_type != "SPLIT_PLRDF_STRING_KEY"
     && rdf_type != "SKYLINE_RDF" && rdf_type != "SuRF_LF_RDF" && rdf_type != "SuRF_LF_SPLIT_RDF"){
       std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
