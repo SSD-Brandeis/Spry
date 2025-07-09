@@ -528,7 +528,7 @@ selected_columns = \
  f'fixed #PQ = {number_of_pq_on_currently_deleted_keys} point_query_time_on_currently_deleted_all_ns_out',
  'all_time_ns _out',
  ' Number Of Total Memory Usage _out',
- ' Number Of Total Memory Usage Origin Included Timestamp _out',
+#  ' Number Of Total Memory Usage Origin Included Timestamp _out',
 #  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys})  block_read_count _out',
 #  ' (Currently Deleted Keys fixed #PQ = 100000)  block_read_byte _out',
 #  ' (Currently Deleted Keys fixed #PQ = 100000)  block_read_time _out',
