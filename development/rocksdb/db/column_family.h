@@ -1552,7 +1552,7 @@ class ColumnFamilyData {
 
   //for split_plrdf_prime_pss
   std::tuple<uint64_t, std::vector<pss>, std::vector<uint64_t>> split__flush_to_level0_RD_vector_stringkey = std::make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
-  std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>  split__compaction_moving_RD_vector_stringkey = std::make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
+  std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>  split__compaction_moving_RD_vector_stringkey;
   std::tuple<int, std::vector<pss>, std::vector<uint64_t>> split__compaction_direct_delete_RD_vector_stringkey = std::make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
   // std::vector<pss> split__level_ranges_stringkey;
   // std::vector<pss> split__level_ranges_updated_stringkey;
