@@ -1665,6 +1665,21 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
         }
       }
 
+      //Top Level RDF String Key
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
+        if(split_flag == true){ //complete compaction
+          int in_lvl = std::get<0>(this->split__compaction_moving_RD_vector[0]);
+          if(in_lvl == 0){
+            (this->top_level_rdf_stringkey_prime).shiftRDFToOutputLevel(&this->split__compaction_moving_RD_vector);
+            if(split_flag == true && in_lvl == 0){
+              (this->top_level_rdf_stringkey_prime).splitRangesOnLevel((uint)1, this->top_level__level_points_pss);
+            }
+          }
+        }else{
+          this->top_level__trivial_move__delete_RD_vector = make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());
+        }
+      }
+
 
       //Split PLRDF
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")){

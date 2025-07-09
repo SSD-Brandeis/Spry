@@ -1040,10 +1040,23 @@ class ColumnFamilyData {
     }
     top_level__trivial_move__delete_RD_vector = compaction_direct_delete_RD_vector_in;
   }
-  
+  void set_top_level__trivial_move__delete_RD_vector_stringkey(std::tuple<int, std::vector<pss>, std::vector<uint64_t>> &compaction_direct_delete_RD_vector_in){
+    auto out_lvl = std::get<0>(this->top_level__trivial_move__delete_RD_vector_pss);
+    if((int)out_lvl != -1){
+      std::cerr << "split__compaction_direct_delete_RD_vector_stringkey is not empty" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
+    top_level__trivial_move__delete_RD_vector_pss = compaction_direct_delete_RD_vector_in;
+  }
+
   std::tuple<int, std::vector<pll>, std::vector<uint64_t>> get_top_level__trivial_move__delete_RD_vector(){
     return top_level__trivial_move__delete_RD_vector;
   }
+
+  std::tuple<int, std::vector<pss>, std::vector<uint64_t>> get_top_level__trivial_move__delete_RD_vector_stringkey(){
+    return top_level__trivial_move__delete_RD_vector_pss;
+  }
+
+
 
   const PLRDF *getPLRDF(){
     return &plrdf_prime;
