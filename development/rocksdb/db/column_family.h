@@ -1031,8 +1031,6 @@ class ColumnFamilyData {
   
 
 
-
-
   void set_top_level__trivial_move__delete_RD_vector(std::tuple<int, std::vector<pll>, std::vector<uint64_t>> &compaction_direct_delete_RD_vector_in){
     auto out_lvl = std::get<0>(this->top_level__trivial_move__delete_RD_vector);
     if((int)out_lvl != -1){
