@@ -1712,12 +1712,12 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
       
       //Split PLRDF Stringkey
       // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")
-        || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
         (this->split_plrdf_stringkey_prime).shiftRDFToOutputLevel(&this->split__compaction_moving_RD_vector_stringkey);
       }
 
-      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")
+      || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
         this->split__compaction_moving_RD_vector_stringkey.clear();
       }
 
