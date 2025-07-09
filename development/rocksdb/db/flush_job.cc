@@ -949,11 +949,9 @@ if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == t
   if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")){
     cfd_->set_flush_to_level0_RD_vector_stringkey(level0_RD_vector_stringkey);
   }
-  if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+  if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")
+  || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
     cfd_->set_split__flush_to_level0_RD_vector_stringkey(level0_RD_vector_stringkey);
-  }
-  if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
-    cfd_->set_flush_to_level0_RD_vector_stringkey(level0_RD_vector_stringkey);
   }
 
   if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")){
