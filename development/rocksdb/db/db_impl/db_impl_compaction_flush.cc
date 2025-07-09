@@ -3678,6 +3678,7 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
     SuRFCompactionMovingRDInfo *surf__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
     SuRFCompactionMovingRDInfo *surf_level_file_split__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
     std::tuple<int, std::vector<pll>, std::vector<uint64_t>> delete_RD_vector; 
+    std::tuple<int, std::vector<pss>, std::vector<uint64_t>> delete_RD_vector_stringkey; 
     //yucheng Added End
     for (unsigned int l = 0; l < c->num_input_levels(); l++) {
       if (c->level(l) == c->output_level()) {
