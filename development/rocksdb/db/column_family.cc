@@ -1441,7 +1441,9 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
 
 
     //Split PLRDF StringKey
-    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+    // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")
+      || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
       auto &file_num2 = std::get<0>(this->split__flush_to_level0_RD_vector_stringkey);
       auto &range_delete_list_in2 = std::get<1>(this->split__flush_to_level0_RD_vector_stringkey);
       auto &exist_level0_file_nums2 = std::get<2>(this->split__flush_to_level0_RD_vector_stringkey);
@@ -1451,10 +1453,18 @@ void ColumnFamilyData::updateRDF2NewVersion(int opt, bool split_flag){
                                                       range_delete_list_in2, 
                                                       exist_level0_file_nums2);
       }
+      //Top Level RDF StringKey
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
+        (this->top_level_rdf_stringkey_prime).insertRangeDeleteToLevel0(file_num2, 
+                                                      range_delete_list_in2, 
+                                                      exist_level0_file_nums2);
+      }
     }
 
-    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
-      this->split__flush_to_level0_RD_vector_stringkey = make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
+    // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")
+      || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
+        this->split__flush_to_level0_RD_vector_stringkey = make_tuple(-1, std::vector<pss>(), std::vector<uint64_t>());
     }
 
     // //SuRF level file RDF
@@ -2312,6 +2322,7 @@ void ColumnFamilyData::logCurrentTotalNumbersOfRangesInEachRDF(uint32_t origin_c
   plrdf_stringkey_prime.logCurrentTotalNumbersOfRanges();
   split_plrdf_stringkey_prime.logCurrentTotalNumbersOfRanges();
   top_level_rdf_prime.logCurrentTotalNumbersOfRanges();
+  top_level_rdf_stringkey_prime.logCurrentTotalNumbersOfRanges();
   skyline_rdf_prime.logCurrentTotalNumbersOfRanges();
 
   surf__level_file_rdf_prime->logCurrentTotalNumbersOfRanges();
@@ -2325,6 +2336,7 @@ void ColumnFamilyData::logCurrentTotalMmeoryUsageInEachRDF(uint32_t origin_bytes
   plrdf_stringkey_prime.logCurrentTotalMemoryUsage();
   split_plrdf_stringkey_prime.logCurrentTotalMemoryUsage();
   top_level_rdf_prime.logCurrentTotalMemoryUsage();
+  top_level_rdf_stringkey_prime.logCurrentTotalMemoryUsage();
   skyline_rdf_prime.logCurrentTotalMemoryUsage();
   
   surf__level_file_rdf_prime->logCurrentTotalMemoryUsage();
@@ -2394,6 +2406,11 @@ void ColumnFamilyData::InstallSuperVersion(
       current_->setTopLevelRDF(this->top_level_rdf_prime);
     }
 
+    //Top Level RDF Stringkey
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
+      current_->setTopLevelRDFStringKey(this->top_level_rdf_stringkey_prime);
+    }
+
     //Skyline RDF
     if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SKYLINE_RDF")){
       current_->setSkylineRDF(this->skyline_rdf_prime);
@@ -2449,6 +2466,12 @@ void ColumnFamilyData::InstallSuperVersion(
     //Top Level RDF
     if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
       current_->setTopLevelRDF(this->top_level_rdf_prime);
+    }
+
+    //Top Level RDF Stringkey
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
+      (this->top_level_rdf_stringkey_prime).deleteLastLevelIfEqualsBottomLevel((uint)current_->storage_info()->num_levels());
+      current_->setTopLevelRDFStringKey(this->top_level_rdf_stringkey_prime);
     }
 
     //Skyline RDF

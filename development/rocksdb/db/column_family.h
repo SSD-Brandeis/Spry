@@ -1060,6 +1060,9 @@ class ColumnFamilyData {
   const PLRDF *getTopLevelRDF(){
     return &top_level_rdf_prime;
   }
+  const PLRDF_t<std::string> *getTopLevelRDFStringKey(){
+    return &top_level_rdf_stringkey_prime;
+  }
   const SkyLineRDF *getSkylineRDF(){
     return &skyline_rdf_prime;
   }
@@ -1084,6 +1087,9 @@ class ColumnFamilyData {
   }
   void setTopLevelRDF(PLRDF &plrdf_in){
     top_level_rdf_prime = plrdf_in;
+  }
+  void setTopLevelRDFStringKey(PLRDF_t<std::string> &plrdf_in){
+    top_level_rdf_stringkey_prime = plrdf_in;
   }
   void setSkylineRDF(SkyLineRDF &skyline_rdf_in){
     skyline_rdf_prime = skyline_rdf_in;
@@ -1128,6 +1134,11 @@ class ColumnFamilyData {
     top_level_rdf_prime.printLevel0();
     top_level_rdf_prime.print();
   }
+  void printTopLevelRDFStringKey(){
+    std::cout << "cfd --- top_level_RDF_stringkey " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+    top_level_rdf_stringkey_prime.printLevel0();
+    top_level_rdf_stringkey_prime.print();
+  }
   void printSkylineRDF(){
     std::cout << "cfd --- skyline_RDF " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
     skyline_rdf_prime.print();
@@ -1155,6 +1166,7 @@ class ColumnFamilyData {
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
         || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")
         || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")
+        || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")
         || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF") ){
         split__level_update_mtx.lock();
       }
@@ -1210,6 +1222,14 @@ class ColumnFamilyData {
         top_level__level_range_idx = 0;
       }
       
+      //Top Level RDF Stringkey
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
+        top_level__level_ranges_pss = top_level_rdf_stringkey_prime.getLevelRanges(1);
+        top_level__level_points_pss.clear();
+        top_level__level_range_idx_pss = out_lvl;
+        top_level__level_range_idx_pss = 0;
+      }
+      
       // //SuRF levelfile Split 
       // if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")){
       //   surf_level_file_split__in_coming_point_keys.clear();
@@ -1224,6 +1244,11 @@ class ColumnFamilyData {
         if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")){
           top_level__level_points.push_back(key_in);
         }
+      }
+
+      //Top Level RDF Stringkey
+      if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
+        top_level__level_points_pss.push_back(key_in_str);
       }
 
       //SuRF levelfile Split 
@@ -1308,6 +1333,7 @@ class ColumnFamilyData {
       if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")
         || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")
         || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")
+        || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")
         || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF") ){
         split__level_update_mtx.unlock();
       }
@@ -1388,6 +1414,9 @@ class ColumnFamilyData {
   }
   std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF(){
     return top_level_rdf_prime.getNumbersOfRangesInRDFLog();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInTopLevelRDFStringKey(){
+    return top_level_rdf_stringkey_prime.getNumbersOfRangesInRDFLog();
   }
   std::vector<int> getLogOfNumbersOfRangesInSkyLineRDF(){
     return skyline_rdf_prime.getNumbersOfRangesInRDFLog();
@@ -1476,6 +1505,7 @@ class ColumnFamilyData {
   surf::SuRF_RDF *surf__level_file_split_rdf_prime = new surf::SuRF_RDF(surf::SuRF_RDF::RDF_MODE::PER_FILE);
 
   PLRDF_t<std::string> plrdf_stringkey_prime, split_plrdf_stringkey_prime;
+  PLRDF_t<std::string> top_level_rdf_stringkey_prime;
   
   // for plrdf_prime
   std::tuple<uint64_t, std::vector<pll>, std::vector<uint64_t>> flush_to_level0_RD_vector = std::make_tuple(-1, std::vector<pll>(), std::vector<uint64_t>());

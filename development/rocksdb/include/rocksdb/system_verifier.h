@@ -660,14 +660,14 @@ namespace checking {
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE_CACHE_RANGETOMBSTONE_TRACING"}, {2, "NONE"}, {3, "NONE2"}, {4, "PLRDF"}, {5, "SPLIT_PLRDF"}, {6, "TOP_LEVEL_RDF"}, {7, "SKYLINE_RDF"},  {8, "SuRF_LF_RDF"},  {9, "SuRF_LF_SPLIT_RDF"}, {10, "NONE_DUMMY"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE_CACHE_RANGETOMBSTONE_TRACING"}, {2, "NONE"}, {3, "NONE2"}, {4, "PLRDF_STRING"}, {5, "SPLIT_PLRDF_STRING"}, {6, "TOP_LEVEL_RDF"}, {7, "SKYLINE_RDF"},  {8, "SuRF_LF_RDF"},  {9, "SuRF_LF_SPLIT_RDF"}, {10, "NONE_DUMMY"}};
     std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE_CACHE_RANGETOMBSTONE_TRACING"}, {2, "NONE"}, {3, "NONE2"}, {4, "PLRDF"}, {5, "SPLIT_PLRDF"}, {6, "PLRDF_STRING_KEY"}, {7, "SPLIT_PLRDF_STRING_KEY"}, 
-                                                     {8, "TOP_LEVEL_RDF"}, {9, "SKYLINE_RDF"},  {10, "SuRF_LF_RDF"},  {11, "SuRF_LF_SPLIT_RDF"}, {12, "NONE_DUMMY"}};
+                                                     {8, "TOP_LEVEL_RDF"}, {9, "TOP_LEVEL_RDF_STRING_KEY"}, {10, "SKYLINE_RDF"},  {11, "SuRF_LF_RDF"},  {12, "SuRF_LF_SPLIT_RDF"}, {13, "NONE_DUMMY"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_CACHE_RANGETOMBSTONE_TRACING"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "SuRF_LF_RDF"}, {1, "NONE_DUMMY"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "SuRF_LF_SPLIT_RDF"}, {1, "NONE_DUMMY"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "SuRF_LF_SPLIT_RDF"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "SPLIT_PLRDF"}, {1, "NONE_DUMMY"}};
     // std::unordered_map<int, std::string> RDFTypes = {{0, "TOP_LEVEL_RDF"}}; 
-    std::unordered_set<std::string> RDFStringKeyTypeSet = {"PLRDF_STRING_KEY", "SPLIT_PLRDF_STRING_KEY", "SuRF_LF_RDF", "SuRF_LF_SPLIT_RDF"};
+    std::unordered_set<std::string> RDFStringKeyTypeSet = {"PLRDF_STRING_KEY", "SPLIT_PLRDF_STRING_KEY", "TOP_LEVEL_RDF_STRING_KEY", "SuRF_LF_RDF", "SuRF_LF_SPLIT_RDF"};
 
 
     void setRDFTypes(std::unordered_map<int, std::string> rdf_types_in){

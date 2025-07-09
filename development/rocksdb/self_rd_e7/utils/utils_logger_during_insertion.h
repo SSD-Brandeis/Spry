@@ -34,6 +34,7 @@ private:
     vector<int> ranges_log_PLRDFStringKey;
     vector<int> ranges_log_SplitPLRDFStringKey;
     vector<int> ranges_log_TopLevelRDF;
+    vector<int> ranges_log_TopLevelRDFStringKey;
     vector<int> ranges_log_SkylineRDF;
     vector<int> ranges_log_SuRFLevelFileRDF;
     vector<int> ranges_log_SuRFLevelFileSplitRDF;
@@ -44,6 +45,7 @@ private:
     vector<int> memory_usage_log_PLRDFStringKey;
     vector<int> memory_usage_log_SplitPLRDFStringKey;
     vector<int> memory_usage_log_TopLevelRDF;
+    vector<int> memory_usage_log_TopLevelRDFStringKey;
     vector<int> memory_usage_log_SkylineRDF;
     vector<int> memory_usage_log_SuRFLevelFileRDF;
     vector<int> memory_usage_log_SuRFLevelFileSplitRDF;
@@ -167,6 +169,13 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }
   // running_log_during_insertion << "recordCurrentMemoryFootprint A3 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
+  tmp = db->getLogOfNumbersOfRangesInTopLevelRDFStringKey();
+  if(tmp.size() > 0){
+    ranges_log_TopLevelRDFStringKey.push_back(tmp.back());
+  }else{
+    ranges_log_TopLevelRDFStringKey.push_back(0);
+  }
+
   tmp = db->getLogOfNumbersOfRangesInSkylineRDF();
   if(tmp.size() > 0){
     ranges_log_SkylineRDF.push_back(tmp.back());
@@ -232,6 +241,14 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }
   // running_log_during_insertion << "recordCurrentMemoryFootprint A9 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
+  tmp = db->getLogOfMemoryUsageInTopLevelRDFStringKey();
+
+  if(tmp.size() > 0){
+    memory_usage_log_TopLevelRDFStringKey.push_back(tmp.back());
+  }else{
+    memory_usage_log_TopLevelRDFStringKey.push_back(0);
+  }
+
   tmp = db->getLogOfMemoryUsageInSkylineRDF();
   if(tmp.size() > 0){
     memory_usage_log_SkylineRDF.push_back(tmp.back());
@@ -270,6 +287,7 @@ void LoggerDuringInsertion::writeRecord(DB** db_ptr2){
   testing_result_file_during_insertion << ",\"PLRDF StringKey Number Of Total Ranges\" : " << db->getPLRDFStringKeyNumberOfTotalRanges() << std::endl;
   testing_result_file_during_insertion << ",\"Split PLRDF StringKey Number Of Total Ranges\" : " << db->getSplitPLRDFStringKeyNumberOfTotalRanges() << std::endl;
   testing_result_file_during_insertion << ",\"TopLevel RDF Number Of Total Ranges\" : " << db->getTopLevelRDFNumberOfTotalRanges() << std::endl;
+  testing_result_file_during_insertion << ",\"TopLevel RDF StringKey Number Of Total Ranges\" : " << db->getTopLevelRDFStringKeyNumberOfTotalRanges() << std::endl;
   testing_result_file_during_insertion << ",\"Skyline RDF Number Of Total Ranges\" : " << db->getSkylineRDFNumberOfTotalRanges() << std::endl;
   testing_result_file_during_insertion << ",\"SuRF Level File RDF Number Of Total Ranges\" : " << db->getSuRFLevelFileRDFNumberOfTotalRanges() << std::endl;
   testing_result_file_during_insertion << ",\"SuRF Level File Split RDF Number Of Total Ranges\" : " << db->getSuRFLevelFileSplitRDFNumberOfTotalRanges() << std::endl;
@@ -279,6 +297,7 @@ void LoggerDuringInsertion::writeRecord(DB** db_ptr2){
   testing_result_file_during_insertion << ",\"PLRDF Number Of Total Memory Usage\" : " << memory_usage_log_PLRDF[memory_usage_log_PLRDF.size()-1] << std::endl;
   testing_result_file_during_insertion << ",\"Split PLRDF Number Of Total Memory Usage\" : " << memory_usage_log_SplitPLRDF[memory_usage_log_SplitPLRDF.size()-1] << " bytes" << std::endl;
   testing_result_file_during_insertion << ",\"TopLevel RDF Number Of Total Memory Usage\" : " << memory_usage_log_TopLevelRDF[memory_usage_log_TopLevelRDF.size()-1] << " bytes" << std::endl;
+  testing_result_file_during_insertion << ",\"TopLevel RDF StringKey Number Of Total Memory Usage\" : " << memory_usage_log_TopLevelRDFStringKey[memory_usage_log_TopLevelRDFStringKey.size()-1] << " bytes" << std::endl;
   testing_result_file_during_insertion << ",\"Skyline RDF Number Of Total Memory Usage\" : " << memory_usage_log_SkylineRDF[memory_usage_log_SkylineRDF.size()-1] << " bytes" << std::endl;
   testing_result_file_during_insertion << ",\"SuRF Level File RDF Number Of Total Memory Usage\" : " << memory_usage_log_SuRFLevelFileRDF[memory_usage_log_SuRFLevelFileRDF.size()-1] << " bytes" << std::endl;
   testing_result_file_during_insertion << ",\"SuRF Level File Split RDF Number Of Total Memory Usage\" : " << memory_usage_log_SuRFLevelFileSplitRDF[memory_usage_log_SuRFLevelFileSplitRDF.size()-1] << " bytes" << std::endl;
@@ -313,6 +332,14 @@ void LoggerDuringInsertion::writeRecord(DB** db_ptr2){
   for(int i = 0; i < ranges_log_TopLevelRDF.size(); i++){
     testing_result_file_during_insertion << ranges_log_TopLevelRDF[i];
     if(i != ranges_log_TopLevelRDF.size() - 1){
+      testing_result_file_during_insertion << ", ";
+    }
+  }
+  testing_result_file_during_insertion << "]" << std::endl;;
+  testing_result_file_during_insertion << ",\"Log Of Numbers Of Ranges In TopLevelRDFStringKey\" : [";
+  for(int i = 0; i < ranges_log_TopLevelRDFStringKey.size(); i++){
+    testing_result_file_during_insertion << ranges_log_TopLevelRDFStringKey[i];
+    if(i != ranges_log_TopLevelRDFStringKey.size() - 1){
       testing_result_file_during_insertion << ", ";
     }
   }
@@ -375,7 +402,15 @@ void LoggerDuringInsertion::writeRecord(DB** db_ptr2){
       testing_result_file_during_insertion << ", ";
     }
   }
-  testing_result_file_during_insertion << "]" << std::endl;;
+  testing_result_file_during_insertion << "]" << std::endl;
+  testing_result_file_during_insertion << ",\"Log Of Memory Usage Of TopLevelRDFStringKey\" : [";
+  for(int i = 0; i < memory_usage_log_TopLevelRDFStringKey.size(); i++){
+    testing_result_file_during_insertion << memory_usage_log_TopLevelRDFStringKey[i];
+    if(i != memory_usage_log_TopLevelRDFStringKey.size() - 1){
+      testing_result_file_during_insertion << ", ";
+    }
+  }
+  testing_result_file_during_insertion << "]" << std::endl;
   testing_result_file_during_insertion << ",\"Log Of Memory Usage Of SkylineRDF\" : [";
   for(int i = 0; i < memory_usage_log_SkylineRDF.size(); i++){
     testing_result_file_during_insertion << memory_usage_log_SkylineRDF[i];

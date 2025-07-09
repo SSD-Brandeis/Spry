@@ -101,6 +101,7 @@ int main(int argc, char *argv[]) {
   PLRDF plrdf_prime, split_plrdf_prime;
   PLRDF_t<std::string> plrdf_stringkey_prime, split_plrdf_stringkey_prime;
   PLRDF top_level_rdf_prime;
+  PLRDF_t<std::string> top_level_rdf_stringkey_prime;
   SkyLineRDF skyline_rdf_prime;
 
   reset_perf_iostats_context();
@@ -158,7 +159,7 @@ int main(int argc, char *argv[]) {
   std::string prefix = "main after workload insertion complete ";
   print_perf_iostats_context(std::cout, prefix, 1);
 
-  set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
+  set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, top_level_rdf_stringkey_prime, skyline_rdf_prime);
 
   std::cout << "!!! runQPVerification done " << std::endl;
   

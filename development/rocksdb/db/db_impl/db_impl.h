@@ -547,6 +547,7 @@ class DBImpl : public DB {
   virtual int getPLRDFStringKeyNumberOfTotalRanges() override;
   virtual int getSplitPLRDFStringKeyNumberOfTotalRanges() override;
   virtual int getTopLevelRDFNumberOfTotalRanges() override;
+  virtual int getTopLevelRDFStringKeyNumberOfTotalRanges() override;
   virtual int getSkylineRDFNumberOfTotalRanges() override;
   virtual int getSuRFLevelFileRDFNumberOfTotalRanges() override;
   virtual int getSuRFLevelFileSplitRDFNumberOfTotalRanges() override;
@@ -557,6 +558,7 @@ class DBImpl : public DB {
   virtual int getPLRDFStringKeyNumberOfTotalMemoryUsage() override;
   virtual int getSplitPLRDFStringKeyNumberOfTotalMemoryUsage() override;
   virtual int getTopLevelRDFNumberOfTotalMemoryUsage() override;
+  virtual int getTopLevelRDFStringKeyNumberOfTotalMemoryUsage() override;
   virtual int getSkylineRDFNumberOfTotalMemoryUsage() override;
   virtual int getSuRFLevelFileRDFNumberOfTotalMemoryUsage() override;
   virtual int getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() override;
@@ -566,6 +568,7 @@ class DBImpl : public DB {
   std::vector<int> getLogOfNumbersOfRangesInPLRDFStringKey() override;
   std::vector<int> getLogOfNumbersOfRangesInSplitPLRDFStringKey() override;
   std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() override;
+  std::vector<int> getLogOfNumbersOfRangesInTopLevelRDFStringKey() override;
   std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF() override;
@@ -575,6 +578,7 @@ class DBImpl : public DB {
   std::vector<int> getLogOfMemoryUsageInPLRDFStringKey() override;
   std::vector<int> getLogOfMemoryUsageInSplitRDFStringKey() override;
   std::vector<int> getLogOfMemoryUsageInTopLevelRDF() override;
+  std::vector<int> getLogOfMemoryUsageInTopLevelRDFStringKey() override;
   std::vector<int> getLogOfMemoryUsageInSkylineRDF() override;
   std::vector<int> getLogOfMemoryUsageInSuRFLevelFileRDF() override;
   std::vector<int> getLogOfMemoryUsageInSuRFLevelFileSplitRDF() override;
@@ -597,6 +601,7 @@ class DBImpl : public DB {
   const PLRDF_t<std::string> * getPLRDFStringKey() override;
   const PLRDF_t<std::string> *getSplitPLRDFStringKey() override;
   const PLRDF *getTopLevelRDF() override;
+  const PLRDF_t<std::string> *getTopLevelRDFStringKey() override;
   const SkyLineRDF *getSkylineRDF() override;
   // const std::vector<t3ll> *getSkylineRDF() override;
   // const std::vector<int> *getSkylineNumbersOfRangesInRDFLog() override;
@@ -610,6 +615,7 @@ class DBImpl : public DB {
   void setPLRDFStringKey( PLRDF_t<std::string> *plrdf) override;
   void setSplitPLRDFStringKey( PLRDF_t<std::string> *plrdf) override;
   void setTopLevelRDF( PLRDF *plrdf) override;
+  void setTopLevelRDFStringKey( PLRDF_t<std::string> *plrdf) override;
   void setSkylineRDF( SkyLineRDF *skylineRDF) override;
   // void setSkylineRDF( std::vector<t3ll> *skylineRDF) override;
   // void setSkylineNumbersOfRangesInRDFLog( std::vector<int> *logOfNumbersOfRangesInPLRDF) override;

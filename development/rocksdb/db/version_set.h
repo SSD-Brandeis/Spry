@@ -1307,6 +1307,10 @@ class Version {
     top_level_rdf = top_level_rdf_in;
   }
 
+  void setTopLevelRDFStringKey(PLRDF_t<std::string> &top_level_rdf_stringkey_in){
+    top_level_rdf_stringkey = top_level_rdf_stringkey_in;
+  }
+
   void setSkylineRDF( SkyLineRDF &skyline_rdf_in){
     skyline_rdf = skyline_rdf_in;
   }
@@ -1339,6 +1343,9 @@ class Version {
   
   bool isAliveAfterTopLevelRDFilter(long long key){
     return (this->top_level_rdf).isEntryAlive(1, key);
+  }
+  bool isAliveAfterTopLevelRDFilterStringKey(std::string key){
+    return (this->top_level_rdf_stringkey).isEntryAlive(1, key);
   }
   bool isAliveAfterSkylineRDFilter(long long key, long long seq){
     return skyline_rdf.isEntryAlive(key, seq);
@@ -1409,6 +1416,11 @@ class Version {
     top_level_rdf.print();
   }
 
+  void printTopLevelRDFStringKey(){
+    top_level_rdf_stringkey.printLevel0();
+    top_level_rdf_stringkey.print();
+  }
+
   void printSkylineRDF(){
     skyline_rdf.print();
   }
@@ -1442,6 +1454,9 @@ class Version {
   int getTopLevelRDFNumberOfTotalRanges(){
     return top_level_rdf.getNumberOfTotalRanges();
   }
+  int getTopLevelRDFStringKeyNumberOfTotalRanges(){
+    return top_level_rdf_stringkey.getNumberOfTotalRanges();
+  }
   int getSkylineRDFNumberOfTotalRanges(){
     return skyline_rdf.getNumberOfTotalRanges();
   }
@@ -1472,6 +1487,9 @@ class Version {
   int getTopLevelRDFNumberOfTotalMemoryUsage(){
     return top_level_rdf.getNumberOfTotalMemoryUsage();
   }
+  int getTopLevelRDFStringKeyNumberOfTotalMemoryUsage(){
+    return top_level_rdf_stringkey.getNumberOfTotalMemoryUsage();
+  }
   int getSkylineRDFNumberOfTotalMemoryUsage(){
     return skyline_rdf.getNumberOfTotalMemoryUsage();
   }
@@ -1501,6 +1519,9 @@ class Version {
   }
   int getTopLevelRDFNumberOfTotalLevels(){
     return top_level_rdf.getNumberOfTotalLevels();
+  }
+  int getTopLevelRDFStringKeyNumberOfTotalLevels(){
+    return top_level_rdf_stringkey.getNumberOfTotalLevels();
   }
   int getSkylineRDFNumberOfTotalLevels(){
     return 1;
@@ -1538,6 +1559,9 @@ class Version {
   std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF(){
     return top_level_rdf.getNumbersOfRangesInRDFLog();
   }
+  std::vector<int> getLogOfNumbersOfRangesInTopLevelRDFStringKey(){
+    return top_level_rdf_stringkey.getNumbersOfRangesInRDFLog();
+  }
   std::vector<int> getLogOfNumbersOfRangesInSkylineRDF(){
     return skyline_rdf.getNumbersOfRangesInRDFLog();
   }
@@ -1573,6 +1597,9 @@ class Version {
   }
   std::vector<int> getLogOfMemoryUsageInTopLevelRDF(){
     return top_level_rdf.getMemoryUsageInRDFLog();
+  }
+  std::vector<int> getLogOfMemoryUsageInTopLevelRDFStringKey(){
+    return top_level_rdf_stringkey.getMemoryUsageInRDFLog();
   }
   std::vector<int> getLogOfMemoryUsageInSkylineRDF(){
     return skyline_rdf.getMemoryUsageInRDFLog();
@@ -1750,6 +1777,7 @@ class Version {
   PLRDF plrdf, split_plrdf;
   PLRDF_t<std::string> plrdf_stringkey, split_plrdf_stringkey;
   PLRDF top_level_rdf;
+  PLRDF_t<std::string> top_level_rdf_stringkey;
   SkyLineRDF skyline_rdf;
   surf::SuRF_RDF *surf__level_file_rdf = nullptr;
   surf::SuRF_RDF *surf__level_file_split_rdf = nullptr;

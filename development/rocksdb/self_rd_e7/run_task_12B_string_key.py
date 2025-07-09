@@ -29,7 +29,7 @@ params = {
     "--log_during_insertion": [1], # 1: true, 0: false
     "--surf_use_condensed_digit_key": [1], # 1: true, 0: false # digit_key to condensed_char_keys
     "--run_pq_during_insertion_interval": [200], # default: 200
-    "--using_rdf_types": ["NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,PLRDF_STRING_KEY,SPLIT_PLRDF_STRING_KEY,TOP_LEVEL_RDF,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY"],
+    "--using_rdf_types": ["NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,PLRDF_STRING_KEY,SPLIT_PLRDF_STRING_KEY,TOP_LEVEL_RDF,TOP_LEVEL_RDF_STRING_KEY,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY"],
     "--show_surf_compaction_info": [0],
     "--show_tombstones_during_compaction_info": [0], 
     "--flag_skip_compaction_trivial_move": [0], # if TOP_LEVEL_RDF is in --using_rdf_types, then no matter what value is set, compaction trivial move will always be skip
@@ -295,6 +295,7 @@ rdf_types = [
     {"--using_rdf_types": ["PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0]},
     {"--using_rdf_types": ["SPLIT_PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0]},
     # {"--using_rdf_types": ["TOP_LEVEL_RDF"], },
+    {"--using_rdf_types": ["TOP_LEVEL_RDF_STRING_KEY"], },
     # {"--using_rdf_types": ["SKYLINE_RDF"], },
     {"--using_rdf_types": ["SuRF_LF_RDF"]},
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]},

@@ -423,6 +423,7 @@ strings_to_remove = [
     "ROCKSDB (NONE)",
     "RocksDB (None)",
     "TOP_LEVEL_RDF",
+    "TOP_LEVEL_RDF_STRING_KEY",
     "SKYLINE_RDF",
     "SuRF_LF_RDF",
     "SPLIT_PLRDF",

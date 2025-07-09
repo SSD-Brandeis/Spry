@@ -2376,7 +2376,8 @@ Status CompactionJob::InstallCompactionResults(
         }
 
         if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")
-          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")
+          || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
             file_meta_data_vectors_stringkey->push_back(std::make_tuple(current_level, compaction->output_level(), smallest_largest_boundries_stringkey, file_numbers));
         }
 
@@ -2407,7 +2408,8 @@ Status CompactionJob::InstallCompactionResults(
     if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")){
       compaction->column_family_data()->set_compaction_moving_RD_vector_stringkey(*file_meta_data_vectors_stringkey);
     }
-    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")){
+    if(checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")
+      || checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF_STRING_KEY")){
       compaction->column_family_data()->set_split__compaction_moving_RD_vector_stringkey(*file_meta_data_vectors_stringkey);
     }
     // ychuang Added End

@@ -2431,6 +2431,8 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
   //Top Level RDF
   bool top_level__is_alive_after_hit_file_level = true;
 
+  //Top Level RDF String Key
+  bool top_level_stringkey__is_alive_after_hit_file_level = true;
 
   //SuRF_LEVEL_FILE_RDF
   bool surf_level_file__is_alive_after_hit_file_level = true;
@@ -2573,6 +2575,19 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
   // Self Added End: timing
       return;
     }
+  }else if(rdf_type == "TOP_LEVEL_RDF_STRING_KEY"){
+    checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
+    top_level_stringkey__is_alive_after_hit_file_level = isAliveAfterTopLevelRDFilterStringKey(user_key.ToString());
+    checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
+    if(top_level_stringkey__is_alive_after_hit_file_level == false){
+      *status = Status::NotFound();
+      checking::SystemVerifier::getSystemVerifier()->increaseFilteredByRDFCount(); 
+
+  // Self Added Start: timing
+  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+  // Self Added End: timing
+      return;
+    }
   }else if(rdf_type == "SuRF_LF_RDF"){
     surf::SuRF_Env::getInstance()->clearFlagKeyMayDeleted();
 
@@ -2657,7 +2672,7 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
   }else if(rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" && rdf_type != "NONE2" 
             && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF"
             && rdf_type != "PLRDF_STRING_KEY" && rdf_type != "SPLIT_PLRDF_STRING_KEY" 
-            && rdf_type != "TOP_LEVEL_RDF"  && rdf_type != "SKYLINE_RDF"
+            && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "TOP_LEVEL_RDF_STRING_KEY" && rdf_type != "SKYLINE_RDF"
             && rdf_type != "SuRF_LF_RDF" && rdf_type != "SuRF_LF_SPLIT_RDF"){        
     std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
                   << "rdf_type = " << rdf_type << std::endl;
@@ -2770,7 +2785,7 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       }else if(rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" && rdf_type != "NONE2" 
               && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF"
               && rdf_type != "PLRDF_STRING_KEY" && rdf_type != "SPLIT_PLRDF_STRING_KEY" 
-              && rdf_type != "TOP_LEVEL_RDF"  && rdf_type != "SKYLINE_RDF"
+              && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "TOP_LEVEL_RDF_STRING_KEY"  && rdf_type != "SKYLINE_RDF"
               && rdf_type != "SuRF_LF_RDF" && rdf_type != "SuRF_LF_SPLIT_RDF"){  
               std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
                         << "rdf_type = " << rdf_type << std::endl;
@@ -3026,7 +3041,7 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
       }else if(rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" && rdf_type != "NONE2" 
                 && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF"
                 && rdf_type != "PLRDF_STRING_KEY" && rdf_type != "SPLIT_PLRDF_STRING_KEY" 
-                && rdf_type != "TOP_LEVEL_RDF"  && rdf_type != "SKYLINE_RDF"
+                && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "TOP_LEVEL_RDF_STRING_KEY"  && rdf_type != "SKYLINE_RDF"
                 && rdf_type != "SuRF_LF_RDF" && rdf_type != "SuRF_LF_SPLIT_RDF"){     
         std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
                   << "rdf_type = " << rdf_type << std::endl;
@@ -3151,7 +3166,7 @@ std::cerr << "(pre) f2->smallest_key.ToString() = " << f2->smallest_key.ToString
       }else if(rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" && rdf_type != "NONE2" 
                 && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF"
                 && rdf_type != "PLRDF_STRING_KEY" && rdf_type != "SPLIT_PLRDF_STRING_KEY" 
-                && rdf_type != "TOP_LEVEL_RDF"  && rdf_type != "SKYLINE_RDF"
+                && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "TOP_LEVEL_RDF_STRING_KEY"  && rdf_type != "SKYLINE_RDF"
                 && rdf_type != "SuRF_LF_RDF" && rdf_type != "SuRF_LF_SPLIT_RDF"){         
         std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
                   << "rdf_type = " << rdf_type << std::endl;

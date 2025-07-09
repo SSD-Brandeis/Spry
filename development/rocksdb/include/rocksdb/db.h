@@ -348,6 +348,7 @@ class DB {
   virtual int getPLRDFStringKeyNumberOfTotalRanges() {return -1;}
   virtual int getSplitPLRDFStringKeyNumberOfTotalRanges() {return -1;}
   virtual int getTopLevelRDFNumberOfTotalRanges() {return -1;}
+  virtual int getTopLevelRDFStringKeyNumberOfTotalRanges() {return -1;}
   virtual int getSkylineRDFNumberOfTotalRanges() {return -1;}
   virtual int getSuRFLevelFileRDFNumberOfTotalRanges() {return -1;}
   virtual int getSuRFLevelFileSplitRDFNumberOfTotalRanges() {return -1;}
@@ -358,6 +359,7 @@ class DB {
   virtual int getPLRDFStringKeyNumberOfTotalMemoryUsage() {return -1;}
   virtual int getSplitPLRDFStringKeyNumberOfTotalMemoryUsage() {return -1;}
   virtual int getTopLevelRDFNumberOfTotalMemoryUsage() {return -1;}
+  virtual int getTopLevelRDFStringKeyNumberOfTotalMemoryUsage() {return -1;}
   virtual int getSkylineRDFNumberOfTotalMemoryUsage() {return -1;}
   virtual int getSuRFLevelFileRDFNumberOfTotalMemoryUsage() {return -1;}
   virtual int getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() {return -1;}
@@ -367,6 +369,7 @@ class DB {
   virtual std::vector<int> getLogOfNumbersOfRangesInPLRDFStringKey() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSplitPLRDFStringKey() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfNumbersOfRangesInTopLevelRDFStringKey() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF() {return {-1, -1, -1};}
@@ -376,6 +379,7 @@ class DB {
   virtual std::vector<int> getLogOfMemoryUsageInPLRDFStringKey() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSplitRDFStringKey() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInTopLevelRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfMemoryUsageInTopLevelRDFStringKey() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSkylineRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSuRFLevelFileRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSuRFLevelFileSplitRDF() {return {-1, -1, -1};}
@@ -385,11 +389,14 @@ class DB {
   virtual double getFilterFalsePositiveRateInSplitPLRDFStringKey() {return -1;};
   virtual void clearFilterFalsePositiveRateInPLRDFStringKey() {return;};
   virtual void clearFilterFalsePositiveRateInSplitPLRDFStringKey() {return;};
-
+  virtual double getFilterFalsePositiveRateInTopLevelRDFStringKey() {return -1;};
+  virtual void clearFilterFalsePositiveRateInTopLevelRDFStringKey() {return;};
+  
   virtual double getFilterFalsePositiveRateInSuRFLevelFileRDF() {return -1;};
   virtual double getFilterFalsePositiveRateInSuRFLevelFileSplitRDF() {return -1;};
   virtual void clearFilterFalsePositiveRateInSuRFLevelFileRDF() {return;};
   virtual void clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF() {return;};
+
 
   
   virtual const PLRDF *getPLRDF() {return NULL;}
@@ -397,6 +404,7 @@ class DB {
   virtual const PLRDF_t<std::string> *getPLRDFStringKey() {return NULL;}
   virtual const PLRDF_t<std::string> *getSplitPLRDFStringKey() {return NULL;}
   virtual const PLRDF *getTopLevelRDF() {return NULL;}
+  virtual const PLRDF_t<std::string> *getTopLevelRDFStringKey() {return NULL;}
   virtual const SkyLineRDF *getSkylineRDF() {return NULL;}
   virtual const surf::SuRF_RDF *getSuRFLevelFileRDF() {return NULL;};
   virtual const surf::SuRF_RDF *getSuRFLevelFileSplitRDF() {return NULL;};
@@ -421,6 +429,11 @@ class DB {
     } 
   }
   virtual void setTopLevelRDF( PLRDF *plrdf){
+    if(plrdf == NULL){
+      return;
+    }
+  }
+  virtual void setTopLevelRDFStringKey( PLRDF_t<std::string> *plrdf){
     if(plrdf == NULL){
       return;
     }

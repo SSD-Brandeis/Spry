@@ -18,6 +18,7 @@ void retrieve_all_RDFs(DB** dp_ptr2,
                        PLRDF_t<std::string> plrdf_stringkey_prime, 
                        PLRDF_t<std::string> split_plrdf_stringkey_prime, 
                        PLRDF top_level_rdf_prime, 
+                       PLRDF_t<std::string> top_level_rdf_stringkey_prime, 
                        SkyLineRDF skyline_rdf_prime
                        ){
   DB* db = *dp_ptr2;
@@ -27,6 +28,7 @@ void retrieve_all_RDFs(DB** dp_ptr2,
   plrdf_stringkey_prime = *(db->getPLRDFStringKey());
   split_plrdf_stringkey_prime = *(db->getSplitPLRDFStringKey());
   top_level_rdf_prime = *(db->getTopLevelRDF());
+  top_level_rdf_stringkey_prime = *(db->getTopLevelRDFStringKey());
   skyline_rdf_prime = *(db->getSkylineRDF());
   // skyline__numbers_of_ranges_in_rdf_log = *(db->getSkylineNumbersOfRangesInRDFLog());
 }
@@ -37,6 +39,7 @@ void set_all_RDFs(DB** dp_ptr2,
                   PLRDF_t<std::string> &plrdf_stringkey_prime, 
                   PLRDF_t<std::string> &split_plrdf_stringkey_prime, 
                   PLRDF &top_level_rdf_prime, 
+                  PLRDF_t<std::string> &top_level_rdf_stringkey_prime, 
                   SkyLineRDF &skyline_rdf_prime
                   // std::vector<t3ll> &skyline_rdf_prime, 
                   // std::vector<int> &skyline__numbers_of_ranges_in_rdf_log
@@ -49,6 +52,7 @@ void set_all_RDFs(DB** dp_ptr2,
   db->setPLRDFStringKey(&plrdf_stringkey_prime);
   db->setSplitPLRDFStringKey(&split_plrdf_stringkey_prime);
   db->setTopLevelRDF(&top_level_rdf_prime);
+  db->setTopLevelRDFStringKey(&top_level_rdf_stringkey_prime);
   db->setSkylineRDF(&skyline_rdf_prime);
   // db->setSkylineNumbersOfRangesInRDFLog(&skyline__numbers_of_ranges_in_rdf_log);
 }

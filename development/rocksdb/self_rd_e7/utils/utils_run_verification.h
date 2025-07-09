@@ -29,6 +29,7 @@ private:
     static PLRDF plrdf_prime, split_plrdf_prime;
     static PLRDF_t<std::string> plrdf_stringkey_prime, split_plrdf_stringkey_prime;
     static PLRDF top_level_rdf_prime;
+    static PLRDF_t<std::string> top_level_rdf_stringkey_prime;
     static SkyLineRDF skyline_rdf_prime;
     // static std::vector<t3ll> skyline_rdf_prime;
     // static std::vector<int> skyline__numbers_of_ranges_in_rdf_log;
@@ -60,6 +61,7 @@ bool verification_runner::flag_reopen_db_for_each_RDF_testing = false;
 PLRDF verification_runner::plrdf_prime, verification_runner::split_plrdf_prime;
 PLRDF_t<std::string> verification_runner::plrdf_stringkey_prime, verification_runner::split_plrdf_stringkey_prime;
 PLRDF verification_runner::top_level_rdf_prime;
+PLRDF_t<std::string> verification_runner::top_level_rdf_stringkey_prime;
 SkyLineRDF verification_runner::skyline_rdf_prime;
 // std::vector<t3ll> verification_runner::skyline_rdf_prime;
 // std::vector<int> verification_runner::skyline__numbers_of_ranges_in_rdf_log;
@@ -120,6 +122,7 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   testing_result_file << "PLRDF StringKey Number Of Total Ranges: " << db->getPLRDFStringKeyNumberOfTotalRanges() << std::endl;
   testing_result_file << "Split PLRDF StringKey Number Of Total Ranges: " << db->getSplitPLRDFStringKeyNumberOfTotalRanges() << std::endl;
   testing_result_file << "TopLevel RDF Number Of Total Ranges: " << db->getTopLevelRDFNumberOfTotalRanges() << std::endl;
+  testing_result_file << "TopLevel RDF StringKey Number Of Total Ranges: " << db->getTopLevelRDFStringKeyNumberOfTotalRanges() << std::endl;
   testing_result_file << "Skyline RDF Number Of Total Ranges: " << db->getSkylineRDFNumberOfTotalRanges() << std::endl;
   testing_result_file << "SuRF Level File RDF Number Of Total Ranges: " << db->getSuRFLevelFileRDFNumberOfTotalRanges() << std::endl;
   testing_result_file << "SuRF Level File Split RDF Number Of Total Ranges: " << db->getSuRFLevelFileSplitRDFNumberOfTotalRanges() << std::endl;
@@ -130,6 +133,7 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   testing_result_file2 << ",\"PLRDF StringKey Number Of Total Ranges\" : " << db->getPLRDFStringKeyNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"Split PLRDF StringKey Number Of Total Ranges\" : " << db->getSplitPLRDFStringKeyNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"TopLevel RDF Number Of Total Ranges\" : " << db->getTopLevelRDFNumberOfTotalRanges() << std::endl;
+  testing_result_file2 << ",\"TopLevel RDF StringKey Number Of Total Ranges\" : " << db->getTopLevelRDFStringKeyNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"Skyline RDF Number Of Total Ranges\" : " << db->getSkylineRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"SuRF Level File RDF Number Of Total Ranges\" : " << db->getSuRFLevelFileRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"SuRF Level File Split RDF Number Of Total Ranges\" : " << db->getSuRFLevelFileSplitRDFNumberOfTotalRanges() << std::endl;
@@ -142,6 +146,7 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   testing_result_file << "PLRDF StringKey Number Of Total Memory Usage: " << db->getPLRDFStringKeyNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "Split PLRDF StringKey Number Of Total Memory Usage: " << db->getSplitPLRDFStringKeyNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "TopLevel RDF Number Of Total Memory Usage: " << db->getTopLevelRDFNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file << "TopLevel RDF StringKey Number Of Total Memory Usage: " << db->getTopLevelRDFStringKeyNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "Skyline RDF Number Of Total Memory Usage: " << db->getSkylineRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "SuRF Level File RDF Number Of Total Memory Usage: " << db->getSuRFLevelFileRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "SuRF Level File Split RDF Number Of Total Memory Usage: " << db->getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() << std::endl;
@@ -154,6 +159,7 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   testing_result_file2 << ",\"PLRDF StringKey Number Of Total Memory Usage\" : " << db->getPLRDFStringKeyNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"Split PLRDF StringKey Number Of Total Memory Usage\" : " << db->getSplitPLRDFStringKeyNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"TopLevel RDF Number Of Total Memory Usage\" : " << db->getTopLevelRDFNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file2 << ",\"TopLevel RDF StringKey Number Of Total Memory Usage\" : " << db->getTopLevelRDFStringKeyNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"Skyline RDF Number Of Total Memory Usage\" : " << db->getSkylineRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"SuRF Level File RDF Number Of Total Memory Usage\" : " << db->getSuRFLevelFileRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"SuRF Level File Split RDF Number Of Total Memory Usage\" : " << db->getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() << std::endl;
@@ -172,6 +178,8 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
     std::cout << "SPLIT_PLRDF_STRING_KEY Number Of Total Memory Usage _out = " << db->getSplitPLRDFStringKeyNumberOfTotalMemoryUsage() << std::endl;
   }else if(system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF"){
     std::cout << "TOP_LEVEL_RDF Number Of Total Memory Usage _out = " << db->getTopLevelRDFNumberOfTotalMemoryUsage() << std::endl;
+  }else if(system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF_STRING_KEY"){
+    std::cout << "TOP_LEVEL_RDF_STRING_KEY Number Of Total Memory Usage _out = " << db->getTopLevelRDFStringKeyNumberOfTotalMemoryUsage() << std::endl;
   }else if(system_verifier->getStringOfRDFTypeChosed() == "SKYLINE_RDF"){
     std::cout << "SKYLINE_RDF Number Of Total Memory Usage _out = " << db->getSkylineRDFNumberOfTotalMemoryUsage() << std::endl;
   }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
@@ -185,6 +193,7 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   vector<int> ranges_log_PLRDFStringKey = db->getLogOfNumbersOfRangesInPLRDFStringKey();
   vector<int> ranges_log_SplitPLRDFStringKey = db->getLogOfNumbersOfRangesInSplitPLRDFStringKey();
   vector<int> ranges_log_TopLevelRDF = db->getLogOfNumbersOfRangesInTopLevelRDF();
+  vector<int> ranges_log_TopLevelRDFStringKey = db->getLogOfNumbersOfRangesInTopLevelRDFStringKey();
   vector<int> ranges_log_SkylineRDF = db->getLogOfNumbersOfRangesInSkylineRDF();
   vector<int> ranges_log_SuRFLevelFileRDF = db->getLogOfNumbersOfRangesInSuRFLevelFileRDF();
   vector<int> ranges_log_SuRFLevelFileSplitRDF = db->getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF();
@@ -229,6 +238,14 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
     }
   }
   testing_result_file2 << "]" << std::endl;;
+  testing_result_file2 << ",\"Log Of Numbers Of Ranges In TopLevelRDFStringKey\" : [";
+  for(int i = 0; i < ranges_log_TopLevelRDFStringKey.size(); i++){
+    testing_result_file2 << ranges_log_TopLevelRDFStringKey[i];
+    if(i != ranges_log_TopLevelRDFStringKey.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;;
   testing_result_file2 << ",\"Log Of Numbers Of Ranges In SkylineRDF\" : [";
   for(int i = 0; i < ranges_log_SkylineRDF.size(); i++){
     testing_result_file2 << ranges_log_SkylineRDF[i];
@@ -259,6 +276,7 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   vector<int> memory_usage_log_PLRDFStringKey = db->getLogOfMemoryUsageInPLRDFStringKey();
   vector<int> memory_usage_log_SplitPLRDFStringKey = db->getLogOfMemoryUsageInSplitRDFStringKey();
   vector<int> memory_usage_log_TopLevelRDF = db->getLogOfMemoryUsageInTopLevelRDF();
+  vector<int> memory_usage_log_TopLevelRDFStringKey = db->getLogOfMemoryUsageInTopLevelRDFStringKey();
   vector<int> memory_usage_log_SkylineRDF = db->getLogOfMemoryUsageInSkylineRDF();
   vector<int> memory_usage_log_SuRFLevelFileRDF = db->getLogOfMemoryUsageInSuRFLevelFileRDF();
   vector<int> memory_usage_log_SuRFLevelFileSplitRDF = db->getLogOfMemoryUsageInSuRFLevelFileSplitRDF();
@@ -298,6 +316,14 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   for(int i = 0; i < memory_usage_log_TopLevelRDF.size(); i++){
     testing_result_file2 << memory_usage_log_TopLevelRDF[i];
     if(i != memory_usage_log_TopLevelRDF.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;;
+  testing_result_file2 << ",\"Log Of Memory Usage Of TopLevelRDFStringKey\" : [";
+  for(int i = 0; i < memory_usage_log_TopLevelRDFStringKey.size(); i++){
+    testing_result_file2 << memory_usage_log_TopLevelRDFStringKey[i];
+    if(i != memory_usage_log_TopLevelRDFStringKey.size() - 1){
       testing_result_file2 << ", ";
     }
   }
@@ -454,6 +480,7 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 
     if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY" 
        || system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"
+       || system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF_STRING_KEY"
        || system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" 
        || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
       // double filter_false_positive_rate = -1;
@@ -463,6 +490,8 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
         db->clearFilterFalsePositiveRateInSplitPLRDFStringKey();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF_STRING_KEY"){
+        db->clearFilterFalsePositiveRateInTopLevelRDFStringKey();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
         // filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
         db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
@@ -498,9 +527,9 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 
 
       if(flag_reopen_db_for_each_RDF_testing == true){
-        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
+        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, top_level_rdf_stringkey_prime, skyline_rdf_prime);
         reopen_DB(db_ptr2, op, write_op, read_op, _env, kDBPath);
-        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
+        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, top_level_rdf_stringkey_prime, skyline_rdf_prime);
       }
       std::vector<uint64_t> cache_tombstone_bytes;
       for(auto x: system_verifier->getAllExistingKeysAtNRound(i)){
@@ -627,6 +656,7 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 
     if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY" 
        || system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"
+       || system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF_STRING_KEY"
        || system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" 
        || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
       double filter_false_positive_rate = -1;
@@ -636,6 +666,8 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSplitPLRDFStringKey();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF_STRING_KEY"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInTopLevelRDFStringKey();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
@@ -672,6 +704,7 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
 
     if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY" 
        || system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"
+       || system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF_STRING_KEY"
        || system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" 
        || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
       // double filter_false_positive_rate = -1;
@@ -681,6 +714,8 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
         db->clearFilterFalsePositiveRateInSplitPLRDFStringKey();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF_STRING_KEY"){
+        db->clearFilterFalsePositiveRateInTopLevelRDFStringKey();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
         // filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
         db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
@@ -714,9 +749,9 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
 
 
       if(flag_reopen_db_for_each_RDF_testing == true){
-        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
+        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, top_level_rdf_stringkey_prime, skyline_rdf_prime);
         reopen_DB(db_ptr2, op, write_op, read_op, _env, kDBPath);
-        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
+        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, top_level_rdf_stringkey_prime, skyline_rdf_prime);
       }
 
       std::vector<uint64_t> cache_tombstone_bytes;
@@ -842,6 +877,7 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
 
     if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY" 
        || system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"
+       || system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF_STRING_KEY"
        || system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" 
        || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
       double filter_false_positive_rate = -1;
@@ -851,6 +887,8 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSplitPLRDFStringKey();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF_STRING_KEY"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInTopLevelRDFStringKey();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
@@ -887,6 +925,7 @@ system_verifier->startPQTracing();
 
     if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY" 
        || system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"
+       || system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF_STRING_KEY"
        || system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" 
        || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
       // double filter_false_positive_rate = -1;
@@ -896,6 +935,8 @@ system_verifier->startPQTracing();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
         db->clearFilterFalsePositiveRateInSplitPLRDFStringKey();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF_STRING_KEY"){
+        db->clearFilterFalsePositiveRateInTopLevelRDFStringKey();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
         // filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
         db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
@@ -932,10 +973,10 @@ system_verifier->startPQTracing();
 
       if(flag_reopen_db_for_each_RDF_testing == true){
         // retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
-        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
+        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, top_level_rdf_stringkey_prime, skyline_rdf_prime);
         reopen_DB(db_ptr2, op, write_op, read_op, _env, kDBPath);
         // set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
-        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
+        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, top_level_rdf_stringkey_prime, skyline_rdf_prime);
       }
 
       std::vector<uint64_t> cache_tombstone_bytes;
@@ -1069,6 +1110,7 @@ system_verifier->startPQTracing();
 
     if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY" 
        || system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"
+       || system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF_STRING_KEY"
        || system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" 
        || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
       double filter_false_positive_rate = -1;
@@ -1078,6 +1120,8 @@ system_verifier->startPQTracing();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSplitPLRDFStringKey();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF_STRING_KEY"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInTopLevelRDFStringKey();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
@@ -1117,6 +1161,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
     
     if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY" 
        || system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"
+       || system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF_STRING_KEY"
        || system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" 
        || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
       // double filter_false_positive_rate = -1;
@@ -1126,6 +1171,8 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
         db->clearFilterFalsePositiveRateInSplitPLRDFStringKey();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF_STRING_KEY"){
+        db->clearFilterFalsePositiveRateInTopLevelRDFStringKey();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
         // filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
         db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
@@ -1159,10 +1206,10 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 
       if(flag_reopen_db_for_each_RDF_testing == true){
         // retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
-        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
+        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, top_level_rdf_stringkey_prime, skyline_rdf_prime);
         reopen_DB(db_ptr2, op, write_op, read_op, _env, kDBPath);
         // set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
-        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
+        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, top_level_rdf_stringkey_prime, skyline_rdf_prime);
       }
 
       std::vector<uint64_t> cache_tombstone_bytes;
@@ -1287,6 +1334,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 
     if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY" 
        || system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"
+       || system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF_STRING_KEY"
        || system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" 
        || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
       double filter_false_positive_rate = -1;
@@ -1296,6 +1344,8 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSplitPLRDFStringKey();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF_STRING_KEY"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInTopLevelRDFStringKey();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();

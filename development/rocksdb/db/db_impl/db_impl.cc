@@ -4799,6 +4799,9 @@ Status DBImpl::printRDF() {
   std::cout << "version --- Top Level RDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
   sv->current->printTopLevelRDF();
 
+  std::cout << "version --- Top Level RDF String Key  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  sv->current->printTopLevelRDFStringKey();
+
   std::cout << "version --- Skyline RDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
   sv->current->printSkylineRDF();
 
@@ -4886,6 +4889,13 @@ int DBImpl::getTopLevelRDFNumberOfTotalRanges(){
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getTopLevelRDFNumberOfTotalRanges();
 }
+int DBImpl::getTopLevelRDFStringKeyNumberOfTotalRanges(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getTopLevelRDFStringKeyNumberOfTotalRanges();
+}
 int DBImpl::getSkylineRDFNumberOfTotalRanges(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
@@ -4956,6 +4966,13 @@ int DBImpl::getTopLevelRDFNumberOfTotalMemoryUsage(){
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getTopLevelRDFNumberOfTotalMemoryUsage();
 }
+int DBImpl::getTopLevelRDFStringKeyNumberOfTotalMemoryUsage(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getTopLevelRDFStringKeyNumberOfTotalMemoryUsage();
+}
 int DBImpl::getSkylineRDFNumberOfTotalMemoryUsage(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());
@@ -5018,6 +5035,13 @@ std::vector<int> DBImpl::getLogOfNumbersOfRangesInTopLevelRDF(){
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfNumbersOfRangesInTopLevelRDF();
+}
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInTopLevelRDFStringKey(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfNumbersOfRangesInTopLevelRDFStringKey();
 }
 std::vector<int> DBImpl::getLogOfNumbersOfRangesInSkylineRDF(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
@@ -5087,6 +5111,13 @@ std::vector<int> DBImpl::getLogOfMemoryUsageInTopLevelRDF() {
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfMemoryUsageInTopLevelRDF();
+}
+std::vector<int> DBImpl::getLogOfMemoryUsageInTopLevelRDFStringKey() {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfMemoryUsageInTopLevelRDFStringKey();
 }
 std::vector<int> DBImpl::getLogOfMemoryUsageInSkylineRDF() {
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
@@ -5198,6 +5229,12 @@ const PLRDF *DBImpl::getTopLevelRDF(){
   auto cfd = cfh->cfd();
   return cfd->getTopLevelRDF();
 }
+const PLRDF_t<std::string> *DBImpl::getTopLevelRDFStringKey(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  return cfd->getTopLevelRDFStringKey();
+}
 // const std::vector<t3ll> *DBImpl::getSkylineRDF(){
 const SkyLineRDF *DBImpl::getSkylineRDF(){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
@@ -5264,6 +5301,15 @@ void DBImpl::setTopLevelRDF( PLRDF *plrdf){
   cfd->setTopLevelRDF(*plrdf);
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   sv->current->setTopLevelRDF(*plrdf);
+}
+void DBImpl::setTopLevelRDFStringKey( PLRDF_t<std::string> *plrdf){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+
+  cfd->setTopLevelRDFStringKey(*plrdf);
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  sv->current->setTopLevelRDFStringKey(*plrdf);
 }
 void DBImpl::setSkylineRDF( SkyLineRDF *skyline_rdf){
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
