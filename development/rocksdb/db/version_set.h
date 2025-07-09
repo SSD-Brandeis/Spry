@@ -1374,6 +1374,10 @@ class Version {
   bool isKeyMayDeletedAfterSplitPLRDFStringKey(){
     return (this->split_plrdf_stringkey).getFlagKeyMayDeleted();
   }
+
+  bool isKeyMayDeletedAfterTopLevelRDFilterStringKey(){
+    return (this->top_level_rdf_stringkey).getFlagKeyMayDeleted();
+  }
   
   //start: can only be called after isAliveAfterSuRFLevelFileRDFilter is called
   bool isKeyMayDeletedAfterSuRFLevelFileRDFilter(){
