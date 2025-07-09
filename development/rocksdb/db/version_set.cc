@@ -2587,6 +2587,8 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
   checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
   // Self Added End: timing
       return;
+    }else{
+      PLRDF_Env::getInstance()->setFlagKeyMayDeleted(isKeyMayDeletedAfterTopLevelRDFilterStringKey());
     }
   }else if(rdf_type == "SuRF_LF_RDF"){
     surf::SuRF_Env::getInstance()->clearFlagKeyMayDeleted();
