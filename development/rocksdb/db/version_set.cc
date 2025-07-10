@@ -2576,6 +2576,8 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       return;
     }
   }else if(rdf_type == "TOP_LEVEL_RDF_STRING_KEY"){
+    PLRDF_Env::getInstance()->clearFlagKeyMayDeleted();
+
     checking::SystemVerifier::getSystemVerifier()->start_get_rdf();
     top_level_stringkey__is_alive_after_hit_file_level = isAliveAfterTopLevelRDFilterStringKey(user_key.ToString());
     checking::SystemVerifier::getSystemVerifier()->stop_get_rdf();
@@ -2715,7 +2717,9 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
         fp.GetHitFileLevel(), max_file_size_for_l0_meta_pin_);
 
         surf::SuRF_Env::getInstance()->clearFlagKeyMayDeleted();
-        PLRDF_Env::getInstance()->clearFlagKeyMayDeleted();
+        if(rdf_type != "TOP_LEVEL_RDF_STRING_KEY"){
+          PLRDF_Env::getInstance()->clearFlagKeyMayDeleted();
+        }
         checking::SystemVerifier::getSystemVerifier()
         ->logPQTracingInfo(
           // std::stoll(user_key.ToString()),
