@@ -587,6 +587,8 @@ class DBImpl : public DB {
   double getFilterFalsePositiveRateInSplitPLRDFStringKey() override;
   void clearFilterFalsePositiveRateInPLRDFStringKey() override;
   void clearFilterFalsePositiveRateInSplitPLRDFStringKey() override;
+  double getFilterFalsePositiveRateInTopLevelRDFStringKey() override;
+  void clearFilterFalsePositiveRateInTopLevelRDFStringKey() override;
   
   double getFilterFalsePositiveRateInSuRFLevelFileRDF() override;
   double getFilterFalsePositiveRateInSuRFLevelFileSplitRDF() override;

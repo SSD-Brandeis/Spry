@@ -5169,7 +5169,20 @@ void DBImpl::clearFilterFalsePositiveRateInSplitPLRDFStringKey(){
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->clearFilterFalsePositiveRateInSplitPLRDFStringKey();
 };
-
+double DBImpl::getFilterFalsePositiveRateInTopLevelRDFStringKey() {
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getFilterFalsePositiveRateInTopLevelRDFStringKey();
+};
+void DBImpl::clearFilterFalsePositiveRateInTopLevelRDFStringKey(){
+  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+  DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->clearFilterFalsePositiveRateInTopLevelRDFStringKey();
+};
 double DBImpl::getFilterFalsePositiveRateInSuRFLevelFileRDF() {
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
   DefaultColumnFamily());

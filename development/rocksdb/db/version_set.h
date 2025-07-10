@@ -1648,6 +1648,12 @@ class Version {
     return split_plrdf_stringkey.clearFilterFalsePositiveRate();
   };
 
+  double getFilterFalsePositiveRateInTopLevelRDFStringKey() {
+    return top_level_rdf_stringkey.getFilterFalsePositiveRate();
+  };
+  void clearFilterFalsePositiveRateInTopLevelRDFStringKey() {
+    return top_level_rdf_stringkey.clearFilterFalsePositiveRate();
+  };
   
   double getFilterFalsePositiveRateInSuRFLevelFileRDF() {
     if(surf__level_file_rdf == NULL){
