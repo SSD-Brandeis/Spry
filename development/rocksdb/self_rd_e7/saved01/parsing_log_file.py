@@ -416,6 +416,7 @@ with open("out_log.txt", "r") as f:
 
 strings_to_remove = [
     "NONE_CACHE_RANGETOMBSTONE_TRACING",
+    "TOP_LEVEL_RDF_STRING_KEY",
     "SPLIT_PLRDF_STRING_KEY",
     "Split_PLRDF_STRING_KEY",
     "SuRF_LF_SPLIT_RDF",
@@ -423,7 +424,6 @@ strings_to_remove = [
     "ROCKSDB (NONE)",
     "RocksDB (None)",
     "TOP_LEVEL_RDF",
-    "TOP_LEVEL_RDF_STRING_KEY",
     "SKYLINE_RDF",
     "SuRF_LF_RDF",
     "SPLIT_PLRDF",
