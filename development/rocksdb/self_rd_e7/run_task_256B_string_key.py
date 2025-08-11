@@ -199,7 +199,7 @@ params3["--insert_before_range_delete"] = [0.999]
 params3["--gen_workload"] = [0]
 params3["--load_pq_workload"] = [1]
 #params3["-i"] = [200000]
-params3["-i"] = [100000]
+params3["-i"] = [1000000]
 # params3["-i"] = [10000]
 params3["--run_pq_during_insertion_interval"] = [200000000]
 params3["--skip_reading_RD_blocks"] = [1]
@@ -290,50 +290,50 @@ if True:
 # rdf_types = ["NONE", "PLRDF", "SPLIT_PLRDF", "TOP_LEVEL_RDF", "SKYLINE_RDF", "SuRF_LF_RDF", "SuRF_LF_SPLIT_RDF"]
 # rdf_types = ["NONE", "PLRDF", "SPLIT_PLRDF", "TOP_LEVEL_RDF", "SKYLINE_RDF", "SuRF_LF_RDF", "SuRF_LF_SPLIT_RDF"]
 rdf_types = [
-    # # {"--using_rdf_types": ["NONE"], },
-    # {"--using_rdf_types": ["NONE_CACHE_RANGETOMBSTONE_TRACING"], },
-    # # {"--using_rdf_types": ["PLRDF"], },
-    # # {"--using_rdf_types": ["SPLIT_PLRDF"], },
-    # # {"--using_rdf_types": ["PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0]},
+    # {"--using_rdf_types": ["NONE"], },
+    {"--using_rdf_types": ["NONE_CACHE_RANGETOMBSTONE_TRACING"], },
+    # {"--using_rdf_types": ["PLRDF"], },
+    # {"--using_rdf_types": ["SPLIT_PLRDF"], },
+    # {"--using_rdf_types": ["PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0]},
     {"--using_rdf_types": ["PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[1]},
-    # {"--using_rdf_types": ["SPLIT_PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0]},
-    # # {"--using_rdf_types": ["TOP_LEVEL_RDF"], },
-    # {"--using_rdf_types": ["TOP_LEVEL_RDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0]},
-    # # {"--using_rdf_types": ["SKYLINE_RDF"], },
-    # {"--using_rdf_types": ["SuRF_LF_RDF"]},
-    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]},
-    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [257], "--skip_reading_RD_blocks":[1]},
-    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [257], "--skip_reading_RD_blocks":[1]},
-    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
-    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
-    # # {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #9
-    # # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #10
+    {"--using_rdf_types": ["SPLIT_PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[1]},
+    # {"--using_rdf_types": ["TOP_LEVEL_RDF"], },
+    {"--using_rdf_types": ["TOP_LEVEL_RDF_STRING_KEY"],  "--skip_reading_RD_blocks":[1]},
+    # {"--using_rdf_types": ["SKYLINE_RDF"], },
+    {"--using_rdf_types": ["SuRF_LF_RDF"]},
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]},
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [257], "--skip_reading_RD_blocks":[1]},
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [257], "--skip_reading_RD_blocks":[1]},
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
+    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #9
+    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #10
     
-    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0]}, #11
-    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0]}, #12
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0]}, #11
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0]}, #12
 
     
-    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [7], "--skip_reading_RD_blocks":[0]}, #13
-    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [7], "--skip_reading_RD_blocks":[0]}, #14
-    # # {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #13
-    # # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #14
-    # # {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #15
-    # # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #16
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [7], "--skip_reading_RD_blocks":[0]}, #13
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [7], "--skip_reading_RD_blocks":[0]}, #14
+    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #13
+    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #14
+    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #15
+    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #16
 
-    # # check total_time & insertion time
-    # #{"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #17
-    # #{"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #18
-    # #{"--using_rdf_types": ["NONE_CACHE_RANGETOMBSTONE_TRACING"], }, #19
-    # #{"--using_rdf_types": ["PLRDF"], }, #20
-    # #{"--using_rdf_types": ["SPLIT_PLRDF"], }, #21
-    # #{"--using_rdf_types": ["TOP_LEVEL_RDF"], }, #22
-    # #{"--using_rdf_types": ["SKYLINE_RDF"], }, #23
+    # check total_time & insertion time
+    #{"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #17
+    #{"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #18
+    #{"--using_rdf_types": ["NONE_CACHE_RANGETOMBSTONE_TRACING"], }, #19
+    #{"--using_rdf_types": ["PLRDF"], }, #20
+    #{"--using_rdf_types": ["SPLIT_PLRDF"], }, #21
+    #{"--using_rdf_types": ["TOP_LEVEL_RDF"], }, #22
+    #{"--using_rdf_types": ["SKYLINE_RDF"], }, #23
 
     
-    # #{"--using_rdf_types": ["SuRF_LF_RDF"]}, #24
-    # #{"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]}, #25
-    # #{"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]}, #26
-    # #{"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]}, #27
+    #{"--using_rdf_types": ["SuRF_LF_RDF"]}, #24
+    #{"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]}, #25
+    #{"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]}, #26
+    #{"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]}, #27
 ]
 # rdf_types = {
 #     "NONE": {},
