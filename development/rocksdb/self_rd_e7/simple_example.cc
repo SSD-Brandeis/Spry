@@ -60,9 +60,10 @@ int main(int argc, char *argv[]) {
   // check emu_environment.h for the contents of EmuEnv and also the definitions of the singleton experimental environment 
   EmuEnv *_env = EmuEnv::getInstance();
   surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
+  PLRDF_Env *_plrdf_env = PLRDF_Env::getInstance();
   checking::SystemVerifier *system_verifier = checking::SystemVerifier::getSystemVerifier();
   //parse the command line arguments
-  if (parse_arguments2(argc, argv, _env, _surf_env, system_verifier)){
+  if (parse_arguments2(argc, argv, _env, _plrdf_env, _surf_env, system_verifier)){
     exit(1);
   }
   
