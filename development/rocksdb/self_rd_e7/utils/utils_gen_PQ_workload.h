@@ -189,6 +189,8 @@ int parse_arguments(int argc, char *argv[], checking::SystemVerifier *system_ver
   args::ValueFlag<int> using_string_key_cmd(group1, "using_string_key", "Using string key [def: 0]", {"using_string_key", "USING_STRING_KEY"});
 
   args::ValueFlag<string> workload_filename_cmd(group1, "workload_filename", "workload filename [def:0.001]", {"workload_filename"});
+  
+  args::ValueFlag<double> key_size_to_insert_cmd(group1, "key_size_to_insert", "key_size_to_insert [def: 12]", {"key_size_to_insert"});
   //YuCheng Added End
 
   try {
@@ -222,6 +224,10 @@ int parse_arguments(int argc, char *argv[], checking::SystemVerifier *system_ver
   env_gen_pq->number_of_PQs_on_currently_deleted_keys = number_of_PQs_on_currently_deleted_keys;
   env_gen_pq->number_of_PQs_on_currently_non_inserted_keys = number_of_PQs_on_currently_non_inserted_keys;
   env_gen_pq->workload_file_name = workload_file_name;
+
+  
+  int key_size_to_insert = key_size_to_insert_cmd ? args::get(key_size_to_insert_cmd) : 12;
+  system_verifier->setKeySize(key_size_to_insert);
 
   int using_string_key = using_string_key_cmd ? args::get(using_string_key_cmd) : 0;
   system_verifier->setFlagUsingStringKey(using_string_key);
