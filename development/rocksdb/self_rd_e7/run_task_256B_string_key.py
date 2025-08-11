@@ -121,10 +121,11 @@ def gen_PQ_workload(
         number_of_PQ_on_historic_existing_keys: int,
         number_of_PQ_on_currently_deleted_keys: int,
         number_of_PQ_on_currently_non_inserted_keys: int,
+        key_size: int,
         using_string_key: bool = False,
 ):
     # task =  "gen_pq_workload/main_gen_workload" + f" --workload_filename {file_path} --number_of_PQ {number_of_PQ}"
-    task =  "gen_pq_workload/main_gen_workload" + f" --workload_filename {file_path}  --number_of_PQ_on_existing_keys {number_of_PQ_on_existing_keys} --number_of_PQ_on_historic_existing_keys {number_of_PQ_on_historic_existing_keys} --number_of_PQ_on_currently_deleted_keys {number_of_PQ_on_currently_deleted_keys} --number_of_PQ_on_currently_non_inserted_keys {number_of_PQ_on_currently_non_inserted_keys} --using_string_key {using_string_key}"
+    task =  "gen_pq_workload/main_gen_workload" + f" --workload_filename {file_path}  --number_of_PQ_on_existing_keys {number_of_PQ_on_existing_keys} --number_of_PQ_on_historic_existing_keys {number_of_PQ_on_historic_existing_keys} --number_of_PQ_on_currently_deleted_keys {number_of_PQ_on_currently_deleted_keys} --number_of_PQ_on_currently_non_inserted_keys {number_of_PQ_on_currently_non_inserted_keys} --using_string_key {using_string_key} --key_size_to_insert {key_size}"
     print(task)
     os.system(task)
 
@@ -280,6 +281,7 @@ if True:
                     # number_of_PQ_on_currently_deleted_keys=params3["--number_of_PQ_on_currently_deleted_keys"][0],
                     number_of_PQ_on_currently_deleted_keys=number_of_pq_on_currently_deleted_keys,
                     number_of_PQ_on_currently_non_inserted_keys=params3["--number_of_PQ_on_currently_non_inserted_keys"][0],
+                    key_size=params3["--key_size_to_insert"][0],
                     using_string_key=params3["--use_string_key"][0],
             )
 
