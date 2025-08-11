@@ -546,7 +546,10 @@ Status TableCache::Get(
     }else if(rdf_type == "SPLIT_PLRDF" || rdf_type == "TOP_LEVEL_RDF"){
       rdf_skip_range_deletions = true;
 
-    }else if(rdf_type == "PLRDF_STRING_KEY" || rdf_type == "SPLIT_PLRDF_STRING_KEY" || rdf_type == "TOP_LEVEL_RDF_STRING_KEY"){
+    }else if(rdf_type == "PLRDF_STRING_KEY"){
+      // temporarily testing, need to be determined in the future, default to storing full string key
+      rdf_skip_range_deletions = true;
+    }else if(rdf_type == "SPLIT_PLRDF_STRING_KEY" || rdf_type == "TOP_LEVEL_RDF_STRING_KEY"){
       rdf_skip_range_deletions = !PLRDF_Env::getInstance()->getFlagKeyMayDeleted();
 // std::cout << "rdf_skip_range_deletions = " << rdf_skip_range_deletions << " " << __FILE__ << ":" << __LINE__ << std::endl;
       // TODO: let it be set (now ERROR)
@@ -560,6 +563,9 @@ Status TableCache::Get(
       // surf::SuRF_Env::getInstance()->setFlagBypassIfSameKey is called in utils_gen_workload.h
       // rdf_skip_range_deletions = !surf::SuRF_Env::getInstance()->getFlagBypassIfSameKey();
       rdf_skip_range_deletions = !surf::SuRF_Env::getInstance()->getFlagKeyMayDeleted();
+      if(rdf_skip_range_deletions == false){
+        std::cout << "rdf_skip_range_deletions = false" << " " << __FILE__ << " " << __FUNCTION__ << std::endl;
+      }
       // std::cout << "SuRF_LF_SPLIT_RDF rdf_skip_range_deletions = " << rdf_skip_range_deletions << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
     }else if(rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" && rdf_type != "NONE2" 
