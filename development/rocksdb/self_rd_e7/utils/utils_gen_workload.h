@@ -127,7 +127,7 @@ void gen_workload(EmuEnv* _env){
 }
 
 
-int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf_env, checking::SystemVerifier *system_verifier ) {
+int parse_arguments2(int argc, char *argv[], EmuEnv* _env, PLRDF_Env *_plrdf_env, surf::SuRF_Env *_surf_env, checking::SystemVerifier *system_verifier ) {
   args::ArgumentParser parser("RocksDB_parser.", "");
 
   args::Group group1(parser, "This group is all exclusive:", args::Group::Validators::DontCare);
@@ -382,6 +382,9 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   bool show_surf_compaction_info = show_surf_compaction_info_cmd ? (args::get(show_surf_compaction_info_cmd) != 0) : false;
   _surf_env->setFlagUseSuRFBase(use_surf_base);
   _surf_env->setSuRFBaseStoreKeyToKDiff(surf_base_store_key_to_k_diff);
+
+  //TODO: currently default to store full key, key length pruning is not implemented yet
+  _plrdf_env->setUsingPartialStringKey(false);
 
   
   bool show_tombstones_during_compaction_info = show_tombstones_during_compaction_info_cmd ? (args::get(show_tombstones_during_compaction_info_cmd) != 0) : false;

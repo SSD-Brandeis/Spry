@@ -128,6 +128,7 @@ using namespace std;
     private:
       static PLRDF_Env *plrdf_Env_ptr;
       bool flag_key_may_deleted = false; // used during get()
+      bool flag_using_partial_string_key = false;
     public:
       static PLRDF_Env* getInstance();
       
@@ -141,6 +142,12 @@ using namespace std;
       void clearFlagKeyMayDeleted(){
           flag_key_may_deleted = false;
           // key_search_count_kmd = 0;
+      }
+      void setUsingPartialStringKey(bool flag){
+          flag_using_partial_string_key = flag;
+      }
+      bool getUsingPartialStringKey(){
+          return flag_using_partial_string_key;
       }
       // End: used during Get()
   };
@@ -1205,8 +1212,15 @@ class PLRDF_t{
 // std::cout <<  " key = " << key << " range = " << it->first << "," << it->second << " " << __FILE__ << ":" << __LINE__ << std::endl;
       // when keys falling on the range boundary --> the result is uncertain for Pair keys
       if(key > it->first && key < it->second){return false;}
-      if(key == it->first || key == it->second){
-        setFlagKeyMayDeleted();
+
+      //
+      if(PLRDF_Env::getInstance()->getUsingPartialStringKey()){
+        if(key == it->first || key == it->second){
+          setFlagKeyMayDeleted();
+        }
+      }else{
+        if(key == it->first){return false;}
+        if(key == it->second){return true;}
       }
       return true;
     }
