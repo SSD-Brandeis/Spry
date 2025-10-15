@@ -467,7 +467,9 @@ assert(number_of_PQs_on_currently_non_inserted_keys >= -1);
   auto duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
   unsigned long long point_query_time = duration_pq.count();
   unsigned long long point_query_time_on_existing_keys_ns = 0;
+  unsigned long long point_query_time_on_historic_existing_keys_ns = 0;
   unsigned long long point_query_time_on_currently_deleted_all_ns = 0;
+  unsigned long long point_query_time_on_currently_non_inserted_keys_ns = 0;
 
 std::cout << "!!! Testing On Existing Keys " << std::endl;
 
@@ -779,6 +781,7 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
 
         duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
+        point_query_time_on_historic_existing_keys_ns += duration_pq.count();
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
           continue;
         }
@@ -904,6 +907,8 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
     // print_perf_iostats_context(std::cout, 1);
   }
 system_verifier->reset_flag_testing_on_currently_deleted_keys();
+
+  std::cout << prefix_number_of_PQs_on_historic_existing_keys << " point_query_time_on_historic_existing_keys_ns_out = " << point_query_time_on_historic_existing_keys_ns << std::endl;
 
 std::cout << "!!! Testing On Currently Deleted Keys " << std::endl;
 system_verifier->set_flag_testing_on_currently_deleted_keys();
@@ -1237,6 +1242,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
         stop_pq = std::chrono::high_resolution_clock::now();
         duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
+        point_query_time_on_currently_non_inserted_keys_ns += duration_pq.count();
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
           continue;
         }
@@ -1360,6 +1366,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
     // print_perf_iostats_context(std::cout, prefix, 1);
   }
+  std::cout << prefix_number_of_PQs_on_currently_non_inserted_keys << " point_query_time_on_currently_non_inserted_keys_ns_out = " << point_query_time_on_currently_non_inserted_keys_ns << std::endl;
 
 }
 

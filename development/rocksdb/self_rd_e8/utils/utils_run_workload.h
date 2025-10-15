@@ -226,7 +226,7 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
         while(db->existFlushJob() == true){
           std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
-std::cout << start_key << " " << end_key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+//std::cout << start_key << " " << end_key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         // ss_start_key << std::setfill('0') << std::setw(KEY_SIZE) << start_key;
         // ss_end_key << std::setfill('0') << std::setw(KEY_SIZE) << end_key;
         start_time = std::chrono::high_resolution_clock::now();
