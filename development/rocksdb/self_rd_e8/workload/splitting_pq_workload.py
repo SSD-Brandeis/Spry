@@ -21,6 +21,7 @@ with open(input_file, "r", encoding="utf-8") as infile:
                     line = next(line_iter, None)
                     if line is None:
                         break
+                    #outfile.write(line)
                     outfile.write(line)
 
             print(f"✅ Created {output_filename} with ~{pq} lines.")

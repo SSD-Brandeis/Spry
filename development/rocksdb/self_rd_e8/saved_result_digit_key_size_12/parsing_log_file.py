@@ -517,7 +517,7 @@ print(file_names_list_2d)
 # In[ ]:
 
 
-number_of_pq_on_currently_non_inserted_keys = 100000
+number_of_pq_on_currently_non_inserted_keys = 200000
 
 selected_columns = \
 ['File Name',

@@ -1,5 +1,5 @@
 #remote
-sed -i 's/)\ .*\ fetcher/)\ fetcher/g' saved*/log*
+#sed -i 's/)\ .*\ fetcher/)\ fetcher/g' saved*/log*
 
 for dir in log_100000 log_200000 log_300000 log_400000 log_500000; do
     echo "Processing $dir..."
@@ -12,7 +12,7 @@ for dir in log_100000 log_200000 log_300000 log_400000 log_500000; do
 
     # Copy and modify the Python script
     cp ../parsing_log_file.py ./
-    sed -i "s/number_of_pq_on_currently_deleted_keys = [0-9]*/number_of_pq_on_currently_deleted_keys = $number/" parsing_log_file.py
+    sed -i "s/number_of_pq_on_currently_non_inserted_keys = [0-9]*/number_of_pq_on_currently_non_inserted_keys = $number/" parsing_log_file.py
     
     grep -ie "_out = " log* > out_log.txt
     python3 parsing_log_file.py
