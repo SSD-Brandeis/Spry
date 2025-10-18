@@ -517,7 +517,7 @@ print(file_names_list_2d)
 # In[ ]:
 
 
-number_of_pq_on_currently_non_inserted_keys = 200000
+number_of_pq_on_currently_deleted_keys = 100000
 
 selected_columns = \
 ['File Name',
@@ -525,8 +525,8 @@ selected_columns = \
  'rd_time_ns_out',
  ' (Exist Keys fixed #PQ = 5000)   filter false positive rate _out',
  'fixed #PQ = 5000 point_query_time_on_existing_keys_ns_out',
- f' (Non-inserted Keys fixed #PQ = {number_of_pq_on_currently_non_inserted_keys})   filter false positive rate _out',
- f'fixed #PQ = {number_of_pq_on_currently_non_inserted_keys} point_query_time_on_currently_non_inserted_keys_ns_out',
+ f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys})   filter false positive rate _out',
+ f'fixed #PQ = {number_of_pq_on_currently_deleted_keys} point_query_time_on_currently_deleted_all_ns_out',
  'all_time_ns _out',
  ' Number Of Total Memory Usage _out',
 #  ' Number Of Total Memory Usage Origin Included Timestamp _out',
@@ -535,17 +535,17 @@ selected_columns = \
 #  ' (Currently Deleted Keys fixed #PQ = 100000)  block_read_time _out',
 #  ' (Currently Deleted Keys fixed #PQ = 100000)  index_block_read_count  _out',
 #  ' (Currently Deleted Keys fixed #PQ = 100000)  filter_block_read_count  _out',
-  f' (Non-inserted Keys fixed #PQ = {number_of_pq_on_currently_non_inserted_keys}) fetcher__num_filter_read_count _out',
-  f' (Non-inserted Keys fixed #PQ = {number_of_pq_on_currently_non_inserted_keys}) fetcher__num_index_read_count _out',
-  f' (Non-inserted Keys fixed #PQ = {number_of_pq_on_currently_non_inserted_keys}) fetcher__num_range_del_read_count _out',
-  f' (Non-inserted Keys fixed #PQ = {number_of_pq_on_currently_non_inserted_keys}) fetcher__num_data_read_count _out',
-  f' (Non-inserted Keys fixed #PQ = {number_of_pq_on_currently_non_inserted_keys}) fetcher__num_meta_index_read_count _out',
-  f' (Non-inserted Keys fixed #PQ = {number_of_pq_on_currently_non_inserted_keys}) fetcher__num_properties_read_count _out',
-  f' (Non-inserted Keys fixed #PQ = {number_of_pq_on_currently_non_inserted_keys}) fetcher__num_compression_dict_block_read_count _out',
-  f' (Non-inserted Keys fixed #PQ = {number_of_pq_on_currently_non_inserted_keys}) fetcher__num_filter_partition_index_read_count _out',
-  f' (Non-inserted Keys fixed #PQ = {number_of_pq_on_currently_non_inserted_keys}) fetcher__num_hash_index_meta_read_count _out',
-  f' (Non-inserted Keys fixed #PQ = {number_of_pq_on_currently_non_inserted_keys}) fetcher__num_hash_index_prefixes_read_count _out',
-  f' (Non-inserted Keys fixed #PQ = {number_of_pq_on_currently_non_inserted_keys}) fetcher__num_total_block_read_count _out',
+  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_filter_read_count _out',
+  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_index_read_count _out',
+  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_range_del_read_count _out',
+  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_data_read_count _out',
+  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_meta_index_read_count _out',
+  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_properties_read_count _out',
+  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_compression_dict_block_read_count _out',
+  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_filter_partition_index_read_count _out',
+  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_hash_index_meta_read_count _out',
+  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_hash_index_prefixes_read_count _out',
+  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_total_block_read_count _out',
 ]
 
 # In[ ]:

@@ -895,9 +895,7 @@ if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone() == t
       if(checking::SystemVerifier::getSystemVerifier()->usingStringKey() == false){
         try {
           size_t s_idx, e_idx;
-std::cout << "s_key = " << tombstone.start_key_.ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
           long long s_key = std::stoll(tombstone.start_key_.ToString(), &s_idx);
-std::cout << "e_key = " << tombstone.end_key_.ToString() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 	  long long e_key = std::stoll(tombstone.end_key_.ToString(), &e_idx);
 
           // Ensure the entire string was parsed (no trailing characters)

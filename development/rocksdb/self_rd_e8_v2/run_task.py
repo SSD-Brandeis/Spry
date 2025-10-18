@@ -257,7 +257,7 @@ params3["--number_of_PQ_on_currently_deleted_keys"] = [5000] # -1: for testing o
 # params3["--number_of_PQ_on_currently_deleted_keys"] = [500000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 params3["--number_of_PQ_on_currently_non_inserted_keys"] = [100000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 
-# if True:
+#if True:
 if False:
     for rd, sel, workload_filename in zip(rd_list, sel_list, workload_filename_list):
         print("Gen I/RD workload")
@@ -270,9 +270,8 @@ if False:
                 key_size=params3["--key_size_to_insert"][0],
                 using_string_key=params3["--use_string_key"][0],
                 proportional_to_zero_result_point=1,
-                n_pq = 100000*45,
-                #n_pq = 100000,
-                #n_pq = 0,
+                #n_pq = 100000*45,
+                n_pq = 0,
         )
         task = f"mv workload.txt {workload_filename}"
         os.system(task)
