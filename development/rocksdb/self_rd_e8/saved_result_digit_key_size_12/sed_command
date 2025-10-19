@@ -1,0 +1,27 @@
+#remote
+#sed -i 's/)\ .*\ fetcher/)\ fetcher/g' saved*/log*
+
+for dir in log_100000 log_200000 log_300000 log_400000 log_500000; do
+    echo "Processing $dir..."
+    cd "$dir"
+    
+    # Extract number from directory name
+    number=$(echo "$dir" | grep -o '[0-9]*')
+    
+    grep -ie "_out = " log* > out_log.txt
+
+    # Copy and modify the Python script
+    cp ../parsing_log_file.py ./
+    sed -i "s/number_of_pq_on_currently_non_inserted_keys = [0-9]*/number_of_pq_on_currently_non_inserted_keys = $number/" parsing_log_file.py
+    
+    grep -ie "_out = " log* > out_log.txt
+    sed -i 's/)\ .*\ fetcher/)\ fetcher/g' out_log.txt
+    python3 parsing_log_file.py
+    cd ..
+done
+
+
+#local
+scp -i ~/.ssh/cham.pem -r cc@129.114.108.242:~/LSMRangeDeletes/development/rocksdb/self_rd_e8/saved_result_digit_key_size_12/*/*.xlsx ./
+scp -i ~/.ssh/cham.pem -r cc@129.114.109.19:~/LSMRangeDeletes/development/rocksdb/self_rd_e7/saved_result_string_key_size_12 ./
+scp -i ~/.ssh/cham.pem -r cc@129.114.109.19:~/LSMRangeDeletes/development/rocksdb/self_rd_e7/saved_result_string_key_size_256 ./

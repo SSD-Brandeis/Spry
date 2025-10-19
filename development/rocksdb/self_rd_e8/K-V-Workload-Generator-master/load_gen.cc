@@ -526,6 +526,7 @@ void generate_workload(bool flag_using_string_key) {
 		}
 		else if(_existing_point_query_count < existing_point_query_count){
 		// std::cout << "_insert_count " << _insert_count << " ; _point_query_count " << _point_query_count << std::endl;
+std::cout << "_existing_point_query_count = " << _existing_point_query_count << " ; existing_point_query_count = " << existing_point_query_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
 		std::vector<int> index_mapping;
 		if(!sorted){
                         if(existing_point_lookup_dist == 1){

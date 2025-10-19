@@ -12,7 +12,7 @@ with open(input_file, "r", encoding="utf-8") as infile:
     for pq in pq_groups:
         for r in range(rounds_per_group):
             output_filename = (
-                f"workload6111.txt_currently_non_inserted_keys_round_{round_index}"
+                f"workload6111.txt_currently_non_inserted_keys_round_{r}"
                 f"_number_of_pq_{pq}"
             )
 
