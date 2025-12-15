@@ -1,5 +1,6 @@
 #ifndef UTILS_RUN_WORKLOAD_H
 #define UTILS_RUN_WORKLOAD_H
+#include "verification_config.h"
 
 #include <fstream>
 #include <iomanip>

@@ -1,6 +1,7 @@
 #ifndef UTILS_LOG_H
 
 #define UTILS_LOG_H
+#include "verification_config.h"
 
 #include <fstream>
 #include <iomanip>

@@ -32,11 +32,12 @@
 #include "rocksdb/sys_rdfilter.h"
 #include "rocksdb/slice.h"
 
-#include "utils/utils_run_verification.h"
+#include "utils/verification_config.h"
 #include "utils/utils.h"
 #include "utils/utils_log.h"
 #include "utils/utils_gen_workload.h"
 #include "utils/utils_run_workload.h"
+#include "utils/utils_run_verification.h"
 #include "utils/utils_db.h"
 #include "utils/utils_rdf.h"
 

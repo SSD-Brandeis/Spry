@@ -1,9 +1,7 @@
 #ifndef UTILS_RUN_VERIFICATION_H
 #define UTILS_RUN_VERIFICATION_H
 
-#define VERIFICATION_ENABLE_TIMING
-#define VERIFICATION_ENABLE_TRACING
-#define VERIFICATION_ENABLE_CHECKING
+#include "verification_config.h"
 
 #include <fstream>
 #include <iomanip>
