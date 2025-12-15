@@ -13,13 +13,13 @@
 
 
 void retrieve_all_RDFs(DB** dp_ptr2, 
-                       PLRDF plrdf_prime, 
-                       PLRDF split_plrdf_prime, 
-                       PLRDF_t<std::string> plrdf_stringkey_prime, 
-                       PLRDF_t<std::string> split_plrdf_stringkey_prime, 
-                       PLRDF top_level_rdf_prime, 
-                       PLRDF_t<std::string> top_level_rdf_stringkey_prime, 
-                       SkyLineRDF skyline_rdf_prime
+                       PLRDF &plrdf_prime, 
+                       PLRDF &split_plrdf_prime, 
+                       PLRDF_t<std::string> &plrdf_stringkey_prime, 
+                       PLRDF_t<std::string> &split_plrdf_stringkey_prime, 
+                       PLRDF &top_level_rdf_prime, 
+                       PLRDF_t<std::string> &top_level_rdf_stringkey_prime, 
+                       SkyLineRDF &skyline_rdf_prime
                        ){
   DB* db = *dp_ptr2;
   // retrieve all RDFs
