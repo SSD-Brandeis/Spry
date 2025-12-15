@@ -47,10 +47,15 @@ class TestingLogger{
 
 
     void set_to_start(Options& op){
+        #ifdef VERIFICATION_ENABLE_TRACING
         read_count_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
           + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
         read_bytes_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
           + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.bytes[^:]*: ([0-9]+)");
+        #else
+        read_count_start = 0;
+        read_bytes_start = 0;
+        #endif
         reset_perf_iostats_context();
         {
           rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
@@ -63,10 +68,15 @@ class TestingLogger{
     void set_to_end(Options& op, std::ostream& testing_result_file){
       i_round += 1;
       testing_result_file << i_round << " -----" << std::endl;
+      #ifdef VERIFICATION_ENABLE_TRACING
       long long read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
         + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
       long long read_bytes_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
         + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.bytes[^:]*: ([0-9]+)");
+      #else
+      long long read_count_end = 0;
+      long long read_bytes_end = 0;
+      #endif
       total_read_count += read_count_end - read_count_start;
       total_read_bytes += read_bytes_end - read_bytes_start;
       // reset_perf_iostats_context();
@@ -117,7 +127,11 @@ void print_perf_iostats_context(std::ostream& ofile, const std::string &prefix, 
     long long block_read_count = parsing_value_from_string(perf_context, "block_read_count[^=]*=.([0-9]+)");
     long long block_read_byte = parsing_value_from_string(perf_context, "block_read_byte[^=]*=.([0-9]+)");
     long long block_read_time = parsing_value_from_string(perf_context, "block_read_time[^=]*=.([0-9]+)");
+    #ifdef VERIFICATION_ENABLE_TRACING
     long long block_read_cpu_time = parsing_value_from_string(perf_context, "block_read_cpu_time[^=]*=.([0-9]+)");
+    #else
+    long long block_read_cpu_time = 0;
+    #endif
     long long index_block_read_count = parsing_value_from_string(perf_context, "index_block_read_count[^=]*=.([0-9]+)");
     long long filter_block_read_count = parsing_value_from_string(perf_context, "filter_block_read_count[^=]*=.([0-9]+)");
     long long compression_dict_block_read_count = parsing_value_from_string(perf_context, "compression_dict_block_read_count[^=]*=.([0-9]+)");

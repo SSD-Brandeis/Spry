@@ -1544,7 +1544,7 @@ namespace checking {
 
       while(num){
         // long long key = rand() % 100000000;
-        KeyType key = getRandomString(length);
+        KeyType key = getRandomString(length); // we need to ensure that the key extends to the whole char_set/digit_set space
         if(groundTruth.count(key) == 0){
           currentlyNonInsertedKeys.push_back(key);
           num--;

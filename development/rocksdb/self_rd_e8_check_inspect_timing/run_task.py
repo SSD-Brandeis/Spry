@@ -20,8 +20,8 @@ params = {
     # "--number_of_PQ": [5000], # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
     "--system_check_test_on_all_PQ": [0], # for debugging, 0: off, 1: on, equal to "--number_of_PQ": [-1]
     "--bb": [0],
-    "--key_size_to_insert": [256],
-    "--surf__key_len_in_bytes": [257],
+    "--key_size_to_insert": [12],
+    "--surf__key_len_in_bytes": [13],
     "--surf__hash_suffix_len": [0],
     "--surf__real_suffix_len": [0],
     "--surf__include_dense": [0], # 1: true, 0: false
@@ -29,13 +29,13 @@ params = {
     "--log_during_insertion": [1], # 1: true, 0: false
     "--surf_use_condensed_digit_key": [1], # 1: true, 0: false # digit_key to condensed_char_keys
     "--run_pq_during_insertion_interval": [200], # default: 200
-    "--using_rdf_types": ["NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,PLRDF_STRING_KEY,SPLIT_PLRDF_STRING_KEY,TOP_LEVEL_RDF,TOP_LEVEL_RDF_STRING_KEY,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY"],
+    "--using_rdf_types": ["NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,PLRDF_STRING_KEY,SPLIT_PLRDF_STRING_KEY,TOP_LEVEL_RDF,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY"],
     "--show_surf_compaction_info": [0],
     "--show_tombstones_during_compaction_info": [0], 
     "--flag_skip_compaction_trivial_move": [0], # if TOP_LEVEL_RDF is in --using_rdf_types, then no matter what value is set, compaction trivial move will always be skip
     "--use_surf_base": [0], # 1: true, 0: false
     "--surf_base_store_key_to_k_diff": [1], # is used when --use_surf_base = [1], value can only be nature number (> 0 integer)
-    "--use_string_key": [1],
+    "--use_string_key": [0],
 }
 
 
@@ -109,8 +109,11 @@ def gen_insertion_workload(
         rd_threshold: float,
         key_size: int = -1,
         using_string_key: bool = False,
+        proportional_to_zero_result_point: float = 1,
+        n_pq: int = 10000,
 ):
-    task = "./K-V-Workload-Generator-master/load_gen" + f" --insert={insert} --range_delete={rd} --range_delete_selectivity={sel} --entry_size={E} --range_delete_threshold={rd_threshold} --key_size={key_size} --using_string_key={using_string_key}"
+    #task = "./K-V-Workload-Generator-master/load_gen" + f" --insert={insert} --range_delete={rd} --range_delete_selectivity={sel} --entry_size={E} --range_delete_threshold={rd_threshold} --key_size={key_size} --using_string_key={using_string_key} --proportional_to_zero_result_point={proportional_to_zero_result_point} --point_query={n_pq}"
+    task = "./K-V-Workload-Generator-master/load_gen" + f" --insert={insert} --range_delete={rd} --range_delete_selectivity={sel} --entry_size={E} --range_delete_threshold={rd_threshold} --key_size={key_size} --using_string_key={using_string_key} --zero_result_point_lookup_proportion={proportional_to_zero_result_point} --point_query={n_pq}"
     print(task)
     os.system(task)
 
@@ -121,11 +124,10 @@ def gen_PQ_workload(
         number_of_PQ_on_historic_existing_keys: int,
         number_of_PQ_on_currently_deleted_keys: int,
         number_of_PQ_on_currently_non_inserted_keys: int,
-        key_size: int,
         using_string_key: bool = False,
 ):
     # task =  "gen_pq_workload/main_gen_workload" + f" --workload_filename {file_path} --number_of_PQ {number_of_PQ}"
-    task =  "gen_pq_workload/main_gen_workload" + f" --workload_filename {file_path}  --number_of_PQ_on_existing_keys {number_of_PQ_on_existing_keys} --number_of_PQ_on_historic_existing_keys {number_of_PQ_on_historic_existing_keys} --number_of_PQ_on_currently_deleted_keys {number_of_PQ_on_currently_deleted_keys} --number_of_PQ_on_currently_non_inserted_keys {number_of_PQ_on_currently_non_inserted_keys} --using_string_key {using_string_key} --key_size_to_insert {key_size}"
+    task =  "gen_pq_workload/main_gen_workload" + f" --workload_filename {file_path}  --number_of_PQ_on_existing_keys {number_of_PQ_on_existing_keys} --number_of_PQ_on_historic_existing_keys {number_of_PQ_on_historic_existing_keys} --number_of_PQ_on_currently_deleted_keys {number_of_PQ_on_currently_deleted_keys} --number_of_PQ_on_currently_non_inserted_keys {number_of_PQ_on_currently_non_inserted_keys} --using_string_key {using_string_key}"
     print(task)
     os.system(task)
 
@@ -232,14 +234,14 @@ workload_filename_list = [
    
 
 
-params3["--surf_use_condensed_digit_key"] = [0]
-# params3["--surf_use_condensed_digit_key"] = [1]
+# params3["--surf_use_condensed_digit_key"] = [0]
+params3["--surf_use_condensed_digit_key"] = [1]
 # params3["-i"] = [1000]
 # sel_list = [0.1,0.1,0.1]
 # rd_list = [10,10,10]
 # params3["--show_surf_compaction_info"] = [1] 
 # params3[ "--surf__key_len_in_bytes"] = [13]
-params3["--surf__key_len_in_bytes"] = [257]
+params3["--surf__key_len_in_bytes"] = [6]
 # params3[ "--surf__key_len_in_bytes"] = [3]
 # params3[ "--skip_reading_RD_blocks"] = [0]
 params3["--flag_skip_compaction_trivial_move"] = [1]
@@ -250,9 +252,10 @@ params3["--max_open_files"] = [1]
 # params3["--number_of_PQ"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 params3["--number_of_PQ_on_existing_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 params3["--number_of_PQ_on_historic_existing_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
-params3["--number_of_PQ_on_currently_deleted_keys"] = [100000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+#params3["--number_of_PQ_on_currently_deleted_keys"] = [100000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+params3["--number_of_PQ_on_currently_deleted_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 # params3["--number_of_PQ_on_currently_deleted_keys"] = [500000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
-params3["--number_of_PQ_on_currently_non_inserted_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+params3["--number_of_PQ_on_currently_non_inserted_keys"] = [100000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 
 # if True:
 if False:
@@ -266,22 +269,24 @@ if False:
                 rd_threshold=params3["--insert_before_range_delete"][0],
                 key_size=params3["--key_size_to_insert"][0],
                 using_string_key=params3["--use_string_key"][0],
+                proportional_to_zero_result_point=1,
+                n_pq = 100000*45,
+                #n_pq = 100000,
+                #n_pq = 0,
         )
         task = f"mv workload.txt {workload_filename}"
         os.system(task)
         
         print("Gen PQ workload")
-
-        for number_of_pq_on_currently_deleted_keys in [100000, 200000, 300000, 400000, 500000]:
+        for number_of_PQ_on_currently_non_inserted_keys in [100000, 200000, 300000, 400000, 500000]:
             gen_PQ_workload(
                     file_path=workload_filename,
                     # number_of_PQ=params3["--number_of_PQ"][0],
                     number_of_PQ_on_existing_keys=params3["--number_of_PQ_on_existing_keys"][0],
                     number_of_PQ_on_historic_existing_keys=params3["--number_of_PQ_on_historic_existing_keys"][0],
-                    # number_of_PQ_on_currently_deleted_keys=params3["--number_of_PQ_on_currently_deleted_keys"][0],
-                    number_of_PQ_on_currently_deleted_keys=number_of_pq_on_currently_deleted_keys,
-                    number_of_PQ_on_currently_non_inserted_keys=params3["--number_of_PQ_on_currently_non_inserted_keys"][0],
-                    key_size=params3["--key_size_to_insert"][0],
+                    number_of_PQ_on_currently_deleted_keys=params3["--number_of_PQ_on_currently_deleted_keys"][0],
+                    #number_of_PQ_on_currently_non_inserted_keys=params3["--number_of_PQ_on_currently_non_inserted_keys"][0],
+                    number_of_PQ_on_currently_non_inserted_keys=number_of_PQ_on_currently_non_inserted_keys,
                     using_string_key=params3["--use_string_key"][0],
             )
 
@@ -292,18 +297,14 @@ if False:
 rdf_types = [
     # {"--using_rdf_types": ["NONE"], },
     {"--using_rdf_types": ["NONE_CACHE_RANGETOMBSTONE_TRACING"], },
-    # {"--using_rdf_types": ["PLRDF"], },
-    # {"--using_rdf_types": ["SPLIT_PLRDF"], },
-    # {"--using_rdf_types": ["PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0]},
-    {"--using_rdf_types": ["PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[1]},
-    {"--using_rdf_types": ["SPLIT_PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[1]},
-    # {"--using_rdf_types": ["TOP_LEVEL_RDF"], },
-    {"--using_rdf_types": ["TOP_LEVEL_RDF_STRING_KEY"],  "--skip_reading_RD_blocks":[1]},
+    {"--using_rdf_types": ["PLRDF"], },
+    {"--using_rdf_types": ["SPLIT_PLRDF"], },
+    #{"--using_rdf_types": ["PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0]},
+    #{"--using_rdf_types": ["SPLIT_PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0]},
+    {"--using_rdf_types": ["TOP_LEVEL_RDF"], },
     # {"--using_rdf_types": ["SKYLINE_RDF"], },
     {"--using_rdf_types": ["SuRF_LF_RDF"]},
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]},
-    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [257], "--skip_reading_RD_blocks":[1]},
-    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [257], "--skip_reading_RD_blocks":[1]},
     {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
     # {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #9
@@ -311,10 +312,6 @@ rdf_types = [
     
     {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0]}, #11
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0]}, #12
-
-    
-    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [7], "--skip_reading_RD_blocks":[0]}, #13
-    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [7], "--skip_reading_RD_blocks":[0]}, #14
     # {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #13
     # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #14
     # {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #15
@@ -348,13 +345,14 @@ rdf_types = [
 # }
 
 
+
 for number_of_PQ_on_currently_non_inserted_keys in [100000, 200000, 300000, 400000, 500000]:
     params3["--number_of_PQ_on_currently_non_inserted_keys"] = [number_of_PQ_on_currently_non_inserted_keys]
     # mkdir -p 
     # os.system(f"mkdir -p log_{number_of_pq_on_currently_deleted_keys}")
 
     # Construct the full path
-    log_dir = f"saved_result_digit_key_size_{params3['--key_size_to_insert'][0]}/log_{number_of_pq_on_currently_non_inserted_keys}"
+    log_dir = f"saved_result_digit_key_size_{params3['--key_size_to_insert'][0]}/log_{number_of_PQ_on_currently_non_inserted_keys}"
 
     # Recursively create the directory
     os.makedirs(log_dir, exist_ok=True)
@@ -386,10 +384,10 @@ for number_of_PQ_on_currently_non_inserted_keys in [100000, 200000, 300000, 4000
         tasks3 = get_task_with_parallelling_parameters(tasks=tasks3, param_dict={"--RD":rd_list, "--selectivity":sel_list,
                                                                             "--workload_filename": workload_filename_list,
                                                                             "--logging_filename": [
-                                                                                f"pq_result/{log_dir}/logging{test_num}11.txt",
-                                                                                #f"pq_result/logging{test_num}12.txt",
-                                                                                #f"pq_result/logging{test_num}13.txt",
-                                                                                #f"pq_result/logging{test_num}14.txt",
+                                                                              f"pq_result/{log_dir}/logging{test_num}11.txt",
+                                                                              #f"pq_result/logging{test_num}12.txt",
+                                                                              #f"pq_result/logging{test_num}13.txt",
+                                                                              #f"pq_result/logging{test_num}14.txt",
                                                                             ],
                                                                             ">":[
                                                                                 f"{log_dir}/log{test_num}11",

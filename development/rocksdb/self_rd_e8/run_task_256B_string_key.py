@@ -348,8 +348,8 @@ rdf_types = [
 # }
 
 
-for number_of_PQ_on_currently_non_inserted_keys in [100000, 200000, 300000, 400000, 500000]:
-    params3["--number_of_PQ_on_currently_non_inserted_keys"] = [number_of_PQ_on_currently_non_inserted_keys]
+for number_of_pq_on_currently_deleted_keys in [100000, 200000, 300000, 400000, 500000]:
+    params3["--number_of_PQ_on_currently_non_inserted_keys"] = [number_of_pq_on_currently_deleted_keys]
     # mkdir -p 
     # os.system(f"mkdir -p log_{number_of_pq_on_currently_deleted_keys}")
 

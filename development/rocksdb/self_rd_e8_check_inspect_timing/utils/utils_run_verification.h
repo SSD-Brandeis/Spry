@@ -1,6 +1,10 @@
 #ifndef UTILS_RUN_VERIFICATION_H
 #define UTILS_RUN_VERIFICATION_H
 
+#define VERIFICATION_ENABLE_TIMING
+#define VERIFICATION_ENABLE_TRACING
+#define VERIFICATION_ENABLE_CHECKING
+
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -361,7 +365,9 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   testing_result_file2 << ",\"Total number of SST Files\" : " << db->getTotalNumberOfSSTFiles() << std::endl << std::endl;
 
 
+  #ifdef VERIFICATION_ENABLE_TIMING
   testing_logger.reset();
+  #endif
 
 }
 
@@ -476,6 +482,7 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
   testing_result_file << std::endl << std::endl;
   testing_result_file << "----------------------Testing On Existing Keys-----------------------" << std::endl; 
   for(uint t = 0; t < system_verifier->getNumberOfRDFTypes(); t++){
+    #ifdef VERIFICATION_ENABLE_TRACING
     system_verifier->setRDFTypeChosed(t);
     system_verifier->resetAllCount();
     system_verifier->resetAllDuration();
@@ -511,20 +518,27 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 
     // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs_on_existing_keys << std::endl;
+    #endif
 
+    #ifdef VERIFICATION_ENABLE_TIMING
     disk_access_count = 0;
     point_query_time = 0;
     start_pq = std::chrono::high_resolution_clock::now();
+    #endif
+    #ifdef VERIFICATION_ENABLE_TRACING
     rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
     rocksdb::get_perf_context()->Reset();
     rocksdb::get_iostats_context()->Reset();
+    #endif
     for(auto i = 0; i < N_repetitions; i++){
       clearCache(op);
 
       db = *db_ptr2;
 
       system_verifier->resetDiskAccessCount();
+      #ifdef VERIFICATION_ENABLE_TRACING
       testing_logger.set_to_start(op);
+      #endif
     
 
 
@@ -535,8 +549,10 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
       }
       std::vector<uint64_t> cache_tombstone_bytes;
       for(auto x: system_verifier->getAllExistingKeysAtNRound(i)){
+        #ifdef VERIFICATION_ENABLE_CHECKING
         bool gt_is_exist = system_verifier->isKeyExist(x);
         std::string gt_value = system_verifier->get(x);
+        #endif
 
         std::string value;
         std::string time_stamp;
@@ -550,26 +566,33 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
           searching_key << x;
         }
 
+        #ifdef VERIFICATION_ENABLE_TIMING
         start_pq = std::chrono::high_resolution_clock::now();
         system_verifier->start_remaining_get_path();
+        #endif
         s = db->Get(read_op, searching_key.str(), &value); 
+        #ifdef VERIFICATION_ENABLE_TIMING
         system_verifier->stop_remaining_get_path(); 
         stop_pq = std::chrono::high_resolution_clock::now();
 
         duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
         point_query_time_on_existing_keys_ns += duration_pq.count();
+        #endif
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
           continue;
         }
+        #ifdef VERIFICATION_ENABLE_TRACING
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
           uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
           cache_tombstone_bytes.push_back(bytes);
         }
+        #endif
         // size_t separator_pos = value.find("|");
         // time_stamp = value.substr(separator_pos + 1);
         // value = value.substr(0, separator_pos);
 
+        #ifdef VERIFICATION_ENABLE_CHECKING
         if(s.ok() != gt_is_exist){
           #ifdef DEBUG_VERIFICATION
             std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
@@ -583,10 +606,12 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
           #endif
           testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
         }
+        #endif
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
         continue;
       }
+      #ifdef VERIFICATION_ENABLE_TRACING
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
         string i_round_str = "i_round="+std::to_string(i)+" ";
         // std::string prefix = " (Existing Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
@@ -608,14 +633,17 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
         testing_result_file << "]" << std::endl;
         testing_result_file2 << "]" << std::endl;
       }
+
       disk_access_count += system_verifier->getDiskAccessCount();
 
       testing_result_file << " Disk Access count = " << system_verifier->getDiskAccessCount() << std::endl;
       testing_logger.set_to_end(op, testing_result_file);
+      #endif
     }      
     // std::cout << " rocksdb::get_perf_context()->bloom_sst_miss_count = " <<  rocksdb::get_perf_context()->bloom_sst_miss_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // std::cout << " rocksdb::get_perf_context()->bloom_sst_hit_count = " <<  rocksdb::get_perf_context()->bloom_sst_hit_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
+    #ifdef VERIFICATION_ENABLE_TRACING
     if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
       continue;
     }
@@ -682,6 +710,7 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
       testing_result_file2 << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
     }
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
+    #endif
     // print_perf_iostats_context(std::cout, 1);
   }
   // std::cout << prefix_number_of_PQs << " point_query_time_on_existing_keys_ns = " << point_query_time_on_existing_keys_ns << std::endl;
@@ -695,11 +724,8 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
   for(uint t = 0; t < system_verifier->getNumberOfRDFTypes(); t++){
     long long total_read_count = 0;
     long long total_read_bytes = 0;
+    #ifdef VERIFICATION_ENABLE_TRACING
     testing_logger.reset();
-
-
-
-
     system_verifier->setRDFTypeChosed(t);
     system_verifier->resetAllCount();
     system_verifier->resetAllDuration();
@@ -735,18 +761,26 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
 
     // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs_on_historic_existing_keys << std::endl;
+    #endif
+
+    #ifdef VERIFICATION_ENABLE_TIMING
     disk_access_count = 0;
     point_query_time = 0;
     start_pq = std::chrono::high_resolution_clock::now();
+    #endif
+    #ifdef VERIFICATION_ENABLE_TRACING
     rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
     rocksdb::get_perf_context()->Reset();
     rocksdb::get_iostats_context()->Reset();
+    #endif
     for(auto i = 0; i < N_repetitions; i++){
       clearCache(op);
       db = *db_ptr2;
 
       system_verifier->resetDiskAccessCount();
+      #ifdef VERIFICATION_ENABLE_TRACING
       testing_logger.set_to_start(op);
+      #endif
 
 
 
@@ -758,8 +792,10 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
 
       std::vector<uint64_t> cache_tombstone_bytes;
       for(auto x: system_verifier->getHistoricExistingKeysAtNRound(i)){
+        #ifdef VERIFICATION_ENABLE_CHECKING
         bool gt_is_exist = system_verifier->isKeyExist(x);
         std::string gt_value = system_verifier->get(x);
+        #endif
 
         std::string value;
         std::string time_stamp;
@@ -773,26 +809,33 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
           searching_key << x;
         }
 
+        #ifdef VERIFICATION_ENABLE_TIMING
         start_pq = std::chrono::high_resolution_clock::now();
         system_verifier->start_remaining_get_path();
+        #endif
         s = db->Get(read_op, searching_key.str(), &value);
+        #ifdef VERIFICATION_ENABLE_TIMING
         system_verifier->stop_remaining_get_path(); 
         stop_pq = std::chrono::high_resolution_clock::now();
 
         duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
         point_query_time_on_historic_existing_keys_ns += duration_pq.count();
+        #endif
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
           continue;
         }
+        #ifdef VERIFICATION_ENABLE_TRACING
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
           uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
           cache_tombstone_bytes.push_back(bytes);
         }
+        #endif
         // size_t separator_pos = value.find("|");
         // time_stamp = value.substr(separator_pos + 1);
         // value = value.substr(0, separator_pos);
 
+        #ifdef VERIFICATION_ENABLE_CHECKING
         if(s.ok() != gt_is_exist){
           #ifdef DEBUG_VERIFICATION
             std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
@@ -806,13 +849,15 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
           #endif
           testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
         }
+        #endif
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
         continue;
       }
+      #ifdef VERIFICATION_ENABLE_TRACING
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
         string i_round_str = "i_round="+std::to_string(i)+" ";
-    // std::string prefix = " (Historcially Exist Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        // std::string prefix = " (Historcially Exist Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
     std::string prefix = " (Historcially Exist Keys " + i + prefix_number_of_PQs_on_historic_existing_keys + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         testing_result_file2 << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
@@ -831,14 +876,17 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
         testing_result_file << "]" << std::endl;
         testing_result_file2 << "]" << std::endl;
       }
+
       disk_access_count += system_verifier->getDiskAccessCount();
 
       testing_result_file << " Disk Access count = " << system_verifier->getDiskAccessCount() << std::endl;
       testing_logger.set_to_end(op, testing_result_file);
+      #endif
     }      
     // std::cout << " rocksdb::get_perf_context()->bloom_sst_miss_count = " <<  rocksdb::get_perf_context()->bloom_sst_miss_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // std::cout << " rocksdb::get_perf_context()->bloom_sst_hit_count = " <<  rocksdb::get_perf_context()->bloom_sst_hit_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
+    #ifdef VERIFICATION_ENABLE_TRACING
     if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
       continue;
     }
@@ -904,6 +952,7 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
       testing_result_file2 << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
     }
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
+    #endif
     // print_perf_iostats_context(std::cout, 1);
   }
 system_verifier->reset_flag_testing_on_currently_deleted_keys();
@@ -920,9 +969,8 @@ system_verifier->startPQTracing();
   for(uint t = 0; t < system_verifier->getNumberOfRDFTypes(); t++){
     long long total_read_count = 0;
     long long total_read_bytes = 0;
+    #ifdef VERIFICATION_ENABLE_TRACING
     testing_logger.reset();
-
-
 
     system_verifier->setRDFTypeChosed(t);
     system_verifier->resetAllCount();
@@ -959,12 +1007,18 @@ system_verifier->startPQTracing();
 
     // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs_on_currently_deleted_keys << std::endl;
+    #endif
+
+    #ifdef VERIFICATION_ENABLE_TIMING
     disk_access_count = 0;
     point_query_time = 0;
     start_pq = std::chrono::high_resolution_clock::now();
+    #endif
+    #ifdef VERIFICATION_ENABLE_TIMING
     rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
     rocksdb::get_perf_context()->Reset();
     rocksdb::get_iostats_context()->Reset();
+    #endif
     for(auto i = 0; i < N_repetitions; i++){
       clearCache(op);
       system_verifier->clearMapPQTracingInfo();
@@ -972,7 +1026,9 @@ system_verifier->startPQTracing();
 
       db = *db_ptr2;
       system_verifier->resetDiskAccessCount();
+      #ifdef VERIFICATION_ENABLE_TRACING
       testing_logger.set_to_start(op);
+      #endif
 
 
 
@@ -986,8 +1042,10 @@ system_verifier->startPQTracing();
 
       std::vector<uint64_t> cache_tombstone_bytes;
       for(auto x: system_verifier->getCurrentlyDeletedKeysAtNRound(i)){
+        #ifdef VERIFICATION_ENABLE_CHECKING
         bool gt_is_exist = system_verifier->isKeyExist(x);
         std::string gt_value = system_verifier->get(x);
+        #endif
 
         std::string value;
         std::string time_stamp;
@@ -1001,25 +1059,32 @@ system_verifier->startPQTracing();
           searching_key << x;
         }
 
+        #ifdef VERIFICATION_ENABLE_TIMING
         start_pq = std::chrono::high_resolution_clock::now();
         system_verifier->start_remaining_get_path();
+        #endif
         s = db->Get(read_op, searching_key.str(), &value);
+        #ifdef VERIFICATION_ENABLE_TIMING
         system_verifier->stop_remaining_get_path(); 
         stop_pq = std::chrono::high_resolution_clock::now();
         duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
         point_query_time_on_currently_deleted_all_ns += duration_pq.count();
+        #endif
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
           continue;
         }
+        #ifdef VERIFICATION_ENABLE_TRACING
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
           uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
           cache_tombstone_bytes.push_back(bytes);
         }
+        #endif
         // size_t separator_pos = value.find("|");
         // time_stamp = value.substr(separator_pos + 1);
         // value = value.substr(0, separator_pos);
 
+        #ifdef VERIFICATION_ENABLE_CHECKING
         if(s.ok() != gt_is_exist){
           #ifdef DEBUG_VERIFICATION
             std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
@@ -1033,10 +1098,12 @@ system_verifier->startPQTracing();
           #endif
           testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
         }
+        #endif
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
         continue;
       }
+      #ifdef VERIFICATION_ENABLE_TRACING
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
         string i_round_str = "i_round="+std::to_string(i)+" ";
         // std::string prefix = " (Currently Deleted Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
@@ -1058,6 +1125,7 @@ system_verifier->startPQTracing();
         testing_result_file << "]" << std::endl;
         testing_result_file2 << "]" << std::endl;
       }
+
       disk_access_count += system_verifier->getDiskAccessCount();
 
 
@@ -1071,10 +1139,12 @@ system_verifier->startPQTracing();
       testing_result_file2 << system_verifier->getVPQTracingInfo(",", "\"", prefix, i) << std::endl;
       // system_verifier->clearMapPQTracingInfo();
       // system_verifier->clearVPQTracingInfo();
+      #endif
     }     
     // std::cout << " rocksdb::get_perf_context()->bloom_sst_miss_count = " <<  rocksdb::get_perf_context()->bloom_sst_miss_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // std::cout << " rocksdb::get_perf_context()->bloom_sst_hit_count = " <<  rocksdb::get_perf_context()->bloom_sst_hit_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
+    #ifdef VERIFICATION_ENABLE_TRACING
     if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
       continue;
     }
@@ -1139,6 +1209,7 @@ system_verifier->startPQTracing();
       testing_result_file2 << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
     }
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
+    #endif
     // print_perf_iostats_context(std::cout, 1);
   }
 system_verifier->reset_flag_testing_on_currently_deleted_keys();
@@ -1156,9 +1227,9 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
   for(uint t = 0; t < system_verifier->getNumberOfRDFTypes(); t++){
     long long total_read_count = 0;
     long long total_read_bytes = 0;
+    #ifdef VERIFICATION_ENABLE_TRACING
     testing_logger.reset();
-
-
+    
     system_verifier->setRDFTypeChosed(t);
     system_verifier->resetAllCount();
     system_verifier->resetAllDuration();
@@ -1195,17 +1266,25 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 
     // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs_on_currently_non_inserted_keys << std::endl;
+    #endif
+
+    #ifdef VERIFICATION_ENABLE_TIMING
     disk_access_count = 0;
     point_query_time = 0;
     start_pq = std::chrono::high_resolution_clock::now();
+    #endif
+    #ifdef VERIFICATION_ENABLE_TRACING
     rocksdb::SetPerfLevel(rocksdb::PerfLevel::kEnableTimeExceptForMutex);
     rocksdb::get_perf_context()->Reset();
     rocksdb::get_iostats_context()->Reset();
+    #endif
     for(auto i = 0; i < N_repetitions; i++){
       clearCache(op);
       db = *db_ptr2;
       system_verifier->resetDiskAccessCount();
+      #ifdef VERIFICATION_ENABLE_TRACING
       testing_logger.set_to_start(op);
+      #endif
 
 
 
@@ -1220,8 +1299,10 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
       std::vector<uint64_t> cache_tombstone_bytes;
     //   for(auto &x: system_verifier->getCurrentlyNonInsertedKeys()){ // test on 1000 keys
       for(auto x: system_verifier->getCurrentlyNonInsertedKeysAtNRound(i)){ // test on 1000 keys
+        #ifdef VERIFICATION_ENABLE_CHECKING
         bool gt_is_exist = system_verifier->isKeyExist(x); // should be false
         std::string gt_value = system_verifier->get(x); // should be ""
+        #endif
 
         std::string value;
         std::string time_stamp;
@@ -1235,24 +1316,31 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
           searching_key << x;
         }
 
+        #ifdef VERIFICATION_ENABLE_TIMING
         start_pq = std::chrono::high_resolution_clock::now();
         system_verifier->start_remaining_get_path();
+        #endif
         s = db->Get(read_op, searching_key.str(), &value);
+        #ifdef VERIFICATION_ENABLE_TIMING
         system_verifier->stop_remaining_get_path(); 
         stop_pq = std::chrono::high_resolution_clock::now();
         duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
         point_query_time += duration_pq.count();
         point_query_time_on_currently_non_inserted_keys_ns += duration_pq.count();
+        #endif
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
           continue;
         }
+        #ifdef VERIFICATION_ENABLE_TRACING
         if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
           uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
           cache_tombstone_bytes.push_back(bytes);
         }
+        #endif
         // size_t separator_pos = value.find("|");
         // time_stamp = value.substr(separator_pos + 1);
         // value = value.substr(0, separator_pos);
+        #ifdef VERIFICATION_ENABLE_CHECKING
         if(s.ok() != gt_is_exist){
           #ifdef DEBUG_VERIFICATION
             std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
@@ -1260,17 +1348,19 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
           testing_result_file << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
         }
         if(gt_is_exist == false){continue;}
-	else{std::cout << "Error This is the testing on never inserted keys, the gt_is_exist should be false" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;}
+	      else{std::cout << "Error This is the testing on never inserted keys, the gt_is_exist should be false" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;}
         if(value != gt_value){
           #ifdef DEBUG_VERIFICATION
             std::cout << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
           #endif
           testing_result_file << "ERROR (Value inconsistency): " << x << " (value, gt_value) " << value << " " << gt_value << std::endl;
         }
+        #endif
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
         continue;
       }
+      #ifdef VERIFICATION_ENABLE_TRACING
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
         string i_round_str = "i_round="+std::to_string(i)+" ";
         // std::string prefix = " (Currently Non-Inserted Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
@@ -1297,6 +1387,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 
       testing_result_file << " Disk Access count = " << system_verifier->getDiskAccessCount() << std::endl;
       testing_logger.set_to_end(op, testing_result_file);
+      #endif
     }  
     // std::cout << " rocksdb::get_perf_context()->bloom_sst_miss_count = " <<  rocksdb::get_perf_context()->bloom_sst_miss_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // std::cout << " rocksdb::get_perf_context()->bloom_sst_hit_count = " <<  rocksdb::get_perf_context()->bloom_sst_hit_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -1304,6 +1395,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
     if(system_verifier->getStringOfRDFTypeChosed() == "NONE_DUMMY"){
       continue;
     }
+    #ifdef VERIFICATION_ENABLE_TRACING
     double block_read_cpu_time = parsing_value_from_string(rocksdb::get_perf_context()->ToString(), ".*block_read_cpu_time = ([0-9.]+)");
 
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
@@ -1365,6 +1457,7 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
       testing_result_file2 << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
     }
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
+    #endif
     // print_perf_iostats_context(std::cout, prefix, 1);
   }
   std::cout << prefix_number_of_PQs_on_currently_non_inserted_keys << " point_query_time_on_currently_non_inserted_keys_ns_out = " << point_query_time_on_currently_non_inserted_keys_ns << std::endl;

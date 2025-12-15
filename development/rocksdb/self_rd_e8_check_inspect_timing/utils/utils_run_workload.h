@@ -323,10 +323,14 @@ logger_during_insertion->writeRecord(db_ptr2);
 
   {
     std::vector<string> testing_key_list({"2500", "5000", "5001"});
-    long long total_read_count_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
+    long long total_read_count_start = 0;
+    long long total_read_bytes_start = 0;
+    #ifdef VERIFICATION_ENABLE_TRACING
+    total_read_count_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
           + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
-    long long total_read_bytes_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
+    total_read_bytes_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
           + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.bytes[^:]*: ([0-9]+)");
+    #endif
     reset_perf_iostats_context();
 
 
@@ -355,10 +359,14 @@ logger_during_insertion->writeRecord(db_ptr2);
     }
 
 
-    long long total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
+    long long total_read_count_end = 0;
+    long long total_read_bytes_end = 0;
+    #ifdef VERIFICATION_ENABLE_TRACING
+    total_read_count_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
           + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
-    long long total_read_bytes_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
+    total_read_bytes_end = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
           + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.bytes[^:]*: ([0-9]+)");
+    #endif
 
     std::cout << "total_read_count_start = " << total_read_count_start << std::endl;
     std::cout << "total_read_count_end = " << total_read_count_end << std::endl;
