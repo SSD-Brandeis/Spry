@@ -101,6 +101,7 @@ def run_tasks(tasks: list):
         print(task)
         os.system(task)
 
+
 def gen_insertion_workload(
         insert: int,
         rd: int, 
@@ -109,8 +110,11 @@ def gen_insertion_workload(
         rd_threshold: float,
         key_size: int = -1,
         using_string_key: bool = False,
+        proportional_to_zero_result_point: float = 1,
+        n_pq: int = 10000,
 ):
-    task = "./K-V-Workload-Generator-master/load_gen" + f" --insert={insert} --range_delete={rd} --range_delete_selectivity={sel} --entry_size={E} --range_delete_threshold={rd_threshold} --key_size={key_size} --using_string_key={using_string_key}"
+    #task = "./K-V-Workload-Generator-master/load_gen" + f" --insert={insert} --range_delete={rd} --range_delete_selectivity={sel} --entry_size={E} --range_delete_threshold={rd_threshold} --key_size={key_size} --using_string_key={using_string_key} --proportional_to_zero_result_point={proportional_to_zero_result_point} --point_query={n_pq}"
+    task = "./K-V-Workload-Generator-master/load_gen" + f" --insert={insert} --range_delete={rd} --range_delete_selectivity={sel} --entry_size={E} --range_delete_threshold={rd_threshold} --key_size={key_size} --using_string_key={using_string_key} --zero_result_point_lookup_proportion={proportional_to_zero_result_point} --point_query={n_pq}"
     print(task)
     os.system(task)
 
