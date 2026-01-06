@@ -1,7 +1,7 @@
 # Split large workload file into rounds with non-overlapping chunks
 # Each PQ level has 3 rounds, each round gets pq new lines.
 
-pq_groups = [100000, 200000, 300000, 400000, 500000]
+pq_groups = [100, 200, 300, 400, 500]
 rounds_per_group = 3
 input_file = "pq_workload_on_currently_non_inserted_keys.txt"
 

@@ -278,7 +278,7 @@ if True:
         os.system(task)
         
         print("Gen PQ workload")
-        for number_of_PQ_on_currently_non_inserted_keys in [100000, 200000, 300000, 400000, 500000]:
+        for number_of_PQ_on_currently_non_inserted_keys in [100, 200, 300, 400, 500]:
             gen_PQ_workload(
                     file_path=workload_filename,
                     # number_of_PQ=params3["--number_of_PQ"][0],
