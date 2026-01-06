@@ -247,11 +247,12 @@ params3["--skip_reading_RD_blocks"] = [1]
 # params3[ "--show_surf_compaction_info"] = [1]
 params3["--max_open_files"] = [1]
 # params3["--number_of_PQ"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
-params3["--number_of_PQ_on_existing_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
-params3["--number_of_PQ_on_historic_existing_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
-params3["--number_of_PQ_on_currently_deleted_keys"] = [100000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+params3["--number_of_PQ_on_existing_keys"] = [1] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+params3["--number_of_PQ_on_historic_existing_keys"] = [1] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+#params3["--number_of_PQ_on_currently_deleted_keys"] = [100000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+params3["--number_of_PQ_on_currently_deleted_keys"] = [1] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 # params3["--number_of_PQ_on_currently_deleted_keys"] = [500000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
-params3["--number_of_PQ_on_currently_non_inserted_keys"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
+params3["--number_of_PQ_on_currently_non_inserted_keys"] = [100000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 
 if True:
 # if False:
@@ -265,23 +266,36 @@ if True:
                 rd_threshold=params3["--insert_before_range_delete"][0],
                 key_size=params3["--key_size_to_insert"][0],
                 using_string_key=params3["--use_string_key"][0],
+                proportional_to_zero_result_point=1,
+                n_pq = 100000*45,
+                #n_pq = 100000,
+                #n_pq = 0,
         )
         task = f"mv workload.txt {workload_filename}"
         os.system(task)
         
         print("Gen PQ workload")
-
-        for number_of_pq_on_currently_deleted_keys in [100000, 200000, 300000, 400000, 500000]:
+        for number_of_PQ_on_currently_non_inserted_keys in [100000, 200000, 300000, 400000, 500000]:
             gen_PQ_workload(
                     file_path=workload_filename,
                     # number_of_PQ=params3["--number_of_PQ"][0],
                     number_of_PQ_on_existing_keys=params3["--number_of_PQ_on_existing_keys"][0],
                     number_of_PQ_on_historic_existing_keys=params3["--number_of_PQ_on_historic_existing_keys"][0],
-                    # number_of_PQ_on_currently_deleted_keys=params3["--number_of_PQ_on_currently_deleted_keys"][0],
-                    number_of_PQ_on_currently_deleted_keys=number_of_pq_on_currently_deleted_keys,
-                    number_of_PQ_on_currently_non_inserted_keys=params3["--number_of_PQ_on_currently_non_inserted_keys"][0],
+                    number_of_PQ_on_currently_deleted_keys=params3["--number_of_PQ_on_currently_deleted_keys"][0],
+                    #number_of_PQ_on_currently_non_inserted_keys=params3["--number_of_PQ_on_currently_non_inserted_keys"][0],
+                    number_of_PQ_on_currently_non_inserted_keys=number_of_PQ_on_currently_non_inserted_keys,
                     using_string_key=params3["--use_string_key"][0],
             )
+
+        task = f"grep \"^Q\" {workload_filename} > workload/pq_workload_on_currently_non_inserted_keys.txt"
+        os.system(task)
+        task = f"sed -i '/^Q/d' {workload_filename}"
+        os.system(task)
+
+        task = f"cd workload; python3 splitting_pq_workload.py"
+        os.system(task)
+        
+
 
 
 # ["NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,TOP_LEVEL_RDF,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY"]
@@ -339,56 +353,56 @@ rdf_types = [
 # }
 
 
-for number_of_pq_on_currently_deleted_keys in [100000, 200000, 300000, 400000, 500000]:
-    params3["--number_of_PQ_on_currently_deleted_keys"] = [number_of_pq_on_currently_deleted_keys]
-    # mkdir -p 
-    # os.system(f"mkdir -p log_{number_of_pq_on_currently_deleted_keys}")
+# for number_of_PQ_on_currently_non_inserted_keys in [100000, 200000, 300000, 400000, 500000]:
+#     params3["--number_of_PQ_on_currently_non_inserted_keys"] = [number_of_PQ_on_currently_non_inserted_keys]
+#     # mkdir -p 
+#     # os.system(f"mkdir -p log_{number_of_pq_on_currently_deleted_keys}")
 
-    # Construct the full path
-    log_dir = f"saved_result_string_key_size_{params3['--key_size_to_insert'][0]}/log_{number_of_pq_on_currently_deleted_keys}"
+#     # Construct the full path
+#     log_dir = f"saved_result_digit_key_size_{params3['--key_size_to_insert'][0]}/log_{number_of_PQ_on_currently_non_inserted_keys}"
 
-    # Recursively create the directory
-    os.makedirs(log_dir, exist_ok=True)
+#     # Recursively create the directory
+#     os.makedirs(log_dir, exist_ok=True)
 
-    # for i_rdf, (rdf_type, local_param) in enumerate(rdf_types.items()):
-    for i_rdf, rdf_param in enumerate(rdf_types):
-        # if i_rdf > 0:
-        #    break
-        # if i_rdf < 5:
-        # if i_rdf < 6:
-        # if i_rdf < 7:
-        # if i_rdf < 8:
-        # if i_rdf < 9:
-        # # if i_rdf < 10:
-        # # if i_rdf < 11:
-        #    continue
-        # if i_rdf > 10 and i_rdf < 15:
-        #     continue
-        # if i_rdf < 17:
-        # if i_rdf < 21:
-        #   continue
+#     # for i_rdf, (rdf_type, local_param) in enumerate(rdf_types.items()):
+#     for i_rdf, rdf_param in enumerate(rdf_types):
+#         # if i_rdf > 0:
+#         #    break
+#         # if i_rdf < 5:
+#         # if i_rdf < 6:
+#         # if i_rdf < 7:
+#         # if i_rdf < 8:
+#         # if i_rdf < 9:
+#         # # if i_rdf < 10:
+#         # # if i_rdf < 11:
+#         #    continue
+#         # if i_rdf > 10 and i_rdf < 15:
+#         #     continue
+#         # if i_rdf < 17:
+#         # if i_rdf < 21:
+#         #   continue
 
-        test_num = 61 + i_rdf
-        # params3["--using_rdf_types"] = [rdf_type]
-        params3_local = deepcopy(params3)
-        params3_local.update(rdf_param) # delta changes for different rdf_type
-        # print(params3_local)
-        tasks3 = set_B_E_list_to_task(params3_local, B_list = B_list, E_list = E_list)
-        tasks3 = get_task_with_parallelling_parameters(tasks=tasks3, param_dict={"--RD":rd_list, "--selectivity":sel_list,
-                                                                            "--workload_filename": workload_filename_list,
-                                                                            "--logging_filename": [
-                                                                                f"pq_result/logging{test_num}11.txt",
-                                                                                #f"pq_result/logging{test_num}12.txt",
-                                                                                #f"pq_result/logging{test_num}13.txt",
-                                                                                #f"pq_result/logging{test_num}14.txt",
-                                                                            ],
-                                                                            ">":[
-                                                                                f"{log_dir}/log{test_num}11",
-                                                                                #f"{log_dir}/log{test_num}12",
-                                                                                #f"{log_dir}/log{test_num}13",
-                                                                                #f"{log_dir}/log{test_num}14",
-                                                                            ]
-                                                                            })
-        run_tasks(tasks3)
-        # run_with_RD_sel(str(test_num), RD_list=[100], sel_list=[0.001, 0.005, 0.01], tasks=tasks3)
+#         test_num = 61 + i_rdf
+#         # params3["--using_rdf_types"] = [rdf_type]
+#         params3_local = deepcopy(params3)
+#         params3_local.update(rdf_param) # delta changes for different rdf_type
+#         # print(params3_local)
+#         tasks3 = set_B_E_list_to_task(params3_local, B_list = B_list, E_list = E_list)
+#         tasks3 = get_task_with_parallelling_parameters(tasks=tasks3, param_dict={"--RD":rd_list, "--selectivity":sel_list,
+#                                                                             "--workload_filename": workload_filename_list,
+#                                                                             "--logging_filename": [
+#                                                                               f"pq_result/{log_dir}/logging{test_num}11.txt",
+#                                                                               #f"pq_result/logging{test_num}12.txt",
+#                                                                               #f"pq_result/logging{test_num}13.txt",
+#                                                                               #f"pq_result/logging{test_num}14.txt",
+#                                                                             ],
+#                                                                             ">":[
+#                                                                                 f"{log_dir}/log{test_num}11",
+#                                                                                 #f"{log_dir}/log{test_num}12",
+#                                                                                 #f"{log_dir}/log{test_num}13",
+#                                                                                 #f"{log_dir}/log{test_num}14",
+#                                                                             ]
+#                                                                             })
+#         run_tasks(tasks3)
+#         # run_with_RD_sel(str(test_num), RD_list=[100], sel_list=[0.001, 0.005, 0.01], tasks=tasks3)
 

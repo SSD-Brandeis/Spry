@@ -237,7 +237,7 @@ params3["--surf_use_condensed_digit_key"] = [0]
 # sel_list = [0.1,0.1,0.1]
 # rd_list = [10,10,10]
 # params3["--show_surf_compaction_info"] = [1] 
-params3[ "--surf__key_len_in_bytes"] = [13]
+params3["--surf__key_len_in_bytes"] = [13]
 # params3["--surf__key_len_in_bytes"] = [6]
 # params3[ "--surf__key_len_in_bytes"] = [3]
 # params3[ "--skip_reading_RD_blocks"] = [0]
@@ -265,21 +265,24 @@ if True:
                 rd_threshold=params3["--insert_before_range_delete"][0],
                 key_size=params3["--key_size_to_insert"][0],
                 using_string_key=params3["--use_string_key"][0],
+                proportional_to_zero_result_point=1,
+                n_pq = 100*45,
+                #n_pq = 100000,
+                #n_pq = 0,
         )
         task = f"mv workload.txt {workload_filename}"
         os.system(task)
         
         print("Gen PQ workload")
-
-        for number_of_pq_on_currently_deleted_keys in [100000, 200000, 300000, 400000, 500000]:
+        for number_of_PQ_on_currently_non_inserted_keys in [100000, 200000, 300000, 400000, 500000]:
             gen_PQ_workload(
                     file_path=workload_filename,
                     # number_of_PQ=params3["--number_of_PQ"][0],
                     number_of_PQ_on_existing_keys=params3["--number_of_PQ_on_existing_keys"][0],
                     number_of_PQ_on_historic_existing_keys=params3["--number_of_PQ_on_historic_existing_keys"][0],
-                    # number_of_PQ_on_currently_deleted_keys=params3["--number_of_PQ_on_currently_deleted_keys"][0],
-                    number_of_PQ_on_currently_deleted_keys=number_of_pq_on_currently_deleted_keys,
-                    number_of_PQ_on_currently_non_inserted_keys=params3["--number_of_PQ_on_currently_non_inserted_keys"][0],
+                    number_of_PQ_on_currently_deleted_keys=params3["--number_of_PQ_on_currently_deleted_keys"][0],
+                    #number_of_PQ_on_currently_non_inserted_keys=params3["--number_of_PQ_on_currently_non_inserted_keys"][0],
+                    number_of_PQ_on_currently_non_inserted_keys=number_of_PQ_on_currently_non_inserted_keys,
                     using_string_key=params3["--use_string_key"][0],
             )
 
@@ -291,6 +294,8 @@ if True:
         task = f"cd workload; python3 splitting_pq_workload.py"
         os.system(task)
         
+
+
 
 
 # ["NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,TOP_LEVEL_RDF,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY"]
@@ -348,13 +353,13 @@ rdf_types = [
 # }
 
 
-# for number_of_pq_on_currently_deleted_keys in [100000, 200000, 300000, 400000, 500000]:
-#     params3["--number_of_PQ_on_currently_deleted_keys"] = [number_of_pq_on_currently_deleted_keys]
+# for number_of_PQ_on_currently_non_inserted_keys in [100000, 200000, 300000, 400000, 500000]:
+#     params3["--number_of_PQ_on_currently_non_inserted_keys"] = [number_of_PQ_on_currently_non_inserted_keys]
 #     # mkdir -p 
 #     # os.system(f"mkdir -p log_{number_of_pq_on_currently_deleted_keys}")
 
 #     # Construct the full path
-#     log_dir = f"saved_result_string_key_size_{params3['--key_size_to_insert'][0]}/log_{number_of_pq_on_currently_deleted_keys}"
+#     log_dir = f"saved_result_digit_key_size_{params3['--key_size_to_insert'][0]}/log_{number_of_PQ_on_currently_non_inserted_keys}"
 
 #     # Recursively create the directory
 #     os.makedirs(log_dir, exist_ok=True)
@@ -386,10 +391,10 @@ rdf_types = [
 #         tasks3 = get_task_with_parallelling_parameters(tasks=tasks3, param_dict={"--RD":rd_list, "--selectivity":sel_list,
 #                                                                             "--workload_filename": workload_filename_list,
 #                                                                             "--logging_filename": [
-#                                                                                 f"pq_result/logging{test_num}11.txt",
-#                                                                                 #f"pq_result/logging{test_num}12.txt",
-#                                                                                 #f"pq_result/logging{test_num}13.txt",
-#                                                                                 #f"pq_result/logging{test_num}14.txt",
+#                                                                               f"pq_result/{log_dir}/logging{test_num}11.txt",
+#                                                                               #f"pq_result/logging{test_num}12.txt",
+#                                                                               #f"pq_result/logging{test_num}13.txt",
+#                                                                               #f"pq_result/logging{test_num}14.txt",
 #                                                                             ],
 #                                                                             ">":[
 #                                                                                 f"{log_dir}/log{test_num}11",
