@@ -30,7 +30,7 @@
 #define FILENAME "workload.txt"
 // YCHuang Added Start
 float ych_rd_threshold = 0.9;
-// bool using_string_key = false; // not read from the command line
+bool using_string_key = false; // not read from the command line
 // YCHuang Added End
 // using namespace std;
 
