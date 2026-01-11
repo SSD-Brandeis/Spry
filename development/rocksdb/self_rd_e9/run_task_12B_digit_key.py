@@ -35,7 +35,7 @@ params = {
     "--flag_skip_compaction_trivial_move": [0], # if TOP_LEVEL_RDF is in --using_rdf_types, then no matter what value is set, compaction trivial move will always be skip
     "--use_surf_base": [0], # 1: true, 0: false
     "--surf_base_store_key_to_k_diff": [1], # is used when --use_surf_base = [1], value can only be nature number (> 0 integer)
-    "--use_string_key": [1],
+    "--use_string_key": [0],
 }
 
 
@@ -235,14 +235,14 @@ workload_filename_list = [
    
 
 
-params3["--surf_use_condensed_digit_key"] = [0]
-# params3["--surf_use_condensed_digit_key"] = [1]
+# params3["--surf_use_condensed_digit_key"] = [0]
+params3["--surf_use_condensed_digit_key"] = [1]
 # params3["-i"] = [1000]
 # sel_list = [0.1,0.1,0.1]
 # rd_list = [10,10,10]
 # params3["--show_surf_compaction_info"] = [1] 
-params3["--surf__key_len_in_bytes"] = [13]
-# params3["--surf__key_len_in_bytes"] = [6]
+# params3["--surf__key_len_in_bytes"] = [13]
+params3["--surf__key_len_in_bytes"] = [6]
 # params3[ "--surf__key_len_in_bytes"] = [3]
 # params3[ "--skip_reading_RD_blocks"] = [0]
 params3["--flag_skip_compaction_trivial_move"] = [1]
@@ -456,7 +456,7 @@ for i_test in range(5):
         os.system(task)
      
         # Construct the full path
-        log_dir = f"saved_result_string_key_size_{params3['--key_size_to_insert'][0]}/log_{i_test}"
+        log_dir = f"saved_result_digit_key_size_{params3['--key_size_to_insert'][0]}/log_{i_test}"
 
         # Recursively create the directory
         os.makedirs(log_dir, exist_ok=True)
