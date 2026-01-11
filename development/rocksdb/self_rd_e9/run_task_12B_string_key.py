@@ -257,8 +257,8 @@ params3["--number_of_PQ_on_currently_deleted_keys"] = [1] # -1: for testing on a
 # params3["--number_of_PQ_on_currently_deleted_keys"] = [500000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 params3["--number_of_PQ_on_currently_non_inserted_keys"] = [100] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
 
-if True:
-# if False:
+# if True:
+if False:
     for rd, sel, workload_filename in zip(rd_list, sel_list, workload_filename_list):
         print("Gen I/RD workload")
         gen_insertion_workload(
@@ -410,3 +410,79 @@ rdf_types = [
 #         run_tasks(tasks3)
 #         # run_with_RD_sel(str(test_num), RD_list=[100], sel_list=[0.001, 0.005, 0.01], tasks=tasks3)
 
+insert_before_range_delete_list = [200000, 300000, 400000, 500000, 600000]
+i_list = [0.5, 0.3333, 0.25, 0.2, 0.1666]
+
+for i_test in range(5):
+    params3["--insert_before_range_delete"][0] = insert_before_range_delete_list[i_test]
+    params3["-i"][0] = i_list[i_test]
+    
+    for rd, sel, workload_filename in zip(rd_list, sel_list, workload_filename_list):
+        print("Gen I/RD workload")
+        gen_insertion_workload(
+                insert=params3["-i"][0],
+                rd=rd,
+                sel=sel,
+                E=E,
+                rd_threshold=params3["--insert_before_range_delete"][0],
+                key_size=params3["--key_size_to_insert"][0],
+                using_string_key=params3["--use_string_key"][0],
+                proportional_to_zero_result_point=1,
+                n_pq = 100*45,
+                #n_pq = 100000,
+                #n_pq = 0,
+        )
+        task = f"mv workload.txt {workload_filename}"
+        os.system(task)
+        
+        print("Gen PQ workload")
+        gen_PQ_workload(
+                    file_path=workload_filename,
+                    # number_of_PQ=params3["--number_of_PQ"][0],
+                    number_of_PQ_on_existing_keys=params3["--number_of_PQ_on_existing_keys"][0],
+                    number_of_PQ_on_historic_existing_keys=params3["--number_of_PQ_on_historic_existing_keys"][0],
+                    number_of_PQ_on_currently_deleted_keys=params3["--number_of_PQ_on_currently_deleted_keys"][0],
+                    #number_of_PQ_on_currently_non_inserted_keys=params3["--number_of_PQ_on_currently_non_inserted_keys"][0],
+                    number_of_PQ_on_currently_non_inserted_keys=params3["--number_of_PQ_on_currently_non_inserted_keys"][0],
+                    using_string_key=params3["--use_string_key"][0],
+        )
+
+        task = f"grep \"^Q\" {workload_filename} > workload/pq_workload_on_currently_non_inserted_keys.txt"
+        os.system(task)
+        task = f"sed -i '/^Q/d' {workload_filename}"
+        os.system(task)
+
+        task = f"cd workload; python3 splitting_pq_workload.py"
+        os.system(task)
+     
+        # Construct the full path
+        log_dir = f"saved_result_string_key_size_{params3['--key_size_to_insert'][0]}/log_{i_test}"
+
+        # Recursively create the directory
+        os.makedirs(log_dir, exist_ok=True)
+
+        # for i_rdf, (rdf_type, local_param) in enumerate(rdf_types.items()):
+        for i_rdf, rdf_param in enumerate(rdf_types):
+
+            test_num = 61 + i_rdf
+            # params3["--using_rdf_types"] = [rdf_type]
+            params3_local = deepcopy(params3)
+            params3_local.update(rdf_param) # delta changes for different rdf_type
+            # print(params3_local)
+            tasks3 = set_B_E_list_to_task(params3_local, B_list = B_list, E_list = E_list)
+            tasks3 = get_task_with_parallelling_parameters(tasks=tasks3, param_dict={"--RD":rd_list, "--selectivity":sel_list,
+                                                                                "--workload_filename": workload_filename_list,
+                                                                                "--logging_filename": [
+                                                                                  f"pq_result/{log_dir}/logging{test_num}11.txt",
+                                                                                  #f"pq_result/logging{test_num}12.txt",
+                                                                                  #f"pq_result/logging{test_num}13.txt",
+                                                                                  #f"pq_result/logging{test_num}14.txt",
+                                                                                ],
+                                                                                ">":[
+                                                                                    f"{log_dir}/log{test_num}11",
+                                                                                    #f"{log_dir}/log{test_num}12",
+                                                                                    #f"{log_dir}/log{test_num}13",
+                                                                                    #f"{log_dir}/log{test_num}14",
+                                                                                ]
+                                                                                })
+            run_tasks(tasks3)
