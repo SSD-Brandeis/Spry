@@ -1,7 +1,7 @@
 #remote
 #sed -i 's/)\ .*\ fetcher/)\ fetcher/g' saved*/log*
 
-for dir in log_100000 log_200000 log_300000 log_400000 log_500000; do
+for dir in log_0 log_1 log_2 log_3 log_4; do
     echo "Processing $dir..."
     cd "$dir"
     
@@ -22,6 +22,5 @@ done
 
 
 #local
-scp -i ~/.ssh/cham.pem -r cc@129.114.108.242:~/LSMRangeDeletes/development/rocksdb/self_rd_e8/saved_result_digit_key_size_12/*/*.xlsx ./
-scp -i ~/.ssh/cham.pem -r cc@129.114.109.19:~/LSMRangeDeletes/development/rocksdb/self_rd_e7/saved_result_string_key_size_12 ./
-scp -i ~/.ssh/cham.pem -r cc@129.114.109.19:~/LSMRangeDeletes/development/rocksdb/self_rd_e7/saved_result_string_key_size_256 ./
+#scp -i ~/.ssh/cham.pem -r cc@129.114.108.238:~/LSMRangeDeletes/development/rocksdb/self_rd_e9/saved_result_string_key_size_12/*/*.xlsx ./
+scp -i ~/.ssh/cham.pem -r cc@129.114.108.238:~/LSMRangeDeletes/development/rocksdb/self_rd_e9/saved_result_string_key_size_12/* ./
