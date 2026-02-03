@@ -23,14 +23,14 @@
 #define PD_THRESHOLD 0.1 // PD_THRESHOLD*insert_count number of inserts must be made before Point Deletes may take place (applicable when an empty database is being populated)
 // #define RD_THRESHOLD 0.75 // RD_THRESHOLD*insert_count number of inserts must be made before Range Deletes may take place (applicable when an empty database is being populated)
 // #define RD_THRESHOLD 0.9 // RD_THRESHOLD*insert_count number of inserts must be made before Range Deletes may take place (applicable when an empty database is being populated)
-#define PQ_THRESHOLD 0.1 // PQ_THRESHOLD*insert_count number of inserts must be made before Point Queries may take place (applicable when an empty database is being populated)
+#define PQ_THRESHOLD 1 // PQ_THRESHOLD*insert_count number of inserts must be made before Point Queries may take place (applicable when an empty database is being populated)
 #define RQ_THRESHOLD 0.1 // RQ_THRESHOLD*insert_count number of inserts must be made before Range Queries may take place (applicable when an empty database is being populated)
 // #define STRING_KEY_ENABLED false
 // #define STRING_KEY_ENABLED true
 #define FILENAME "workload.txt"
 // YCHuang Added Start
 float ych_rd_threshold = 0.9;
-bool using_string_key = false;
+bool using_string_key = false; // not read from the command line
 // YCHuang Added End
 // using namespace std;
 
@@ -278,6 +278,7 @@ void generate_workload(bool flag_using_string_key) {
 
     // generate non-existing keys in advance
     long _maximum_unique_non_existing_point_query_count = 0;
+//std::cout << "_maximum_unique_non_existing_point_query_count = " << _maximum_unique_non_existing_point_query_count << " " << "maximum_unique_non_existing_point_query_count " << maximum_unique_non_existing_point_query_count << std::endl;
     while (_maximum_unique_non_existing_point_query_count < maximum_unique_non_existing_point_query_count) {
         Key key;
         // if (STRING_KEY_ENABLED)
@@ -299,6 +300,7 @@ void generate_workload(bool flag_using_string_key) {
             }else{
                 key = Key::get_key(32, flag_using_string_key);
             }
+//std::cout << "get key from Non existing key set" << std::endl;
         }
         global_non_existing_key_set.insert(key);
         global_non_existing_key_pool.push_back(key);
@@ -439,6 +441,7 @@ void generate_workload(bool flag_using_string_key) {
         }
 
         else if (choice == 4) { // RANGE DELETE
+//std::cout << "_total_operation_count = " << _total_operation_count << ", choice = " << choice << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
             // selectivity is computed on the current size of the insert pool (insert_pool.size()) and NOT the total inserts to be made (insert_count)
 
             // the following code-block generates range selectivity as a random number 
@@ -494,7 +497,7 @@ void generate_workload(bool flag_using_string_key) {
                 //     std::cout << insert_pool[i] << ' ';
                 // std::cout << std::endl;
 
-                //std::cout << "R " << start_key << " " << end_key << std::endl;
+// std::cout << "R " << start_key << " " << end_key << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
                 fp << "R " << start_key << " " << end_key << std::endl;
                 _range_delete_count++;
                 _effective_ingestion_count -= entries_in_range_delete;
@@ -523,6 +526,7 @@ void generate_workload(bool flag_using_string_key) {
 		}
 		else if(_existing_point_query_count < existing_point_query_count){
 		// std::cout << "_insert_count " << _insert_count << " ; _point_query_count " << _point_query_count << std::endl;
+std::cout << "_existing_point_query_count = " << _existing_point_query_count << " ; existing_point_query_count = " << existing_point_query_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
 		std::vector<int> index_mapping;
 		if(!sorted){
                         if(existing_point_lookup_dist == 1){
@@ -713,7 +717,11 @@ void print_workload_parameters(int _insert_count, int _update_count, int _point_
 
 int get_choice(long insert_pool_size, long insert_count, long update_count, long point_delete_count, long range_delete_count, long point_query_count, long range_query_count, long _insert_count, long _update_count, long _point_delete_count, long _range_delete_count, long _point_query_count, long _range_query_count,
                 float ych_rd_threshold) {
-    long total_operation_count = (insert_count - _insert_count) + (update_count - _update_count) + (point_delete_count - _point_delete_count) + (range_delete_count - _range_delete_count) + (point_query_count - _point_query_count) + (range_query_count - _range_query_count);
+    //long total_operation_count = (insert_count - _insert_count) + (update_count - _update_count) + (point_delete_count - _point_delete_count) + (range_delete_count - _range_delete_count) + (point_query_count - _point_query_count) + (range_query_count - _range_query_count);
+    long total_operation_count = (insert_count - _insert_count) + (update_count - _update_count) + (point_delete_count - _point_delete_count) + (range_delete_count - _range_delete_count);
+    if(insert_count == _insert_count && range_delete_count == _range_delete_count){
+    	total_operation_count = (insert_count - _insert_count) + (update_count - _update_count) + (point_delete_count - _point_delete_count) + (range_delete_count - _range_delete_count) + (point_query_count - _point_query_count) + (range_query_count - _range_query_count);
+    }
     if(total_operation_count == 0) return 0;
     float insert_fraction = (float) (insert_count - _insert_count) / total_operation_count;
     float update_fraction = (float) (update_count - _update_count) / total_operation_count;
@@ -734,6 +742,15 @@ int get_choice(long insert_pool_size, long insert_count, long update_count, long
     else if (rand_float < insert_fraction + update_fraction + point_delete_fraction + range_delete_fraction) choice = 4;
     else if (rand_float < insert_fraction + update_fraction + point_delete_fraction + range_delete_fraction + point_query_fraction) choice = 5;
     else if (rand_float <= insert_fraction + update_fraction + point_delete_fraction + range_delete_fraction + point_query_fraction + range_query_fraction) choice = 6;
+
+    // yucheng added start
+//   if(insert_count == _insert_count && range_delete_count == _range_delete_count){
+//    	std::cout << "choice = 5 " << "_insert_count = " << _insert_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+//	choice = 5;
+//    }else{
+//    	std::cout << "choice = " << choice << " _insert_count = " << _insert_count << "/" << insert_count << " _range_delete_count = " << _range_delete_count << "/" << range_delete_count << " " << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl; 
+//    }
+    // yucheng added end
 
     // std::cout << "choice = " << choice << std::endl;
     switch (choice) {
@@ -959,7 +976,8 @@ params* parse_arguments2(int argc, char *argv[]) {
   entry_size = entry_size_cmd ? args::get(entry_size_cmd) : 8;
 
   non_existing_point_query_count = floor(point_query_count*zero_result_point_lookup_proportion);
-  //std::cout << "Zero-result queries:" << non_existing_point_query_count << std::endl;
+  std::cout << "point_query_count = " << point_query_count << " zero_result_point_lookup_proportion = " << zero_result_point_lookup_proportion << std::endl; 
+  std::cout << "Zero-result queries (non_existing_point_query_count):" << non_existing_point_query_count << std::endl;
   existing_point_query_count = point_query_count - non_existing_point_query_count; 
 
   float maximum_unique_non_existing_point_query_proportion = unique_zero_result_point_lookup_proportion_cmd ? args::get(unique_zero_result_point_lookup_proportion_cmd) : 0.5;

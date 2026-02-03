@@ -117,6 +117,43 @@ def gen_insertion_workload(
     print(task)
     os.system(task)
 
+def extract_pq_from_workload(workload_file, pq_file):
+    print(f"Extracting PQ from {workload_file} to {pq_file}...")
+    temp_workload = workload_file + ".tmp"
+    with open(workload_file, 'r') as f_in, \
+         open(pq_file, 'w') as f_pq, \
+         open(temp_workload, 'w') as f_out:
+        for line in f_in:
+            if line.startswith('Q'):
+                f_pq.write(line)
+            else:
+                f_out.write(line)
+    os.replace(temp_workload, workload_file)
+
+def split_pq_workload(input_file, base_workload_name, pq_groups=[5000], rounds_per_group=3):
+    print(f"Splitting PQ from {input_file} for {base_workload_name}...")
+    if not os.path.exists(input_file):
+        print(f"Error: {input_file} not found.")
+        return
+
+    with open(input_file, "r", encoding="utf-8") as infile:
+        line_iter = iter(infile)
+        for pq in pq_groups:
+            for r in range(rounds_per_group):
+                workload_basename = os.path.basename(base_workload_name)
+                output_filename = os.path.join(
+                    "workload",
+                    f"{workload_basename}_currently_non_inserted_keys_round_{r}_number_of_pq_{pq}"
+                )
+
+                with open(output_filename, "w", encoding="utf-8") as outfile:
+                    for _ in range(pq):
+                        line = next(line_iter, None)
+                        if line is None:
+                            break
+                        outfile.write(line)
+                print(f"✅ Created {output_filename} with ~{pq} lines.")
+
 def gen_PQ_workload(
         file_path: int,
         # number_of_PQ: int,
@@ -192,8 +229,8 @@ def get_task_with_parallelling_parameters(
 params3 = deepcopy(params)
 params3["-P"] = [16]
 params3["-T"] = [4]
-params3["--insert_before_range_delete"] = [0.999]
-# params3["--insert_before_range_delete"] = [0.5]
+# params3["--insert_before_range_delete"] = [0.999]
+params3["--insert_before_range_delete"] = [0.5]
 # params3["--insert_before_range_delete"] = [0.8]
 # params3["--insert_before_range_delete"] = [0.7]
 # params3["--run_pq_during_insertion_interval"] = [20]
@@ -397,13 +434,16 @@ for i_test in range(5):
                 key_size=params3["--key_size_to_insert"][0],
     )
 
-    task = f"grep \"^Q\" {workload_filename} > workload/pq_workload_on_currently_non_inserted_keys.txt"
-    os.system(task)
-    task = f"sed -i '/^Q/d' {workload_filename}"
-    os.system(task)
+    # task = f"grep \"^Q\" {workload_filename} > workload/pq_workload_on_currently_non_inserted_keys.txt"
+    # os.system(task)
+    # task = f"sed -i '/^Q/d' {workload_filename}"
+    # os.system(task)
 
-    task = f"cd workload; python3 splitting_pq_workload.py"
-    os.system(task)
+    # task = f"cd workload; python3 splitting_pq_workload.py"
+    # os.system(task)
+    
+    extract_pq_from_workload(workload_filename, "workload/pq_workload_on_currently_non_inserted_keys.txt")
+    split_pq_workload("workload/pq_workload_on_currently_non_inserted_keys.txt", workload_filename)
     
     # Construct the full path
     if params3["--use_string_key"][0] == 0:
@@ -411,7 +451,7 @@ for i_test in range(5):
     else:
         log_dir = f"saved_result_string_key_size_{params3['--key_size_to_insert'][0]}"
 
-    log_dir = log_dir + f"_sel_{sel}_rd_{rd}/log_{i_test}"
+    log_dir = log_dir + f"/log_{i_test}_sel_{sel}_rd_{rd}"
 
     # Recursively create the directory
     os.makedirs(log_dir, exist_ok=True)
