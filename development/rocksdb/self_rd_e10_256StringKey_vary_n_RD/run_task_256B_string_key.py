@@ -258,8 +258,8 @@ E_list = [1024]
 E = E_list[0]
 # rd_list = [100, 100, 100]
 # sel_list = [0.001, 0.005, 0.01]
-rd_list = [1, 10, 100, 1000, 10000]
-sel_list = [0.00001, 0.00001, 0.00001, 0.00001, 0.00001]
+rd_list = [1, 10, 100, 1000]
+sel_list = [0.0001, 0.0001, 0.0001, 0.0001]
 #rd_list = [100, 100, 100, 100]
 #sel_list = [0.0005, 0.001, 0.0015, 0.002]
 workload_filename_list = [
@@ -267,7 +267,7 @@ workload_filename_list = [
    f"workload/workload7112.txt",
    f"workload/workload7113.txt",
    f"workload/workload7114.txt",
-   f"workload/workload7115.txt",
+#    f"workload/workload7115.txt",
 ]
 
    
@@ -394,7 +394,7 @@ rdf_types = [
 # rd_list = [1, 10, 100, 1000, 10000]
 # sel_list = [0.00001]
 
-for i_test in range(5):
+for i_test in range(4):
     # params3["--insert_before_range_delete"][0] = insert_before_range_delete_list[i_test]
     # params3["-i"][0] = i_list[i_test]
 
