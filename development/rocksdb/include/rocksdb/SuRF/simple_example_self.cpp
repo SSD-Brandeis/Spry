@@ -24,169 +24,6 @@ static bool isEqual(const std::string& a, const std::string& b, const unsigned b
     }
 }
 
-// void testMoveToKeyGreaterThanWord(SuRF* surf_, std::vector<std::string> words, surf::SuffixType kSuffixType){
-
-// 	    bool inclusive = true;
-// 	    for (int i = 0; i < 2; i++) {
-//             if (i == 1){
-//                 inclusive = false;
-//             }
-//             for (int j = -1; j <= (int)words.size(); j++) {
-//                 SuRF::Iter iter;
-//                 if (j < 0){
-//                     iter = surf_->moveToFirst();
-//                 }else if (j >= (int)words.size()){
-//                     iter = surf_->moveToLast();
-//                 }else{
-//                     iter = surf_->moveToKeyGreaterThan(words[j], inclusive);
-//                 }
-
-//                 unsigned bitlen;
-//                 bool is_prefix = false;
-//                 if (j < 0) {
-//                     std::cout << "inclusive: " << inclusive << " j < 0" << std::endl;
-//                     // ASSERT_TRUE(iter.isValid());
-//                     if(iter.isValid() == false){
-//                         std::cout << "Error: " << "iter.isValid() = " << iter.isValid() 
-//                             << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                     }
-//                     std::string iter_key = iter.getKeyWithSuffix(&bitlen);
-//                     std::string word_prefix = words[0].substr(0, iter_key.length());
-//                     std::cout << "\titer_key: " << iter_key << " " << "bitlen: " << bitlen << std::endl;
-//                     std::cout << "\tword_prefix: " << word_prefix << std::endl;
-//                     is_prefix = isEqual(word_prefix, iter_key, bitlen);
-//                     // ASSERT_TRUE(is_prefix);
-//                     if(is_prefix == false){
-//                         std::cout << "Error: " << "is_prefix = " << is_prefix 
-//                             << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                     }
-//                 } else if (j >= (int)words.size()) {
-//                     std::cout << "inclusive: " << inclusive << " j >= words.size()" << std::endl;
-//                     // ASSERT_TRUE(iter.isValid());
-//                     if(iter.isValid() == false){
-//                         std::cout << "Error: " << "iter.isValid() = " << iter.isValid()
-//                             << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                     }
-//                     std::string iter_key = iter.getKeyWithSuffix(&bitlen);
-//                     std::string word_prefix = words[words.size() - 1].substr(0, iter_key.length());
-//                     std::cout << "\titer_key: " << iter_key << " " << "bitlen: " << bitlen << std::endl;
-//                     std::cout << "\tword_prefix: " << word_prefix << std::endl;
-//                     is_prefix = isEqual(word_prefix, iter_key, bitlen);
-//                     // ASSERT_TRUE(is_prefix);
-//                     if(is_prefix == false){
-//                         std::cout << "Error: " << "is_prefix = " << is_prefix 
-//                             << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                     }
-//                 } else if (j == (int)words.size() - 1) {
-//                     std::cout << "inclusive: " << inclusive << " j == words.size() - 1" << std::endl;
-//                     if (iter.getFpFlag()) {
-//                         // ASSERT_TRUE(iter.isValid());
-//                         if(iter.isValid() == false){
-//                             std::cout << "Error: " << "iter.isValid() = " << iter.isValid() 
-//                                 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                         }
-//                         std::string iter_key = iter.getKeyWithSuffix(&bitlen);
-//                         std::string word_prefix = words[words.size() - 1].substr(0, iter_key.length());
-//                         std::cout << "\titer_key: " << iter_key << " " << "bitlen: " << bitlen << std::endl;
-//                         std::cout << "\tword_prefix: " << word_prefix << std::endl;
-//                         is_prefix = isEqual(word_prefix, iter_key, bitlen);
-//                         // ASSERT_TRUE(is_prefix);
-//                         if(is_prefix == false){
-//                             std::cout << "Error: " << "is_prefix = " << is_prefix 
-//                                 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                         }
-//                     } else {
-//                         // ASSERT_FALSE(iter.isValid());
-//                         if(iter.isValid() == true){
-//                             std::cout << "Error: " << "iter.isValid() = " << iter.isValid() 
-//                                 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                         }
-//                     }
-//                 } else {
-//                     std::cout << "inclusive: " << inclusive << " j >= 0 && j < words.size() - 1" << std::endl;
-//                     std::cout << "words[j] = " << words[j] << std::endl;
-//                     // ASSERT_TRUE(iter.isValid());
-//                     if(iter.isValid() == false){
-//                         std::cout << "Error: " << "iter.isValid() = " << iter.isValid()
-//                             << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                     }
-//                     std::string iter_key = iter.getKeyWithSuffix(&bitlen);
-//                     std::string word_prefix_fp = words[j].substr(0, iter_key.length());
-//                     std::string word_prefix_true = words[j+1].substr(0, iter_key.length());
-//                     std::cout << "\titer_key: " << iter_key << " " << "bitlen: " << bitlen << std::endl;
-//                     std::cout << "\titer.getFpFlag(): " << iter.getFpFlag() << std::endl;
-//                     std::cout << "\tword_prefix_fp: " << word_prefix_fp << std::endl;
-//                     std::cout << "\tword_prefix_true: " << word_prefix_true << std::endl;
-//                     if (iter.getFpFlag())
-//                         is_prefix = isEqual(word_prefix_fp, iter_key, bitlen);
-//                     else
-//                         is_prefix = isEqual(word_prefix_true, iter_key, bitlen);
-//                     // ASSERT_TRUE(is_prefix);
-//                     if(is_prefix == false){
-//                         std::cout << "Error: " << "is_prefix = " << is_prefix 
-//                             << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                     }
-
-//                     // test getKey()
-//                     std::string iter_get_key = iter.getKey();
-//                     std::cout << "\titer_get_key: " << iter_get_key << std::endl;   
-//                     std::string iter_key_prefix = iter_key.substr(0, iter_get_key.length());
-
-//                     iter++;
-//                     if (iter.isValid()) {
-//                         std::string iter_next_key = iter.getKey();
-//                         std::cout << "\titer++ -> next_key: " << iter_next_key << std::endl;
-//                     }
-
-//                     is_prefix = (iter_key_prefix.compare(iter_get_key) == 0);
-//                     // ASSERT_TRUE(is_prefix);
-//                     if(is_prefix == false){
-//                         std::cout << "Error: " << "is_prefix = " << is_prefix
-//                             << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                     }
-
-
-//                     // test getSuffix()
-//                     if (kSuffixType == kReal || kSuffixType == kMixed) {
-//                         word_t iter_suffix = 0;
-//                         int iter_suffix_len = iter.getSuffix(&iter_suffix);
-//                         // assert(kSuffixLenList[k] == iter_suffix_len);
-//                         surf::level_t kSuffixLen = iter_suffix_len;
-//                         std::cout << "iter_suffix_len: " << iter_suffix_len << std::endl;
-//                         if(kSuffixLen != iter_suffix_len){
-//                             std::cout << "Error: " << "kSuffixLen = " << kSuffixLen << " iter_suffix_len = " << iter_suffix_len 
-//                                 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                         }
-//                         std::string iter_key_suffix_str
-//                         = iter_key.substr(iter_get_key.length(), iter_key.length());
-//                         word_t iter_key_suffix = 0;
-//                         int suffix_len = (int)kSuffixLen;
-//                         int suffix_str_len = (int)(iter_key.length() - iter_get_key.length());
-//                         level_t pos = 0;
-//                         while (suffix_len > 0 && suffix_str_len > 0) {
-//                         iter_key_suffix += (word_t)iter_key_suffix_str[pos];
-//                         iter_key_suffix <<= 8;
-//                         suffix_len -= 8;
-//                         suffix_str_len--;
-//                         pos++;
-//                         }
-//                         if (pos > 0) {
-//                         iter_key_suffix >>= 8;
-//                         if (kSuffixLen % 8 != 0)
-//                             iter_key_suffix >>= (8 - (kSuffixLen % 8));
-//                         }
-//                         // ASSERT_EQ(iter_key_suffix, iter_suffix);
-//                         if(iter_key_suffix != iter_suffix){
-//                             std::cout << "Error: " <<"iter_key_suffix = " << iter_key_suffix << " iter_suffix = " << iter_suffix 
-//                                 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                         }
-//                     }
-//                 }
-//             }
-// 	    }
-// 	    // surf_->destroy();
-// 	    // delete surf_;
-// }
 
 std::string int_to_bytes(int x, int len_in_bytes = 4){
     std::string  bytes(len_in_bytes, 0);
@@ -199,103 +36,6 @@ std::string int_to_bytes(int x, int len_in_bytes = 4){
     }
     return bytes;
 }
-
-// SuRF* rangesToSurf(std::vector<std::pair<std::string, std::string>> ranges, int surf_key_length_in_bytes = 8, 
-//                 surf::SuffixType kSuffixType = surf::SuffixType::kReal, 
-//                 surf::level_t hash_suffix_len = 0, surf::level_t real_suffix_len = 8,
-//                 bool include_dense = true, uint32_t sparse_dense_ratio = 16, 
-//                 bool flag_build_until_unique = false){
-
-//     std::sort(ranges.begin(), ranges.end());
-//     int len = ranges.size();
-//     for(int i = 0; i < len-1; i++){
-//         assert(("cannot have overlapped, ranges[i].second shall <= ranges[i+1].first", ranges[i].second <= ranges[i+1].first));
-//     }
-
-//     std::vector<std::string> keys;
-//     std::vector<bool> left_parentheses;
-//     std::vector<bool> right_parentheses;
-//     for(int i = 0; i < len; i++){
-//         // std::string key_start = int_to_bytes(ranges[i].first, surf_key_length_in_bytes);
-//         // std::string key_end = int_to_bytes(ranges[i].second, surf_key_length_in_bytes);
-//         std::string key_start = ranges[i].first;
-//         std::string key_end = ranges[i].second;
-//         if(key_start.size() > surf_key_length_in_bytes){
-//             key_start = key_start.substr(0, surf_key_length_in_bytes);
-//         }
-//         if(key_end.size() > surf_key_length_in_bytes){
-//             key_end = key_end.substr(0, surf_key_length_in_bytes);
-//         }
-//         if(keys.size() > 0 && keys.back() == key_start){
-//             left_parentheses.back() = true;
-//         }else{
-//             keys.push_back(key_start);
-//             left_parentheses.push_back(true);
-//             right_parentheses.push_back(false);
-//         }
-//         keys.push_back(key_end);
-//         left_parentheses.push_back(false);
-//         right_parentheses.push_back(true);
-//     }
-//     assert(keys.size() == left_parentheses.size());
-//     assert(keys.size() == right_parentheses.size());
-
-
-//     // string_length
-//     int string_len = 0;
-//     for(auto &key: keys){
-//         if(key.length() > string_len){
-//             string_len = key.length();
-//         }
-//     }
-    
-
-//     // bool flag_build_until_unique = false;
-//     //One shall clip the key into the prefix of length "max_num_level"
-//     // must >= max([len(key) for key in keys])  --- maximum key length
-//     // uint16_t max_num_level = 5; 
-//     uint16_t max_num_level = string_len; 
-//     // bool include_dense = true;
-//     // uint32_t sparse_dense_ratio = 16;
-//     // uint32_t sparse_dense_ratio = 1;
-//     SuRF* surf_ = new SuRF(keys, left_parentheses, right_parentheses, 
-//                                 include_dense, sparse_dense_ratio,
-//                                 // surf::kHash, 8, 0,
-//                                 kSuffixType, hash_suffix_len, real_suffix_len,
-//                                 flag_build_until_unique, max_num_level);
-
-//     return surf_;
-// }
-
-// std::vector<std::pair<std::string, std::string>> surfToRanges(SuRF* surf_){
-//     std::vector<std::string> keys;
-//     std::vector<bool> left_parentheses;
-//     std::vector<bool> right_parentheses;
-
-//     SuRF::Iter iter = surf_->moveToFirst();
-//     while(iter.isValid()){
-//         std::string key = iter.getKey();
-//         bool left_parenthesis = iter.getLeftParenthesis();
-//         bool right_parenthesis = iter.getRightParenthesis();
-//         keys.push_back(key);
-//         left_parentheses.push_back(left_parenthesis);
-//         right_parentheses.push_back(right_parenthesis);
-//         iter++;
-//     }
-
-//     std::vector<std::pair<std::string, std::string>> ranges;
-//     int len = keys.size();
-//     for(int i = 0; i < len-1; i++){
-//         if(left_parentheses[i]){
-//             assert(left_parentheses[i] == true && right_parentheses[i+1] == true);
-//             std::string start = keys[i];
-//             std::string end = keys[i+1];
-//             ranges.push_back(std::make_pair(start, end));
-//         }
-//     }
-
-//     return ranges;
-// }
 
 
 void testRangesToSurfToRanges(){
@@ -431,122 +171,10 @@ void testRangesToSurfToRanges(){
 
 
     //retrieve ranges from SuRf
-    std::vector<std::pair<std::string, std::string>> ranges2 = SuRF::surfToRanges(surf_);
+    std::vector<std::pair<std::string, std::string>> ranges2 = SuRF::surfToRanges(surf_, flag_allow_boundary_overlapped);
     assert(ranges == ranges2);
     std::cout << "testRangesToSurfToRanges passed" << std::endl;
 }
-
-// void testMoveToKeyGreaterThanWord(SuRF* surf_, std::vector<std::string> words, surf::SuffixType kSuffixType){
-
-// 	    bool inclusive = true;
-// 	    for (int i = 0; i < 2; i++) {
-//             if (i == 1){
-//                 inclusive = false;
-//             }
-//             for (int j = -1; j <= (int)words.size(); j++) {
-//                 std::cout << std::endl << std::endl;
-//                 SuRF::Iter iter;
-//                 if (j < 0){
-//                     iter = surf_->moveToFirst();
-//                 }else if (j >= (int)words.size()){
-//                     iter = surf_->moveToLast();
-//                 }else{
-// // std::cout << "------------ word[j] = " << words[j] << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                     iter = surf_->moveToNextCommonPrefixKey(words[j]);
-//                     // iter = surf_->moveToKeyGreaterThan(words[j], inclusive);
-//                 }
-
-//                 unsigned bitlen;
-//                 bool is_prefix = false;
-//                 if (j < 0) {
-//                     std::cout << "inclusive: " << inclusive << " j < 0" << std::endl;
-//                     // ASSERT_TRUE(iter.isValid());
-//                     if(iter.isValid() == false){
-//                         std::cout << "Error: " << "iter.isValid() = " << iter.isValid() 
-//                             << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                     }
-//                     std::string iter_key = iter.getKeyWithSuffix(&bitlen);
-//                     // std::string word_prefix = words[0].substr(0, iter_key.length());
-//                     std::cout << "\titer_key: " << iter_key << " " << "bitlen: " << bitlen << std::endl;
-//                     // std::cout << "\tword_prefix: " << word_prefix << std::endl;
-//                     // is_prefix = isEqual(word_prefix, iter_key, bitlen);
-//                     // // ASSERT_TRUE(is_prefix);
-//                     // if(is_prefix == false){
-//                     //     std::cout << "Error: " << "is_prefix = " << is_prefix 
-//                     //         << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                     // }
-//                 } else if (j >= (int)words.size()) {
-//                     std::cout << "inclusive: " << inclusive << " j >= words.size()" << std::endl;
-//                     // ASSERT_TRUE(iter.isValid());
-//                     if(iter.isValid() == false){
-//                         std::cout << "Error: " << "iter.isValid() = " << iter.isValid()
-//                             << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                     }
-//                     std::string iter_key = iter.getKeyWithSuffix(&bitlen);
-//                     // std::string word_prefix = words[words.size() - 1].substr(0, iter_key.length());
-//                     std::cout << "\titer_key: " << iter_key << " " << " bitlen: " << bitlen << std::endl;
-//                     // std::cout << "\tword_prefix: " << word_prefix << std::endl;
-//                     // is_prefix = isEqual(word_prefix, iter_key, bitlen);
-//                     // // ASSERT_TRUE(is_prefix);
-//                     // if(is_prefix == false){
-//                     //     std::cout << "Error: " << "is_prefix = " << is_prefix 
-//                     //         << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                     // }
-//                 } else if (j == (int)words.size() - 1) {
-//                     std::cout << "inclusive: " << inclusive << " j == words.size() - 1" << std::endl;
-//                     std::string iter_key = iter.getKeyWithSuffix(&bitlen);
-//                     // std::string word_prefix = words[words.size() - 1].substr(0, iter_key.length());
-//                     std::cout << "\twords[j]: " <<  words[j] << " --> " << "iter_key: " << iter_key << " " << "bitlen: " << bitlen << std::endl;
-//                     // if (iter.getFpFlag()) {
-//                     //     // ASSERT_TRUE(iter.isValid());
-//                     //     if(iter.isValid() == false){
-//                     //         std::cout << "Error: " << "iter.isValid() = " << iter.isValid() 
-//                     //             << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                     //     }
-//                     //     std::string iter_key = iter.getKeyWithSuffix(&bitlen);
-//                     //     // std::string word_prefix = words[words.size() - 1].substr(0, iter_key.length());
-//                     //     std::cout << "\titer_key: " << iter_key << " " << "bitlen: " << bitlen << std::endl;
-//                     //     // std::cout << "\tword_prefix: " << word_prefix << std::endl;
-//                     //     // is_prefix = isEqual(word_prefix, iter_key, bitlen);
-//                     //     // // // ASSERT_TRUE(is_prefix);
-//                     //     // if(is_prefix == false){
-//                     //     //     std::cout << "Error: " << "is_prefix = " << is_prefix 
-//                     //     //         << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                     //     // }
-//                     // } else {
-//                     //     // ASSERT_FALSE(iter.isValid());
-//                     //     if(iter.isValid() == true){
-//                     //         std::cout << "Error: " << "iter.isValid() = " << iter.isValid() 
-//                     //             << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                     //     }
-//                     // }
-//                 } else {
-//                     std::cout << "inclusive: " << inclusive << " j >= 0 && j < words.size() - 1" << std::endl;
-//                     // std::cout << "words[j] = " << words[j] << std::endl;
-//                     // ASSERT_TRUE(iter.isValid());
-//                     if(iter.isValid() == false){
-//                         std::cout << "Error: " << "iter.isValid() = " << iter.isValid()
-//                             << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//                     }
-//                     // std::string iter_key = iter.getKeyWithSuffix(&bitlen);
-//                     // std::cout << "\titer_key: " << iter_key << " " << "bitlen: " << bitlen << std::endl;
-//                     // test getKey()
-//                     std::string iter_get_key = iter.getKey();
-//                     std::cout << "\twords[j]: " << words[j] << " --> " << "iter_get_key: " << iter_get_key << std::endl;   
-//                     // std::string iter_key_prefix = iter_key.substr(0, iter_get_key.length());
-
-//                     iter++;
-//                     if (iter.isValid()) {
-//                         std::string iter_next_key = iter.getKey();
-//                         std::cout << "\titer++ -> next_key: " << iter_next_key << std::endl;
-//                     }
-
-//                 }
-//             }
-// 	    }
-// 	    // surf_->destroy();
-// 	    // delete surf_;
-// }
 
 
 void test_find_next_string(
@@ -585,39 +213,6 @@ void test_find_next_string(
 
 
 
-    // std::vector<std::string> keys = {
-    //     "anfzrjs",
-    //     "ay",
-    //     "bpmvde",
-    //     "bpmvdessvs",
-    //     "capvf",
-    //     "g",
-    //     "gdmszvdvcq",
-    //     "jlufkfiytu",
-    //     "kdmmm",
-    //     "llwbmsjy",
-    //     "llwbmsjyeb",
-    //     "ngiawgg",
-    //     "nrspstggqk",
-    //     "oklpkp",
-    //     "oklpkpqbkx",
-    //     "rxkcbshnmi",
-    //     "vbdhahwq",
-    //     "vbdhahwqhr",
-    //     "whklqcswzy",
-    //     "z",
-    //     "zzunthzqjn"
-    // };
-
-
-
-
-
-
-
-
-
-
     for(int i = 0; i < keys.size(); i++){
         left_parentheses.push_back(rand() % 2 == 0);
         right_parentheses.push_back(rand() % 2 == 0);
@@ -627,16 +222,9 @@ void test_find_next_string(
     bool flag_build_until_unique = false;
     //One shall clip the key into the prefix of length "max_num_level"
     // mast >= max([len(key) for key in keys])  --- maximum key length
-    // uint16_t max_num_level = 5; 
     uint16_t max_num_level = string_len; 
     bool include_dense = true;
-    // uint32_t sparse_dense_ratio = 16;
     uint32_t sparse_dense_ratio = 1;
-    // SuRF* surf_ = new SuRF(keys, left_parentheses, right_parentheses, 
-    //                             include_dense, sparse_dense_ratio,
-    //                             // surf::kHash, 8, 0,
-    //                             kSuffixType, hash_suffix_len, real_suffix_len,
-    //                             flag_build_until_unique, max_num_level);
     SuRF* surf_ = new SuRF(keys, left_parentheses, right_parentheses, 
                                 include_dense, sparse_dense_ratio,
                                 // surf::kHash, 8, 0,
@@ -681,11 +269,8 @@ void test_find_next_string(
     }
     std::cout << "size of test_keys: "  << test_keys.size() << std::endl;
 
-    // std::vector<std::string> test_keys = {"bpmvde"};
-
     for(auto &key_query: test_keys){
         auto it = std::lower_bound(keys.begin(), keys.end(), key_query);
-        // std::string str_gt = *it;
 
         SuRF::Iter iter = surf_->moveToNextCommonPrefixKey(key_query);
 
@@ -714,21 +299,6 @@ void test_find_next_string(
             assert(false);
         }
 
-        // int idx = it - keys.begin();
-        // bool left_parenthesis = iter.getLeftParenthesis();
-        // bool right_praenthesis = iter.getRightParenthesis();
-        // bool left_gt = left_parentheses[idx];
-        // bool right_gt = right_parentheses[idx];
-        // if(left_parenthesis != left_gt){
-        //     std::cout << "Error: left_parenthesis != left_gt" << std::endl;
-        //     std::cout << "left_parenthesis: " << left_parenthesis << " left_gt: " << left_gt << std::endl;
-        //     assert(false);
-        // }
-        // if(right_praenthesis != right_gt){
-        //     std::cout << "Error: right_praenthesis != right_gt" << std::endl;
-        //     std::cout << "right_praenthesis: " << right_praenthesis << " right_gt: " << right_gt << std::endl;
-        //     assert(false);
-        // }
     }
 }
 
@@ -910,34 +480,7 @@ void test1(){
 
 }
 
-int main() {
-    //// test1
-    // test1();
-    
-    //// test2
-    // std::cout << std::endl << std::endl;
-    // int test_count2 = 1000;
-    // while(test_count2){
-    //     // test_find_next_string(surf::kHash, 8, 0);
-    //     // test_find_next_string(surf::kReal, 0, 8);
-    //     // test_find_next_string(surf::kMixed, 4, 4);
-    //     test_find_next_string(surf::kHash, 0, 0);
-    //     test_find_next_string(surf::kReal, 0, 0);
-    //     test_find_next_string(surf::kMixed, 0, 0);
-    //     test_count2--;
-    // }
-    // std::cout << std::endl << std::endl;
-
-    //// test3
-    int test_count3 = 1000;
-    while(test_count3){
-        testRangesToSurfToRanges();
-        test_count3--;
-    }
-
-
-    
-    // usage
+void test_iter(){
     std::vector<std::pair<std::string, std::string>> ranges = {
         {"aa", "abc"},
         {"acc", "acdd"},
@@ -959,10 +502,113 @@ int main() {
                             hash_suffix_len, real_suffix_len, include_dense, 
                             sparse_dense_ratio, flag_allow_boundary_overlapped);
     
-    //retrieve ranges from SuRf
-    std::vector<std::pair<std::string, std::string>> ranges2 = SuRF::surfToRanges(surf_);
-    assert(ranges == ranges2);
-    std::cout << "testRangesToSurfToRanges passed" << std::endl;
+    SuRF::Iter iter = surf_->moveToFirst();
+    // std::string key = iter.getKey();
+    // std::cout << "key: " << key << std::endl;
+    // key = iter.getKey();
+    // std::cout << "key: " << key << std::endl;
+    // int num = 10;
+    while(iter.isValid()){
+        std::string key = iter.getKey();
+        std::cout << "(iter++) key: " << key << std::endl;
+
+        bool left_paenthesis = iter.getLeftParenthesis();
+        bool right_parenthesis = iter.getRightParenthesis();
+
+        std::cout << "left_paenthesis: " << left_paenthesis << " right_parenthesis: " << right_parenthesis << std::endl;
+
+        bool x = iter++;
+        std::cout << "bool iter++ = " << x << std::endl;
+        // num--;
+        // break;
+    }
+
+    
+    // SuRF::Iter iter2 = surf_->moveToLast();
+    SuRF::Iter &iter2 = iter;
+    if(iter2.isValid() == false){
+        iter2 = surf_->moveToLast();
+    }else{
+        // iter2 = iter;
+        // iter--;
+    }
+    
+    // std::string key = iter.getKey();
+    // std::cout << "key: " << key << std::endl;
+    // key = iter.getKey();
+    // std::cout << "key: " << key << std::endl;
+    // int num = 10;
+    while(iter2.isValid()){
+        std::string key = iter2.getKey();
+        std::cout << "(iter--) key: " << key << std::endl;
+
+        bool left_paenthesis = iter.getLeftParenthesis();
+        bool right_parenthesis = iter.getRightParenthesis();
+
+        std::cout << "left_paenthesis: " << left_paenthesis << " right_parenthesis: " << right_parenthesis << std::endl;
+
+        bool x = iter2--;
+        std::cout << "bool iter2-- = " << x << std::endl;
+        // num--;
+    }
+}
+
+int main() {
+    //// test1
+    // test1();
+    
+    //// test2
+    // std::cout << std::endl << std::endl;
+    // int test_count2 = 1000;
+    // while(test_count2){
+    //     // test_find_next_string(surf::kHash, 8, 0);
+    //     // test_find_next_string(surf::kReal, 0, 8);
+    //     // test_find_next_string(surf::kMixed, 4, 4);
+    //     test_find_next_string(surf::kHash, 0, 0);
+    //     test_find_next_string(surf::kReal, 0, 0);
+    //     test_find_next_string(surf::kMixed, 0, 0);
+    //     test_count2--;
+    // }
+    // std::cout << std::endl << std::endl;
+
+    // //// test3
+    // int test_count3 = 1000;
+    // while(test_count3){
+    //     testRangesToSurfToRanges();
+    //     test_count3--;
+    // }
+
+    // test_iter
+    test_iter();
+
+
+    
+    // usage
+    // std::vector<std::pair<std::string, std::string>> ranges = {
+    //     {"aa", "abc"},
+    //     {"acc", "acdd"},
+    //     {"bcde", "bcdef"}
+    // };
+    // int key_len_in_bytes = 5;
+    // surf::level_t hash_suffix_len = 0;
+    // surf::level_t real_suffix_len = 8;
+    // bool include_dense = true;
+    // uint32_t sparse_dense_ratio = 16;
+    // bool flag_build_until_unique = false;
+
+    // bool flag_allow_boundary_overlapped = false;
+    // // build SuREF from ranges
+    // // SuRF* surf_ = SuRF::rangesToSurf(ranges, key_len_in_bytes, surf::SuffixType::kReal, 
+    // //                         hash_suffix_len, real_suffix_len, include_dense, 
+    // //                         sparse_dense_ratio, flag_build_until_unique);
+    // SuRF* surf_ = SuRF::rangesToSurf(ranges, key_len_in_bytes, surf::SuffixType::kReal, 
+    //                         hash_suffix_len, real_suffix_len, include_dense, 
+    //                         sparse_dense_ratio, flag_allow_boundary_overlapped);
+    
+    // //retrieve ranges from SuRf
+    // std::vector<std::pair<std::string, std::string>> ranges2 = SuRF::surfToRanges(surf_, flag_allow_boundary_overlapped);
+    // assert(ranges == ranges2);
+    // std::cout << "testRangesToSurfToRanges passed" << std::endl;
 
     return 0;
 }

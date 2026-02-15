@@ -190,6 +190,33 @@ class CompactionOutputs {
     return range_del_agg_ && !range_del_agg_->IsEmpty();
   }
 
+  // ychuang Added Start
+  void printRangeDelAgg(){
+    if(HasRangeDel()){
+      auto lower_bound = nullptr;
+      auto upper_bound = nullptr;
+      auto it_rd_agg = range_del_agg_->NewIterator(lower_bound, upper_bound);
+
+      // Slice last_tombstone_start_user_key{};
+      // bool reached_lower_bound = false;
+      // const ReadOptions read_options(Env::IOActivity::kCompaction);
+      for (it_rd_agg->SeekToFirst(); it_rd_agg->Valid(); it_rd_agg->Next()) {
+        auto tombstone = it_rd_agg->Tombstone();
+        // long long start_key_from_rd_agg = std::stoll(tombstone.start_key_.ToString());
+        // long long end_key_from_rd_agg = std::stoll(tombstone.end_key_.ToString());
+        string start_key_from_rd_agg = tombstone.start_key_.ToString();
+        string end_key_from_rd_agg = tombstone.end_key_.ToString();
+        uint64_t seq_from_rd_agg = tombstone.seq_; 
+        std::cout << "@ compaction_output"
+          << " start_key_from_rd_agg = " << start_key_from_rd_agg 
+          << " end_key_from_rd_agg = " << end_key_from_rd_agg
+          << " seq_from_rd_agg = " << seq_from_rd_agg
+          << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      }
+    }
+  } 
+  // ychuang Added End
+
  private:
   friend class SubcompactionState;
 
@@ -256,16 +283,6 @@ class CompactionOutputs {
   Status CloseOutput(const Status& curr_status,
                      const CompactionFileOpenFunc& open_file_func,
                      const CompactionFileCloseFunc& close_file_func) {
-
-// //Self Added Start
-// auto it = range_del_agg_->NewIterator(); xxx
-// for (it->SeekToFirst(); it->Valid(); it->Next()) {
-// auto tombstone = it->Tombstone();
-// std::cout << " (compation_outputs.h CloseOutput) tombstone_start, tombstone_end = " << tombstone.start_key_.ToString() << ", " << tombstone.end_key_.ToString() << " "
-//           << " tombstone.seq_ = " << tombstone.seq_ << " " 
-//           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// }
-// //Self Added End
 
     Status status = curr_status;
     // handle subcompaction containing only range deletions

@@ -345,6 +345,16 @@ class BlockBasedTable : public TableReader {
       GetContext* get_context, BlockCacheLookupContext* lookup_context,
       BlockContents* contents, bool async_read) const;
 
+  // yucheng added start
+  template <typename TBlocklike>
+  WithBlocklikeCheck<Status, TBlocklike> MaybeReadBlockAndLoadToCache(
+      FilePrefetchBuffer* prefetch_buffer, const ReadOptions& ro,
+      const BlockHandle& handle, const UncompressionDict& uncompression_dict,
+      bool for_compaction, CachableEntry<TBlocklike>* block_entry,
+      GetContext* get_context, BlockCacheLookupContext* lookup_context,
+      BlockContents* contents, bool async_read, BlockType block_type) const;
+  // yucheng added end
+
   // Similar to the above, with one crucial difference: it will retrieve the
   // block from the file even if there are no caches configured (assuming the
   // read options allow I/O).
@@ -355,6 +365,19 @@ class BlockBasedTable : public TableReader {
       CachableEntry<TBlocklike>* block_entry, GetContext* get_context,
       BlockCacheLookupContext* lookup_context, bool for_compaction,
       bool use_cache, bool async_read) const;
+
+  // yucheng added start
+  // Similar to the above, with one crucial difference: it will retrieve the
+  // block from the file even if there are no caches configured (assuming the
+  // read options allow I/O).
+  template <typename TBlocklike>
+  WithBlocklikeCheck<Status, TBlocklike> RetrieveBlock(
+      FilePrefetchBuffer* prefetch_buffer, const ReadOptions& ro,
+      const BlockHandle& handle, const UncompressionDict& uncompression_dict,
+      CachableEntry<TBlocklike>* block_entry, GetContext* get_context,
+      BlockCacheLookupContext* lookup_context, bool for_compaction,
+      bool use_cache, bool async_read, BlockType block_type) const;
+  // yucheng added end
 
   template <typename TBlocklike>
   WithBlocklikeCheck<void, TBlocklike> SaveLookupContextOrTraceRecord(

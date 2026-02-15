@@ -61,8 +61,6 @@ position_t Bitvector::distanceToPrevSetBit (const position_t pos) const {
     if (test_bits > 0) {
 	return (distance + __builtin_ctzll(test_bits));
     } else {
-	//if (word_id == 0)
-	//return (offset + 1);
 	distance += (offset + 1);
     }
 
@@ -80,10 +78,6 @@ position_t Bitvector::totalNumBits(const std::vector<position_t>& num_bits_per_l
 			     const level_t start_level, 
 			     const level_t end_level/* non-inclusive */) {
     position_t num_bits = 0;
-
-	// // YCHUANG_ADDED START
-	// if(num_bits_per_level.size() == 0) return 0;
-	// // YCHUANG_ADDED END
 
     for (level_t level = start_level; level < end_level; level++)
 	num_bits += num_bits_per_level[level];

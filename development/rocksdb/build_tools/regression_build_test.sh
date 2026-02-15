@@ -98,7 +98,7 @@ make release
     --sync=0 \
     --threads=16 > ${STAT_FILE}.readrandom
 
-# measure readrandom with 6GB block cache and tailing iterator
+# measure readrandom with 6GB block cache and tailing iterato
 ./db_bench \
     --benchmarks=readrandom \
     --db=$DATA_DIR \

@@ -75,22 +75,27 @@ inline bool BlockFetcher::TryGetUncompressBlockFromPersistentCache() {
   return false;
 }
 
+
 inline bool BlockFetcher::TryGetFromPrefetchBuffer() {
   if (prefetch_buffer_ != nullptr) {
     IOOptions opts;
     IOStatus io_s = file_->PrepareIOOptions(read_options_, opts);
+// std::cout << "BlockFetcher::TryGetFromPrefetchBuffer: " << " PrepareIOOptions " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     if (io_s.ok()) {
       bool read_from_prefetch_buffer = false;
       if (read_options_.async_io && !for_compaction_) {
+        // std::cout << "BlockFetcher::TryGetFromPrefetchBuffer: " << " prefetch_buffer_->TryReadFromCacheAsync " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         read_from_prefetch_buffer = prefetch_buffer_->TryReadFromCacheAsync(
             opts, file_, handle_.offset(), block_size_with_trailer_, &slice_,
             &io_s, read_options_.rate_limiter_priority);
       } else {
+        // std::cout << "BlockFetcher::TryGetFromPrefetchBuffer: " << " prefetch_buffer_->TryReadFromCache " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         read_from_prefetch_buffer = prefetch_buffer_->TryReadFromCache(
             opts, file_, handle_.offset(), block_size_with_trailer_, &slice_,
             &io_s, read_options_.rate_limiter_priority, for_compaction_);
       }
       if (read_from_prefetch_buffer) {
+// std::cout << "BlockFetcher::TryGetFromPrefetchBuffer: " << " read_from_prefetch_buffer " << read_from_prefetch_buffer << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         ProcessTrailerIfPresent();
         if (!io_status_.ok()) {
           return true;
@@ -110,6 +115,7 @@ inline bool BlockFetcher::TryGetFromPrefetchBuffer() {
 inline bool BlockFetcher::TryGetSerializedBlockFromPersistentCache() {
   if (cache_options_.persistent_cache &&
       cache_options_.persistent_cache->IsCompressed()) {
+// std::cout << "BlockFetcher::TryGetSerializedBlockFromPersistentCache: " << " PersistentCacheHelper::LookupSerialized " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     std::unique_ptr<char[]> buf;
     io_status_ = status_to_io_status(PersistentCacheHelper::LookupSerialized(
         cache_options_, handle_, &buf, block_size_with_trailer_));
@@ -184,6 +190,7 @@ inline void BlockFetcher::InsertUncompressedBlockToPersistentCacheIfNeeded() {
 }
 
 inline void BlockFetcher::CopyBufferToHeapBuf() {
+// std::cout << "BlockFetcher::CopyBufferToHeapBuf: " << " CopyBufferToHeapBuf " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   assert(used_buf_ != heap_buf_.get());
   heap_buf_ = AllocateBlock(block_size_with_trailer_, memory_allocator_);
   memcpy(heap_buf_.get(), used_buf_, block_size_with_trailer_);
@@ -213,6 +220,7 @@ inline void BlockFetcher::CopyBufferToCompressedBuf() {
 // After this method, if the block is compressed, it should be in
 // compressed_buf_, otherwise should be in heap_buf_.
 inline void BlockFetcher::GetBlockContents() {
+// std::cout << "BlockFetcher::GetBlockContents: " << " GetBlockContents " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   if (slice_.data() != used_buf_) {
     // the slice content is not the buffer provided
     *contents_ = BlockContents(Slice(slice_.data(), block_size_));
@@ -229,6 +237,7 @@ inline void BlockFetcher::GetBlockContents() {
         heap_buf_ = std::move(compressed_buf_);
       }
     } else if (direct_io_buf_.get() != nullptr) {
+// std::cout << "BlockFetcher::GetBlockContents: " << " direct_io_buf_ != nullptr " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       if (compression_type_ == kNoCompression) {
         CopyBufferToHeapBuf();
       } else {
@@ -251,13 +260,18 @@ void sentinelFunc01(){
 
 IOStatus BlockFetcher::ReadBlockContents() {
   if (TryGetUncompressBlockFromPersistentCache()) {
+// std::cout << "fund in TryGetUncompressBlockFromPersistentCache() " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     compression_type_ = kNoCompression;
 #ifndef NDEBUG
     contents_->has_trailer = footer_.GetBlockTrailerSize() > 0;
 #endif  // NDEBUG
     return IOStatus::OK();
   }
+  // yucheng added start Important: only for experiment setting
+  // if(false){
+  // yucheng added end
   if (TryGetFromPrefetchBuffer()) {
+// std::cout << "fund in TryGetFromPrefetchBuffer() " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     if (!io_status_.ok()) {
       return io_status_;
     }
@@ -269,7 +283,7 @@ IOStatus BlockFetcher::ReadBlockContents() {
       if (file_->use_direct_io()) {
         PERF_TIMER_GUARD(block_read_time);
         PERF_CPU_TIMER_GUARD(block_read_cpu_time, nullptr);
-        
+//  cout << "BlockFetcher::ReadBlockContents: " << " file_->use_direct_io() " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;       
         // //Self Added Start: timing
         // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
         // // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
@@ -280,6 +294,8 @@ IOStatus BlockFetcher::ReadBlockContents() {
         io_status_ = file_->Read(
             opts, handle_.offset(), block_size_with_trailer_, &slice_, nullptr,
             &direct_io_buf_, read_options_.rate_limiter_priority);
+        
+        // std::cout << "BlockFetcher::ReadBlockContents: " << " file_->use_direct_io() " << " block_type_ = " << int(block_type_) << " " << " block_size_with_trailer_ = " << block_size_with_trailer_ << " " << " handle_.offset() = " << handle_.offset() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         // //Self Added Start 
         // checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
         // //Self Added End        
@@ -294,7 +310,7 @@ IOStatus BlockFetcher::ReadBlockContents() {
         PrepareBufferForBlockFromFile();
         PERF_TIMER_GUARD(block_read_time);
         PERF_CPU_TIMER_GUARD(block_read_cpu_time, nullptr);
-
+// cout << "BlockFetcher::ReadBlockContents: " << " !file_->use_direct_io() " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         // //Self Added Start: timing
         // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
         // // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
@@ -305,6 +321,8 @@ IOStatus BlockFetcher::ReadBlockContents() {
         io_status_ = file_->Read(opts, handle_.offset(),
                                  block_size_with_trailer_, &slice_, used_buf_,
                                  nullptr, read_options_.rate_limiter_priority);
+
+        // std::cout << "BlockFetcher::ReadBlockContents: " << " !file_->use_direct_io() " << " block_type_ = " << int(block_type_) << " " << " block_size_with_trailer_ = " << block_size_with_trailer_ << " " << " handle_.offset() = " << handle_.offset() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         // //Self Added Start 
         // checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
         // //Self Added End
@@ -339,17 +357,17 @@ IOStatus BlockFetcher::ReadBlockContents() {
   switch (block_type_) {
     case BlockType::kData:
       // std::cout << "block_type_ = " << "kData" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-      checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumDataReadCount();
+      // checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumDataReadCount();
 
       break;
     case BlockType::kFilter:
       // std::cout << "block_type_ = " << "kFilter" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-      checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumFilterReadCount();
+      // checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumFilterReadCount();
 
       break;
     case BlockType::kFilterPartitionIndex:
       std::cout << "block_type_ = " << "kFilterPartitionIndex" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-      checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumFilterReadCount();
+      // checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumFilterReadCount();
 
       break;
     case BlockType::kProperties:
@@ -357,12 +375,12 @@ IOStatus BlockFetcher::ReadBlockContents() {
       break;
     case BlockType::kCompressionDictionary:
       std::cout << "block_type_ = " << "kCompressionDictionary" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-      checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumCompressionDictBlockReadCount();
+      // checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumCompressionDictBlockReadCount();
 
       break;
     case BlockType::kRangeDeletion:
       std::cout << "block_type_ = " << "kRangeDeletion" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-      checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumRangeDelReadCount();
+      // checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumRangeDelReadCount();
       
       break;
     case BlockType::kHashIndexPrefixes:
@@ -385,6 +403,59 @@ IOStatus BlockFetcher::ReadBlockContents() {
       break;
   }
 #endif
+    // std::cout << "block_type_ = " << int(block_type_) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    switch (block_type_) {
+      case BlockType::kData:
+        // std::cout << "block_type_ = " << "kData" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumDataReadCount();
+
+        break;
+      case BlockType::kFilter:
+        // std::cout << "block_type_ = " << "kFilter" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumFilterReadCount();
+
+        break;
+      case BlockType::kFilterPartitionIndex:
+        // std::cout << "block_type_ = " << "kFilterPartitionIndex" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumkFilterPartitionIndexReadCount();
+
+        break;
+      case BlockType::kProperties:
+        // std::cout << "block_type_ = " << "kProperties" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumPropertiesBlockReadCount();
+        break;
+      case BlockType::kCompressionDictionary:
+        // std::cout << "block_type_ = " << "kCompressionDictionary" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumCompressionDictBlockReadCount();
+
+        break;
+      case BlockType::kRangeDeletion:
+        // std::cout << "block_type_ = " << "kRangeDeletion" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumRangeDelReadCount();
+        
+        break;
+      case BlockType::kHashIndexPrefixes:
+        // st d::cout << "block_type_ = " << "kHashIndexPrefixes" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumHashIndexPrefixesReadCount();
+        break;
+      case BlockType::kHashIndexMetadata:
+        // std::cout << "block_type_ = " << "kHashIndexMetadata" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumHashIndexMetadataReadCount();
+        break;
+      case BlockType::kMetaIndex:
+        // std::cout << "block_type_ = " << "kMetaIndex" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumMetaIndexReadCount();
+        break;
+      case BlockType::kIndex:
+        // sentinelFunc01();
+        // std::cout << "block_type_ = " << "kIndex" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumIndexReadCount();
+        
+        break;
+      default:
+        // std::cout << "block_type_ = " << "kInvalid" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        break;
+    }
     //Self Added End
     
     // //Self Added Start: timing
@@ -474,7 +545,7 @@ IOStatus BlockFetcher::ReadBlockContents() {
 }
 
 IOStatus BlockFetcher::ReadAsyncBlockContents() {
-std::cout << " ReadAsyncBlockContents " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+std::cout << " ReadAsyncBlockContents " << " block_type_ = " << int(block_type_) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   if (TryGetUncompressBlockFromPersistentCache()) {
     compression_type_ = kNoCompression;
 #ifndef NDEBUG
@@ -529,5 +600,357 @@ std::cout << " ReadAsyncBlockContents " << __FILE__ << ":" << __LINE__ << " " <<
   }
   return io_status_;
 }
+
+// yucheng added start
+
+
+IOStatus BlockFetcher::ReadBlockContents(BlockType block_type__yucheng) {
+  if (TryGetUncompressBlockFromPersistentCache()) {
+// std::cout << "fund in TryGetUncompressBlockFromPersistentCache() " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    compression_type_ = kNoCompression;
+#ifndef NDEBUG
+    contents_->has_trailer = footer_.GetBlockTrailerSize() > 0;
+#endif  // NDEBUG
+    return IOStatus::OK();
+  }
+  // yucheng added start Important: only for experiment setting
+  // if(false){
+  // yucheng added end
+  if (TryGetFromPrefetchBuffer()) {
+// std::cout << "fund in TryGetFromPrefetchBuffer() " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    if (!io_status_.ok()) {
+      return io_status_;
+    }
+  } else if (!TryGetSerializedBlockFromPersistentCache()) {
+    IOOptions opts;
+    io_status_ = file_->PrepareIOOptions(read_options_, opts);
+    // Actual file read
+    if (io_status_.ok()) {
+      if (file_->use_direct_io()) {
+        PERF_TIMER_GUARD(block_read_time);
+        PERF_CPU_TIMER_GUARD(block_read_cpu_time, nullptr);
+//  cout << "BlockFetcher::ReadBlockContents: " << " file_->use_direct_io() " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;       
+        // //Self Added Start: timing
+        // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+        // // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+        // //Self Added End: timing
+        // //Self Added Start 
+        // checking::SystemVerifier::getSystemVerifier()->start_retrieve_block();
+        // //Self Added End
+        io_status_ = file_->Read(
+            opts, handle_.offset(), block_size_with_trailer_, &slice_, nullptr,
+            &direct_io_buf_, read_options_.rate_limiter_priority);
+        
+        // std::cout << "BlockFetcher::ReadBlockContents: " << " file_->use_direct_io() " << " block_type_ = " << int(block_type_) << " " << " block_size_with_trailer_ = " << block_size_with_trailer_ << " " << " handle_.offset() = " << handle_.offset() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        // //Self Added Start 
+        // checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
+        // //Self Added End        
+        // //Self Added Start: timing
+        // // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+        // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+        // //Self Added End: timing
+
+        PERF_COUNTER_ADD(block_read_count, 1);
+        used_buf_ = const_cast<char*>(slice_.data());
+      } else {
+        PrepareBufferForBlockFromFile();
+        PERF_TIMER_GUARD(block_read_time);
+        PERF_CPU_TIMER_GUARD(block_read_cpu_time, nullptr);
+// cout << "BlockFetcher::ReadBlockContents: " << " !file_->use_direct_io() " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        // //Self Added Start: timing
+        // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+        // // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+        // //Self Added End: timing
+        // //Self Added Start 
+        // checking::SystemVerifier::getSystemVerifier()->start_retrieve_block();
+        // //Self Added End
+        io_status_ = file_->Read(opts, handle_.offset(),
+                                 block_size_with_trailer_, &slice_, used_buf_,
+                                 nullptr, read_options_.rate_limiter_priority);
+
+        // std::cout << "BlockFetcher::ReadBlockContents: " << " !file_->use_direct_io() " << " block_type_ = " << int(block_type_) << " " << " block_size_with_trailer_ = " << block_size_with_trailer_ << " " << " handle_.offset() = " << handle_.offset() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        // //Self Added Start 
+        // checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
+        // //Self Added End
+        // //Self Added Start: timing
+        // // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+        // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+        // //Self Added End: timing
+
+        PERF_COUNTER_ADD(block_read_count, 1);
+#ifndef NDEBUG
+        if (slice_.data() == &stack_buf_[0]) {
+          num_stack_buf_memcpy_++;
+        } else if (slice_.data() == heap_buf_.get()) {
+          num_heap_buf_memcpy_++;
+        } else if (slice_.data() == compressed_buf_.get()) {
+          num_compressed_buf_memcpy_++;
+        }
+#endif
+      }
+    }
+
+    
+    // //Self Added Start: timing
+    // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    // // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+    // //Self Added End: timing
+
+    //Self Added Start xxx
+    checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumTotalBlockReadCount();
+  // std::cout << "block_type_ = "  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+#ifdef DEBUG_BLOCK_FETCHER
+  switch (block_type__yucheng) {
+    case BlockType::kData:
+      // std::cout << "block_type_ = " << "kData" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumDataReadCount();
+
+      break;
+    case BlockType::kFilter:
+      // std::cout << "block_type_ = " << "kFilter" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumFilterReadCount();
+
+      break;
+    case BlockType::kFilterPartitionIndex:
+      std::cout << "block_type_ = " << "kFilterPartitionIndex" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumFilterReadCount();
+
+      break;
+    case BlockType::kProperties:
+      std::cout << "block_type_ = " << "kProperties" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      break;
+    case BlockType::kCompressionDictionary:
+      std::cout << "block_type_ = " << "kCompressionDictionary" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumCompressionDictBlockReadCount();
+
+      break;
+    case BlockType::kRangeDeletion:
+      std::cout << "block_type_ = " << "kRangeDeletion" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumRangeDelReadCount();
+      
+      break;
+    case BlockType::kHashIndexPrefixes:
+      std::cout << "block_type_ = " << "kHashIndexPrefixes" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      break;
+    case BlockType::kHashIndexMetadata:
+      std::cout << "block_type_ = " << "kHashIndexMetadata" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      break;
+    case BlockType::kMetaIndex:
+      std::cout << "block_type_ = " << "kMetaIndex" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      break;
+    case BlockType::kIndex:
+      // sentinelFunc01();
+      // std::cout << "block_type_ = " << "kIndex" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumIndexReadCount();
+      
+      break;
+    default:
+      std::cout << "block_type_ = " << "kInvalid" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      break;
+  }
+#endif
+    // std::cout << "block_type_ = " << int(block_type_) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    switch (block_type__yucheng) {
+      case BlockType::kData:
+        // std::cout << "block_type_ = " << "kData" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumDataReadCount();
+
+        break;
+      case BlockType::kFilter:
+        // std::cout << "block_type_ = " << "kFilter" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumFilterReadCount();
+
+        break;
+      case BlockType::kFilterPartitionIndex:
+        // std::cout << "block_type_ = " << "kFilterPartitionIndex" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumkFilterPartitionIndexReadCount();
+
+        break;
+      case BlockType::kProperties:
+        // std::cout << "block_type_ = " << "kProperties" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumPropertiesBlockReadCount();
+        break;
+      case BlockType::kCompressionDictionary:
+        // std::cout << "block_type_ = " << "kCompressionDictionary" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumCompressionDictBlockReadCount();
+
+        break;
+      case BlockType::kRangeDeletion:
+        // std::cout << "block_type_ = " << "kRangeDeletion" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumRangeDelReadCount();
+        
+        break;
+      case BlockType::kHashIndexPrefixes:
+        // st d::cout << "block_type_ = " << "kHashIndexPrefixes" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumHashIndexPrefixesReadCount();
+        break;
+      case BlockType::kHashIndexMetadata:
+        // std::cout << "block_type_ = " << "kHashIndexMetadata" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumHashIndexMetadataReadCount();
+        break;
+      case BlockType::kMetaIndex:
+        // std::cout << "block_type_ = " << "kMetaIndex" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumMetaIndexReadCount();
+        break;
+      case BlockType::kIndex:
+        // sentinelFunc01();
+        // std::cout << "block_type_ = " << "kIndex" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumIndexReadCount();
+        
+        break;
+      default:
+        // std::cout << "block_type_ = " << "kInvalid" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        break;
+    }
+    //Self Added End
+    
+    // //Self Added Start: timing
+    // // checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+    // checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+    // //Self Added End: timing
+    
+
+    // TODO: introduce dedicated perf counter for range tombstones
+    // yucheng added start
+    switch(block_type__yucheng) {
+    // yucheng added end
+    // switch (block_type_) {
+      case BlockType::kFilter:
+      case BlockType::kFilterPartitionIndex:
+        PERF_COUNTER_ADD(filter_block_read_count, 1);
+
+        // //Self Added Start 
+        // checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumFilterReadCount();
+        // //Self Added End
+        break;
+
+      case BlockType::kCompressionDictionary:
+        PERF_COUNTER_ADD(compression_dict_block_read_count, 1);
+
+        // //Self Added Start 
+        // checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumCompressionDictBlockReadCount();
+        // //Self Added End
+        break;
+
+      case BlockType::kIndex:
+        PERF_COUNTER_ADD(index_block_read_count, 1);
+
+        // //Self Added Start 
+        // checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumIndexReadCount();
+        // //Self Added End
+        break;
+
+      // //Self Added Start
+      // case BlockType::kRangeDeletion:
+      //   checking::SystemVerifier::getSystemVerifier()->increaseFetcherNumRangeDelReadCount();
+      //   break;
+      // //Self Added End
+
+      // Nothing to do here as we don't have counters for the other types.
+      default:
+        break;
+    }
+
+    PERF_COUNTER_ADD(block_read_byte, block_size_with_trailer_);
+    if (!io_status_.ok()) {
+      return io_status_;
+    }
+
+    if (slice_.size() != block_size_with_trailer_) {
+      return IOStatus::Corruption(
+          "truncated block read from " + file_->file_name() + " offset " +
+          std::to_string(handle_.offset()) + ", expected " +
+          std::to_string(block_size_with_trailer_) + " bytes, got " +
+          std::to_string(slice_.size()));
+    }
+
+    ProcessTrailerIfPresent();
+    if (io_status_.ok()) {
+      InsertCompressedBlockToPersistentCacheIfNeeded();
+    } else {
+      return io_status_;
+    }
+  }
+
+  if (do_uncompress_ && compression_type_ != kNoCompression) {
+    PERF_TIMER_GUARD(block_decompress_time);
+    // compressed page, uncompress, update cache
+    UncompressionContext context(compression_type_);
+    UncompressionInfo info(context, uncompression_dict_, compression_type_);
+    io_status_ = status_to_io_status(UncompressSerializedBlock(
+        info, slice_.data(), block_size_, contents_, footer_.format_version(),
+        ioptions_, memory_allocator_));
+#ifndef NDEBUG
+    num_heap_buf_memcpy_++;
+#endif
+    compression_type_ = kNoCompression;
+  } else {
+    GetBlockContents();
+  }
+
+  InsertUncompressedBlockToPersistentCacheIfNeeded();
+
+  return io_status_;
+}
+
+
+
+// IOStatus BlockFetcher::ReadAsyncBlockContents(BlockType block_type__yucheng) {
+// std::cout << " ReadAsyncBlockContents " << " block_type_ = " << int(block_type_) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+//   if (TryGetUncompressBlockFromPersistentCache()) {
+//     compression_type_ = kNoCompression;
+// #ifndef NDEBUG
+//     contents_->has_trailer = footer_.GetBlockTrailerSize() > 0;
+// #endif  // NDEBUG
+//     return IOStatus::OK();
+//   } else if (!TryGetSerializedBlockFromPersistentCache()) {
+//     assert(prefetch_buffer_ != nullptr);
+//     if (!for_compaction_) {
+//       IOOptions opts;
+//       IOStatus io_s = file_->PrepareIOOptions(read_options_, opts);
+//       if (!io_s.ok()) {
+//         return io_s;
+//       }
+//       io_s = status_to_io_status(prefetch_buffer_->PrefetchAsync(
+//           opts, file_, handle_.offset(), block_size_with_trailer_, &slice_));
+//       if (io_s.IsTryAgain()) {
+//         return io_s;
+//       }
+//       if (io_s.ok()) {
+//         // Data Block is already in prefetch.
+//         got_from_prefetch_buffer_ = true;
+//         ProcessTrailerIfPresent();
+//         if (!io_status_.ok()) {
+//           return io_status_;
+//         }
+//         used_buf_ = const_cast<char*>(slice_.data());
+
+//         if (do_uncompress_ && compression_type_ != kNoCompression) {
+//           PERF_TIMER_GUARD(block_decompress_time);
+//           // compressed page, uncompress, update cache
+//           UncompressionContext context(compression_type_);
+//           UncompressionInfo info(context, uncompression_dict_,
+//                                  compression_type_);
+//           io_status_ = status_to_io_status(UncompressSerializedBlock(
+//               info, slice_.data(), block_size_, contents_,
+//               footer_.format_version(), ioptions_, memory_allocator_));
+// #ifndef NDEBUG
+//           num_heap_buf_memcpy_++;
+// #endif
+//           compression_type_ = kNoCompression;
+//         } else {
+//           GetBlockContents();
+//         }
+//         InsertUncompressedBlockToPersistentCacheIfNeeded();
+//         return io_status_;
+//       }
+//     }
+//     // Fallback to sequential reading of data blocks in case of io_s returns
+//     // error or for_compaction_is true.
+//     return ReadBlockContents();
+//   }
+//   return io_status_;
+// }
+// yucheng added end
 
 }  // namespace ROCKSDB_NAMESPACE

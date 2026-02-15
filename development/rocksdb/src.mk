@@ -325,6 +325,7 @@ LIB_SOURCES =                                                   \
   include/rocksdb/SuRF/include/label_vector.cc                          \
   include/rocksdb/SuRF/include/config.cc                                \
   include/rocksdb/SuRF/include/bitvector.cc                             \
+  include/rocksdb/sys_rdfilter.cc                                       \
   
 
 ifeq (,$(shell $(CXX) -fsyntax-only -maltivec -xc /dev/null 2>&1))

@@ -12,6 +12,9 @@ namespace surf {
 
 void SuRFBuilder::build(const std::vector<std::string>& keys) {
     assert(keys.size() > 0);
+    // YCHUANG ADDED START
+    sparse_start_level_ = 0;
+	// YCHUANG_ADDED END
     buildSparse(keys);
     if (include_dense_) {
 	determineCutoffLevel();
@@ -23,10 +26,9 @@ void SuRFBuilder::build(const std::vector<std::string>& keys) {
 }
 
 // YCHUANG ADDED START
-// void SuRFBuilder::build(const std::vector<std::string>& keys, const std::vector<bool>& left_parentheses, const std::vector<bool>& right_parentheses, const bool flag_build_until_unique, const uint16_t max_num_level) {
 void SuRFBuilder::build(const std::vector<std::string>& keys, const std::vector<bool>& left_parentheses, const std::vector<bool>& right_parentheses, const uint16_t max_num_level) {
     assert(keys.size() > 0);
-    // buildSparseWithparentheses(keys, left_parentheses, right_parentheses, flag_build_until_unique, max_num_level);
+    sparse_start_level_ = 0;
     buildSparseWithparentheses(keys, left_parentheses, right_parentheses, max_num_level);
     if (include_dense_) {
 	determineCutoffLevel();
@@ -35,14 +37,11 @@ void SuRFBuilder::build(const std::vector<std::string>& keys, const std::vector<
     max_num_level_ = max_num_level;
 }
 
-// void SuRFBuilder::buildSparseWithparentheses(const std::vector<std::string>& keys, const std::vector<bool>& left_parentheses, const std::vector<bool>& right_parentheses, const bool flag_build_until_unique, int max_num_level) {
 void SuRFBuilder::buildSparseWithparentheses(const std::vector<std::string>& keys, const std::vector<bool>& left_parentheses, const std::vector<bool>& right_parentheses, level_t max_num_level) {
     assert(("len of parantheses should be the same as len of keys", keys.size() == left_parentheses.size() && keys.size() == right_parentheses.size()));
     assert(max_num_level > 0);
     assert(max_num_level < 1e3);
-    // max_level is only used when flag_build_until_unique = false
     for (position_t i = 0; i < keys.size(); i++) {
-        // level_t level = skipCommonPrefix(keys[i]);
         level_t level = 0;
         std::string key = keys[i];
         while (level < ((uint32_t)key.length()) && (level < max_num_level) && isCharCommonPrefix((label_t)key[level], level)) {
@@ -55,29 +54,10 @@ void SuRFBuilder::buildSparseWithparentheses(const std::vector<std::string>& key
         while ((i + 1 < keys.size()) && isSameKey(keys[curpos], keys[i+1])){
             i++;
         }
-
-        // if (flag_build_until_unique == true){
-        //     if (i < keys.size() - 1){
-        //         level = insertKeyBytesToTrieUntilUnique(keys[curpos], keys[i+1], level);
-        //         std::cout << "\t\t\t" << " level: " << level << " keys[curpos] " << keys[curpos] << " keys[i+1] " << keys[i+1] 
-        //                 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
-        //     }else{ // for last key, there is no successor key in the list
-        //         level = insertKeyBytesToTrieUntilUnique(keys[curpos], std::string(), level);
-        //         std::cout << "\t\t\t" << " level: " << level << " keys[curpos] " << keys[curpos] << " keys[i+1] " << ""
-        //                 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-        //     }
-        //     insertSuffix(keys[curpos], level);
-        // }else{
-
-        // level = insertKeyBytesToTrieUntilLevel(keys[curpos], level, max_num_level-1);
         if (i < keys.size() - 1){
             level = insertKeyBytesToTrieUntilLevel(keys[curpos], keys[i+1], level, max_num_level-1);
-            // std::cout << "\t\t\t" << " level: " << level << " keys[curpos] " << keys[curpos] << " keys[i+1] " << keys[i+1] 
-            //         << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
         }else{ // for last key, there is no successor key in the list
             level = insertKeyBytesToTrieUntilLevel(keys[curpos], std::string(), level, max_num_level-1);
-            // std::cout << "\t\t\t" << " level: " << level << " keys[curpos] " << keys[curpos] << " keys[i+1] " << ""
-            //         << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         }
 #ifdef DEBUG_BUILDER
         std::cout << "\t\t" << " --- " << " key: " << keys[curpos] << " " << " suffix insert level: " << level << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
@@ -131,10 +111,7 @@ level_t SuRFBuilder::skipCommonPrefix(const std::string& key) {
 // YCHUANG ADDED START
 level_t SuRFBuilder::insertKeyBytesToTrieUntilLevel(const std::string& key, const std::string& next_key, 
                                                         const level_t start_level, const level_t end_level) {
-    // if end_level == -1: insert all bytes of key to the trie 
     assert(start_level < key.length());
-    // std::cout << " *A " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    // level_t max_level = end_level == -1? 1e8 : end_level;
     assert(start_level <= end_level);
     assert(end_level < 1e3);
     level_t max_level = end_level;
@@ -147,7 +124,6 @@ level_t SuRFBuilder::insertKeyBytesToTrieUntilLevel(const std::string& key, cons
     level_t level = start_level;
     bool is_start_of_node = false;
     bool is_term = false;
-    // std::cout << " *A2 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
     // If it is the start of level, the louds bit needs to be set.
     if (isLevelEmpty(level)){
@@ -157,7 +133,6 @@ level_t SuRFBuilder::insertKeyBytesToTrieUntilLevel(const std::string& key, cons
     // shoud be in an the node as the previous key.
     insertKeyByte(key[level], level, is_start_of_node, is_term);
     level++;
-    // std::cout << " *A3 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
     // All the following bytes inserted must be the start of a
     // new node.
@@ -170,7 +145,6 @@ level_t SuRFBuilder::insertKeyBytesToTrieUntilLevel(const std::string& key, cons
         insertKeyByte(key[level], level, is_start_of_node, is_term);
         level++;
     }
-    // std::cout << " *A4 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
     if(level == key.length()){
         bool is_prefix = false;
@@ -191,7 +165,6 @@ level_t SuRFBuilder::insertKeyBytesToTrieUntilLevel(const std::string& key, cons
             level++;
         }
     }
-    // std::cout << " *A5 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
     return level;
 }
@@ -258,8 +231,6 @@ inline void SuRFBuilder::insertLeftParenthesis(const bool& left_parenthesis, con
     if (level >= getTreeHeight())
     addLevel();
     assert(level - 1 < left_parentheses_.size());
-    // std::cout << "insertLeftParenthesis: " << (word_t) left_parenthesis << " " << "level " << level << " " << "left_parentheses_counts_[level-1] " << left_parentheses_counts_[level-1] 
-    //         << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     storeLeftParenthesis(level, left_parenthesis);
 }
 
@@ -267,22 +238,11 @@ inline void SuRFBuilder::insertRightParenthesis(const bool& right_parenthesis, c
     if (level >= getTreeHeight())
     addLevel();
     assert(level - 1 < right_parentheses_.size());
-    // std::cout << "insertRightParenthesis: " << (word_t) right_parenthesis << " " << "level " << level << " " << "right_parentheses_counts_[level-1] " << right_parentheses_counts_[level-1] 
-    //         << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     storeRightParenthesis(level, right_parenthesis);
 }
 // YCHUANG ADDED END
 
 inline bool SuRFBuilder::isCharCommonPrefix(const label_t c, const level_t level) const {
-    // level < getTreeHeight();
-    // is_last_item_terminator_[level];
-    // c == labels_[level].back();
-    // if(level < getTreeHeight()){
-    //     std::cout << "isCharCommonPrefix: " << "level " << level << " " << "getTreeHeight() " << getTreeHeight() << std::endl;
-    //     std::cout << " " << "is_last_item_terminator_[level] " << is_last_item_terminator_[level] << std::endl;
-    //     std::cout << " " << "c " << c << " " << "labels_[level].back() " << labels_[level].back() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-
-    // }
     return (level < getTreeHeight())
 	&& (!is_last_item_terminator_[level])
 	&& (c == labels_[level].back());
@@ -431,29 +391,6 @@ inline uint64_t SuRFBuilder::computeSparseMem(const level_t start_level) const {
 }
 
 // // YCHUANG ADDED START
-// void SuRFBuilder::buildDenseWithparentheses() {
-//     for (level_t level = 0; level < sparse_start_level_; level++) {
-//         initDenseVectors(level);
-//         if (getNumItems(level) == 0) continue;
-
-//         position_t node_num = 0;
-//         if (isTerminator(level, 0))
-//             setBit(prefixkey_indicator_bits_[level], 0);
-//         else
-//             setLabelAndChildIndicatorBitmap(level, node_num, 0);
-//         for (position_t pos = 1; pos < getNumItems(level); pos++) {
-//             if (isStartOfNode(level, pos)) {
-//                 node_num++;
-//                 if (isTerminator(level, pos)) {
-//                     setBit(prefixkey_indicator_bits_[level], node_num);
-//                     continue;
-//                 }
-//             }
-//             setLabelAndChildIndicatorBitmap(level, node_num, pos);
-//         }
-//     }
-// }
-
 void SuRFBuilder::buildDense() {
     for (level_t level = 0; level < sparse_start_level_; level++) {
         initDenseVectors(level);

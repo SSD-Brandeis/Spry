@@ -1,2 +1,5 @@
 sst_dump*
 ldb*
+simple_example
+workload/workload*.txt*
+main_gen_workload

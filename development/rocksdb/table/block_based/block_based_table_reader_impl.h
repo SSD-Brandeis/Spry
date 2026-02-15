@@ -77,15 +77,29 @@ TBlockIter* BlockBasedTable::NewDataBlockIterator(
     const UncompressionDict& dict = uncompression_dict.GetValue()
                                         ? *uncompression_dict.GetValue()
                                         : UncompressionDict::GetEmptyDict();
+    // s = RetrieveBlock(prefetch_buffer, ro, handle, dict,
+    //                   &block.As<IterBlocklike>(), get_context, lookup_context,
+    //                   for_compaction,
+    //                   /* use_cache */ true, async_read);
+    // yucheng added start
     s = RetrieveBlock(prefetch_buffer, ro, handle, dict,
                       &block.As<IterBlocklike>(), get_context, lookup_context,
                       for_compaction,
-                      /* use_cache */ true, async_read);
+                      /* use_cache */ true, async_read, block_type);
+    // yucheng added end
   } else {
+    // std::cout << "retrieve block (!kData) block_type = " << int(block_type) << " "
+    //           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // s = RetrieveBlock(
+    //     prefetch_buffer, ro, handle, UncompressionDict::GetEmptyDict(),
+    //     &block.As<IterBlocklike>(), get_context, lookup_context, for_compaction,
+    //     /* use_cache */ true, async_read);
+    // yucheng added start
     s = RetrieveBlock(
         prefetch_buffer, ro, handle, UncompressionDict::GetEmptyDict(),
         &block.As<IterBlocklike>(), get_context, lookup_context, for_compaction,
-        /* use_cache */ true, async_read);
+        /* use_cache */ true, async_read, block_type);
+    // yucheng added end
   }
 
   if (s.IsTryAgain() && async_read) {

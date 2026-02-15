@@ -139,6 +139,10 @@ class SubcompactionState {
     compaction_outputs_.SetOutputSlitKey(start, end);
   }
 
+  // Transient RDF collection state
+  std::vector<long long> sampled_keys;
+  std::vector<std::string> sampled_keys_str;
+
   SubcompactionState(SubcompactionState&& state) noexcept
       : compaction(state.compaction),
         start(state.start),
@@ -149,6 +153,8 @@ class SubcompactionState {
             state.notify_on_subcompaction_completion),
         compaction_job_stats(std::move(state.compaction_job_stats)),
         sub_job_id(state.sub_job_id),
+        sampled_keys(std::move(state.sampled_keys)),
+        sampled_keys_str(std::move(state.sampled_keys_str)),
         compaction_outputs_(std::move(state.compaction_outputs_)),
         penultimate_level_outputs_(std::move(state.penultimate_level_outputs_)),
         is_current_penultimate_level_(state.is_current_penultimate_level_),
@@ -208,14 +214,7 @@ class SubcompactionState {
     return s;
   }
 
-
-  //Self Added Start
-  // CompactionOutputs getCompactionOutputs(){
-  //   return compaction_outputs_;
-  // }
-  // CompactionOutputs getPenultimateLevelOutputs(){
-  //   return penultimate_level_outputs_;
-  // }
+  // Self Added Start
   std::vector<FileMetaData> getCompactionOutputFileMetaData() const {
     std::vector<FileMetaData> files;
     for (const auto& file : compaction_outputs_.outputs_) {
@@ -242,14 +241,15 @@ class SubcompactionState {
 
   std::vector<uint32_t> getPenultimateLevelOutputFileNumbers() const {
     std::vector<uint32_t> file_numbers;
-    for (const auto& file :  penultimate_level_outputs_.outputs_) {
+    for (const auto& file : penultimate_level_outputs_.outputs_) {
       auto fd = file.meta.fd.GetNumber();
       file_numbers.push_back(fd);
     }
     return file_numbers;
   }
-  //Self Added End
 
+  void printRangeDelAgg() { compaction_outputs_.printRangeDelAgg(); }
+  // Self Added End
 
  private:
   // State kept for output being generated

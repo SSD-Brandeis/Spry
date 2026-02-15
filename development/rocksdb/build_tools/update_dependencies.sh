@@ -60,7 +60,7 @@ function get_lib_base()
   # LIB_NAME_BASE=$result
   eval $__res_var=`readlink -f $result`
   
-  log_variable $__res_var
+  log_variable $__res_va
 }
 
 ###########################################################
@@ -78,7 +78,7 @@ echo "Writing dependencies to $OUTPUT"
 GCC_BASE=`readlink -f $TP2_LATEST/gcc/11.x/centos7-native/*/`
 CLANG_BASE=`readlink -f $TP2_LATEST/llvm-fb/12/platform010/*/`
 
-log_header
+log_heade
 log_variable GCC_BASE
 log_variable CLANG_BASE
 

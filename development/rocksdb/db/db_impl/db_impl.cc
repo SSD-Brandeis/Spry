@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <cinttypes>
 #include <cstdio>
+#include <iostream>  //self added
 #include <map>
 #include <set>
 #include <sstream>
@@ -24,8 +25,6 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
-
-#include <iostream> //self added
 
 #include "db/arena_wrapped_db_iter.h"
 #include "db/builder.h"
@@ -788,7 +787,6 @@ void DBImpl::PrintStatistics() {
 }
 
 Status DBImpl::StartPeriodicTaskScheduler() {
-
 #ifndef NDEBUG
   // It only used by test to disable scheduler
   bool disable_scheduler = false;
@@ -1924,14 +1922,16 @@ ColumnFamilyHandle* DBImpl::PersistentStatsColumnFamily() const {
 Status DBImpl::Get(const ReadOptions& read_options,
                    ColumnFamilyHandle* column_family, const Slice& key,
                    PinnableSlice* value) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<
+  // std::endl;
   return Get(read_options, column_family, key, value, /*timestamp=*/nullptr);
 }
 
 Status DBImpl::Get(const ReadOptions& read_options,
                    ColumnFamilyHandle* column_family, const Slice& key,
                    PinnableSlice* value, std::string* timestamp) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<
+  // std::endl;
   assert(value != nullptr);
   value->Reset();
   GetImplOptions get_impl_options;
@@ -2000,9 +2000,6 @@ bool DBImpl::ShouldReferenceSuperVersion(const MergeContext& merge_context) {
 
 Status DBImpl::GetImpl(const ReadOptions& read_options, const Slice& key,
                        GetImplOptions& get_impl_options) {
-
-// std::cout  << "DBImpl::GetImpl A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-
   assert(get_impl_options.value != nullptr ||
          get_impl_options.merge_operands != nullptr ||
          get_impl_options.columns != nullptr);
@@ -2010,14 +2007,12 @@ Status DBImpl::GetImpl(const ReadOptions& read_options, const Slice& key,
   assert(get_impl_options.column_family);
 
   if (read_options.io_activity != Env::IOActivity::kUnknown) {
-std::cout  << "DBImpl::GetImpl A2 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     return Status::InvalidArgument(
         "Cannot call Get with `ReadOptions::io_activity` != "
         "`Env::IOActivity::kUnknown`");
   }
 
   if (read_options.timestamp) {
-std::cout  << "DBImpl::GetImpl A3 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     const Status s = FailIfTsMismatchCf(get_impl_options.column_family,
                                         *(read_options.timestamp),
                                         /*ts_for_read=*/true);
@@ -2034,7 +2029,6 @@ std::cout  << "DBImpl::GetImpl A3 " << __FILE__ << ":" << __LINE__ << " " << __F
   // Clear the timestamps for returning results so that we can distinguish
   // between tombstone or key that has never been written
   if (get_impl_options.timestamp) {
-std::cout  << "DBImpl::GetImpl A4 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     get_impl_options.timestamp->clear();
   }
 
@@ -2049,19 +2043,16 @@ std::cout  << "DBImpl::GetImpl A4 " << __FILE__ << ":" << __LINE__ << " " << __F
   auto cfd = cfh->cfd();
 
   if (tracer_) {
-std::cout  << "DBImpl::GetImpl A5 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // TODO: This mutex should be removed later, to improve performance when
     // tracing is enabled.
     InstrumentedMutexLock lock(&trace_mutex_);
     if (tracer_) {
-std::cout  << "DBImpl::GetImpl A6 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       // TODO: maybe handle the tracing status?
       tracer_->Get(get_impl_options.column_family, key).PermitUncheckedError();
     }
   }
 
   if (get_impl_options.get_merge_operands_options != nullptr) {
-std::cout  << "DBImpl::GetImpl A7 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     for (int i = 0; i < get_impl_options.get_merge_operands_options
                             ->expected_max_number_of_operands;
          ++i) {
@@ -2077,7 +2068,6 @@ std::cout  << "DBImpl::GetImpl A7 " << __FILE__ << ":" << __LINE__ << " " << __F
 
   SequenceNumber snapshot;
   if (read_options.snapshot != nullptr) {
-std::cout  << "DBImpl::GetImpl A8 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     if (get_impl_options.callback) {
       // Already calculated based on read_options.snapshot
       snapshot = get_impl_options.callback->max_visible_seq();
@@ -2086,12 +2076,12 @@ std::cout  << "DBImpl::GetImpl A8 " << __FILE__ << ":" << __LINE__ << " " << __F
           reinterpret_cast<const SnapshotImpl*>(read_options.snapshot)->number_;
     }
   } else {
-// std::cout  << "DBImpl::GetImpl A9 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    // Note that the snapshot is assigned AFTER referencing the super
-    // version because otherwise a flush happening in between may compact away
-    // data for the snapshot, so the reader would see neither data that was be
-    // visible to the snapshot before compaction nor the newer data inserted
-    // afterwards.
+    // std::cout  << "DBImpl::GetImpl A9 " << __FILE__ << ":" << __LINE__ << " "
+    // << __FUNCTION__ << std::endl; Note that the snapshot is assigned AFTER
+    // referencing the super version because otherwise a flush happening in
+    // between may compact away data for the snapshot, so the reader would see
+    // neither data that was be visible to the snapshot before compaction nor
+    // the newer data inserted afterwards.
     snapshot = GetLastPublishedSequence();
     if (get_impl_options.callback) {
       // The unprep_seqs are not published for write unprepared, so it could be
@@ -2119,7 +2109,6 @@ std::cout  << "DBImpl::GetImpl A8 " << __FILE__ << ":" << __LINE__ << " " << __F
   const Comparator* ucmp = get_impl_options.column_family->GetComparator();
   assert(ucmp);
   if (ucmp->timestamp_size() > 0) {
-std::cout  << "DBImpl::GetImpl A10 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     assert(!get_impl_options
                 .callback);  // timestamp with callback is not supported
     read_cb.Refresh(snapshot);
@@ -2145,10 +2134,12 @@ std::cout  << "DBImpl::GetImpl A10 " << __FILE__ << ":" << __LINE__ << " " << __
   std::string* timestamp =
       ucmp->timestamp_size() > 0 ? get_impl_options.timestamp : nullptr;
   if (!skip_memtable) {
-// std::cout  << "DBImpl::GetImpl A11 @not skip memtable (memtable)" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    // Get value associated with key
+    // std::cout  << "DBImpl::GetImpl A11 @not skip memtable (memtable)" <<
+    // __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; Get
+    // value associated with key
     if (get_impl_options.get_value) {
-// std::cout  << "DBImpl::GetImpl A11 B1 @get value " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // std::cout  << "DBImpl::GetImpl A11 B1 @get value " << __FILE__ << ":"
+      // << __LINE__ << " " << __FUNCTION__ << std::endl;
       if (sv->mem->Get(
               lkey,
               get_impl_options.value ? get_impl_options.value->GetSelf()
@@ -2157,7 +2148,8 @@ std::cout  << "DBImpl::GetImpl A10 " << __FILE__ << ":" << __LINE__ << " " << __
               &max_covering_tombstone_seq, read_options,
               false /* immutable_memtable */, get_impl_options.callback,
               get_impl_options.is_blob_index)) {
-// std::cout  << "DBImpl::GetImpl A11 B1 C1 (sv->mem) " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        // std::cout  << "DBImpl::GetImpl A11 B1 C1 (sv->mem) " << __FILE__ <<
+        // ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         done = true;
 
         if (get_impl_options.value) {
@@ -2174,7 +2166,6 @@ std::cout  << "DBImpl::GetImpl A10 " << __FILE__ << ":" << __LINE__ << " " << __
                               &merge_context, &max_covering_tombstone_seq,
                               read_options, get_impl_options.callback,
                               get_impl_options.is_blob_index)) {
-std::cout  << "DBImpl::GetImpl A11 B1 C2 (sv->imm) " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         done = true;
 
         if (get_impl_options.value) {
@@ -2184,7 +2175,6 @@ std::cout  << "DBImpl::GetImpl A11 B1 C2 (sv->imm) " << __FILE__ << ":" << __LIN
         RecordTick(stats_, MEMTABLE_HIT);
       }
     } else {
-std::cout  << "DBImpl::GetImpl A11 B2 @get Merge Operands associated with key " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       // Get Merge Operands associated with key, Merge Operands should not be
       // merged and raw values should be returned to the user.
       if (sv->mem->Get(lkey, /*value=*/nullptr, /*columns=*/nullptr,
@@ -2192,14 +2182,12 @@ std::cout  << "DBImpl::GetImpl A11 B2 @get Merge Operands associated with key " 
                        &max_covering_tombstone_seq, read_options,
                        false /* immutable_memtable */, nullptr, nullptr,
                        false)) {
-std::cout  << "DBImpl::GetImpl A11 B2 C1 (sv->mem)" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         done = true;
         RecordTick(stats_, MEMTABLE_HIT);
       } else if ((s.ok() || s.IsMergeInProgress()) &&
                  sv->imm->GetMergeOperands(lkey, &s, &merge_context,
                                            &max_covering_tombstone_seq,
                                            read_options)) {
-std::cout  << "DBImpl::GetImpl A11 B2 C2 (sv->imm)" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         done = true;
         RecordTick(stats_, MEMTABLE_HIT);
       }
@@ -2213,26 +2201,29 @@ std::cout  << "DBImpl::GetImpl A11 B2 C2 (sv->imm)" << __FILE__ << ":" << __LINE
   TEST_SYNC_POINT("DBImpl::GetImpl:PostMemTableGet:1");
   PinnedIteratorsManager pinned_iters_mgr;
   if (!done) {
-// std::cout  << "DBImpl::GetImpl A12 @not done yet -> GET (PostMemTableGet / search in disk --) " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//Self Added
-// std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // std::cout  << "DBImpl::GetImpl A12 @not done yet -> GET (PostMemTableGet
+    // / search in disk --) " << __FILE__ << ":" << __LINE__ << " " <<
+    // __FUNCTION__ << std::endl;
+    // Self Added
+    // std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<
+    // std::endl;
 
-// cfd->current()->printAllFileRanges();
-// sv->current()->storage_info()->printRDFTest();
+    // cfd->current()->printAllFileRanges();
+    // sv->current()->storage_info()->printRDFTest();
 
-// std::cout << "(GetImpl) cfd_->current()->storage_info()->printRDFTest() " << std::endl;
-// cfd ->current()->storage_info()->printRDFTest();
+    // std::cout << "(GetImpl) cfd_->current()->storage_info()->printRDFTest() "
+    // << std::endl; cfd ->current()->storage_info()->printRDFTest();
 
-// SuperVersion *sv2 = cfd->GetThreadLocalSuperVersion(this);
-// sv2->printRDFTest2();
+    // SuperVersion *sv2 = cfd->GetThreadLocalSuperVersion(this);
+    // sv2->printRDFTest2();
 
-// std::cout << "(GetImpl) cfd_->current()->printRDFTest() " << std::endl;
-// cfd->current()->printRDFTest();
-// std::cout << "(GetImpl) cfd_->current()->printRDFTest2() " << std::endl;
-// cfd->current()->printRDFTest2();
-// // std::cout << "(GetImpl) cfd->printRDFTest " << std::endl;
-// // cfd->printRDFTest();
-//
+    // std::cout << "(GetImpl) cfd_->current()->printRDFTest() " << std::endl;
+    // cfd->current()->printRDFTest();
+    // std::cout << "(GetImpl) cfd_->current()->printRDFTest2() " << std::endl;
+    // cfd->current()->printRDFTest2();
+    // // std::cout << "(GetImpl) cfd->printRDFTest " << std::endl;
+    // // cfd->printRDFTest();
+    //
 
     PERF_TIMER_GUARD(get_from_output_files_time);
     sv->current->Get(
@@ -3937,7 +3928,6 @@ Status DBImpl::GetPropertiesOfTablesInRange(ColumnFamilyHandle* column_family,
   return s;
 }
 
-
 const std::string& DBImpl::GetName() const { return dbname_; }
 
 Env* DBImpl::GetEnv() const { return env_; }
@@ -3955,7 +3945,6 @@ SystemClock* DBImpl::GetSystemClock() const {
   return immutable_db_options_.clock;
 }
 
-
 Status DBImpl::StartIOTrace(const TraceOptions& trace_options,
                             std::unique_ptr<TraceWriter>&& trace_writer) {
   assert(trace_writer != nullptr);
@@ -3967,7 +3956,6 @@ Status DBImpl::EndIOTrace() {
   io_tracer_->EndIOTrace();
   return Status::OK();
 }
-
 
 Options DBImpl::GetOptions(ColumnFamilyHandle* column_family) const {
   InstrumentedMutexLock l(&mutex_);
@@ -4569,7 +4557,6 @@ void DBImpl::GetAllColumnFamilyMetaData(
   }
 }
 
-
 Status DBImpl::CheckConsistency() {
   mutex_.AssertHeld();
   std::vector<LiveFileMetaData> metadata;
@@ -4746,17 +4733,16 @@ Status DB::DestroyColumnFamilyHandle(ColumnFamilyHandle* column_family) {
 DB::~DB() {}
 
 Status DBImpl::Close() {
-  //Self Added begin
-  // std::cout << "print ALL FILE RANGE @" << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
-  // auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  //     DefaultColumnFamily());
-  // auto cfd = cfh->cfd();
-  // // cfd->GetSuperVersion()->current->printAllFileRanges();
-  // cfd->current()->printAllFileRanges();  //this cause some threading issue 
-  // //Self Added end
+  // Self Added begin
+  //  std::cout << "print ALL FILE RANGE @" << __FILE__ << ":" << __LINE__  << "
+  //  " << __FUNCTION__ << std::endl << std::flush; auto cfh =
+  //  static_cast_with_check<ColumnFamilyHandleImpl>(
+  //      DefaultColumnFamily());
+  //  auto cfd = cfh->cfd();
+  //  // cfd->GetSuperVersion()->current->printAllFileRanges();
+  //  cfd->current()->printAllFileRanges();  //this cause some threading issue
+  //  //Self Added end
 
-  
-  
   InstrumentedMutexLock closing_lock_guard(&closing_mutex_);
   if (closed_) {
     return closing_status_;
@@ -4774,389 +4760,618 @@ Status DBImpl::Close() {
   return closing_status_;
 }
 
-//Self Added Start
-//Currently, cfd->GetSuperVersion()->current->printAllFileRanges() 
-// causes some threading issue, have to be synced with mutex_ lock
-Status DBImpl::printAllFileRanges() { 
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-      DefaultColumnFamily());
+// Self Added Start
+// Currently, cfd->GetSuperVersion()->current->printAllFileRanges()
+//  causes some threading issue, have to be synced with mutex_ lock
+Status DBImpl::printAllFileRanges() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   sv->current->printAllFileRanges();
   // cfd->GetSuperVersion()->current->printAllFileRanges();
   // cfd->current()->printAllFileRanges();
   return Status::OK();
- }
+}
 
-Status DBImpl::printRDF() {  
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+Status DBImpl::printRDF() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
-  std::cout << "version --- PLRDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  std::cout << "version --- PLRDF  " << __FILE__ << ":" << __LINE__ << " "
+            << __FUNCTION__ << std::endl
+            << std::flush;
   // cfd->current()->printPLRDF();
   sv->current->printPLRDF();
 
   // cfd->printPLRDF();
-  std::cout << "version --- Split PLRDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  std::cout << "version --- Split PLRDF  " << __FILE__ << ":" << __LINE__ << " "
+            << __FUNCTION__ << std::endl
+            << std::flush;
   sv->current->printSplitPLRDF();
-  
-  std::cout << "version --- Top Level RDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+
+  std::cout << "version --- PLRDF STRING KEY " << __FILE__ << ":" << __LINE__
+            << " " << __FUNCTION__ << std::endl
+            << std::flush;
+  // cfd->current()->printPLRDF();
+  sv->current->printPLRDFStringKey();
+
+  // cfd->printPLRDF();
+  std::cout << "version --- Split PLRDF STRING KEY " << __FILE__ << ":"
+            << __LINE__ << " " << __FUNCTION__ << std::endl
+            << std::flush;
+  sv->current->printSplitPLRDFStringKey();
+
+  std::cout << "version --- Top Level RDF  " << __FILE__ << ":" << __LINE__
+            << " " << __FUNCTION__ << std::endl
+            << std::flush;
   sv->current->printTopLevelRDF();
 
-  std::cout << "version --- Skyline RDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  std::cout << "version --- Top Level RDF String Key  " << __FILE__ << ":"
+            << __LINE__ << " " << __FUNCTION__ << std::endl
+            << std::flush;
+  sv->current->printTopLevelRDFStringKey();
+
+  std::cout << "version --- Skyline RDF  " << __FILE__ << ":" << __LINE__ << " "
+            << __FUNCTION__ << std::endl
+            << std::flush;
   sv->current->printSkylineRDF();
 
-  std::cout << "version --- SuRF Level File RDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  std::cout << "version --- SuRF Level File RDF  " << __FILE__ << ":"
+            << __LINE__ << " " << __FUNCTION__ << std::endl
+            << std::flush;
   sv->current->printSuRFLevelFileRDF();
 
-  std::cout << "version --- SuRF Level File Split RDF  " << __FILE__ << ":" << __LINE__  << " " << __FUNCTION__ << std::endl << std::flush;
+  std::cout << "version --- SuRF Level File Split RDF  " << __FILE__ << ":"
+            << __LINE__ << " " << __FUNCTION__ << std::endl
+            << std::flush;
   sv->current->printSuRFLevelFileSplitRDF();
-
-
 
   return Status::OK();
 }
 
-uint DBImpl::getFlushQueueSize() { 
+uint DBImpl::getFlushQueueSize() {
   uint len = flush_queue_.size();
-  return len; 
+  return len;
 }
 uint DBImpl::getCompactionQueueSize() {
   uint len = compaction_queue_.size();
-  return len; 
+  return len;
 }
 
-bool DBImpl::existFlushJob(){
+bool DBImpl::existFlushJob() {
   mutex_.Lock();
   bool flag1 = flush_queue_.size() > 0;
   bool flag2 = unscheduled_flushes_ > 0;
   bool flag3 = bg_flush_scheduled_ > 0;
   bool flag4 = num_running_flushes_ > 0;
   mutex_.Unlock();
-  return flag1 || flag2 || flag3 || flag4;; 
+  return flag1 || flag2 || flag3 || flag4;
+  ;
 }
 
-bool DBImpl::existCompactionJob(){
+bool DBImpl::existCompactionJob() {
   mutex_.Lock();
   bool flag1 = compaction_queue_.size() > 0;
   bool flag2 = unscheduled_compactions_ > 0;
   bool flag3 = bg_compaction_scheduled_ > 0;
   bool flag4 = num_running_compactions_ > 0;
   mutex_.Unlock();
-  return flag1 || flag2 || flag3 || flag4;; 
+  return flag1 || flag2 || flag3 || flag4;
+  ;
 }
 
-uint DBImpl::getTotalNumberOfSSTFiles(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+uint DBImpl::getTotalNumberOfSSTFiles() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getTotalNumberOfSSTFiles();
 }
 
-
-int DBImpl::getPLRDFNumberOfTotalRanges(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+int DBImpl::getPLRDFNumberOfTotalRanges() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getPLRDFNumberOfTotalRanges();
 }
-int DBImpl::getSplitPLRDFNumberOfTotalRanges(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+int DBImpl::getSplitPLRDFNumberOfTotalRanges() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getSplitPLRDFNumberOfTotalRanges();
 }
-int DBImpl::getTopLevelRDFNumberOfTotalRanges(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+int DBImpl::getPLRDFStringKeyNumberOfTotalRanges() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getPLRDFStringKeyNumberOfTotalRanges();
+}
+int DBImpl::getSplitPLRDFStringKeyNumberOfTotalRanges() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getSplitPLRDFStringKeyNumberOfTotalRanges();
+}
+int DBImpl::getTopLevelRDFNumberOfTotalRanges() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getTopLevelRDFNumberOfTotalRanges();
 }
-int DBImpl::getSkylineRDFNumberOfTotalRanges(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+int DBImpl::getTopLevelRDFStringKeyNumberOfTotalRanges() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getTopLevelRDFStringKeyNumberOfTotalRanges();
+}
+int DBImpl::getSkylineRDFNumberOfTotalRanges() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getSkylineRDFNumberOfTotalRanges();
 }
-int DBImpl::getSuRFLevelFileRDFNumberOfTotalRanges(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+int DBImpl::getSuRFLevelFileRDFNumberOfTotalRanges() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getSuRFLevelFileRDFNumberOfTotalRanges();
 }
-int DBImpl::getSuRFLevelFileSplitRDFNumberOfTotalRanges(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+int DBImpl::getSuRFLevelFileSplitRDFNumberOfTotalRanges() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getSuRFLevelFileSplitRDFNumberOfTotalRanges();
 }
-std::vector<int> DBImpl::getLogOfNumbersOfRangesInOrigin(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+int DBImpl::getRTRocksDBNumberOfTotalMemoryUsage() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getSizeOfTablesRangeTombstonesOfAllLSMTree();
+}
+int DBImpl::getRTRocksDBNumberOfTotalMemoryUsageIncludedTimestamp() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current
+      ->getSizeOfTablesRangeTombstonesOfAllLSMTreeIncludedTimestamp();
+}
+int DBImpl::getPLRDFNumberOfTotalMemoryUsage() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getPLRDFNumberOfTotalMemoryUsage();
+}
+int DBImpl::getSplitPLRDFNumberOfTotalMemoryUsage() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getSplitPLRDFNumberOfTotalMemoryUsage();
+}
+int DBImpl::getPLRDFStringKeyNumberOfTotalMemoryUsage() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getPLRDFStringKeyNumberOfTotalMemoryUsage();
+}
+int DBImpl::getSplitPLRDFStringKeyNumberOfTotalMemoryUsage() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getSplitPLRDFStringKeyNumberOfTotalMemoryUsage();
+}
+int DBImpl::getTopLevelRDFNumberOfTotalMemoryUsage() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getTopLevelRDFNumberOfTotalMemoryUsage();
+}
+int DBImpl::getTopLevelRDFStringKeyNumberOfTotalMemoryUsage() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getTopLevelRDFStringKeyNumberOfTotalMemoryUsage();
+}
+int DBImpl::getSkylineRDFNumberOfTotalMemoryUsage() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getSkylineRDFNumberOfTotalMemoryUsage();
+}
+int DBImpl::getSuRFLevelFileRDFNumberOfTotalMemoryUsage() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getSuRFLevelFileRDFNumberOfTotalMemoryUsage();
+}
+int DBImpl::getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage();
+}
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInOrigin() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfNumbersOfRangesInOrigin();
 }
-std::vector<int> DBImpl::getLogOfNumbersOfRangesInPLRDF(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInPLRDF() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfNumbersOfRangesInPLRDF();
 }
-std::vector<int> DBImpl::getLogOfNumbersOfRangesInSplitPLRDF(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInSplitPLRDF() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfNumbersOfRangesInSplitPLRDF();
 }
-std::vector<int> DBImpl::getLogOfNumbersOfRangesInTopLevelRDF(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInPLRDFStringKey() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfNumbersOfRangesInPLRDFStringKey();
+}
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInSplitPLRDFStringKey() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfNumbersOfRangesInSplitPLRDFStringKey();
+}
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInTopLevelRDF() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfNumbersOfRangesInTopLevelRDF();
 }
-std::vector<int> DBImpl::getLogOfNumbersOfRangesInSkylineRDF(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInTopLevelRDFStringKey() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfNumbersOfRangesInTopLevelRDFStringKey();
+}
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInSkylineRDF() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfNumbersOfRangesInSkylineRDF();
 }
-std::vector<int> DBImpl::getLogOfNumbersOfRangesInSuRFLevelFileRDF(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInSuRFLevelFileRDF() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfNumbersOfRangesInSuRFLevelFileRDF();
 }
-std::vector<int> DBImpl::getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+std::vector<int> DBImpl::getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF();
 }
 
-
 std::vector<int> DBImpl::getLogOfMemoryUsageInOrigin() {
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+  // std::cout << "B0 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<
+  // std::endl;
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  // std::cout << "B1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<
+  // std::endl;
   auto cfd = cfh->cfd();
+  // std::cout << "B2 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<
+  // std::endl;
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  // std::cout << "B3 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<
+  // std::endl;
   return sv->current->getLogOfMemoryUsageInOrigin();
 }
 std::vector<int> DBImpl::getLogOfMemoryUsageInPLRDF() {
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfMemoryUsageInPLRDF();
 }
 std::vector<int> DBImpl::getLogOfMemoryUsageInSplitRDF() {
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfMemoryUsageInSplitRDF();
 }
+std::vector<int> DBImpl::getLogOfMemoryUsageInPLRDFStringKey() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfMemoryUsageInPLRDFStringKey();
+}
+std::vector<int> DBImpl::getLogOfMemoryUsageInSplitRDFStringKey() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfMemoryUsageInSplitRDFStringKey();
+}
 std::vector<int> DBImpl::getLogOfMemoryUsageInTopLevelRDF() {
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfMemoryUsageInTopLevelRDF();
 }
+std::vector<int> DBImpl::getLogOfMemoryUsageInTopLevelRDFStringKey() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getLogOfMemoryUsageInTopLevelRDFStringKey();
+}
 std::vector<int> DBImpl::getLogOfMemoryUsageInSkylineRDF() {
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfMemoryUsageInSkylineRDF();
 }
 std::vector<int> DBImpl::getLogOfMemoryUsageInSuRFLevelFileRDF() {
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfMemoryUsageInSuRFLevelFileRDF();
 }
 std::vector<int> DBImpl::getLogOfMemoryUsageInSuRFLevelFileSplitRDF() {
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
   return sv->current->getLogOfMemoryUsageInSuRFLevelFileSplitRDF();
 }
-// std::vector<int> DBImpl::getLogOfMemoryUsageInSuRFTopLevelRDF() {
-//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-//   DefaultColumnFamily());
-//   auto cfd = cfh->cfd();
-//   SuperVersion* sv = GetAndRefSuperVersion(cfd);
-//   return sv->current->getLogOfMemoryUsageInSuRFTopLevelRDF();
-// }
 
-const PLRDF *DBImpl::getPLRDF(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+double DBImpl::getFilterFalsePositiveRateInPLRDFStringKey() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getFilterFalsePositiveRateInPLRDFStringKey();
+};
+double DBImpl::getFilterFalsePositiveRateInSplitPLRDFStringKey() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getFilterFalsePositiveRateInSplitPLRDFStringKey();
+};
+void DBImpl::clearFilterFalsePositiveRateInPLRDFStringKey() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->clearFilterFalsePositiveRateInPLRDFStringKey();
+};
+void DBImpl::clearFilterFalsePositiveRateInSplitPLRDFStringKey() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->clearFilterFalsePositiveRateInSplitPLRDFStringKey();
+};
+double DBImpl::getFilterFalsePositiveRateInTopLevelRDFStringKey() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getFilterFalsePositiveRateInTopLevelRDFStringKey();
+};
+void DBImpl::clearFilterFalsePositiveRateInTopLevelRDFStringKey() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->clearFilterFalsePositiveRateInTopLevelRDFStringKey();
+};
+double DBImpl::getFilterFalsePositiveRateInSuRFLevelFileRDF() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+};
+double DBImpl::getFilterFalsePositiveRateInSuRFLevelFileSplitRDF() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->getFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+};
+void DBImpl::clearFilterFalsePositiveRateInSuRFLevelFileRDF() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+};
+void DBImpl::clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  SuperVersion* sv = GetAndRefSuperVersion(cfd);
+  return sv->current->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+};
+
+const PLRDF* DBImpl::getPLRDF() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   return cfd->getPLRDF();
 }
-const PLRDF *DBImpl::getSplitPLRDF(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+const PLRDF* DBImpl::getSplitPLRDF() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   return cfd->getSplitPLRDF();
 }
-const PLRDF *DBImpl::getTopLevelRDF(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+const PLRDF_t<std::string>* DBImpl::getPLRDFStringKey() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  return cfd->getPLRDFStringKey();
+}
+const PLRDF_t<std::string>* DBImpl::getSplitPLRDFStringKey() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  return cfd->getSplitPLRDFStringKey();
+}
+const PLRDF* DBImpl::getTopLevelRDF() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   return cfd->getTopLevelRDF();
 }
+const PLRDF_t<std::string>* DBImpl::getTopLevelRDFStringKey() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
+  auto cfd = cfh->cfd();
+  return cfd->getTopLevelRDFStringKey();
+}
 // const std::vector<t3ll> *DBImpl::getSkylineRDF(){
-const SkyLineRDF *DBImpl::getSkylineRDF(){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+const SkyLineRDF* DBImpl::getSkylineRDF() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   return cfd->getSkylineRDF();
 }
-// const std::vector<int> *DBImpl::getSkylineNumbersOfRangesInRDFLog(){
-//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-//   DefaultColumnFamily());
-//   auto cfd = cfh->cfd();
-//   return cfd->getSkylineNumbersOfRangesInRDFLog();
-// }
 
-// const surf::SuRF_RDF *DBImpl::getSuRFTopLevelRDF() {
-//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-//   DefaultColumnFamily());
-//   auto cfd = cfh->cfd();
-//   return cfd->getSuRFTopLevelRDF();
-// }
-const surf::SuRF_RDF *DBImpl::getSuRFLevelFileRDF() {
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+const surf::SuRF_RDF* DBImpl::getSuRFLevelFileRDF() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   return cfd->getSuRFLevelFileRDF();
 }
-const surf::SuRF_RDF *DBImpl::getSuRFLevelFileSplitRDF() {
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
+const surf::SuRF_RDF* DBImpl::getSuRFLevelFileSplitRDF() {
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   return cfd->getSuRFLevelFileSplitRDF();
 }
 
-// void DBImpl::setPLRDF(std::vector<int> v){
-//   if(v.size() != 0){
-//     std::cout << "" << std::endl;
-//   }
+// void DBImpl::setPLRDF( PLRDF *plrdf){
+//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+//   DefaultColumnFamily());
+//   auto cfd = cfh->cfd();
+//   cfd->setPLRDF(*plrdf);
+
+//   SuperVersion* sv = GetAndRefSuperVersion(cfd);
+//   sv->current->setPLRDF(*plrdf);
 // }
-
-void DBImpl::setPLRDF( PLRDF *plrdf){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
-  auto cfd = cfh->cfd();
-  cfd->setPLRDF(*plrdf);
-  
-  SuperVersion* sv = GetAndRefSuperVersion(cfd);
-  sv->current->setPLRDF(*plrdf);
-  // return Status::OK();
-}
-void DBImpl::setSplitPLRDF( PLRDF *plrdf){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
-  auto cfd = cfh->cfd();
-
-  cfd->setSplitPLRDF(*plrdf);
-  SuperVersion* sv = GetAndRefSuperVersion(cfd);
-  sv->current->setSplitPLRDF(*plrdf);
-  // return Status::OK();
-}
-void DBImpl::setTopLevelRDF( PLRDF *plrdf){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
-  auto cfd = cfh->cfd();
-
-  cfd->setTopLevelRDF(*plrdf);
-  SuperVersion* sv = GetAndRefSuperVersion(cfd);
-  sv->current->setTopLevelRDF(*plrdf);
-  // return Status::OK();
-}
-// void DBImpl::setSkylineRDF( std::vector<t3ll> *skyline_rdf){
-void DBImpl::setSkylineRDF( SkyLineRDF *skyline_rdf){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
-  auto cfd = cfh->cfd();
-
-  cfd->setSkylineRDF(*skyline_rdf);
-  SuperVersion* sv = GetAndRefSuperVersion(cfd);
-  sv->current->setSkylineRDF(*skyline_rdf);
-  // return Status::OK();
-}
-// void DBImpl::setSkylineNumbersOfRangesInRDFLog( std::vector<int> *skyline__numbers_of_ranges_in_rdf_log){
+// void DBImpl::setSplitPLRDF( PLRDF *plrdf){
 //   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
 //   DefaultColumnFamily());
 //   auto cfd = cfh->cfd();
 
-//   cfd->setSkylineNumbersOfRangesInRDFLog(*skyline__numbers_of_ranges_in_rdf_log);
+//   cfd->setSplitPLRDF(*plrdf);
 //   SuperVersion* sv = GetAndRefSuperVersion(cfd);
-//   sv->current->setSkylineNumbersOfRangesInRDFLog(*skyline__numbers_of_ranges_in_rdf_log);
-//   // return Status::OK();
+//   sv->current->setSplitPLRDF(*plrdf);
 // }
+// void DBImpl::setPLRDFStringKey( PLRDF_t<std::string> *plrdf){
+//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+//   DefaultColumnFamily());
+//   auto cfd = cfh->cfd();
+//   cfd->setPLRDFStringKey(*plrdf);
 
-// void DBImpl::setSuRFTopLevelRDF( surf::SuRF_RDF *suRFTopLevelRDF){
+//   SuperVersion* sv = GetAndRefSuperVersion(cfd);
+//   sv->current->setPLRDFStringKey(*plrdf);
+// }
+// void DBImpl::setSplitPLRDFStringKey( PLRDF_t<std::string> *plrdf){
 //   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
 //   DefaultColumnFamily());
 //   auto cfd = cfh->cfd();
 
-//   cfd->setSuRFTopLevelRDF(suRFTopLevelRDF);
+//   cfd->setSplitPLRDFStringKey(*plrdf);
 //   SuperVersion* sv = GetAndRefSuperVersion(cfd);
-//   sv->current->setSuRFTopLevelRDF(suRFTopLevelRDF);
-//   // return Status::OK();
+//   sv->current->setSplitPLRDFStringKey(*plrdf);
 // }
-void DBImpl::setSuRFLevelFileRDF( surf::SuRF_RDF *suRFLevelFileRDF){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
-  auto cfd = cfh->cfd();
+// void DBImpl::setTopLevelRDF( PLRDF *plrdf){
+//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+//   DefaultColumnFamily());
+//   auto cfd = cfh->cfd();
 
-  cfd->setSuRFLevelFileRDF(suRFLevelFileRDF);
-  SuperVersion* sv = GetAndRefSuperVersion(cfd);
-  sv->current->setSuRFLevelFileRDF(suRFLevelFileRDF);
-  // return Status::OK();
-}
-void DBImpl::setSuRFLevelFileSplitRDF( surf::SuRF_RDF *suRFLevelFileSplitRDF){
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  DefaultColumnFamily());
-  auto cfd = cfh->cfd();
+//   cfd->setTopLevelRDF(*plrdf);
+//   SuperVersion* sv = GetAndRefSuperVersion(cfd);
+//   sv->current->setTopLevelRDF(*plrdf);
+// }
+// void DBImpl::setTopLevelRDFStringKey( PLRDF_t<std::string> *plrdf){
+//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+//   DefaultColumnFamily());
+//   auto cfd = cfh->cfd();
 
-  cfd->setSuRFLevelFileSplitRDF(suRFLevelFileSplitRDF);
-  SuperVersion* sv = GetAndRefSuperVersion(cfd);
-  sv->current->setSuRFLevelFileSplitRDF(suRFLevelFileSplitRDF);
-  // return Status::OK();
-}
-//Self Added End
+//   cfd->setTopLevelRDFStringKey(*plrdf);
+//   SuperVersion* sv = GetAndRefSuperVersion(cfd);
+//   sv->current->setTopLevelRDFStringKey(*plrdf);
+// }
+// void DBImpl::setSkylineRDF( SkyLineRDF *skyline_rdf){
+//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+//   DefaultColumnFamily());
+//   auto cfd = cfh->cfd();
 
+//   cfd->setSkylineRDF(*skyline_rdf);
+//   SuperVersion* sv = GetAndRefSuperVersion(cfd);
+//   sv->current->setSkylineRDF(*skyline_rdf);
+// }
+// void DBImpl::setSuRFLevelFileRDF( surf::SuRF_RDF *suRFLevelFileRDF){
+//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+//   DefaultColumnFamily());
+//   auto cfd = cfh->cfd();
 
+//   cfd->setSuRFLevelFileRDF(suRFLevelFileRDF);
+//   SuperVersion* sv = GetAndRefSuperVersion(cfd);
+//   sv->current->setSuRFLevelFileRDF(suRFLevelFileRDF);
+// }
+// void DBImpl::setSuRFLevelFileSplitRDF( surf::SuRF_RDF
+// *suRFLevelFileSplitRDF){
+//   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
+//   DefaultColumnFamily());
+//   auto cfd = cfh->cfd();
 
-
-
-
-
-
-
-
-
+//   cfd->setSuRFLevelFileSplitRDF(suRFLevelFileSplitRDF);
+//   SuperVersion* sv = GetAndRefSuperVersion(cfd);
+//   sv->current->setSuRFLevelFileSplitRDF(suRFLevelFileSplitRDF);
+// }
+// Self Added End
 
 Status DB::ListColumnFamilies(const DBOptions& db_options,
                               const std::string& name,

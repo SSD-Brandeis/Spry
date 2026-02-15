@@ -81,7 +81,7 @@ public:
     int level0_file_num_compaction_trigger; // number of files that triggers compaction in level0
     int target_file_size_multiplier; // multiplier for file size if we want to have same number of files per level
     int max_background_jobs; // Maximum number of concurrent background jobs (compactions and flushes).
-    int max_compaction_bytes; // target_file_size_base * 25, limit number of bytes in one compaction to be lower than this threshold. But it’s not guaranteed.
+    int max_compaction_bytes; // target_file_size_base * 25, limit number of bytes in one compaction to be lower than this threshold. But it?s not guaranteed.
     long max_bytes_for_level_base; // capacity for level base(usually level 1)
     int merge_operator;   // TBC
     int soft_pending_compaction_bytes_limit;    // TBC

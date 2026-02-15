@@ -19,6 +19,11 @@
 #include "util/hash.h"
 #include "util/mutexlock.h"
 
+// YCHuang Added Start
+#include <iostream>
+#include <unordered_set>
+// YCHuang Added End
+
 namespace ROCKSDB_NAMESPACE {
 
 // Optional base class for classes implementing the CacheShard concept
@@ -81,6 +86,14 @@ class CacheShardBase {
       size_t average_entries_per_lock, size_t* state) = 0;
   void EraseUnRefEntries() = 0;
   */
+
+  // YCHuang Added Start
+  virtual std::unordered_set<std::string> GetYCHSetKey(){
+    return {};
+  }
+
+  virtual ~CacheShardBase() {}  // Virtual destructor
+  // YCHuang Added End
 
  protected:
   const CacheMetadataChargePolicy metadata_charge_policy_;
@@ -176,6 +189,17 @@ class ShardedCache : public ShardedCacheBase {
     assert(helper);
     HashVal hash = CacheShard::ComputeHash(key, hash_seed_);
     auto h_out = reinterpret_cast<HandleImpl**>(handle);
+    
+    // YCHuang Added Start
+    // std::cout << "@Insert GetOccupancyCount() = " << GetOccupancyCount() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // std::unordered_set<std::string> tmp = GetYCHSetKey();
+    // std::cout << "@Insert GetYCHSetKey.size() = " << tmp.size() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // for(auto &x:tmp){
+    //   std::cout << x << " "; 
+    // }
+    // std::cout << std::endl;
+    // YCHuang Added End
+
     return GetShard(hash).Insert(key, hash, obj, helper, charge, h_out,
                                  priority);
   }
@@ -286,6 +310,19 @@ class ShardedCache : public ShardedCacheBase {
   inline size_t SumOverShards2(size_t (CacheShard::*fn)() const) const {
     return SumOverShards([fn](CacheShard& cs) { return (cs.*fn)(); });
   }
+
+  // YCHuang Added Start
+  std::unordered_set<std::string> GetYCHSetKey(){
+
+    uint32_t num_shards = GetNumShards();
+    std::unordered_set<std::string> result;
+    for (uint32_t i = 0; i < num_shards; i++) {
+      auto tmp = shards_[i].GetYCHSetKey();
+      result.insert(tmp.begin(), tmp.end());
+    }
+    return result;
+  }
+  // YCHuang Added End
 
   // Must be called exactly once by derived class constructor
   void InitShards(const std::function<void(CacheShard*)>& placement_new) {

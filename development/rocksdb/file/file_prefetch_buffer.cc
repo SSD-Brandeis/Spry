@@ -84,6 +84,12 @@ Status FilePrefetchBuffer::Read(const IOOptions& opts,
                                 Env::IOPriority rate_limiter_priority,
                                 uint64_t read_len, uint64_t chunk_len,
                                 uint64_t rounddown_start, uint32_t index) {
+  // std::cout << "FilePrefetchBuffer::Read: "
+  //           << "read_len: " << read_len
+  //           << ", chunk_len: " << chunk_len
+  //           << ", rounddown_start: " << rounddown_start
+  //           << ", index: " << index
+  //           << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
   Slice result;
   Status s = reader->Read(opts, rounddown_start + chunk_len, read_len, &result,
                           bufs_[index].buffer_.BufferStart() + chunk_len,
@@ -159,7 +165,13 @@ Status FilePrefetchBuffer::Prefetch(const IOOptions& opts,
   CalculateOffsetAndLen(alignment, offset, roundup_len, curr_,
                         true /*refit_tail*/, chunk_len);
   size_t read_len = static_cast<size_t>(roundup_len - chunk_len);
-
+// std::cout << "FilePrefetchBuffer::Prefetch: "
+//           << "offset: " << offset << ", n: " << n
+//           << ", rounddown_offset: " << rounddown_offset
+//           << ", roundup_len: " << roundup_len
+//           << ", chunk_len: " << chunk_len
+//           << ", read_len: " << read_len
+//           << " " << __FILE__ << ":" << __LINE__ << " " << __func__ << std::endl;
   Status s = Read(opts, reader, rate_limiter_priority, read_len, chunk_len,
                   rounddown_offset, curr_);
   if (usage_ == FilePrefetchBufferUsage::kTableOpenPrefetchTail && s.ok()) {
@@ -612,6 +624,9 @@ bool FilePrefetchBuffer::TryReadFromCache(const IOOptions& opts,
                                           Slice* result, Status* status,
                                           Env::IOPriority rate_limiter_priority,
                                           bool for_compaction /* = false */) {
+  // std::cout << "FilePrefetchBuffer::TryReadFromCache called with offset: "
+  //           << offset << ", n: " << n << " " << __FILE__ << ":" << __LINE__ << " " 
+  //           << __FUNCTION__ << std::endl;
   bool ret = TryReadFromCacheUntracked(opts, reader, offset, n, result, status,
                                        rate_limiter_priority, for_compaction);
   if (usage_ == FilePrefetchBufferUsage::kTableOpenPrefetchTail && enable_) {
@@ -641,7 +656,17 @@ bool FilePrefetchBuffer::TryReadFromCacheUntracked(
   //    If readahead is not enabled: return false.
   TEST_SYNC_POINT_CALLBACK("FilePrefetchBuffer::TryReadFromCache",
                            &readahead_size_);
+  // std::cout << "FilePrefetchBuffer::TryReadFromCache called with offset: "
+  //           << offset << ", n: " << n << " read_ahead_size: " << readahead_size_ 
+  //           << " " << " offset+n = " << offset + n << " bufs_[curr_].offset_ = " << bufs_[curr_].offset_
+  //           << " bufs_[curr_].buffer_.CurrentSize() = "  << bufs_[curr_].buffer_.CurrentSize() 
+  //           << " " << __FILE__ << ":" << __LINE__ << " "
+  //           << __FUNCTION__ << std::endl;
   if (offset + n > bufs_[curr_].offset_ + bufs_[curr_].buffer_.CurrentSize()) {
+    // std::cout << "FilePrefetchBuffer::TryReadFromCache: "
+    //           << "offset + n > bufs_[curr_].offset_ + bufs_[curr_].buffer_.CurrentSize()"
+    //           << " " << __FILE__ << ":" << __LINE__ << " "
+    //           << __FUNCTION__ << std::endl;
     if (readahead_size_ > 0) {
       Status s;
       assert(reader != nullptr);
@@ -651,6 +676,10 @@ bool FilePrefetchBuffer::TryReadFromCacheUntracked(
                      rate_limiter_priority);
       } else {
         if (implicit_auto_readahead_) {
+// std::cout << "FilePrefetchBuffer::TryReadFromCache: "
+//                   << "implicit_auto_readahead_ is true, checking eligibility"
+//                   << " " << __FILE__ << ":" << __LINE__ << " "
+//                   << __FUNCTION__ << std::endl;
           if (!IsEligibleForPrefetch(offset, n)) {
             // Ignore status as Prefetch is not called.
             s.PermitUncheckedError();

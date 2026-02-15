@@ -375,6 +375,9 @@ Status ReadFooterFromFile(const IOOptions& opts, RandomAccessFileReader* file,
           opts, file, read_offset, Footer::kMaxEncodedLength, &footer_input,
           nullptr, opts.rate_limiter_priority)) {
     if (file->use_direct_io()) {
+      // std::cout << "Direct IO is enabled, using internal buffer for footer read."
+      //           << "reading from offset: " << read_offset
+      //           << ", size: " << Footer::kMaxEncodedLength << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       s = file->Read(opts, read_offset, Footer::kMaxEncodedLength,
                      &footer_input, nullptr, &internal_buf,
                      opts.rate_limiter_priority);

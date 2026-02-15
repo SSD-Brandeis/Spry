@@ -19,6 +19,14 @@
 #include "util/autovector.h"
 #include "util/distributed_mutex.h"
 
+// YCHunag Added Start
+#include <unordered_map>
+#include <unordered_set>
+#include <shared_mutex> // for std::shared_mutex
+#include <mutex>        // for std::shared_lock
+#include "include/rocksdb/system_verifier.h"
+// YCHuang Added End
+
 namespace ROCKSDB_NAMESPACE {
 namespace lru_cache {
 
@@ -235,7 +243,68 @@ class LRUHandleTable {
 
   MemoryAllocator* GetAllocator() const { return allocator_; }
 
+  // YCHuang Added Start
+  void InsertKVToYCHMapKVAndSetKey(std::string k, void *v){
+    std::lock_guard<std::shared_mutex> lock(mtx_ych_map_kv_and_set_key);
+    // checking::SystemVerifier *system_verifier = checking::SystemVerifier::getSystemVerifier(); 
+    k = checking::CacheTombstoneTracer::stringToHexString(k);
+    if(ych_map_kv.count(k) > 0){
+      std::cout << "(+) key " << k << " already exist in ych_map_kv anymore " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+    }
+    // std::cout << "(+) LRUHandleTable = " <<  checking::CacheTombstoneTracer::voidPointerToString((void *) this) << std::endl;
+
+    // std::cout << "(+ before) ych_map_kv.size() = " << ych_map_kv.size() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    ych_map_kv[k] = v;
+    
+    std::string k2 = checking::CacheTombstoneTracer::voidPointerToString(v);
+    k = k + k2;
+    // std::cout << "(+ before) ych_set_key.size() = " << ych_set_key.size() << " " << " key = " << k << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    
+
+    ych_set_key.insert(k);
+    // std::cout << "(+ after) ych_map_kv.size() = " << ych_map_kv.size() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // std::cout << "(+ after) ych_set_key.size() = " << ych_set_key.size() << " " << " key = " << k << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // std::cout << "(+) GetOccupancyCount() = " << GetOccupancyCount() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+  }
+  void RemoveKFromYCHMapKVAndSetKey(std::string k){
+    std::lock_guard<std::shared_mutex> lock(mtx_ych_map_kv_and_set_key);
+    // checking::SystemVerifier *system_verifier = checking::SystemVerifier::getSystemVerifier(); 
+    k = checking::CacheTombstoneTracer::stringToHexString(k);
+    // if(ych_map_kv.count(k) == 0){
+    //   std::cout << "(-) key " << k << " not exist in ych_map_kv anymore " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+    // }    
+    // std::cout << "(-) LRUHandleTable = " <<  checking::CacheTombstoneTracer::voidPointerToString((void *) this) << std::endl;
+    void *v = ych_map_kv[k];
+
+    // std::cout << "(- before) ych_map_kv.size() = " << ych_map_kv.size() << " " << " key = " << k << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    ych_map_kv.erase(k);
+
+    std::string k2 = checking::CacheTombstoneTracer::voidPointerToString(v);
+    k = k + k2;
+    // std::cout << "(- before) ych_set_key.size() = " << ych_set_key.size() << " " << " key = " << k << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+    ych_set_key.erase(k);
+    // std::cout << "(- after) ych_map_kv.size() = " << ych_map_kv.size() << " " << " key = " << k << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // std::cout << "(- after) ych_set_key.size() = " << ych_set_key.size() << " " << " key = " << k << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // std::cout << "(-) GetOccupancyCount() = " << GetOccupancyCount() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+  }
+  std::unordered_map<std::string, void*> GetYCHMapKV() {
+    std::shared_lock<std::shared_mutex> lock(mtx_ych_map_kv_and_set_key);
+    return ych_map_kv;
+  }
+  std::unordered_set<std::string> GetYCHSetKey() {
+    std::shared_lock<std::shared_mutex> lock(mtx_ych_map_kv_and_set_key);
+    // std::cout << "(get) ych_set_key.size() = " << ych_set_key.size() << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    return ych_set_key;
+  }
+  // YCHuang Added End
  private:
+  // YCHuang Added Start
+  std::unordered_map<std::string, void*> ych_map_kv; 
+  std::unordered_set<std::string> ych_set_key;
+  mutable std::shared_mutex mtx_ych_map_kv_and_set_key; // mutable because GetYCHMapKV() is const
+  // YCHuang Added End
+
   // Return a pointer to slot that points to a cache entry that
   // matches key/hash.  If there is no such cache entry, return a
   // pointer to the trailing slot in the corresponding linked list.
@@ -349,6 +418,17 @@ class ALIGN_AS(CACHE_LINE_SIZE) LRUCacheShard final : public CacheShardBase {
 
   void AppendPrintableOptions(std::string& /*str*/) const;
 
+  // YCHuang Added Start
+  std::unordered_map<std::string, void*> GetYCHMapKV(){
+    // std::cout << __FILE__ << ":" <<? __LINE__ << " " << __FUNCTION__ << std::endl;
+    return table_.GetYCHMapKV();
+  }
+  std::unordered_set<std::string> GetYCHSetKey(){
+    // std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    return table_.GetYCHSetKey();
+  }
+  // YCHuang Added End
+
  private:
   friend class LRUCache;
   // Insert an item into the hash table and, if handle is null, insert into
@@ -456,6 +536,11 @@ class LRUCache
   size_t TEST_GetLRUSize();
   // Retrieves high pri pool ratio.
   double GetHighPriPoolRatio();
+  
+  // // YCH Added Start
+  // std::unordered_map<std::string, void*> GetYCHMapKV(){return {};}
+  // std::unordered_set<std::string> GetYCHSetKey(){return {};}
+  // // YCH Added End
 };
 
 }  // namespace lru_cache

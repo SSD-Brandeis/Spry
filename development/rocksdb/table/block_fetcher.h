@@ -73,6 +73,11 @@ class BlockFetcher {
   IOStatus ReadBlockContents();
   IOStatus ReadAsyncBlockContents();
 
+  // yucheng added start
+  IOStatus ReadBlockContents(BlockType block_type__yucheng);
+  // IOStatus ReadAsyncBlockContents();
+  // yucheng added end
+
   inline CompressionType get_compression_type() const {
     return compression_type_;
   }

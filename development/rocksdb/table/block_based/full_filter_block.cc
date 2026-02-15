@@ -189,9 +189,15 @@ bool FullFilterBlockReader::MayMatch(const Slice& entry, bool no_io,
   if (filter_bits_reader) {
     if (filter_bits_reader->MayMatch(entry)) {
       PERF_COUNTER_ADD(bloom_sst_hit_count, 1);
+      // //yucheng Added Start
+      // std::cout << "perf_context.bloom_sst_hit_count = " << perf_context.bloom_sst_hit_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+      // //yucheng Added End
       return true;
     } else {
       PERF_COUNTER_ADD(bloom_sst_miss_count, 1);
+      // //yucheng Added Start
+      // std::cout << "perf_context.bloom_sst_miss_count = " << perf_context.bloom_sst_miss_count << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+      // //yucheng Added End
       return false;
     }
   }

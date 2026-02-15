@@ -452,7 +452,7 @@ for i_test in range(4):
     else:
         log_dir = f"saved_result_string_key_size_{params3['--key_size_to_insert'][0]}"
 
-    log_dir = log_dir + f"/log_{i_test}_sel_{sel}_rd_{rd}"
+    log_dir = log_dir + f"/log_{i_test}_sel_{sel}_rd_{rd}_rd_threshold_{insert_before_range_delete_list[i_test]}"
 
     # Recursively create the directory
     os.makedirs(log_dir, exist_ok=True)

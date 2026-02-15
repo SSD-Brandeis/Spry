@@ -31,9 +31,6 @@
 #include "rocksdb/wide_columns.h"
 
 //self added start
-// #include "../../db/column_family.h"d
-// #include "../rocksdb/sys_rdfilter.h"
-// #include "rocksdb/sys_rdfilter.h"
 #include "sys_rdfilter.h"
 #include "SuRF/include/surf.hpp"
 //self added end
@@ -348,46 +345,69 @@ class DB {
   virtual uint getTotalNumberOfSSTFiles() {return -1;}
   virtual int getPLRDFNumberOfTotalRanges() {return -1;}
   virtual int getSplitPLRDFNumberOfTotalRanges() {return -1;}
+  virtual int getPLRDFStringKeyNumberOfTotalRanges() {return -1;}
+  virtual int getSplitPLRDFStringKeyNumberOfTotalRanges() {return -1;}
   virtual int getTopLevelRDFNumberOfTotalRanges() {return -1;}
+  virtual int getTopLevelRDFStringKeyNumberOfTotalRanges() {return -1;}
   virtual int getSkylineRDFNumberOfTotalRanges() {return -1;}
   virtual int getSuRFLevelFileRDFNumberOfTotalRanges() {return -1;}
   virtual int getSuRFLevelFileSplitRDFNumberOfTotalRanges() {return -1;}
+  virtual int getRTRocksDBNumberOfTotalMemoryUsage(){return -1;}
+  virtual int getRTRocksDBNumberOfTotalMemoryUsageIncludedTimestamp(){return -1;}
+  virtual int getPLRDFNumberOfTotalMemoryUsage() {return -1;}
+  virtual int getSplitPLRDFNumberOfTotalMemoryUsage() {return -1;}
+  virtual int getPLRDFStringKeyNumberOfTotalMemoryUsage() {return -1;}
+  virtual int getSplitPLRDFStringKeyNumberOfTotalMemoryUsage() {return -1;}
+  virtual int getTopLevelRDFNumberOfTotalMemoryUsage() {return -1;}
+  virtual int getTopLevelRDFStringKeyNumberOfTotalMemoryUsage() {return -1;}
+  virtual int getSkylineRDFNumberOfTotalMemoryUsage() {return -1;}
+  virtual int getSuRFLevelFileRDFNumberOfTotalMemoryUsage() {return -1;}
+  virtual int getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() {return -1;}
   virtual std::vector<int> getLogOfNumbersOfRangesInOrigin() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInPLRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfNumbersOfRangesInPLRDFStringKey() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfNumbersOfRangesInSplitPLRDFStringKey() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfNumbersOfRangesInTopLevelRDFStringKey() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInOrigin() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInPLRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSplitRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfMemoryUsageInPLRDFStringKey() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfMemoryUsageInSplitRDFStringKey() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInTopLevelRDF() {return {-1, -1, -1};}
+  virtual std::vector<int> getLogOfMemoryUsageInTopLevelRDFStringKey() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSkylineRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSuRFLevelFileRDF() {return {-1, -1, -1};}
   virtual std::vector<int> getLogOfMemoryUsageInSuRFLevelFileSplitRDF() {return {-1, -1, -1};}
-  // virtual std::vector<int> getLogOfMemoryUsageInSuRFTopLevelRDF() {return {-1, -1, -1};}
+
   
+  virtual double getFilterFalsePositiveRateInPLRDFStringKey() {return -1;};
+  virtual double getFilterFalsePositiveRateInSplitPLRDFStringKey() {return -1;};
+  virtual void clearFilterFalsePositiveRateInPLRDFStringKey() {return;};
+  virtual void clearFilterFalsePositiveRateInSplitPLRDFStringKey() {return;};
+  virtual double getFilterFalsePositiveRateInTopLevelRDFStringKey() {return -1;};
+  virtual void clearFilterFalsePositiveRateInTopLevelRDFStringKey() {return;};
+  
+  virtual double getFilterFalsePositiveRateInSuRFLevelFileRDF() {return -1;};
+  virtual double getFilterFalsePositiveRateInSuRFLevelFileSplitRDF() {return -1;};
+  virtual void clearFilterFalsePositiveRateInSuRFLevelFileRDF() {return;};
+  virtual void clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF() {return;};
 
 
-
-
-
-  // using t3ll = std::tuple<int, int, int>;
+  
   virtual const PLRDF *getPLRDF() {return NULL;}
   virtual const PLRDF *getSplitPLRDF() {return NULL;}
+  virtual const PLRDF_t<std::string> *getPLRDFStringKey() {return NULL;}
+  virtual const PLRDF_t<std::string> *getSplitPLRDFStringKey() {return NULL;}
   virtual const PLRDF *getTopLevelRDF() {return NULL;}
+  virtual const PLRDF_t<std::string> *getTopLevelRDFStringKey() {return NULL;}
   virtual const SkyLineRDF *getSkylineRDF() {return NULL;}
-  // virtual const std::vector<t3ll> *getSkylineRDF() {return NULL;}
-  // virtual const std::vector<int> *getSkylineNumbersOfRangesInRDFLog() {return NULL;}
-  // virtual const surf::SuRF_RDF *getSuRFTopLevelRDF() {return NULL;};
   virtual const surf::SuRF_RDF *getSuRFLevelFileRDF() {return NULL;};
   virtual const surf::SuRF_RDF *getSuRFLevelFileSplitRDF() {return NULL;};
-  // virtual void setPLRDF( std::vector<int> v){
-  //   if(v.size() == 0){
-  //     return;
-  //   }
-  // };
   virtual void setPLRDF( PLRDF *plrdf){
     if(plrdf == NULL){
       return;
@@ -398,27 +418,31 @@ class DB {
       return;
     } 
   }
+  virtual void setPLRDFStringKey( PLRDF_t<std::string> *plrdf){
+    if(plrdf == NULL){
+      return;
+    } 
+  }
+  virtual void setSplitPLRDFStringKey( PLRDF_t<std::string> *plrdf){
+    if(plrdf == NULL){
+      return;
+    } 
+  }
   virtual void setTopLevelRDF( PLRDF *plrdf){
     if(plrdf == NULL){
       return;
     }
   }
-  // virtual void setSkylineRDF( std::vector<t3ll> *skyline_rdf){
+  virtual void setTopLevelRDFStringKey( PLRDF_t<std::string> *plrdf){
+    if(plrdf == NULL){
+      return;
+    }
+  }
   virtual void setSkylineRDF( SkyLineRDF *skyline_rdf){
     if(skyline_rdf == NULL){
       return;
     }
   }
-  // virtual void setSkylineNumbersOfRangesInRDFLog( std::vector<int> *v){
-  //   if(v == NULL){
-  //     return;
-  //   }
-  // }
-  // virtual void setSuRFTopLevelRDF( surf::SuRF_RDF *suRFTopLevelRDF){
-  //   if(suRFTopLevelRDF == NULL){
-  //     return;
-  //   }
-  // };
   virtual void setSuRFLevelFileRDF( surf::SuRF_RDF *suRFLevelFileRDF){
     if(suRFLevelFileRDF == NULL){
       return;

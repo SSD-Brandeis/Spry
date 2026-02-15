@@ -122,7 +122,7 @@ function main() {
     --license BSD \
     --vendor Facebook \
     --description "RocksDB is an embeddable persistent key-value store for fast storage." \
-    usr
+    us
 }
 
 # shellcheck disable=SC2068
