@@ -11,11 +11,10 @@
 
 #include <algorithm>
 #include <cinttypes>
+#include <iostream>
 #include <vector>
 
-#include <iostream>
-
-//Self Added
+// YCH Added
 #include <tuple>
 
 #include "db/builder.h"
@@ -52,10 +51,11 @@
 #include "util/mutexlock.h"
 #include "util/stop_watch.h"
 
-//Self Added Start
-#include "include/rocksdb/sys_rdfilter.h"
+// YCH Added Start
 #include "include/rocksdb/SuRF/include/surf.hpp"
-//Self Added End
+#include "include/rocksdb/sys_rdfilter.h"
+
+// YCH Added End
 
 namespace ROCKSDB_NAMESPACE {
 
@@ -220,7 +220,6 @@ void FlushJob::PickMemTable() {
 
 Status FlushJob::Run(LogsWithPrepTracker* prep_tracker, FileMetaData* file_meta,
                      bool* switched_to_mempurge) {
-// std::cout  << "FlushJob::Run A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   TEST_SYNC_POINT("FlushJob::Start");
   db_mutex_->AssertHeld();
   assert(pick_memtable_called);
@@ -288,31 +287,11 @@ Status FlushJob::Run(LogsWithPrepTracker* prep_tracker, FileMetaData* file_meta,
   }
   Status s;
   if (mempurge_s.ok()) {
-std::cout  << "FlushJob::Run A2 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     base_->Unref();
     s = Status::OK();
   } else {
-// std::cout  << "FlushJob::Run A3 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // This will release and re-acquire the mutex.
     s = WriteLevel0Table();
-//Self Added
-// std::cout << __FILE__ << ":" << __LINE__ << " printRDFTest "  << std::endl;
-// // std::cout << "(flush job) edit_->printRDFTest() " << std::endl;
-// // edit_->printRDFTest();
-// // std::cout << "(flush job) cfd_->current()->storage_info()->printRDFTest() " << std::endl;
-// // cfd_->current()->storage_info()->printRDFTest();
-
-// // SuperVersion *sv = cfd_->GetThreadLocalSuperVersion(this);
-// // sv->printRDFTest();
-
-// // std::cout << "(flush job) cfd_->current()->printRDFTest() " << std::endl;
-// // cfd_->current()->printRDFTest();
-// // std::cout << "(flush job) cfd_->current()->printRDFTest2() " << std::endl;
-// // cfd_->current()->printRDFTest2();
-// // // std::cout << "(flush job) cfd_->printRDFTest() " << std::endl;
-// // // cfd_->printRDFTest();
-// // // std::cout << "(flush job) cfd_->printRDFTest2() " << std::endl;
-// // // cfd_->printRDFTest2();
   }
 
   if (s.ok() && cfd_->IsDropped()) {
@@ -324,9 +303,7 @@ std::cout  << "FlushJob::Run A2 " << __FILE__ << ":" << __LINE__ << " " << __FUN
   }
 
   if (!s.ok()) {
-std::cout  << "FlushJob::Run A4 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;    cfd_->imm()->RollbackMemtableFlush(mems_, meta_.fd.GetNumber());
   } else if (write_manifest_) {
-// std::cout  << "FlushJob::Run A5 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     TEST_SYNC_POINT("FlushJob::InstallResults");
     // Replace immutable memtable with the generated Table
     s = cfd_->imm()->TryInstallMemtableFlushResults(
@@ -569,23 +546,10 @@ Status FlushJob::MemPurge() {
 
     // Range tombstone transfer.
     if (s.ok()) {
-// //Self Added
-// std::cout << __FILE__ << ":" << __LINE__ << " "  << __FUNCTION__ << std::endl;
-// auto range_del_iter2 = range_del_agg->NewIterator();
-// std::cout << "range_del_iter " <<  (range_del_iter2->key()).ToString() << " " << (range_del_iter2->key()).ToString(true) << " " <<  (range_del_iter2->key()).ToString(false) << " " << __FILE__ << ":" << __LINE__ << std::endl;
-// // std::cout << "number of deletes " << m->num_deletes()   << std::endl;
-// //Self Added
-// for (range_del_iter2->SeekToFirst(); range_del_iter2->Valid(); range_del_iter2->Next()) {
-//   auto tombstone = range_del_iter2->Tombstone();
-//   std::cout << "flush tombstone " << tombstone.start_key_.ToString() << " " << tombstone.end_key_.ToString() << std::endl;
-// }
-
       auto range_del_it = range_del_agg->NewIterator();
       for (range_del_it->SeekToFirst(); range_del_it->Valid();
            range_del_it->Next()) {
         auto tombstone = range_del_it->Tombstone();
-
-
 
         new_first_seqno =
             tombstone.seq_ < new_first_seqno ? tombstone.seq_ : new_first_seqno;
@@ -859,7 +823,6 @@ bool FlushJob::MemPurgeDecider(double threshold) {
 }
 
 Status FlushJob::WriteLevel0Table() {
-// std::cout  << "FlushJob::WriteLevel0Table A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   AutoThreadOperationStageUpdater stage_updater(
       ThreadStatus::STAGE_FLUSH_WRITE_L0);
   db_mutex_->AssertHeld();
@@ -903,6 +866,12 @@ Status FlushJob::WriteLevel0Table() {
     TEST_SYNC_POINT_CALLBACK("FlushJob::WriteLevel0Table:num_memtables",
                              &mems_size);
     assert(job_context_);
+    // YCH Added Start - Pure MVCC RDF
+    auto rdf_update_metadata = std::make_shared<RDFUpdateMetadata>();
+    std::vector<uint64_t> exist_level0_file_nums =
+        cfd_->current()->getLevelFileNumbers(0);
+    // YCH Added End
+
     for (MemTable* m : mems_) {
       ROCKS_LOG_INFO(
           db_options_.info_log,
@@ -910,117 +879,218 @@ Status FlushJob::WriteLevel0Table() {
           cfd_->GetName().c_str(), job_context_->job_id, m->GetNextLogNumber());
       memtables.push_back(m->NewIterator(ro, &arena));
 
-//Self Added Start
-// cfd_->current()->printAllFileRanges();
-      
-// cfd_->current()->setRDFTest2(cfd_->current()->getRDFTest());
-std::pair<u_int64_t, std::vector<t3ll>>* fd_RD_in_ptr = new std::pair<u_int64_t, std::vector<t3ll>>;
-std::vector<t3ll> RD_seq;
+      // YCH Added Start - Pure MVCC RDF accumulation
+      if (checking::SystemVerifier::getSystemVerifier()
+              ->hasRDFTypeOtherThanNone() == true) {
+        // --- Accumulate PLRDF / Split / TopLevel Data ---
+        std::vector<t3ll> RD_seq;
+        std::vector<std::tuple<std::string, std::string, long long>>
+            RD_seq_string;
+        std::vector<pll> range_delete_list_in;
+        std::vector<pss> range_delete_list_in_str;
 
-std::vector<pll> range_delete_list_in;
-std::vector<pss> range_delete_list_in_str;
-auto* range_del_iter2 = m->NewRangeTombstoneIterator(
-          ro, kMaxSequenceNumber, true /* immutable_memtable */);
-if (range_del_iter2 != nullptr) {
-// std::cout << "valid " << range_del_iter2->Valid() << " " << range_del_iter2 << __FILE__ << ":" << __LINE__ << std::endl;
-// std::cout << "range_del_iter " <<  (range_del_iter2->key()).ToString() << " " << (range_del_iter2->key()).ToString(true) << " " <<  (range_del_iter2->key()).ToString(false) << " " << range_del_iter2 << __FILE__ << ":" << __LINE__ << std::endl;
-// std::cout << "number of deletes " << m->num_deletes()   << std::endl;
+        auto* range_del_iter2 = m->NewRangeTombstoneIterator(
+            ro, kMaxSequenceNumber, true /* immutable_memtable */);
+        if (range_del_iter2 != nullptr) {
+          for (range_del_iter2->SeekToFirst(); range_del_iter2->Valid();
+               range_del_iter2->Next()) {
+            auto tombstone = range_del_iter2->Tombstone();
+            RD_seq_string.push_back(
+                std::make_tuple(tombstone.start_key_.ToString(),
+                                tombstone.end_key_.ToString(), tombstone.seq_));
+            range_delete_list_in_str.push_back(
+                std::make_pair(tombstone.start_key_.ToString(),
+                               tombstone.end_key_.ToString()));
 
-  for (range_del_iter2->SeekToFirst(); range_del_iter2->Valid(); range_del_iter2->Next()) {
-    auto tombstone = range_del_iter2->Tombstone();
-    // std::cout << "flush tombstone " << tombstone.start_key_.ToString() << " " << tombstone.end_key_.ToString() << " " << "(" << tombstone.seq_ << ")" << __FILE__ << ":" << __LINE__ << std::endl;
-  
-    // // edit_->storeRange2RDFTest(tombstone);
-    // // cfd_->current()->storage_info()->storeRange2RDFTest(tombstone);
-    
-    // // SuperVersion *sv = cfd_->GetThreadLocalSuperVersion(this);
-    // // sv->printRDFTest();
+            if (checking::SystemVerifier::getSystemVerifier()
+                    ->usingStringKey() == false) {
+              try {
+                size_t s_idx, e_idx;
+                long long s_key =
+                    std::stoll(tombstone.start_key_.ToString(), &s_idx);
+                long long e_key =
+                    std::stoll(tombstone.end_key_.ToString(), &e_idx);
 
-    // // cfd_->current()->storeRange2RDFTest(tombstone);
-    // // assert( cfd_->current()->getIsRDFTest2Set() != false);
-    // // cfd_->current()->storeRange2RDFTest2(tombstone);
-    // // cfd_->current()->storeRange2RDFilter(0, tombstone);
-    RD_seq.push_back(std::make_tuple(std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()), tombstone.seq_));
-    range_delete_list_in.push_back(std::make_pair( std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) ));
-    range_delete_list_in_str.push_back(std::make_pair(tombstone.start_key_.ToString(), tombstone.end_key_.ToString() ));
-    // // cfd_->storeRange2RDFTest(tombstone);
-    // // cfd_->storeRange2RDFTest2(tombstone);
-  }
+                if (s_idx != tombstone.start_key_.ToString().size()) {
+                  std::cerr << "@stoll start_key size_mismatch " << __FILE__
+                            << ":" << __LINE__ << " " << __FUNCTION__
+                            << std::endl;
+                }
+                if (e_idx != tombstone.end_key_.ToString().size()) {
+                  std::cerr << "@stoll end_key size_mismatch " << __FILE__
+                            << ":" << __LINE__ << " " << __FUNCTION__
+                            << std::endl;
+                }
 
+                RD_seq.push_back(std::make_tuple(s_key, e_key, tombstone.seq_));
+                range_delete_list_in.push_back(std::make_pair(s_key, e_key));
+              } catch (const std::invalid_argument&) {
+                std::cerr << "@stoll invalid_argument " << __FILE__ << ":"
+                          << __LINE__ << " " << __FUNCTION__ << std::endl;
+                // Not a number
+                // return false;
+              } catch (const std::out_of_range&) {
+                std::cerr << "@stoll out_of_range " << __FILE__ << ":"
+                          << __LINE__ << " " << __FUNCTION__ << std::endl;
+                // Too big or small for long long
+                // return false;
+              }
+            }
+          }
+        }
 
-  // for(auto &x: range_delete_list_in){
-  //   cout << "flush range_delete_list_in " << x.first << " " << x.second << endl;
-  // }
-  // cfd_->current()->storeRanges2RDFilter(0, range_delete_list_in);
-  
-  // cfd_->current()->printRDFilter();
-  // cfd_->current()->printRDFilterUpdated();
-}
+        // PLRDF
+        if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "PLRDF")) {
+          std::get<0>(rdf_update_metadata->plrdf_flush_delta) =
+              meta_.fd.GetNumber();
+          auto& vec = std::get<1>(rdf_update_metadata->plrdf_flush_delta);
+          vec.insert(vec.end(), range_delete_list_in.begin(),
+                     range_delete_list_in.end());
+          std::get<2>(rdf_update_metadata->plrdf_flush_delta) =
+              exist_level0_file_nums;
+        }
 
-fd_RD_in_ptr->first = meta_.fd.GetNumber();
-fd_RD_in_ptr->second = RD_seq;
-if(cfd_->get_fd_RD_in_ptr() != nullptr){
-  std::cerr << " flush job fd_RD_in_ptr is not nullptr " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  exit(1);
-}
-cfd_->set_fd_RD_in_ptr(fd_RD_in_ptr);
+        // Split PLRDF
+        if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "SPLIT_PLRDF")) {
+          std::get<0>(rdf_update_metadata->split_plrdf_flush_delta) =
+              meta_.fd.GetNumber();
+          auto& vec = std::get<1>(rdf_update_metadata->split_plrdf_flush_delta);
+          vec.insert(vec.end(), range_delete_list_in.begin(),
+                     range_delete_list_in.end());
+          std::get<2>(rdf_update_metadata->split_plrdf_flush_delta) =
+              exist_level0_file_nums;
+        }
 
-vector<uint64_t> exist_level0_file_nums = cfd_->current()->getLevelFileNumbers(0);
-// // Do insertion, even if the vector is empty, because we need to set condition_variable of mutex (semaphore) for compaction
-// rdfilter::PLRDF::getRDFilter()->insertRangeDeleteToLevel0(meta_.fd.GetNumber(), range_delete_list_in, exist_level0_file_nums);
-// std::pair<uint64_t, std::vector<pll>>
-auto level0_RD_vector = std::make_tuple(meta_.fd.GetNumber(), range_delete_list_in, exist_level0_file_nums);
-cfd_->set_flush_to_level0_RD_vector(level0_RD_vector);
-cfd_->set_split__flush_to_level0_RD_vector(level0_RD_vector);
+        // TopLevel RDF
+        if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "TOP_LEVEL_RDF")) {
+          std::get<0>(rdf_update_metadata->top_level_plrdf_flush_delta) =
+              meta_.fd.GetNumber();
+          auto& vec =
+              std::get<1>(rdf_update_metadata->top_level_plrdf_flush_delta);
+          vec.insert(vec.end(), range_delete_list_in.begin(),
+                     range_delete_list_in.end());
+          std::get<2>(rdf_update_metadata->top_level_plrdf_flush_delta) =
+              exist_level0_file_nums;
+        }
 
-SuRFFlushToLevel0Info *surf_level0_RD_vector = new SuRFFlushToLevel0Info;
-surf_level0_RD_vector->dst_fd = meta_.fd.GetNumber();
-surf_level0_RD_vector->rd_list = range_delete_list_in_str; 
-surf_level0_RD_vector->check_filled();
-cfd_->set_surf__flush_to_level0_RD_vector(surf_level0_RD_vector);
+        // PLRDF String Key
+        if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "PLRDF_STRING_KEY")) {
+          std::get<0>(rdf_update_metadata->plrdf_stringkey_flush_delta) =
+              meta_.fd.GetNumber();
+          auto& vec =
+              std::get<1>(rdf_update_metadata->plrdf_stringkey_flush_delta);
+          vec.insert(vec.end(), range_delete_list_in_str.begin(),
+                     range_delete_list_in_str.end());
+          std::get<2>(rdf_update_metadata->plrdf_stringkey_flush_delta) =
+              exist_level0_file_nums;
+        }
 
+        // Split PLRDF String Key
+        if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "SPLIT_PLRDF_STRING_KEY")) {
+          std::get<0>(rdf_update_metadata->split_plrdf_stringkey_flush_delta) =
+              meta_.fd.GetNumber();
+          auto& vec = std::get<1>(
+              rdf_update_metadata->split_plrdf_stringkey_flush_delta);
+          vec.insert(vec.end(), range_delete_list_in_str.begin(),
+                     range_delete_list_in_str.end());
+          std::get<2>(rdf_update_metadata->split_plrdf_stringkey_flush_delta) =
+              exist_level0_file_nums;
+        }
 
-SuRFFlushToLevel0Info *surf_level_file_split__level0_RD_vector = new SuRFFlushToLevel0Info;
-surf_level_file_split__level0_RD_vector->dst_fd = meta_.fd.GetNumber();
-surf_level_file_split__level0_RD_vector->rd_list = range_delete_list_in_str; 
-surf_level_file_split__level0_RD_vector->check_filled();
-cfd_->set_surf_level_file_split__flush_to_level0_RD_vector(surf_level_file_split__level0_RD_vector);
+        // TopLevel RDF String Key
+        if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "TOP_LEVEL_RDF_STRING_KEY")) {
+          std::get<0>(
+              rdf_update_metadata->top_level_plrdf_stringkey_flush_delta) =
+              meta_.fd.GetNumber();
+          auto& vec = std::get<1>(
+              rdf_update_metadata->top_level_plrdf_stringkey_flush_delta);
+          vec.insert(vec.end(), range_delete_list_in_str.begin(),
+                     range_delete_list_in_str.end());
+          std::get<2>(
+              rdf_update_metadata->top_level_plrdf_stringkey_flush_delta) =
+              exist_level0_file_nums;
+        }
 
+        // SuRF
+        if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "SuRF_LF_RDF")) {
+          if (!rdf_update_metadata->surf_flush_info) {
+            rdf_update_metadata->surf_flush_info =
+                std::make_unique<SuRFFlushToLevel0Info>();
+            rdf_update_metadata->surf_flush_info->dst_fd = meta_.fd.GetNumber();
+          }
+          auto& vec = rdf_update_metadata->surf_flush_info->rd_list;
+          vec.insert(vec.end(), range_delete_list_in_str.begin(),
+                     range_delete_list_in_str.end());
+        }
 
-if(cfd_->get_flush_in_file_num() >= meta_.fd.GetNumber()){
-  std::cerr << "flush in file num is not in increasing order" << std::endl
-            << " flush in file num = " << cfd_->get_flush_in_file_num()
-            << " meta_.fd.GetNumber() = " << meta_.fd.GetNumber() << std::endl;
-}
-cfd_->set_flush_in_file_num(meta_.fd.GetNumber());
+        // SuRF Split
+        if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "SuRF_LF_SPLIT_RDF")) {
+          if (!rdf_update_metadata->split_surf_flush_info) {
+            rdf_update_metadata->split_surf_flush_info =
+                std::make_unique<SuRFFlushToLevel0Info>();
+            rdf_update_metadata->split_surf_flush_info->dst_fd =
+                meta_.fd.GetNumber();
+          }
+          auto& vec = rdf_update_metadata->split_surf_flush_info->rd_list;
+          vec.insert(vec.end(), range_delete_list_in_str.begin(),
+                     range_delete_list_in_str.end());
+        }
 
-// rdfilter::PLRDF::getRDFilter()->printLevel0();
-// rdfilter::PLRDF::getRDFilter()->print();
-// cfd_->current()->insertRangeDeleteToLevel0(meta_.fd.GetNumber(), range_delete_list_in);
-// cfd_->current()->printLevel0();
-// cfd_->current()->print();
+        // Top Level Flush Num
+        rdf_update_metadata->flush_in_file_num = meta_.fd.GetNumber();
 
-// if(cfd_->current()->get_flush_install_count() > 0){
-//       std::cerr << "flush write to version (current_) happens more than once. times = " 
-//             << cfd_->current()->get_flush_install_count() << __FILE__ << ":" << __LINE__ << std::endl
-//             << "flush = " << cfd_->current()->get_flush_install_count() << std::endl
-//             << "compact = " << cfd_->current()->get_compaction_install_count() << std::endl
-//             << "installSuperversion = " << cfd_->current()->get_installSuperversion_count() << std::endl;
-// }
-// cfd_->current()->inc_flush_install_count();
-// cfd_->inc_flush_install_count();
-//Self Added End
-
-
-
-
+        // Populate explicit tracing data for flush (Level 0)
+        if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "PLRDF")) {
+          rdf_update_metadata->plrdf_tracing_add.push_back(std::make_tuple(
+              0, meta_.fd.GetNumber(),
+              cfd_->current()->GetRDFBundle()->plrdf.sortAndMerge(
+                  std::get<1>(rdf_update_metadata->plrdf_flush_delta))));
+        }
+        if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "SPLIT_PLRDF")) {
+          rdf_update_metadata->split_plrdf_tracing_add.push_back(
+              std::make_tuple(
+                  0, meta_.fd.GetNumber(),
+                  cfd_->current()->GetRDFBundle()->split_plrdf.sortAndMerge(
+                      std::get<1>(
+                          rdf_update_metadata->split_plrdf_flush_delta))));
+        }
+        if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "PLRDF_STRING_KEY")) {
+          rdf_update_metadata->plrdf_stringkey_tracing_add.push_back(
+              std::make_tuple(
+                  0, meta_.fd.GetNumber(),
+                  cfd_->current()->GetRDFBundle()->plrdf_stringkey.sortAndMerge(
+                      std::get<1>(
+                          rdf_update_metadata->plrdf_stringkey_flush_delta))));
+        }
+        if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "SPLIT_PLRDF_STRING_KEY")) {
+          rdf_update_metadata->split_plrdf_stringkey_tracing_add.push_back(
+              std::make_tuple(
+                  0, meta_.fd.GetNumber(),
+                  cfd_->current()
+                      ->GetRDFBundle()
+                      ->split_plrdf_stringkey.sortAndMerge(std::get<1>(
+                          rdf_update_metadata
+                              ->split_plrdf_stringkey_flush_delta))));
+        }
+      }
+      // YCH Added End
 
       auto* range_del_iter = m->NewRangeTombstoneIterator(
           ro, kMaxSequenceNumber, true /* immutable_memtable */);
 
-
-
-        // DecodeFixed64(a.data() + a.size() - kNumInternalBytes);
+      // DecodeFixed64(a.data() + a.size() - kNumInternalBytes);
 
       if (range_del_iter != nullptr) {
         range_del_iters.emplace_back(range_del_iter);
@@ -1031,6 +1101,20 @@ cfd_->set_flush_in_file_num(meta_.fd.GetNumber());
       total_memory_usage += m->ApproximateMemoryUsage();
     }
 
+    // YCH Added Start - Pure MVCC RDF Attachment
+    if (checking::SystemVerifier::getSystemVerifier()
+            ->hasRDFTypeOtherThanNone()) {
+      if (rdf_update_metadata->surf_flush_info) {
+        rdf_update_metadata->surf_flush_info->check_filled();
+      }
+      if (rdf_update_metadata->split_surf_flush_info) {
+        rdf_update_metadata->split_surf_flush_info->check_filled();
+      }
+      // Attach to VersionEdit (mems_[0] internal edit)
+      edit_->SetRDFMetadata(rdf_update_metadata);
+    }
+    // YCH Added End
+
     event_logger_->Log() << "job" << job_context_->job_id << "event"
                          << "flush_started"
                          << "num_memtables" << mems_.size() << "num_entries"
@@ -1040,95 +1124,88 @@ cfd_->set_flush_in_file_num(meta_.fd.GetNumber());
                          << total_memory_usage << "flush_reason"
                          << GetFlushReasonString(flush_reason_);
 
-    {
-      ScopedArenaIterator iter(
-          NewMergingIterator(&cfd_->internal_comparator(), memtables.data(),
-                             static_cast<int>(memtables.size()), &arena));
-      ROCKS_LOG_INFO(db_options_.info_log,
-                     "[%s] [JOB %d] Level-0 flush table #%" PRIu64 ": started",
-                     cfd_->GetName().c_str(), job_context_->job_id,
-                     meta_.fd.GetNumber());
+    ScopedArenaIterator iter(
+        NewMergingIterator(&cfd_->internal_comparator(), memtables.data(),
+                           static_cast<int>(memtables.size()), &arena));
+    ROCKS_LOG_INFO(db_options_.info_log,
+                   "[%s] [JOB %d] Level-0 flush table #%" PRIu64 ": started",
+                   cfd_->GetName().c_str(), job_context_->job_id,
+                   meta_.fd.GetNumber());
 
-      TEST_SYNC_POINT_CALLBACK("FlushJob::WriteLevel0Table:output_compression",
-                               &output_compression_);
-      int64_t _current_time = 0;
-      auto status = clock_->GetCurrentTime(&_current_time);
-      // Safe to proceed even if GetCurrentTime fails. So, log and proceed.
-      if (!status.ok()) {
-        ROCKS_LOG_WARN(
-            db_options_.info_log,
-            "Failed to get current time to populate creation_time property. "
-            "Status: %s",
-            status.ToString().c_str());
-      }
-      const uint64_t current_time = static_cast<uint64_t>(_current_time);
-
-      uint64_t oldest_key_time = mems_.front()->ApproximateOldestKeyTime();
-
-      // It's not clear whether oldest_key_time is always available. In case
-      // it is not available, use current_time.
-      uint64_t oldest_ancester_time = std::min(current_time, oldest_key_time);
-
-      TEST_SYNC_POINT_CALLBACK(
-          "FlushJob::WriteLevel0Table:oldest_ancester_time",
-          &oldest_ancester_time);
-      meta_.oldest_ancester_time = oldest_ancester_time;
-      meta_.file_creation_time = current_time;
-
-      uint64_t num_input_entries = 0;
-      uint64_t memtable_payload_bytes = 0;
-      uint64_t memtable_garbage_bytes = 0;
-      IOStatus io_s;
-
-      const std::string* const full_history_ts_low =
-          (full_history_ts_low_.empty()) ? nullptr : &full_history_ts_low_;
-      TableBuilderOptions tboptions(
-          *cfd_->ioptions(), mutable_cf_options_, cfd_->internal_comparator(),
-          cfd_->int_tbl_prop_collector_factories(), output_compression_,
-          mutable_cf_options_.compression_opts, cfd_->GetID(), cfd_->GetName(),
-          0 /* level */, false /* is_bottommost */,
-          TableFileCreationReason::kFlush, oldest_key_time, current_time,
-          db_id_, db_session_id_, 0 /* target_file_size */,
-          meta_.fd.GetNumber());
-      const SequenceNumber job_snapshot_seq =
-          job_context_->GetJobSnapshotSequence();
-      const ReadOptions read_options(Env::IOActivity::kFlush);
-// std::cout  << "FlushJob::WriteLevel0Table A2 @BuildTable " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-      s = BuildTable(dbname_, versions_, db_options_, tboptions, file_options_,
-                     read_options, cfd_->table_cache(), iter.get(),
-                     std::move(range_del_iters), &meta_, &blob_file_additions,
-                     existing_snapshots_, earliest_write_conflict_snapshot_,
-                     job_snapshot_seq, snapshot_checker_,
-                     mutable_cf_options_.paranoid_file_checks,
-                     cfd_->internal_stats(), &io_s, io_tracer_,
-                     BlobFileCreationReason::kFlush, seqno_to_time_mapping_,
-                     event_logger_, job_context_->job_id, io_priority,
-                     &table_properties_, write_hint, full_history_ts_low,
-                     blob_callback_, base_, &num_input_entries,
-                     &memtable_payload_bytes, &memtable_garbage_bytes);
-      // TODO: Cleanup io_status in BuildTable and table builders
-      assert(!s.ok() || io_s.ok());
-      io_s.PermitUncheckedError();
-      if (num_input_entries != total_num_entries && s.ok()) {
-        std::string msg = "Expected " + std::to_string(total_num_entries) +
-                          " entries in memtables, but read " +
-                          std::to_string(num_input_entries);
-        ROCKS_LOG_WARN(db_options_.info_log, "[%s] [JOB %d] Level-0 flush %s",
-                       cfd_->GetName().c_str(), job_context_->job_id,
-                       msg.c_str());
-        if (db_options_.flush_verify_memtable_count) {
-          s = Status::Corruption(msg);
-        }
-      }
-      if (tboptions.reason == TableFileCreationReason::kFlush) {
-        TEST_SYNC_POINT("DBImpl::FlushJob:Flush");
-        RecordTick(stats_, MEMTABLE_PAYLOAD_BYTES_AT_FLUSH,
-                   memtable_payload_bytes);
-        RecordTick(stats_, MEMTABLE_GARBAGE_BYTES_AT_FLUSH,
-                   memtable_garbage_bytes);
-      }
-      LogFlush(db_options_.info_log);
+    TEST_SYNC_POINT_CALLBACK("FlushJob::WriteLevel0Table:output_compression",
+                             &output_compression_);
+    int64_t _current_time = 0;
+    auto status = clock_->GetCurrentTime(&_current_time);
+    // Safe to proceed even if GetCurrentTime fails. So, log and proceed.
+    if (!status.ok()) {
+      ROCKS_LOG_WARN(
+          db_options_.info_log,
+          "Failed to get current time to populate creation_time property. "
+          "Status: %s",
+          status.ToString().c_str());
     }
+    const uint64_t current_time = static_cast<uint64_t>(_current_time);
+
+    uint64_t oldest_key_time = mems_.front()->ApproximateOldestKeyTime();
+
+    // It's not clear whether oldest_key_time is always available. In case
+    // it is not available, use current_time.
+    uint64_t oldest_ancester_time = std::min(current_time, oldest_key_time);
+
+    TEST_SYNC_POINT_CALLBACK("FlushJob::WriteLevel0Table:oldest_ancester_time",
+                             &oldest_ancester_time);
+    meta_.oldest_ancester_time = oldest_ancester_time;
+    meta_.file_creation_time = current_time;
+
+    uint64_t num_input_entries = 0;
+    uint64_t memtable_payload_bytes = 0;
+    uint64_t memtable_garbage_bytes = 0;
+    IOStatus io_s;
+
+    const std::string* const full_history_ts_low =
+        (full_history_ts_low_.empty()) ? nullptr : &full_history_ts_low_;
+    TableBuilderOptions tboptions(
+        *cfd_->ioptions(), mutable_cf_options_, cfd_->internal_comparator(),
+        cfd_->int_tbl_prop_collector_factories(), output_compression_,
+        mutable_cf_options_.compression_opts, cfd_->GetID(), cfd_->GetName(),
+        0 /* level */, false /* is_bottommost */,
+        TableFileCreationReason::kFlush, oldest_key_time, current_time, db_id_,
+        db_session_id_, 0 /* target_file_size */, meta_.fd.GetNumber());
+    const SequenceNumber job_snapshot_seq =
+        job_context_->GetJobSnapshotSequence();
+    const ReadOptions read_options(Env::IOActivity::kFlush);
+    s = BuildTable(
+        dbname_, versions_, db_options_, tboptions, file_options_, read_options,
+        cfd_->table_cache(), iter.get(), std::move(range_del_iters), &meta_,
+        &blob_file_additions, existing_snapshots_,
+        earliest_write_conflict_snapshot_, job_snapshot_seq, snapshot_checker_,
+        mutable_cf_options_.paranoid_file_checks, cfd_->internal_stats(), &io_s,
+        io_tracer_, BlobFileCreationReason::kFlush, seqno_to_time_mapping_,
+        event_logger_, job_context_->job_id, io_priority, &table_properties_,
+        write_hint, full_history_ts_low, blob_callback_, base_,
+        &num_input_entries, &memtable_payload_bytes, &memtable_garbage_bytes);
+    // TODO: Cleanup io_status in BuildTable and table builders
+    assert(!s.ok() || io_s.ok());
+    io_s.PermitUncheckedError();
+    if (num_input_entries != total_num_entries && s.ok()) {
+      std::string msg = "Expected " + std::to_string(total_num_entries) +
+                        " entries in memtables, but read " +
+                        std::to_string(num_input_entries);
+      ROCKS_LOG_WARN(db_options_.info_log, "[%s] [JOB %d] Level-0 flush %s",
+                     cfd_->GetName().c_str(), job_context_->job_id,
+                     msg.c_str());
+      if (db_options_.flush_verify_memtable_count) {
+        s = Status::Corruption(msg);
+      }
+    }
+    if (tboptions.reason == TableFileCreationReason::kFlush) {
+      TEST_SYNC_POINT("DBImpl::FlushJob:Flush");
+      RecordTick(stats_, MEMTABLE_PAYLOAD_BYTES_AT_FLUSH,
+                 memtable_payload_bytes);
+      RecordTick(stats_, MEMTABLE_GARBAGE_BYTES_AT_FLUSH,
+                 memtable_garbage_bytes);
+    }
+    LogFlush(db_options_.info_log);
     ROCKS_LOG_BUFFER(log_buffer_,
                      "[%s] [JOB %d] Level-0 flush table #%" PRIu64 ": %" PRIu64
                      " bytes %s"
@@ -1154,13 +1231,6 @@ cfd_->set_flush_in_file_num(meta_.fd.GetNumber());
 
   if (s.ok() && has_output) {
     TEST_SYNC_POINT("DBImpl::FlushJob:SSTFileCreated");
-// std::cout  << "FlushJob::WriteLevel0Table A2 @SSTFileCreated " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    // if we have more than 1 background thread, then we cannot
-    // insert files directly into higher levels because some other
-    // threads could be concurrently producing compacted files for
-    // that key range.
-    // Add file to L0
-// std::cout  << "FlushJob::WriteLevel0Table A2 @AddingMetaDataFile " << "(meta_.smallest, meta_.largest) = " << meta_.smallest.user_key().ToString()  << "," <<  meta_.largest.user_key().ToString() << std::endl;
     edit_->AddFile(0 /* level */, meta_.fd.GetNumber(), meta_.fd.GetPathId(),
                    meta_.fd.GetFileSize(), meta_.smallest, meta_.largest,
                    meta_.fd.smallest_seqno, meta_.fd.largest_seqno,
@@ -1174,10 +1244,6 @@ cfd_->set_flush_in_file_num(meta_.fd.GetNumber());
   }
   // Piggyback FlushJobInfo on the first first flushed memtable.
   mems_[0]->SetFlushJobInfo(GetFlushJobInfo());
-
-  // //Self Added
-  // cfd_->current()->printAllFileRanges();
-
 
   // Note that here we treat flush as level 0 compaction in internal stats
   InternalStats::CompactionStats stats(CompactionReason::kFlush, 1);

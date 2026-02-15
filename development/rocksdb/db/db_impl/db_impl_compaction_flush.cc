@@ -6,14 +6,12 @@
 // Copyright (c) 2011 The LevelDB Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
+#include <algorithm>
+#include <chrono>
 #include <cinttypes>
 #include <deque>
-#include <tuple>
-#include <algorithm>
-
 #include <iostream>
-
-#include <chrono>
+#include <tuple>
 
 #include "db/builder.h"
 #include "db/db_impl/db_impl.h"
@@ -28,6 +26,10 @@
 #include "test_util/sync_point.h"
 #include "util/cast_util.h"
 #include "util/concurrent_task_limiter_impl.h"
+
+// // yucheng Added Start
+// #include "db/range_del_aggregator.h"
+// // yucheng Added End
 
 namespace ROCKSDB_NAMESPACE {
 
@@ -161,11 +163,6 @@ Status DBImpl::FlushMemTableToOutputFile(
     SequenceNumber earliest_write_conflict_snapshot,
     SnapshotChecker* snapshot_checker, LogBuffer* log_buffer,
     Env::Priority thread_pri) {
-// std::cout  << "FlushMemTableToOutputFile A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
-
-
-
   mutex_.AssertHeld();
   assert(cfd);
   assert(cfd->imm());
@@ -174,33 +171,17 @@ Status DBImpl::FlushMemTableToOutputFile(
   assert(versions_);
   assert(versions_->GetColumnFamilySet());
 
-
-
-  //Self Added Start
-  // mutex_.Lock();
-  // if(!compaction_queue_.empty()) {
-  //   break;
-  // }
+  // Self Added Start
   SuperVersion* sv = cfd->GetSuperVersion();
   uint level0_size = sv->current->getLevelSize(0);
-  // self_flush_mutex_.Lock();
-  // while(level0_size > 0) {
-  //   std::this_thread::sleep_for(std::chrono::milliseconds(10));
-  //   sv = cfd->GetSuperVersion();
-  //   level0_size = sv->current->getLevelSize(0);
-  // }
-  // self_flush_mutex_.Unlock();
 
-  if(level0_size > 0) {
-    std::cerr << "Warning: level 0 size is not 0 when flushing, level0_size = " << level0_size << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  if (level0_size > 0) {
+    std::cerr << "Warning: level 0 size is not 0 when flushing, level0_size = "
+              << level0_size << " " << __FILE__ << ":" << __LINE__ << " "
+              << __FUNCTION__ << std::endl;
   }
-  // mutex_.Unlock();
-  //Self Added End
+  // Self Added End
 
-
-
-
-  
   // If there are more than one column families, we need to make sure that
   // all the log files except the most recent one are synced. Otherwise if
   // the host crashes after flushing and before WAL is persistent, the
@@ -261,7 +242,6 @@ Status DBImpl::FlushMemTableToOutputFile(
   bool need_cancel = false;
   IOStatus log_io_s = IOStatus::OK();
   if (needs_to_sync_closed_wals) {
-std::cout  << "FlushMemTableToOutputFile A2 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     // SyncClosedLogs() may unlock and re-lock the log_write_mutex multiple
     // times.
     VersionEdit synced_wals;
@@ -289,7 +269,6 @@ std::cout  << "FlushMemTableToOutputFile A2 " << __FILE__ << ":" << __LINE__ << 
   // num_flush_not_started_ needs to be rollback.
   TEST_SYNC_POINT("DBImpl::FlushMemTableToOutputFile:BeforePickMemtables");
   if (s.ok()) {
-// std::cout  << "FlushMemTableToOutputFile A3 @PickMemTable " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     flush_job.PickMemTable();
     need_cancel = true;
   }
@@ -308,48 +287,50 @@ std::cout  << "FlushMemTableToOutputFile A2 " << __FILE__ << ":" << __LINE__ << 
   // and EventListener callback will be called when the db_mutex
   // is unlocked by the current thread.
   if (s.ok()) {
-// std::cout  << "FlushMemTableToOutputFile A4 @flush job " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // std::cout  << "FlushMemTableToOutputFile A4 @flush job " << __FILE__ <<
+    // ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     s = flush_job.Run(&logs_with_prep_tracker_, &file_meta,
                       &switched_to_mempurge);
     need_cancel = false;
   }
 
   if (!s.ok() && need_cancel) {
-std::cout  << "FlushMemTableToOutputFile A5 @cancel flush job " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     flush_job.Cancel();
   }
 
   if (s.ok()) {
-// std::cout << "@@ FlushMemTableToOutputFile A6 @InstallSuperVersionAndScheduleWork " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// // //Self Added
-// // if(cfd->current()->get_flush_install_count() > 0){
-// //       std::cerr << "flush write to version (current_) happens more than once. times = " 
-// //             << cfd->current()->get_flush_install_count() << __FILE__ << ":" << __LINE__ << std::endl
-// //             << "flush = " << cfd->current()->get_flush_install_count() << std::endl
-// //             << "compact = " << cfd->current()->get_compaction_install_count() << std::endl
-// //             << "installSuperversion = " << cfd->current()->get_installSuperversion_count() << std::endl;
-// // }
-if(cfd->current()->get_flush_install_count() > 0){
-      std::cerr << "flush write to version (current_) happens more than once. times = " 
-            << cfd->current()->get_flush_install_count() << __FILE__ << ":" << __LINE__ << std::endl
-            << "flush = " << cfd->current()->get_flush_install_count() << std::endl
-            << "compact = " << cfd->current()->get_compaction_install_count() << std::endl
-            << "installSuperversion = " << cfd->current()->get_installSuperversion_count() << std::endl;
-}
-cfd->current()->inc_flush_install_count();
-cfd->inc_flush_install_count();
-cfd->inc_split__flush_install_count();
+    // // yucheng Added Start
+    // if (checking::SystemVerifier::getSystemVerifier()
+    //         ->hasRDFTypeOtherThanNone() == true) {
+    //   if (cfd->current()->get_flush_install_count() > 0) {
+    //     std::cerr << "flush write to version (current_) happens more than "
+    //                  "once. times = "
+    //               << cfd->current()->get_flush_install_count() << __FILE__
+    //               << ":" << __LINE__ << std::endl
+    //               << "flush = " << cfd->current()->get_flush_install_count()
+    //               << std::endl
+    //               << "compact = "
+    //               << cfd->current()->get_compaction_install_count() <<
+    //               std::endl
+    //               << "installSuperversion = "
+    //               << cfd->current()->get_installSuperversion_count()
+    //               << std::endl;
+    //   }
+    //   cfd->current()->inc_flush_install_count();
+    //   cfd->inc_flush_install_count();
+    //   cfd->inc_split__flush_install_count();
 
-//shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
-bool split_flag = false;
-cfd->updateRDF2NewVersion(1, split_flag); // 1 for flush, 2 for compaction
+    //   // shall be called before  InstallSuperversion /
+    //   // InstallSuperVersionAndScheduleWork
+    //   bool split_flag = false;
+    //   cfd->updateRDF2NewVersion(1,
+    //                             split_flag);  // 1 for flush, 2 for
+    //                             compaction
+    // }
+    // // yucheng Added End
 
     InstallSuperVersionAndScheduleWork(cfd, superversion_context,
                                        mutable_cf_options);
-
-// //Self Added
-// cfd->current()->clear_flush_install_count_clr();
-
 
     if (made_progress) {
       *made_progress = true;
@@ -440,8 +421,6 @@ cfd->updateRDF2NewVersion(1, split_flag); // 1 for flush, 2 for compaction
 Status DBImpl::FlushMemTablesToOutputFiles(
     const autovector<BGFlushArg>& bg_flush_args, bool* made_progress,
     JobContext* job_context, LogBuffer* log_buffer, Env::Priority thread_pri) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   if (immutable_db_options_.atomic_flush) {
     return AtomicFlushMemTablesToOutputFiles(
         bg_flush_args, made_progress, job_context, log_buffer, thread_pri);
@@ -479,8 +458,6 @@ Status DBImpl::FlushMemTablesToOutputFiles(
 Status DBImpl::AtomicFlushMemTablesToOutputFiles(
     const autovector<BGFlushArg>& bg_flush_args, bool* made_progress,
     JobContext* job_context, LogBuffer* log_buffer, Env::Priority thread_pri) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   mutex_.AssertHeld();
 
   autovector<ColumnFamilyData*> cfds;
@@ -793,7 +770,6 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
       if (cfds[i]->IsDropped()) {
         continue;
       }
-std::cout << "@@ AtomicFlushMemTableToOutputFile A @InstallSuperVersionAndScheduleWork " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       InstallSuperVersionAndScheduleWork(cfds[i],
                                          &job_context->superversion_contexts[i],
                                          all_mutable_cf_options[i]);
@@ -893,8 +869,6 @@ std::cout << "@@ AtomicFlushMemTableToOutputFile A @InstallSuperVersionAndSchedu
 void DBImpl::NotifyOnFlushBegin(ColumnFamilyData* cfd, FileMetaData* file_meta,
                                 const MutableCFOptions& mutable_cf_options,
                                 int job_id, FlushReason flush_reason) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   if (immutable_db_options_.listeners.size() == 0U) {
     return;
   }
@@ -932,8 +906,8 @@ void DBImpl::NotifyOnFlushBegin(ColumnFamilyData* cfd, FileMetaData* file_meta,
     }
   }
   mutex_.Lock();
-// no need to signal bg_cv_ as it will be signaled at the end of the
-// flush process.
+  // no need to signal bg_cv_ as it will be signaled at the end of the
+  // flush process.
 }
 
 void DBImpl::NotifyOnFlushCompleted(
@@ -1016,8 +990,8 @@ Status DBImpl::CompactRange(const CompactRangeOptions& options,
 
 Status DBImpl::IncreaseFullHistoryTsLow(ColumnFamilyHandle* column_family,
                                         std::string ts_low) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+  std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+            << std::endl;
   ColumnFamilyData* cfd = nullptr;
   if (column_family == nullptr) {
     cfd = default_cf_handle_->cfd();
@@ -1080,8 +1054,8 @@ Status DBImpl::CompactRangeInternal(const CompactRangeOptions& options,
                                     ColumnFamilyHandle* column_family,
                                     const Slice* begin, const Slice* end,
                                     const std::string& trim_ts) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+  std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+            << std::endl;
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(column_family);
   auto cfd = cfh->cfd();
 
@@ -1364,8 +1338,6 @@ Status DBImpl::CompactFiles(const CompactionOptions& compact_options,
                             const int output_level, const int output_path_id,
                             std::vector<std::string>* const output_file_names,
                             CompactionJobInfo* compaction_job_info) {
-std::cout  << "DBImpl::CompactFiles A1 " << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   if (column_family == nullptr) {
     return Status::InvalidArgument("ColumnFamilyHandle must be non-null.");
   }
@@ -1432,9 +1404,6 @@ Status DBImpl::CompactFilesImpl(
     std::vector<std::string>* const output_file_names, const int output_level,
     int output_path_id, JobContext* job_context, LogBuffer* log_buffer,
     CompactionJobInfo* compaction_job_info) {
-std::cout  << "DBImpl::CompactFilesImpl A1 " << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
-
   mutex_.AssertHeld();
 
   if (shutting_down_.load(std::memory_order_acquire)) {
@@ -1477,8 +1446,6 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
   if (!s.ok()) {
     return s;
   }
-std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << "input_files.size() = " << input_files.size() << std::endl;
 
   for (const auto& inputs : input_files) {
     if (cfd->compaction_picker()->AreFilesInCompaction(inputs.files)) {
@@ -1525,8 +1492,6 @@ std::cout << "input_files.size() = " << input_files.size() << std::endl;
           CaptureCurrentFileNumberInPendingOutputs()));
 
   assert(is_snapshot_supported_ || snapshots_.empty());
-std::cout  << "DBImpl::CompactFilesImpl A3 @compaction_job (non trivial)" << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   CompactionJobStats compaction_job_stats;
   CompactionJob compaction_job(
       job_context->job_id, c.get(), immutable_db_options_, mutable_db_options_,
@@ -1565,7 +1530,6 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
   Status status = compaction_job.Install(*c->mutable_cf_options());
   if (status.ok()) {
     assert(compaction_job.io_status().ok());
-std::cout << "@@ CompactFilesImpl A @InstallSuperVersionAndScheduleWork " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     InstallSuperVersionAndScheduleWork(c->column_family_data(),
                                        &job_context->superversion_contexts[0],
                                        *c->mutable_cf_options());
@@ -1639,8 +1603,6 @@ std::cout << "@@ CompactFilesImpl A @InstallSuperVersionAndScheduleWork " << __F
 }
 
 Status DBImpl::PauseBackgroundWork() {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   InstrumentedMutexLock guard_lock(&mutex_);
   bg_compaction_paused_++;
   while (bg_bottom_compaction_scheduled_ > 0 || bg_compaction_scheduled_ > 0 ||
@@ -1652,8 +1614,6 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 }
 
 Status DBImpl::ContinueBackgroundWork() {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   InstrumentedMutexLock guard_lock(&mutex_);
   if (bg_work_paused_ == 0) {
     return Status::InvalidArgument();
@@ -1674,8 +1634,6 @@ void DBImpl::NotifyOnCompactionBegin(ColumnFamilyData* cfd, Compaction* c,
                                      const Status& st,
                                      const CompactionJobStats& job_stats,
                                      int job_id) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   if (immutable_db_options_.listeners.empty()) {
     return;
   }
@@ -1709,8 +1667,6 @@ void DBImpl::NotifyOnCompactionBegin(ColumnFamilyData* cfd, Compaction* c,
 void DBImpl::NotifyOnCompactionCompleted(
     ColumnFamilyData* cfd, Compaction* c, const Status& st,
     const CompactionJobStats& compaction_job_stats, const int job_id) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   if (immutable_db_options_.listeners.size() == 0U) {
     return;
   }
@@ -1745,8 +1701,6 @@ void DBImpl::NotifyOnCompactionCompleted(
 // REQUIREMENT: block all background work by calling PauseBackgroundWork()
 // before calling this function
 Status DBImpl::ReFitLevel(ColumnFamilyData* cfd, int level, int target_level) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   assert(level < cfd->NumberLevels());
   if (target_level >= cfd->NumberLevels()) {
     return Status::InvalidArgument("Target level exceeds number of levels");
@@ -1874,7 +1828,6 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 
     cfd->compaction_picker()->UnregisterCompaction(c.get());
     c.reset();
-std::cout << "@@ ReFitLevel A @InstallSuperVersionAndScheduleWork " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
     InstallSuperVersionAndScheduleWork(cfd, &sv_context, mutable_cf_options);
 
     ROCKS_LOG_DEBUG(immutable_db_options_.info_log, "[%s] LogAndApply: %s\n",
@@ -1896,21 +1849,15 @@ std::cout << "@@ ReFitLevel A @InstallSuperVersionAndScheduleWork " << __FILE__ 
 }
 
 int DBImpl::NumberLevels(ColumnFamilyHandle* column_family) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(column_family);
   return cfh->cfd()->NumberLevels();
 }
 
 int DBImpl::MaxMemCompactionLevel(ColumnFamilyHandle* /*column_family*/) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   return 0;
 }
 
 int DBImpl::Level0StopWriteTrigger(ColumnFamilyHandle* column_family) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(column_family);
   InstrumentedMutexLock l(&mutex_);
   return cfh->cfd()
@@ -1920,8 +1867,6 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 
 Status DBImpl::Flush(const FlushOptions& flush_options,
                      ColumnFamilyHandle* column_family) {
-// std::cout  << "FLUSH t1 " << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(column_family);
   ROCKS_LOG_INFO(immutable_db_options_.info_log, "[%s] Manual flush start.",
                  cfh->GetName().c_str());
@@ -1941,8 +1886,6 @@ Status DBImpl::Flush(const FlushOptions& flush_options,
 
 Status DBImpl::Flush(const FlushOptions& flush_options,
                      const std::vector<ColumnFamilyHandle*>& column_families) {
-std::cout  << "FLUSH t2 " << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   Status s;
   if (!immutable_db_options_.atomic_flush) {
     for (auto cfh : column_families) {
@@ -1990,8 +1933,6 @@ Status DBImpl::RunManualCompaction(
     const Slice* end, bool exclusive, bool disallow_trivial_move,
     uint64_t max_file_num_to_ignore, const std::string& trim_ts,
     int* final_output_level) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   assert(input_level == ColumnFamilyData::kCompactAllLevels ||
          input_level >= 0);
 
@@ -2371,8 +2312,6 @@ Status DBImpl::AtomicFlushMemTables(
     const FlushOptions& flush_options, FlushReason flush_reason,
     const autovector<ColumnFamilyData*>& provided_candidate_cfds,
     bool entered_write_thread) {
-std::cout  << "AtomicFlushMemTables  " << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   assert(immutable_db_options_.atomic_flush);
   if (!flush_options.wait && write_controller_.IsStopped()) {
     std::ostringstream oss;
@@ -2519,8 +2458,6 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 Status DBImpl::WaitUntilFlushWouldNotStallWrites(ColumnFamilyData* cfd,
                                                  bool* flush_needed) {
   {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
     *flush_needed = true;
     InstrumentedMutexLock l(&mutex_);
     uint64_t orig_active_memtable_id = cfd->mem()->GetID();
@@ -2600,8 +2537,6 @@ Status DBImpl::WaitForFlushMemTables(
     const autovector<ColumnFamilyData*>& cfds,
     const autovector<const uint64_t*>& flush_memtable_ids,
     bool resuming_from_bg_err) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   int num = static_cast<int>(cfds.size());
   // Wait until the compaction completes
   InstrumentedMutexLock l(&mutex_);
@@ -2663,8 +2598,6 @@ Status DBImpl::WaitForFlushMemTables(
 
 Status DBImpl::EnableAutoCompaction(
     const std::vector<ColumnFamilyHandle*>& column_family_handles) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   Status s;
   for (auto cf_ptr : column_family_handles) {
     Status status =
@@ -2680,8 +2613,8 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 // NOTE: Calling DisableManualCompaction() may overwrite the
 // user-provided canceled variable in CompactRangeOptions
 void DBImpl::DisableManualCompaction() {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+  std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+            << std::endl;
   InstrumentedMutexLock l(&mutex_);
   manual_compaction_paused_.fetch_add(1, std::memory_order_release);
 
@@ -2709,16 +2642,14 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 // is uncanceled. In other words, a canceled compaction must have been
 // dropped out of the manual compaction queue, when we disable it.
 void DBImpl::EnableManualCompaction() {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+  std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+            << std::endl;
   InstrumentedMutexLock l(&mutex_);
   assert(manual_compaction_paused_ > 0);
   manual_compaction_paused_.fetch_sub(1, std::memory_order_release);
 }
 
 void DBImpl::MaybeScheduleFlushOrCompaction() {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   mutex_.AssertHeld();
   if (!opened_successfully_) {
     // Compaction may introduce data race to DB open
@@ -2803,8 +2734,6 @@ void DBImpl::MaybeScheduleFlushOrCompaction() {
 }
 
 DBImpl::BGJobLimits DBImpl::GetBGJobLimits() const {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   mutex_.AssertHeld();
   return GetBGJobLimits(mutable_db_options_.max_background_flushes,
                         mutable_db_options_.max_background_compactions,
@@ -2816,8 +2745,6 @@ DBImpl::BGJobLimits DBImpl::GetBGJobLimits(int max_background_flushes,
                                            int max_background_compactions,
                                            int max_background_jobs,
                                            bool parallelize_compactions) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   BGJobLimits res;
   if (max_background_flushes == -1 && max_background_compactions == -1) {
     // for our first stab implementing max_background_jobs, simply allocate a
@@ -2838,8 +2765,6 @@ DBImpl::BGJobLimits DBImpl::GetBGJobLimits(int max_background_flushes,
 }
 
 void DBImpl::AddToCompactionQueue(ColumnFamilyData* cfd) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   assert(!cfd->queued_for_compaction());
   cfd->Ref();
   compaction_queue_.push_back(cfd);
@@ -2847,8 +2772,6 @@ void DBImpl::AddToCompactionQueue(ColumnFamilyData* cfd) {
 }
 
 ColumnFamilyData* DBImpl::PopFirstFromCompactionQueue() {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   assert(!compaction_queue_.empty());
   auto cfd = *compaction_queue_.begin();
   compaction_queue_.pop_front();
@@ -2858,8 +2781,6 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 }
 
 DBImpl::FlushRequest DBImpl::PopFirstFromFlushQueue() {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   assert(!flush_queue_.empty());
   FlushRequest flush_req = flush_queue_.front();
   flush_queue_.pop_front();
@@ -2879,8 +2800,6 @@ DBImpl::FlushRequest DBImpl::PopFirstFromFlushQueue() {
 
 ColumnFamilyData* DBImpl::PickCompactionFromQueue(
     std::unique_ptr<TaskLimiterToken>* token, LogBuffer* log_buffer) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   assert(!compaction_queue_.empty());
   assert(*token == nullptr);
   autovector<ColumnFamilyData*> throttled_candidates;
@@ -2935,8 +2854,6 @@ void DBImpl::SchedulePendingFlush(const FlushRequest& flush_req) {
 }
 
 void DBImpl::SchedulePendingCompaction(ColumnFamilyData* cfd) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   mutex_.AssertHeld();
   if (!cfd->queued_for_compaction() && cfd->NeedsCompaction()) {
     AddToCompactionQueue(cfd);
@@ -2946,17 +2863,14 @@ void DBImpl::SchedulePendingCompaction(ColumnFamilyData* cfd) {
 
 void DBImpl::SchedulePendingPurge(std::string fname, std::string dir_to_sync,
                                   FileType type, uint64_t number, int job_id) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+  std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+            << std::endl;
   mutex_.AssertHeld();
   PurgeFileInfo file_info(fname, dir_to_sync, type, number, job_id);
   purge_files_.insert({{number, std::move(file_info)}});
 }
 
 void DBImpl::BGWorkFlush(void* arg) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
-
   FlushThreadArg fta = *(reinterpret_cast<FlushThreadArg*>(arg));
   delete reinterpret_cast<FlushThreadArg*>(arg);
 
@@ -2967,8 +2881,6 @@ void DBImpl::BGWorkFlush(void* arg) {
 }
 
 void DBImpl::BGWorkCompaction(void* arg) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   CompactionArg ca = *(reinterpret_cast<CompactionArg*>(arg));
   delete reinterpret_cast<CompactionArg*>(arg);
   IOSTATS_SET_THREAD_POOL_ID(Env::Priority::LOW);
@@ -2981,8 +2893,6 @@ void DBImpl::BGWorkCompaction(void* arg) {
 }
 
 void DBImpl::BGWorkBottomCompaction(void* arg) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   CompactionArg ca = *(static_cast<CompactionArg*>(arg));
   delete static_cast<CompactionArg*>(arg);
   IOSTATS_SET_THREAD_POOL_ID(Env::Priority::BOTTOM);
@@ -2994,8 +2904,6 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 }
 
 void DBImpl::BGWorkPurge(void* db) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   IOSTATS_SET_THREAD_POOL_ID(Env::Priority::HIGH);
   TEST_SYNC_POINT("DBImpl::BGWorkPurge:start");
   reinterpret_cast<DBImpl*>(db)->BackgroundCallPurge();
@@ -3003,8 +2911,6 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 }
 
 void DBImpl::UnscheduleCompactionCallback(void* arg) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   CompactionArg* ca_ptr = reinterpret_cast<CompactionArg*>(arg);
   Env::Priority compaction_pri = ca_ptr->compaction_pri_;
   if (Env::Priority::BOTTOM == compaction_pri) {
@@ -3034,8 +2940,6 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 }
 
 void DBImpl::UnscheduleFlushCallback(void* arg) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   // Decrement bg_flush_scheduled_ in flush callback
   reinterpret_cast<FlushThreadArg*>(arg)->db_->bg_flush_scheduled_--;
   Env::Priority flush_pri = reinterpret_cast<FlushThreadArg*>(arg)->thread_pri_;
@@ -3051,8 +2955,6 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
 Status DBImpl::BackgroundFlush(bool* made_progress, JobContext* job_context,
                                LogBuffer* log_buffer, FlushReason* reason,
                                Env::Priority thread_pri) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   mutex_.AssertHeld();
 
   Status status;
@@ -3146,49 +3048,17 @@ Status DBImpl::BackgroundFlush(bool* made_progress, JobContext* job_context,
 }
 
 void DBImpl::BackgroundCallFlush(Env::Priority thread_pri) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
-
-
-  // //Self Added Start  
-  // auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  //     DefaultColumnFamily());
-  // auto cfd = cfh->cfd();
-  // SuperVersion* sv = GetAndRefSuperVersion(cfd);
-  // // mutex_.Unlock();
-  // // mutex_.Lock();
-  // // if(!compaction_queue_.empty()) {
-  // if(sv->current->getLevelSize(0) > (uint)0) {
-  //   std::cerr << " Log: Flush Waiting. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  //   // mutex_.Unlock();
-  //   // See if there's more work to be done
-  //   // MaybeScheduleFlushOrCompaction();
-  //   // atomic_flush_install_cv_.SignalAll();
-  //   // bg_cv_.SignalAll();
-  //   std::this_thread::sleep_for(std::chrono::milliseconds(10));
-  //   sv = GetAndRefSuperVersion(cfd);
-  //   // return;
-  // }
-  // // mutex_.Unlock();
-  // //Self Added End xxx
-
-   //Self Added Start
-  auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-      DefaultColumnFamily());
+  // Self Added Start
+  auto cfh =
+      static_cast_with_check<ColumnFamilyHandleImpl>(DefaultColumnFamily());
   auto cfd = cfh->cfd();
   SuperVersion* sv = GetAndRefSuperVersion(cfd);
-  // uint level0_size = sv->current->getLevelSize(0);
   self_single_flush_mutex_.lock();
-  // while(this->existFlushJob() == true) {
-  while(sv->current->getLevelSize(0) > (uint)0) {
+  while (sv->current->getLevelSize(0) > (uint)0) {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     sv = cfd->GetSuperVersion();
-    // level0_size = sv->current->getLevelSize(0);
   }
-  // self_single_flush_mutex_.unlock();
-  //Self Added End
-
-
+  // Self Added End
 
   bool made_progress = false;
   JobContext job_context(next_job_id_.fetch_add(1), true);
@@ -3204,45 +3074,14 @@ void DBImpl::BackgroundCallFlush(Env::Priority thread_pri) {
     assert(bg_flush_scheduled_);
     num_running_flushes_++;
 
-
-  //Self Added Start
-  self_single_flush_mutex_.unlock();
-  //Self Added End
-
-
+    // Self Added Start
+    self_single_flush_mutex_.unlock();
+    // Self Added End
 
     std::unique_ptr<std::list<uint64_t>::iterator>
         pending_outputs_inserted_elem(new std::list<uint64_t>::iterator(
             CaptureCurrentFileNumberInPendingOutputs()));
     FlushReason reason;
-
-
-  //   //Self Added Start  
-  //   Status s;
-  //   auto cfh = static_cast_with_check<ColumnFamilyHandleImpl>(
-  //       DefaultColumnFamily());
-  //   auto cfd = cfh->cfd();
-  //   SuperVersion* sv = GetAndRefSuperVersion(cfd);
-  //   // mutex_.Unlock();
-  //   // mutex_.Lock();
-  //   // if(!compaction_queue_.empty()) {
-  //   if(sv->current->getLevelSize(0) > (uint)0) {
-  //     // std::cerr << " Log: Jump out of Flush. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  //     // mutex_.Unlock();
-  //     // // See if there's more work to be done
-  //     // MaybeScheduleFlushOrCompaction();
-  //     // atomic_flush_install_cv_.SignalAll();
-  //     // bg_cv_.SignalAll();
-  //     // return;
-  //     s = Status::ShutdownInProgress();
-  //   }else{
-  //     s = BackgroundFlush(&made_progress, &job_context, &log_buffer,
-  //                                   &reason, thread_pri);
-  //   }
-  //   // mutex_.Unlock();
-  // //Self Added End xxx
-
-  
 
     Status s = BackgroundFlush(&made_progress, &job_context, &log_buffer,
                                &reason, thread_pri);
@@ -3309,8 +3148,6 @@ void DBImpl::BackgroundCallFlush(Env::Priority thread_pri) {
 
 void DBImpl::BackgroundCallCompaction(PrepickedCompaction* prepicked_compaction,
                                       Env::Priority bg_thread_pri) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   bool made_progress = false;
   JobContext job_context(next_job_id_.fetch_add(1), true);
   TEST_SYNC_POINT("BackgroundCallCompaction:0");
@@ -3437,8 +3274,6 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
                                     LogBuffer* log_buffer,
                                     PrepickedCompaction* prepicked_compaction,
                                     Env::Priority thread_pri) {
-// std::cout  << "DBImpl::BackgroundCompaction A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
   ManualCompactionState* manual_compaction =
       prepicked_compaction == nullptr
           ? nullptr
@@ -3502,8 +3337,6 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
 
   std::unique_ptr<TaskLimiterToken> task_token;
 
-  // InternalKey manual_end_storage;
-  // InternalKey* manual_end = &manual_end_storage;
   bool sfm_reserved_compact_space = false;
   if (is_manual) {
     ManualCompactionState* m = manual_compaction;
@@ -3553,7 +3386,6 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
 
       return Status::OK();
     }
-// std::cout  << "DBImpl::BackgroundCompaction A2 @PickCompactionFromQueue " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
     auto cfd = PickCompactionFromQueue(&task_token, log_buffer);
     if (cfd == nullptr) {
@@ -3584,7 +3416,6 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
       // NOTE: try to avoid unnecessary copy of MutableCFOptions if
       // compaction is not necessary. Need to make sure mutex is held
       // until we make a copy in the following code
-// std::cout  << "DBImpl::BackgroundCompaction A3 @PickCompaction " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       TEST_SYNC_POINT("DBImpl::BackgroundCompaction():BeforePickCompaction");
       c.reset(cfd->PickCompaction(*mutable_cf_options, mutable_db_options_,
                                   log_buffer));
@@ -3645,8 +3476,8 @@ Status DBImpl::BackgroundCompaction(bool* made_progress,
     // Nothing to do
     ROCKS_LOG_BUFFER(log_buffer, "Compaction nothing to do");
   } else if (c->deletion_compaction()) {
-std::cout  << "DBImpl::BackgroundCompaction A4 @Just file deletion when compaction " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl << std::endl;
+    std::cout << "compaction direct delete " << __FILE__ << ":" << __LINE__
+              << " " << __FUNCTION__ << std::endl;
     // TODO(icanadi) Do we want to honor snapshots here? i.e. not delete old
     // file if there is alive snapshot pointing to it
     TEST_SYNC_POINT_CALLBACK("DBImpl::BackgroundCompaction:BeforeCompaction",
@@ -3664,74 +3495,283 @@ std::cout << std::endl << std::endl << std::endl << std::endl << std::endl << st
       c->edit()->DeleteFile(c->level(), f->fd.GetNumber());
     }
 
-    //Self Added
-    std::vector<pll> smallest_largest_boundries{};
-    std::vector<pss> smallest_largest_boundries__str_key{};
-    std::vector<uint64_t> file_numbers;
-    for (auto file_meta : *(c->inputs(0)))
-    {
-    // FIXME: ONLY FOR TESTING USE 
-      std::cout << "Pushing file from Current Level: " << c->level(0) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(0) << std::endl << std::flush;
-      std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;
-      smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
-      smallest_largest_boundries__str_key.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), file_meta->largest.user_key().ToString()));
-      file_numbers.push_back(file_meta->fd.GetNumber());
+    // yucheng Added Start
+    //  std::cout << "(delete compaction) hasRDFTypeOtherThanNone() = " <<
+    //  checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone()
+    //  << std::endl; std::cout << "containsRDFType(PLRDF) = " <<
+    //  checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")<<
+    //  std::endl; std::cout << "containsRDFType(SPLIT_PLRDF) = " <<
+    //  checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")<<
+    //  std::endl; std::cout << "containsRDFType(PLRDF_STRING_KEY) = " <<
+    //  checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")<<
+    //  std::endl; std::cout << "containsRDFType(SPLIT_PLRDF_STRING_KEY) = " <<
+    //  checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")<<
+    //  std::endl; std::cout << "containsRDFType(TOP_LEVEL_RDF) = " <<
+    //  checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")<<
+    //  std::endl; std::cout << "containsRDFType(SuRF_LF_RDF) = " <<
+    //  checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")<<
+    //  std::endl; std::cout << "containsRDFType(SuRF_LF_SPLIT_RDF) = " <<
+    //  checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")<<
+    //  std::endl;
+    if (checking::SystemVerifier::getSystemVerifier()
+            ->hasRDFTypeOtherThanNone() == true) {
+      std::vector<pll> smallest_largest_boundries{};
+      std::vector<pss> smallest_largest_boundries_stringkey{};
+      std::vector<pll> range_tombstones_pll;
+      std::vector<pss> range_tombstones_str;
+      std::vector<uint64_t> file_numbers;
+      // long long min_start_key_RT = LLONG_MAX, max_end_key_RT = LLONG_MIN;
+      std::string min_start_key_RT = std::string(128, '\xFF'),
+                  max_end_key_RT = std::string(128, 0);
+      for (auto file_meta : *(c->inputs(0))) {
+        {
+          size_t size = 0;
+          const FileDescriptor& fd = file_meta->fd;
+          Status s;
+          TableReader* t = fd.table_reader;
+          // if (t == nullptr) {continue;}
+          if (t != nullptr) {
+            FragmentedRangeTombstoneIterator* tombstone_iter =
+                t->NewRangeTombstoneIterator(read_options);
+
+            if (tombstone_iter) {
+              tombstone_iter->SeekToFirst();
+              // TODO: print timestamp
+              while (tombstone_iter->Valid()) {
+                // long long tmp_start_key =
+                // std::stoll(tombstone_iter->start_key().ToString()); long long
+                // tmp_end_key =
+                // std::stoll(tombstone_iter->end_key().ToString());
+                std::string tmp_start_key =
+                    tombstone_iter->start_key().ToString();
+                std::string tmp_end_key = tombstone_iter->end_key().ToString();
+                range_tombstones_str.push_back(
+                    std::make_pair(tmp_start_key, tmp_end_key));
+                if (checking::SystemVerifier::getSystemVerifier()
+                        ->usingStringKey() == false) {
+                  range_tombstones_pll.push_back(std::make_pair(
+                      std::stoll(tmp_start_key), std::stoll(tmp_end_key)));
+                }
+                if (tmp_start_key < min_start_key_RT) {
+                  min_start_key_RT = tmp_start_key;
+                }
+                if (tmp_end_key > max_end_key_RT) {
+                  max_end_key_RT = tmp_end_key;
+                }
+
+                std::cout << "@ delete compaction" << " "
+                          << "start: " << tombstone_iter->start_key().ToString()
+                          << " end: " << tombstone_iter->end_key().ToString()
+                          << " seq: " << tombstone_iter->seq() << " "
+                          << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                          << " " << __FILE__ << ":" << __LINE__ << " "
+                          << __FUNCTION__ << std::endl;
+                size += static_cast<std::string>(
+                            tombstone_iter->start_key().ToString())
+                            .size();
+                size += static_cast<std::string>(
+                            tombstone_iter->end_key().ToString())
+                            .size();
+                size +=
+                    sizeof(static_cast<SequenceNumber>(tombstone_iter->seq()));
+                tombstone_iter->Next();
+              }
+              std::cout << "min_start_key_RT = " << min_start_key_RT
+                        << " max_end_key_RT = " << max_end_key_RT << " "
+                        << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                        << std::endl;
+            }
+          }
+        }
+
+        // FIXME: ONLY FOR TESTING USE
+        // std::cout << "Pushing file from Current Level: " << c->level(0) << "
+        // output Level: " << c->output_level() << " with CompactionInputFiles:
+        // " << c->inputs(0) << " " << __FILE__ << ":" << __LINE__ << " " <<
+        // __FUNCTION__ << std::endl << std::flush; std::cout <<
+        // file_meta->fd.GetNumber() << " --- smallest key " <<
+        // file_meta->smallest.user_key().ToString() << " --- largest key " <<
+        // file_meta->largest.user_key().ToString() << " " << __FILE__ << ":" <<
+        // __LINE__ << " " << __FUNCTION__ << std::endl << std::flush;
+
+        // bool flag_has_range_tombstone = (min_start_key_RT <= max_end_key_RT);
+        // if(flag_has_range_tombstone == true){
+        //   smallest_largest_boundries.push_back(std::make_pair(min_start_key_RT,
+        //   max_end_key_RT));
+        // }else{
+        //     //dummy (smallest,smallest)
+        //     smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()),
+        //     std::stoll(file_meta->smallest.user_key().ToString())));
+        //     //dummy (smallest,largest)
+        //     //
+        //     smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()),
+        //     std::stoll(file_meta->largest.user_key().ToString())));
+        // }
+        if (checking::SystemVerifier::getSystemVerifier()->usingStringKey() ==
+            false) {
+          smallest_largest_boundries.push_back(std::make_pair(
+              std::stoll(file_meta->smallest.user_key().ToString()),
+              std::stoll(file_meta->largest.user_key().ToString())));
+        }
+        smallest_largest_boundries_stringkey.push_back(
+            std::make_pair(file_meta->smallest.user_key().ToString(),
+                           file_meta->largest.user_key().ToString()));
+        // smallest_largest_boundries__str_key.push_back(std::make_pair(file_meta->smallest.user_key().ToString(),
+        // file_meta->largest.user_key().ToString()));
+        file_numbers.push_back(file_meta->fd.GetNumber());
+      }
+
+      // Create and initialize RDFUpdateMetadata
+      auto rdf_update_metadata = std::make_shared<RDFUpdateMetadata>();
+      rdf_update_metadata->type =
+          RDFUpdateMetadata::JobType::kCompactionDirectRemoved;
+      rdf_update_metadata->split_flag = false;
+
+      if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+              "PLRDF") ||
+          checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+              "SPLIT_PLRDF")) {
+        // tuple: (in_level, out_level, ranges, file_numbers)
+        // using -1 for out_level as it is ignored in Direct Removal logic
+        std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>
+            file_meta_data_vectors = std::make_tuple(
+                c->level(), -1, range_tombstones_pll, file_numbers);
+        if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "PLRDF")) {
+          rdf_update_metadata->plrdf_compaction_delta.push_back(
+              file_meta_data_vectors);
+        }
+        if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "SPLIT_PLRDF")) {
+          rdf_update_metadata->split_plrdf_compaction_delta.push_back(
+              file_meta_data_vectors);
+        }
+      }
+
+      if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+              "PLRDF_STRING_KEY") ||
+          checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+              "SPLIT_PLRDF_STRING_KEY")) {
+        // tuple: (in_level, out_level, ranges, file_numbers)
+        std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>
+            file_meta_data_vectors_stringkey = std::make_tuple(
+                c->level(), -1, range_tombstones_str, file_numbers);
+        if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "PLRDF_STRING_KEY")) {
+          rdf_update_metadata->plrdf_stringkey_compaction_delta.push_back(
+              file_meta_data_vectors_stringkey);
+        }
+        if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "SPLIT_PLRDF_STRING_KEY")) {
+          rdf_update_metadata->split_plrdf_stringkey_compaction_delta.push_back(
+              file_meta_data_vectors_stringkey);
+        }
+      }
+
+      // Populate explicit tracing data for removal
+      if (checking::SystemVerifier::getSystemVerifier()
+              ->hasRDFTypeOtherThanNone() == true) {
+        for (uint64_t fd : file_numbers) {
+          if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                  "PLRDF")) {
+            rdf_update_metadata->plrdf_tracing_remove.push_back(
+                {c->level(), fd});
+          }
+          if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                  "SPLIT_PLRDF")) {
+            rdf_update_metadata->split_plrdf_tracing_remove.push_back(
+                {c->level(), fd});
+          }
+          if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                  "PLRDF_STRING_KEY")) {
+            rdf_update_metadata->plrdf_stringkey_tracing_remove.push_back(
+                {c->level(), fd});
+          }
+          if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                  "SPLIT_PLRDF_STRING_KEY")) {
+            rdf_update_metadata->split_plrdf_stringkey_tracing_remove.push_back(
+                {c->level(), fd});
+          }
+        }
+      }
+
+      // std::tuple<int, std::vector<pss>, std::vector<uint64_t?>>
+      // *surf__file_meta_data_vectors = new std::tuple<int, std::vector<pss>,
+      // std::vector<uint64_t>>();
+      // surf__file_meta_data_vectors->push_back(std::make_tuple(c->level(),
+      // smallest_largest_boundries__str_key, file_numbers));
+      if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+              "SuRF_LF_RDF")) {
+        auto surf_direct_removal_info =
+            std::make_unique<SuRFCompactionDirectRemovalInfo>();
+        surf_direct_removal_info->src_level = c->level();
+        surf_direct_removal_info->src_fd_list = file_numbers;
+        rdf_update_metadata->surf_direct_removal_info =
+            std::move(surf_direct_removal_info);
+      }
+
+      if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+              "SuRF_LF_SPLIT_RDF")) {
+        auto split_surf_direct_removal_info =
+            std::make_unique<SuRFCompactionDirectRemovalInfo>();
+        split_surf_direct_removal_info->src_level = c->level();
+        split_surf_direct_removal_info->src_fd_list = file_numbers;
+        rdf_update_metadata->split_surf_direct_removal_info =
+            std::move(split_surf_direct_removal_info);
+      }
+
+      c->edit()->SetRDFMetadata(rdf_update_metadata);
+      // std::cout << "[Compaction]: Calling Direct Delete Compaction .. " <<
+      // std::endl;
+
+      // if (c->column_family_data()->current()->get_compaction_install_count()
+      // >
+      //     0) {
+      //   std::cout << "compaction write to version (current_) happens more
+      //   than "
+      //                "once. times = "
+      //             << c->column_family_data()
+      //                    ->current()
+      //                    ->get_compaction_install_count()
+      //             << __FILE__ << ":" << __LINE__ << std::endl;
+      //   std::cout
+      //       << "flush = "
+      //       << c->column_family_data()->current()->get_flush_install_count()
+      //       << std::endl;
+      //   std::cout << "compact = "
+      //             << c->column_family_data()
+      //                    ->current()
+      //                    ->get_compaction_install_count()
+      //             << std::endl;
+      //   std::cout << "installSuperversion = "
+      //             << c->column_family_data()
+      //                    ->current()
+      //                    ->get_installSuperversion_count()
+      //             << std::endl;
+      // }
     }
-
-    std::tuple<int, std::vector<pll>, std::vector<uint64_t>> file_meta_data_vectors = std::make_tuple(c->level(), smallest_largest_boundries, file_numbers);
-    // std::tuple<int, std::vector<pss>, std::vector<uint64_t、>> *surf__file_meta_data_vectors = new std::tuple<int, std::vector<pss>, std::vector<uint64_t>>(); 
-    // surf__file_meta_data_vectors->push_back(std::make_tuple(c->level(), smallest_largest_boundries__str_key, file_numbers));
-    SuRFCompactionDirectRemovalInfo *surf__file_meta_data_vectors = new SuRFCompactionDirectRemovalInfo();
-    surf__file_meta_data_vectors->src_level = c->level();
-    surf__file_meta_data_vectors->src_fd_list = file_numbers;
-    
-    SuRFCompactionDirectRemovalInfo *surf_level_file_split__file_meta_data_vectors = new SuRFCompactionDirectRemovalInfo();
-    surf_level_file_split__file_meta_data_vectors->src_level = c->level();
-    surf_level_file_split__file_meta_data_vectors->src_fd_list = file_numbers;
-    // std::cout << "[Compaction]: Calling Direct Delete Compaction .. " << std::endl;
-
-    // rdfilter::PLRDF::getRDFilter()->deleteRDFAssociatedWithFilesAtCurrentLevel(&file_meta_data_vectors);
-    // c->column_family_data()->current()->set_compaction_direct_delete_RD_vector(file_meta_data_vectors);
-    c->column_family_data()->set_compaction_direct_delete_RD_vector(file_meta_data_vectors);
-    c->column_family_data()->set_split__compaction_direct_delete_RD_vector(file_meta_data_vectors);
-    // c->column_family_data()->set_top_level__direct_delete__delete_RD_vector(file_meta_data_vectors);
-    c->column_family_data()->set_surf__compaction_direct_delete_RD_vector(surf__file_meta_data_vectors);
-    c->column_family_data()->set_surf_level_file_split__compaction_direct_delete_RD_vector(surf_level_file_split__file_meta_data_vectors);
-
-    // c->column_family_data()->GetSuperVersion()->current->deleteRDFAssociatedWithFilesAtCurrentLevel(&file_meta_data_vectors);
-    //Self Added
-    if(c->column_family_data()->current()->get_compaction_install_count() > 0){
-      std::cout << "compaction write to version (current_) happens more than once. times = " 
-                << c->column_family_data()->current()->get_compaction_install_count() << __FILE__ << ":" << __LINE__ << std::endl;
-      std::cout << "flush = " << c->column_family_data()->current()->get_flush_install_count() << std::endl;
-      std::cout << "compact = " << c->column_family_data()->current()->get_compaction_install_count() << std::endl;
-      std::cout << "installSuperversion = " << c->column_family_data()->current()->get_installSuperversion_count() << std::endl;
-    }
-    c->column_family_data()->current()->inc_compaction_install_count();
-    // c->column_family_data()->GetSuperVersion()->current->inc_compaction_install_count();
-    c->column_family_data()->inc_compaction_install_count();
-    c->column_family_data()->inc_split__compaction_install_count();
-
-
-
-
 
     status = versions_->LogAndApply(
         c->column_family_data(), *c->mutable_cf_options(), read_options,
         c->edit(), &mutex_, directories_.GetDbDir());
     io_s = versions_->io_status();
 
-std::cout << "@@ BackgroundCompaction A @InstallSuperVersionAndScheduleWork " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//Self Added
-//shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
-bool split_flag = false;
-c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 for compaction, 3 for compaction direcly deleted flie
+    // std::cout << "@@ BackgroundCompaction A
+    // @InstallSuperVersionAndScheduleWork " << __FILE__ << ":" << __LINE__ << "
+    // " << __FUNCTION__ << std::endl;
+    // //yucheng Added Start
+    // //shall be called before  InstallSuperversion /
+    // InstallSuperVersionAndScheduleWork
+    // if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone()
+    // == true){
+    //   bool split_flag = false;
+    //   c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for
+    //   flush, 2 for compaction, 3 for compaction direcly deleted file
+    // }
+    // //yucheng Added End
     InstallSuperVersionAndScheduleWork(c->column_family_data(),
                                        &job_context->superversion_contexts[0],
                                        *c->mutable_cf_options());
-//Self Added
-// old_superversion->current->clear_flush_install_count_clr();
-// c->column_family_data()->current()->clear_compaction_install_count_clr();
 
     ROCKS_LOG_BUFFER(log_buffer, "[%s] Deleted %d files\n",
                      c->column_family_data()->GetName().c_str(),
@@ -3739,8 +3779,20 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
     *made_progress = true;
     TEST_SYNC_POINT_CALLBACK("DBImpl::BackgroundCompaction:AfterCompaction",
                              c->column_family_data());
-  // } else if (!trivial_move_disallowed && c->IsTrivialMove()) {
-  } else if (!trivial_move_disallowed && c->IsTrivialMove() && false) { // <------------------- && false: do this only for top-level RDF behavioral simulation is included
+    // } else if (!trivial_move_disallowed && c->IsTrivialMove()) {
+    // } else if (!trivial_move_disallowed && c->IsTrivialMove() && false) { //
+    // <------------------- && false: do this only for top-level RDF behavioral
+    // simulation is included
+  } else if (!trivial_move_disallowed && c->IsTrivialMove() &&
+             (!checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                 "TOP_LEVEL_RDF")) &&
+             (!checking::SystemVerifier::getSystemVerifier()
+                   ->getSkipCompactionTrivialMove())) {  // <-------------------
+                                                         // && false: do this
+                                                         // only for top-level
+                                                         // RDF behavioral
+                                                         // simulation is
+                                                         // included
     TEST_SYNC_POINT("DBImpl::BackgroundCompaction:TrivialMove");
     TEST_SYNC_POINT_CALLBACK("DBImpl::BackgroundCompaction:BeforeCompaction",
                              c->column_family_data());
@@ -3756,48 +3808,516 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
     int32_t moved_files = 0;
     int64_t moved_bytes = 0;
 
-    //Self Added Start
-    std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> *file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>();
-    // std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>> *surf__file_meta_data_vectors = new std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>();
-    SuRFCompactionMovingRDInfo *surf__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
-    SuRFCompactionMovingRDInfo *surf_level_file_split__compaction_moving_RD_vector = new SuRFCompactionMovingRDInfo();
-    std::tuple<int, std::vector<pll>, std::vector<uint64_t>> delete_RD_vector; 
-    //Self Added End
+    // yucheng Added Start
+    std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>*
+        file_meta_data_vectors = new std::vector<
+            std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>();
+    std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>*
+        file_meta_data_vectors_stringkey = new std::vector<
+            std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>();
+    std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>*
+        file_meta_data_vectors_toplevel = new std::vector<
+            std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>();
+    std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>*
+        file_meta_data_vectors_toplevel_stringkey = new std::vector<
+            std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>();
+    SuRFCompactionMovingRDInfo* surf__compaction_moving_RD_vector =
+        new SuRFCompactionMovingRDInfo();
+    SuRFCompactionMovingRDInfo*
+        surf_level_file_split__compaction_moving_RD_vector =
+            new SuRFCompactionMovingRDInfo();
+    SuRFCompactionMovingRDInfo* tracing_moving_RD_vector =
+        new SuRFCompactionMovingRDInfo();
+    std::tuple<int, std::vector<pll>, std::vector<uint64_t>> delete_RD_vector;
+    std::tuple<int, std::vector<pss>, std::vector<uint64_t>>
+        delete_RD_vector_stringkey;
+    // yucheng Added End
     for (unsigned int l = 0; l < c->num_input_levels(); l++) {
       if (c->level(l) == c->output_level()) {
         continue;
       }
 
+      // yucheng Added Start
+      //  std::cout << "(trivial move) hasRDFTypeOtherThanNone() = " <<
+      //  checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone()
+      //  << std::endl; std::cout << "containsRDFType(PLRDF) = " <<
+      //  checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF")<<
+      //  std::endl; std::cout << "containsRDFType(SPLIT_PLRDF) = " <<
+      //  checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF")<<
+      //  std::endl; std::cout << "containsRDFType(PLRDF_STRING_KEY) = " <<
+      //  checking::SystemVerifier::getSystemVerifier()->containsRDFType("PLRDF_STRING_KEY")<<
+      //  std::endl; std::cout << "containsRDFType(SPLIT_PLRDF_STRING_KEY) = "
+      //  <<
+      //  checking::SystemVerifier::getSystemVerifier()->containsRDFType("SPLIT_PLRDF_STRING_KEY")<<
+      //  std::endl; std::cout << "containsRDFType(TOP_LEVEL_RDF) = " <<
+      //  checking::SystemVerifier::getSystemVerifier()->containsRDFType("TOP_LEVEL_RDF")<<
+      //  std::endl; std::cout << "containsRDFType(SuRF_LF_RDF) = " <<
+      //  checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_RDF")<<
+      //  std::endl; std::cout << "containsRDFType(SuRF_LF_SPLIT_RDF) = " <<
+      //  checking::SystemVerifier::getSystemVerifier()->containsRDFType("SuRF_LF_SPLIT_RDF")<<
+      //  std::endl;
+      if (checking::SystemVerifier::getSystemVerifier()
+              ->hasRDFTypeOtherThanNone() == true) {
+        if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "PLRDF") ||
+            checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "SPLIT_PLRDF") ||
+            checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "PLRDF_STRING_KEY") ||
+            checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "SPLIT_PLRDF_STRING_KEY") ||
+            checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "TOP_LEVEL_RDF") ||
+            checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "TOP_LEVEL_RDF_STRING_KEY") ||
+            checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "SuRF_LF_RDF") ||
+            checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                "SuRF_LF_SPLIT_RDF")) {
+          std::vector<pll> smallest_largest_boundries{};
+          std::vector<pss> smallest_largest_boundries_stringkey{};
+          std::vector<uint64_t> file_numbers;
+          std::vector<pll> range_tombstones_pll{};
+          std::vector<pss> range_tombstones_str{};
+          for (auto file_meta : *(c->inputs(l))) {
+            {
+              if (checking::SystemVerifier::getSystemVerifier()
+                      ->usingStringKey() == false) {
+                // Legacy verification logic removed (get_RDs_by_fd dependency)
+                long long max_end_key = 0;
+                long long min_start_key = LONG_LONG_MAX;
 
-      //Self Added Start
-      {
-        std::vector<pll> smallest_largest_boundries{};
-        std::vector<pss> smallest_largest_boundries__str_key{};
-        std::vector<uint64_t> file_numbers;
-        for (auto file_meta : *(c->inputs(l)))
-        {
-          // FIXME: ONLY FOR TESTING USE 
-          std::cout << "Pushing file from Current Level: " << c->level(l) << " output Level: " << c->output_level() << " with CompactionInputFiles: " << c->inputs(l) << std::endl << std::flush;
-          std::cout << file_meta->fd.GetNumber() << " --- smallest key " << file_meta->smallest.user_key().ToString() << " --- largest key " << file_meta->largest.user_key().ToString() << std::endl << std::flush;
-          smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()), std::stoll(file_meta->largest.user_key().ToString())));
-          smallest_largest_boundries__str_key.push_back(std::make_pair(file_meta->smallest.user_key().ToString(), file_meta->largest.user_key().ToString()));
-          file_numbers.push_back(file_meta->fd.GetNumber());
+                // Can this part be optimized ? --> like store the ranges of
+                // each file into abc
+                long long min_start_key_RT = LLONG_MAX,
+                          max_end_key_RT = LLONG_MIN;
+                // std::string max_string_128(128, static_cast<char>(255));  //
+                // or '\xFF' std::string min_start_key_RT = std::string(128,
+                // '\xFF'), max_end_key_RT = std::string(128, 0);
+                {
+                  auto* cfd = c->column_family_data();
+                  TableCache* table_cache = cfd->table_cache();
+                  std::unique_ptr<FragmentedRangeTombstoneIterator>
+                      tombstone_iter;
+
+                  Status s = table_cache->GetRangeTombstoneIterator(
+                      read_options, cfd->internal_comparator(), *file_meta,
+                      cfd->GetLatestMutableCFOptions()
+                          ->block_protection_bytes_per_key,
+                      &tombstone_iter);
+                  size_t size = 0;
+                  if (tombstone_iter) {
+                    tombstone_iter->SeekToFirst();
+                    // TODO: print timestamp
+                    while (tombstone_iter->Valid()) {
+                      if (checking::SystemVerifier::getSystemVerifier()
+                              ->getShowTombstonesDuringCompactionInfo()) {
+                        std::cout << "tombstone_iter->start_key().ToString() = "
+                                  << tombstone_iter->start_key().ToString()
+                                  << " tombstone_iter->end_key().ToString() = "
+                                  << tombstone_iter->end_key().ToString() << " "
+                                  << __FILE__ << ":" << __LINE__ << " "
+                                  << __FILE__ << std::endl;
+                      }
+                      range_tombstones_str.push_back(
+                          std::make_pair(tombstone_iter->start_key().ToString(),
+                                         tombstone_iter->end_key().ToString()));
+                      long long tmp_start_key =
+                          std::stoll(tombstone_iter->start_key().ToString());
+                      long long tmp_end_key =
+                          std::stoll(tombstone_iter->end_key().ToString());
+                      range_tombstones_pll.push_back(
+                          std::make_pair(tmp_start_key, tmp_end_key));
+                      // std::string tmp_start_key =
+                      // tombstone_iter->start_key().ToString(); std::string
+                      // tmp_end_key = tombstone_iter->end_key().ToString();
+                      if (tmp_start_key < min_start_key_RT) {
+                        min_start_key_RT = tmp_start_key;
+                      }
+                      if (tmp_end_key > max_end_key_RT) {
+                        max_end_key_RT = tmp_end_key;
+                      }
+                      if (checking::SystemVerifier::getSystemVerifier()
+                              ->getShowTombstonesDuringCompactionInfo()) {
+                        std::cout
+                            << "@ compaction" << " "
+                            << "start: "
+                            << tombstone_iter->start_key().ToString()
+                            << " end: " << tombstone_iter->end_key().ToString()
+                            << " seq: " << tombstone_iter->seq() << " "
+                            << __FILE__ << ":" << __LINE__ << " "
+                            << __FUNCTION__ << " " << __FILE__ << ":"
+                            << __LINE__ << " " << __FUNCTION__ << std::endl;
+                      }
+                      size += static_cast<std::string>(
+                                  tombstone_iter->start_key().ToString())
+                                  .size();
+                      size += static_cast<std::string>(
+                                  tombstone_iter->end_key().ToString())
+                                  .size();
+                      size += sizeof(
+                          static_cast<SequenceNumber>(tombstone_iter->seq()));
+                      tombstone_iter->Next();
+                    }
+                    min_start_key_RT = max(
+                        min_start_key_RT,
+                        std::stoll(file_meta->smallest.user_key().ToString()));
+                    // min_start_key_RT = max(min_start_key_RT,
+                    // file_meta->smallest.user_key().ToString());
+                    // if(max_end_key_RT >
+                    // std::stoll(file_meta->largest.user_key().ToString())){
+                    if (max_end_key_RT >=
+                        std::stoll(file_meta->largest.user_key().ToString())) {
+                      max_end_key_RT =
+                          std::stoll(file_meta->largest.user_key().ToString()) -
+                          1;
+                    }
+                    // if(max_end_key_RT >=
+                    // file_meta->largest.user_key().ToString()){
+                    //   max_end_key_RT =
+                    //   file_meta->largest.user_key().ToString() -1;
+                    // }
+                    if (min_start_key_RT >= max_end_key_RT) {
+                      std::cout
+                          << "Error: "
+                          << "min_start_key_RT = " << min_start_key_RT << " "
+                          << "max_end_key_RT = " << max_end_key_RT << " "
+                          << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                          << std::endl;
+                      assert(min_start_key_RT < max_end_key_RT);
+                    }
+                    {
+                      if (checking::SystemVerifier::getSystemVerifier()
+                              ->getShowTombstonesDuringCompactionInfo()) {
+                        std::cout << "min_start_key_RT = " << min_start_key_RT
+                                  << " max_end_key_RT = " << max_end_key_RT
+                                  << " " << __FILE__ << ":" << __LINE__ << " "
+                                  << __FUNCTION__ << std::endl;
+                        std::cout << "min_start_key = " << min_start_key
+                                  << " max_end_key = " << max_end_key << " "
+                                  << __FILE__ << ":" << __LINE__ << " "
+                                  << __FUNCTION__ << std::endl;
+                        std::cout
+                            << "file_meta->smallest.user_key().ToString() = "
+                            << file_meta->smallest.user_key().ToString()
+                            << " file_meta->largest.user_key().ToString() = "
+                            << file_meta->largest.user_key().ToString() << " "
+                            << __FILE__ << ":" << __LINE__ << " "
+                            << __FUNCTION__ << std::endl;
+                      }
+                      if (min_start_key_RT != min_start_key) {
+                        std::cout << "ych info Mismatch: min_start_key_RT != "
+                                     "min_start_key"
+                                  << " " << __FILE__ << ":" << __LINE__ << " "
+                                  << __FUNCTION__ << std::endl;
+                      }
+                      if (max_end_key_RT != max_end_key) {
+                        std::cout << "ych info Mismatch: max_end_key_RT != "
+                                     "max_end_key"
+                                  << " " << __FILE__ << ":" << __LINE__ << " "
+                                  << __FUNCTION__ << std::endl;
+                      }
+                    }
+                    tombstone_iter.reset();
+                  }
+                }
+                // looping through the range tombstones to get the
+                // min_start_key, max_end_key long long min_start_key_RT =
+                // LLONG_MAX, max_end_key_RT = LLONG_MIN;
+                // {
+                //   size_t size = 0;
+                //   const FileDescriptor& fd = file_meta->fd;
+                //   // Status s;
+                //   TableReader* t = fd.table_reader;
+                //   // if (t != nullptr){std::cout << "skip" << std::endl;}
+                //   // if(t == nullptr){//read the table from
+                //   version_set->table_cache} if (t != nullptr) {
+                //     FragmentedRangeTombstoneIterator* tombstone_iter =
+                //     t->NewRangeTombstoneIterator(read_options);
+
+                //     if (tombstone_iter) {
+                //       tombstone_iter->SeekToFirst();
+                //       // TODO: print timestamp
+                //       while (tombstone_iter->Valid()) {
+                //         long long tmp_start_key =
+                //         std::stoll(tombstone_iter->start_key().ToString());
+                //         long long tmp_end_key =
+                //         std::stoll(tombstone_iter->end_key().ToString());
+                //         if(tmp_start_key < min_start_key_RT){min_start_key_RT
+                //         = tmp_start_key;} if(tmp_end_key >
+                //         max_end_key_RT){max_end_key_RT = tmp_end_key;}
+
+                //         std::cout << "@ compaction" << " "
+                //           << "start: " <<
+                //           tombstone_iter->start_key().ToString()
+                //           << " end: " << tombstone_iter->end_key().ToString()
+                //           << " seq: " << tombstone_iter->seq()
+                //           << " " << __FILE__ << ":" << __LINE__ << " " <<
+                //           __FUNCTION__ << " " << __FILE__ << ":" << __LINE__
+                //           << " " << __FUNCTION__ << std::endl;;
+                //         size +=
+                //         static_cast<std::string>(tombstone_iter->start_key().ToString()).size();
+                //         size +=
+                //         static_cast<std::string>(tombstone_iter->end_key().ToString()).size();
+                //         size +=
+                //         sizeof(static_cast<SequenceNumber>(tombstone_iter->seq()));
+                //         tombstone_iter->Next();
+                //       }
+                //       std::cout << "min_start_key_RT = " << min_start_key_RT
+                //       << " max_end_key_RT = " << max_end_key_RT << " " <<
+                //       __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<
+                //       std::endl;
+                //     }
+                //   }
+                // }
+
+                smallest_largest_boundries.push_back(std::make_pair(
+                    std::stoll(file_meta->smallest.user_key().ToString()),
+                    std::stoll(file_meta->largest.user_key().ToString())));
+
+                if (true) {
+                  bool flag_has_range_tombstone =
+                      (min_start_key_RT <= max_end_key_RT);
+                  if (flag_has_range_tombstone == true) {
+                    // smallest_largest_boundries.push_back(std::make_pair(min_start_key_RT,
+                    // max_end_key_RT));
+                    // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()),
+                    // std::stoll(file_meta->largest.user_key().ToString())));
+                    // TODO check: (Current Logic) end-1 because when no key @
+                    // the end of the file, Range Tombstone (RT) should move
+                    // down with [start,end-1], in case a key @ end-1 may not be
+                    // covered by the range
+                    //                                           when key @ the
+                    //                                           end of the file
+                    //                                           and is
+                    //                                           compacted down
+                    //                                           with the range
+                    //                                           tombstone (RT),
+                    //                                           then range can
+                    //                                           move down with
+                    //                                           [start, end]
+                    // smallest_largest_boundries.push_back(std::make_pair(
+                    //     std::stoll(file_meta->smallest.user_key().ToString()),
+                    //     std::stoll(file_meta->largest.user_key().ToString())
+                    //     -
+                    //         1));
+                    range_tombstones_pll.push_back(std::make_pair(
+                        std::stoll(file_meta->smallest.user_key().ToString()),
+                        std::stoll(file_meta->largest.user_key().ToString())));
+                    // smallest_largest_boundries.push_back(std::make_pair(min_start_key_RT,
+                    // max_end_key_RT));
+                  } else {
+                    // dummy (smallest,smallest)
+                    //  smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()),
+                    //  std::stoll(file_meta->smallest.user_key().ToString())));
+                    // dummy (smallest,largest)
+                    // smallest_largest_boundries.push_back(std::make_pair(
+                    //     std::stoll(file_meta->smallest.user_key().ToString()),
+                    //     std::stoll(file_meta->largest.user_key().ToString())));
+                  }
+                } else {
+                  // if(max_end_key !=
+                  // std::stoll(file_meta->largest.user_key().ToString())){
+                  //   //
+                  //   smallest_largest_boundries.push_back(std::make_pair(min_start_key,
+                  //   max_end_key));
+                  //   smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()),
+                  //   max_end_key));
+                  // }else{
+                  //   //
+                  //   smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString())+1,
+                  //   std::stoll(file_meta->largest.user_key().ToString())-1));
+                  //   smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()),
+                  //   std::stoll(file_meta->largest.user_key().ToString())));
+                  // }
+                }
+              } else {
+                {
+                  auto* cfd = c->column_family_data();
+                  TableCache* table_cache = cfd->table_cache();
+                  std::unique_ptr<FragmentedRangeTombstoneIterator>
+                      tombstone_iter;
+
+                  Status s = table_cache->GetRangeTombstoneIterator(
+                      read_options, cfd->internal_comparator(), *file_meta,
+                      cfd->GetLatestMutableCFOptions()
+                          ->block_protection_bytes_per_key,
+                      &tombstone_iter);
+                  size_t size = 0;
+                  if (tombstone_iter) {
+                    tombstone_iter->SeekToFirst();
+                    // TODO: print timestamp
+                    while (tombstone_iter->Valid()) {
+                      if (checking::SystemVerifier::getSystemVerifier()
+                              ->getShowTombstonesDuringCompactionInfo()) {
+                        std::cout << "tombstone_iter->start_key().ToString() = "
+                                  << tombstone_iter->start_key().ToString()
+                                  << " tombstone_iter->end_key().ToString() = "
+                                  << tombstone_iter->end_key().ToString() << " "
+                                  << __FILE__ << ":" << __LINE__ << " "
+                                  << __FILE__ << std::endl;
+                      }
+                      range_tombstones_str.push_back(
+                          std::make_pair(tombstone_iter->start_key().ToString(),
+                                         tombstone_iter->end_key().ToString()));
+
+                      if (checking::SystemVerifier::getSystemVerifier()
+                              ->getShowTombstonesDuringCompactionInfo()) {
+                        std::cout
+                            << "@ compaction" << " "
+                            << "start: "
+                            << tombstone_iter->start_key().ToString()
+                            << " end: " << tombstone_iter->end_key().ToString()
+                            << " seq: " << tombstone_iter->seq() << " "
+                            << __FILE__ << ":" << __LINE__ << " "
+                            << __FUNCTION__ << " " << __FILE__ << ":"
+                            << __LINE__ << " " << __FUNCTION__ << std::endl;
+                      }
+                      size += static_cast<std::string>(
+                                  tombstone_iter->start_key().ToString())
+                                  .size();
+                      size += static_cast<std::string>(
+                                  tombstone_iter->end_key().ToString())
+                                  .size();
+                      size += sizeof(
+                          static_cast<SequenceNumber>(tombstone_iter->seq()));
+                      tombstone_iter->Next();
+                    }
+
+                    tombstone_iter.reset();
+                  }
+                }
+              }
+
+              smallest_largest_boundries_stringkey.push_back(
+                  std::make_pair(file_meta->smallest.user_key().ToString(),
+                                 file_meta->largest.user_key().ToString()));
+              file_numbers.push_back(file_meta->fd.GetNumber());
+
+              // file_in_out_ptr->fd_in.push_back(file_meta->fd.GetNumber());
+              // file_in_out_ptr->file_out.push_back(std::make_tuple(file_meta->fd.GetNumber(),
+              // std::stoll(file_meta->smallest.user_key().ToString()),
+              // std::stoll(file_meta->largest.user_key().ToString())));
+            }
+
+            // directly using file range to move RDs
+            {
+              // // FIXME: ONLY FOR TESTING USE
+              // // std::cout << "Pushing file from Current Level: " <<
+              // c->level(l) << " output Level: " << c->output_level()
+              // //           << " with CompactionInputFiles: " << c->inputs(l)
+              // << std::endl << std::flush;
+              // // std::cout << file_meta->fd.GetNumber() << " --- smallest key
+              // " << file_meta->smallest.user_key().ToString()
+              // //           << " --- largest key " <<
+              // file_meta->largest.user_key().ToString() << std::endl <<
+              // std::flush;
+              // smallest_largest_boundries.push_back(std::make_pair(std::stoll(file_meta->smallest.user_key().ToString()),
+              //                                                     std::stoll(file_meta->largest.user_key().ToString())));
+              // smallest_largest_boundries__str_key.push_back(std::make_pair(file_meta->smallest.user_key().ToString(),
+              //                                                             file_meta->largest.user_key().ToString()));
+              // file_numbers.push_back(file_meta->fd.GetNumber());
+            }
+          }
+
+          if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                  "PLRDF") ||
+              checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                  "SPLIT_PLRDF")) {
+            file_meta_data_vectors->push_back(
+                std::make_tuple(c->level(l), c->output_level(),
+                                smallest_largest_boundries, file_numbers));
+            // file_meta_data_vectors->push_back(
+            //     std::make_tuple(c->level(l), c->output_level(),
+            //                     range_tombstones_pll, file_numbers));
+          }
+
+          if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                  "PLRDF_STRING_KEY") ||
+              checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                  "SPLIT_PLRDF_STRING_KEY")) {
+            file_meta_data_vectors_stringkey->push_back(std::make_tuple(
+                c->level(l), c->output_level(),
+                smallest_largest_boundries_stringkey, file_numbers));
+            // file_meta_data_vectors_stringkey->push_back(
+            //     std::make_tuple(c->level(l), c->output_level(),
+            //                     range_tombstones_str, file_numbers));
+          }
+
+          if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                  "TOP_LEVEL_RDF")) {
+            file_meta_data_vectors_toplevel->push_back(
+                std::make_tuple(c->level(l), c->output_level(),
+                                range_tombstones_pll, file_numbers));
+          }
+
+          if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                  "TOP_LEVEL_RDF_STRING_KEY")) {
+            file_meta_data_vectors_toplevel_stringkey->push_back(
+                std::make_tuple(c->level(l), c->output_level(),
+                                range_tombstones_str, file_numbers));
+          }
+          // if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+          //         "TOP_LEVEL_RDF")) {
+          //   if (c->level(l) == 0) {  // coming from level 0
+          //     delete_RD_vector =
+          //         std::make_tuple(1, range_tombstones_pll, file_numbers);
+          //   }
+          // }
+          // if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+          //         "TOP_LEVEL_RDF_STRING_KEY")) {
+          //   if (c->level(l) == 0) {  // coming from level 0
+          //     delete_RD_vector_stringkey =
+          //         std::make_tuple(1, range_tombstones_str, file_numbers);
+          //   }
+          // }
+
+          if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                  "SuRF_LF_RDF") ||
+              checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                  "SuRF_LF_SPLIT_RDF")) {
+            SuRFCompactionSourceLevelInfo src_level_info =
+                SuRFCompactionSourceLevelInfo();
+            src_level_info.src_level = c->level(l);
+            src_level_info.src_fd_list = file_numbers;
+            src_level_info.range_tombstones_str = range_tombstones_str;
+            if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                    "SuRF_LF_RDF")) {
+              surf__compaction_moving_RD_vector->src_level_info_list.push_back(
+                  src_level_info);
+            }
+            if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+                    "SuRF_LF_SPLIT_RDF")) {
+              surf_level_file_split__compaction_moving_RD_vector
+                  ->src_level_info_list.push_back(src_level_info);
+            }
+          }
+          // Tracing
+          SuRFCompactionSourceLevelInfo src_level_info_tracing =
+              SuRFCompactionSourceLevelInfo();
+          src_level_info_tracing.src_level = c->level(l);
+          src_level_info_tracing.src_fd_list = file_numbers;
+          src_level_info_tracing.range_tombstones_str = range_tombstones_str;
+          tracing_moving_RD_vector->src_level_info_list.push_back(
+              src_level_info_tracing);
         }
-        file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries, file_numbers));
 
-        // surf__file_meta_data_vectors->push_back(std::make_tuple(c->level(l), c->output_level(), smallest_largest_boundries__str_key, file_numbers));
-        SuRFCompactionSourceLevelInfo src_level_info = SuRFCompactionSourceLevelInfo();
-        src_level_info.src_level = c->level(l);
-        // src_level_info.src_file_boundaries = smallest_largest_boundries_str;
-        src_level_info.src_fd_list = file_numbers;
-        surf__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
-        surf_level_file_split__compaction_moving_RD_vector->src_level_info_list.push_back(src_level_info);
-        
-        if(c->level(l) == 0){ // coming from level 0
-          delete_RD_vector = std::make_tuple(1, smallest_largest_boundries, file_numbers);
+        {
+          FileInOut* file_in_out_ptr = new FileInOut();
+          if (checking::SystemVerifier::getSystemVerifier()->usingStringKey() ==
+              false) {
+            for (auto file_meta : *(c->inputs(l))) {
+              file_in_out_ptr->fd_in.push_back(file_meta->fd.GetNumber());
+              file_in_out_ptr->file_out.push_back(std::make_tuple(
+                  file_meta->fd.GetNumber(),
+                  std::stoll(file_meta->smallest.user_key().ToString()),
+                  std::stoll(file_meta->largest.user_key().ToString())));
+            }
+          }
+          c->column_family_data()->set_file_in_out_ptr(file_in_out_ptr);
         }
       }
-      // Self Added End
+      // yucheng Added End
 
       for (size_t i = 0; i < c->num_input_files(l); i++) {
         FileMetaData* f = c->input(l, i);
@@ -3831,57 +4351,134 @@ c->column_family_data()->updateRDF2NewVersion(3, split_flag); // 1 for flush, 2 
       }
     }
 
-    //Self Added Start
-    // std::cout << "[Compaction]: Calling Shift RDF To Output Level for Trivial Compaction .. " << std::endl;
-    surf__compaction_moving_RD_vector->dst_level = c->output_level();
-    surf__compaction_moving_RD_vector->flag_direct_move_to_dst_level = true;
-    
-    surf_level_file_split__compaction_moving_RD_vector->dst_level = c->output_level();
-    surf_level_file_split__compaction_moving_RD_vector->flag_direct_move_to_dst_level = true;
+    // yucheng Added Start
+    if (checking::SystemVerifier::getSystemVerifier()
+            ->hasRDFTypeOtherThanNone() == true) {
+      // std::cout << "[Compaction]: Calling Shift RDF To Output Level for
+      // Trivial Compaction .. " << std::endl;
+      if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+              "SuRF_LF_RDF")) {
+        surf__compaction_moving_RD_vector->dst_level = c->output_level();
+        surf__compaction_moving_RD_vector->flag_direct_move_to_dst_level = true;
+      }
 
-    //rdfilter::PLRDF::getRDFilter()->shiftRDFToOutputLevel(file_meta_data_vectors);
-    c->column_family_data()->set_compaction_moving_RD_vector(*file_meta_data_vectors);
-    c->column_family_data()->set_split__compaction_moving_RD_vector(*file_meta_data_vectors);
-    c->column_family_data()->set_top_level__trivial_move__delete_RD_vector(delete_RD_vector); 
-    c->column_family_data()->set_surf__compaction_moving_RD_vector(surf__compaction_moving_RD_vector);
-    c->column_family_data()->set_surf_level_file_split__compaction_moving_RD_vector(surf_level_file_split__compaction_moving_RD_vector);
+      if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+              "SuRF_LF_SPLIT_RDF")) {
+        surf_level_file_split__compaction_moving_RD_vector->dst_level =
+            c->output_level();
+        surf_level_file_split__compaction_moving_RD_vector
+            ->flag_direct_move_to_dst_level = true;
+      }
+      // Tracing
+      tracing_moving_RD_vector->dst_level = c->output_level();
+      tracing_moving_RD_vector->flag_direct_move_to_dst_level = true;
 
-    // c->column_family_data()->GetSuperVersion()->current->shiftRDFToOutputLevel(file_meta_data_vectors);
-    //Self Added End
-    //Self Added Start
-    if(c->column_family_data()->current()->get_compaction_install_count() > 0){
-      std::cout << "compaction write to version (current_) happens more than once. times = " 
-                << c->column_family_data()->current()->get_compaction_install_count() << __FILE__ << ":" << __LINE__ << std::endl;
-      std::cout << "flush = " << c->column_family_data()->current()->get_flush_install_count() << std::endl;
-      std::cout << "compact = " << c->column_family_data()->current()->get_compaction_install_count() << std::endl;
-      std::cout << "installSuperversion = " << c->column_family_data()->current()->get_installSuperversion_count() << std::endl;
+      // Create and initialize RDFUpdateMetadata
+      auto rdf_update_metadata = std::make_shared<RDFUpdateMetadata>();
+      rdf_update_metadata->type =
+          RDFUpdateMetadata::JobType::kCompactionDirectMoved;
+      rdf_update_metadata->split_flag = false;
+
+      if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+              "PLRDF")) {
+        rdf_update_metadata->plrdf_compaction_delta = *file_meta_data_vectors;
+      }
+      if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+              "SPLIT_PLRDF")) {
+        rdf_update_metadata->split_plrdf_compaction_delta =
+            *file_meta_data_vectors;
+      }
+      if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+              "TOP_LEVEL_RDF")) {
+        rdf_update_metadata->top_level_plrdf_compaction_delta =
+            *file_meta_data_vectors_toplevel;
+      }
+      if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+              "PLRDF_STRING_KEY")) {
+        rdf_update_metadata->plrdf_stringkey_compaction_delta =
+            *file_meta_data_vectors_stringkey;
+      }
+      if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+              "SPLIT_PLRDF_STRING_KEY")) {
+        rdf_update_metadata->split_plrdf_stringkey_compaction_delta =
+            *file_meta_data_vectors_stringkey;
+      }
+      if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+              "TOP_LEVEL_RDF_STRING_KEY")) {
+        rdf_update_metadata->top_level_plrdf_stringkey_compaction_delta =
+            *file_meta_data_vectors_toplevel_stringkey;
+      }
+      if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+              "SuRF_LF_RDF")) {
+        rdf_update_metadata->surf_compaction_info.reset(
+            surf__compaction_moving_RD_vector);
+      }
+      if (checking::SystemVerifier::getSystemVerifier()->containsRDFType(
+              "SuRF_LF_SPLIT_RDF")) {
+        rdf_update_metadata->split_surf_compaction_info.reset(
+            surf_level_file_split__compaction_moving_RD_vector);
+      }
+
+      // Tracing
+      rdf_update_metadata->fd_rangetombstones_info.reset(
+          tracing_moving_RD_vector);
+      c->edit()->SetRDFMetadata(rdf_update_metadata);
+      // yucheng Added End
+      // // yucheng Added Start
+      // if (c->column_family_data()->current()->get_compaction_install_count()
+      // >
+      //     0) {
+      //   std::cout << "compaction write to version (current_) happens more
+      //   than "
+      //                "once. times = "
+      //             << c->column_family_data()
+      //                    ->current()
+      //                    ->get_compaction_install_count()
+      //             << __FILE__ << ":" << __LINE__ << std::endl;
+      //   std::cout
+      //       << "flush = "
+      //       << c->column_family_data()->current()->get_flush_install_count()
+      //       << std::endl;
+      //   std::cout << "compact = "
+      //             << c->column_family_data()
+      //                    ->current()
+      //                    ->get_compaction_install_count()
+      //             << std::endl;
+      //   std::cout << "installSuperversion = "
+      //             << c->column_family_data()
+      //                    ->current()
+      //                    ->get_installSuperversion_count()
+      //             << std::endl;
+      // }
+      // c->column_family_data()->current()->inc_compaction_install_count();
+      // c->column_family_data()->inc_compaction_install_count();
+      // c->column_family_data()->inc_split__compaction_install_count();
     }
-    c->column_family_data()->current()->inc_compaction_install_count();
-    // c->column_family_data()->GetSuperVersion()->current->inc_compaction_install_count();
-    c->column_family_data()->inc_compaction_install_count();
-    c->column_family_data()->inc_split__compaction_install_count();
-    //Self Added End
-
-
+    // yucheng Added End
 
     status = versions_->LogAndApply(
         c->column_family_data(), *c->mutable_cf_options(), read_options,
         c->edit(), &mutex_, directories_.GetDbDir());
     io_s = versions_->io_status();
     // Use latest MutableCFOptions
-  
-std::cout << "@@ BackgroundCompaction A @InstallSuperVersionAndScheduleWork " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//Self Added Start
-//shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
-bool split_flag = false;
-c->column_family_data()->updateRDF2NewVersion(2, split_flag); // 1 for flush, 2 for compaction, 3 for compaction direcly deleted flie
-//Self Added End
+
+    // // yucheng Added Start
+    // // shall be called before  InstallSuperversion /
+    // // InstallSuperVersionAndScheduleWork
+    // if (checking::SystemVerifier::getSystemVerifier()
+    //         ->hasRDFTypeOtherThanNone() == true) {
+    //   bool split_flag = false;
+    //   c->column_family_data()->updateRDF2NewVersion(
+    //       2, split_flag);  // 1 for flush, 2 for compaction, 3 for compaction
+    //                        // direcly deleted file
+    // }
+    // // yucheng Added End
     InstallSuperVersionAndScheduleWork(c->column_family_data(),
                                        &job_context->superversion_contexts[0],
                                        *c->mutable_cf_options());
-// //Self Added
-// // old_superversion->current->clear_flush_install_count_clr();
-// c->column_family_data()->current()->clear_compaction_install_count_clr();
+    // //Self Added
+    // // old_superversion->current->clear_flush_install_count_clr();
+    // c->column_family_data()->current()->clear_compaction_install_count_clr();
 
     VersionStorageInfo::LevelSummaryStorage tmp;
     c->column_family_data()->internal_stats()->IncBytesMoved(c->output_level(),
@@ -3926,7 +4523,8 @@ c->column_family_data()->updateRDF2NewVersion(2, split_flag); // 1 for flush, 2 
     // Transfer requested token, so it doesn't need to do it again.
     ca->prepicked_compaction->task_token = std::move(task_token);
     ++bg_bottom_compaction_scheduled_;
-    // std::cout << "[Compaction]: Scheduling Bottom Level Compaction .. " << std::endl;
+    // std::cout << "[Compaction]: Scheduling Bottom Level Compaction .. " <<
+    // std::endl;
 
     env_->Schedule(&DBImpl::BGWorkBottomCompaction, ca, Env::Priority::BOTTOM,
                    this, &DBImpl::UnscheduleCompactionCallback);
@@ -3943,7 +4541,7 @@ c->column_family_data()->updateRDF2NewVersion(2, split_flag); // 1 for flush, 2 
     GetSnapshotContext(job_context, &snapshot_seqs,
                        &earliest_write_conflict_snapshot, &snapshot_checker);
     assert(is_snapshot_supported_ || snapshots_.empty());
- 
+
     CompactionJob compaction_job(
         job_context->job_id, c.get(), immutable_db_options_,
         mutable_db_options_, file_options_for_compaction_, versions_.get(),
@@ -3968,43 +4566,30 @@ c->column_family_data()->updateRDF2NewVersion(2, split_flag); // 1 for flush, 2 
     TEST_SYNC_POINT_CALLBACK(
         "DBImpl::BackgroundCompaction:NonTrivial:BeforeRun", nullptr);
     // Should handle error?
-    mutex_.Lock(); // Self Added: Move up to here ### <----------------
+    mutex_.Lock();  // Self Added: Move up to here ### <----------------
     compaction_job.Run().PermitUncheckedError();
     TEST_SYNC_POINT("DBImpl::BackgroundCompaction:NonTrivial:AfterRun");
     // mutex_.Lock();
 
-    // std::cout << "[Compaction]: Performing Scheduled Compaction .. " << std::endl;
-    //Self Added Start
-    if(c->column_family_data()->current()->get_compaction_install_count() > 0){
-      std::cout << "compaction write to version (current_) happens more than once. times = " 
-                << c->column_family_data()->current()->get_compaction_install_count() << __FILE__ << ":" << __LINE__ << std::endl;
-      std::cout << "flush = " << c->column_family_data()->current()->get_flush_install_count() << std::endl;
-      std::cout << "compact = " << c->column_family_data()->current()->get_compaction_install_count() << std::endl;
-      std::cout << "installSuperversion = " << c->column_family_data()->current()->get_installSuperversion_count() << std::endl;
-    }
-    c->column_family_data()->current()->inc_compaction_install_count();
-    // c->column_family_data()->GetSuperVersion()->current->inc_compaction_install_count();
-    c->column_family_data()->inc_compaction_install_count();
-    c->column_family_data()->inc_split__compaction_install_count();
-    //Self Added End
-
-
+    // std::cout << "[Compaction]: Performing Scheduled Compaction .. " <<
+    // std::endl;
 
     status = compaction_job.Install(*c->mutable_cf_options());
     io_s = compaction_job.io_status();
     if (status.ok()) {
-// std::cout << "@@ BackgroundCompaction A @InstallSuperVersionAndScheduleWork " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-//Self Added Start
-//shall be called before  InstallSuperversion / InstallSuperVersionAndScheduleWork
-bool split_flag = true;
-c->column_family_data()->updateRDF2NewVersion(2, split_flag); // 1 for flush, 2 for compaction, 3 for compaction direcly deleted flie
-//Self Added End
+      // //yucheng Added Start
+      // //shall be called before  InstallSuperversion /
+      // InstallSuperVersionAndScheduleWork
+      // if(checking::SystemVerifier::getSystemVerifier()->hasRDFTypeOtherThanNone()
+      // == true){
+      //   bool split_flag = true;
+      //   c->column_family_data()->updateRDF2NewVersion(2, split_flag); // 1
+      //   for flush, 2 for compaction, 3 for compaction direcly deleted file
+      // }
+      // //yucheng Added End
       InstallSuperVersionAndScheduleWork(c->column_family_data(),
                                          &job_context->superversion_contexts[0],
                                          *c->mutable_cf_options());
-// //Self Added
-// // old_superversion->current->clear_flush_install_count_clr();
-// c->column_family_data()->current()->clear_compaction_install_count_clr();
     }
     *made_progress = true;
     TEST_SYNC_POINT_CALLBACK("DBImpl::BackgroundCompaction:AfterCompaction",
@@ -4304,7 +4889,6 @@ void DBImpl::InstallSuperVersionAndScheduleWork(
     sv_context->NewSuperVersion();
   }
 
-// std::cout << "@@ cfd = " << cfd << " , name = "<< cfd->GetName() << " " << __FILE__ << ":" << __LINE__ << std::endl;
   cfd->InstallSuperVersion(sv_context, mutable_cf_options);
 
   // There may be a small data race here. The snapshot tricking bottommost

@@ -66,10 +66,9 @@
 #include "util/stop_watch.h"
 #include "util/thread_local.h"
 
-//Self Added
+// Self Added
 #include "cache/lru_cache.h"
 #include "include/rocksdb/SuRF/include/surf.hpp"
-
 
 namespace ROCKSDB_NAMESPACE {
 
@@ -178,72 +177,75 @@ class Directories {
 // divided in several db_impl_*.cc files, besides db_impl.cc.
 class DBImpl : public DB {
  public:
+  // Self Added start
+  Status CleanTableCache(ColumnFamilyHandle* column_family,
+                         std::ostream& ofile) override {
+    auto* cfd =
+        static_cast_with_check<ColumnFamilyHandleImpl>(column_family)->cfd();
+    TableCache* table_cache = cfd->table_cache();
+    // CacheInterface& cache_ = table_cache->GetCache();
+    Cache* cache = table_cache->get_cache().get();
+    // only for LRUCache
+    // using LRUCache = lru_cache::LRUCache;
+    //  std::shared_ptr<LRUCache> cache_lru =
+    //  std::static_pointer_cast<LRUCache>(cache);
+    LRUCache* cache_lru = (LRUCache*)cache;
+    ofile << "LRU Name = " << string(cache_lru->Name()) << " " << __FILE__
+          << ":" << __LINE__ << std::endl;
 
+    ofile << "Before erasing table_cache " << __FILE__ << ":" << __LINE__
+          << std::endl;
+    // table_cache->EvictAll();
+    size_t capacity = cache->GetCapacity();
+    size_t usage = cache->GetUsage();
+    size_t occupancyCount = cache->GetOccupancyCount();
+    size_t GetTableAddressCount = cache->GetTableAddressCount();
+    size_t GetPinnedUsage = cache->GetPinnedUsage();
+    std::string printableOptions = cache->GetPrintableOptions();
 
+    ofile << "capacity: " << capacity << " " << __FILE__ << ":" << __LINE__
+          << std::endl;
+    ofile << "usage: " << usage << " " << __FILE__ << ":" << __LINE__
+          << std::endl;
+    ofile << "occupancyCount: " << occupancyCount << " " << __FILE__ << ":"
+          << __LINE__ << std::endl;
+    ofile << "GetTableAddressCount: " << GetTableAddressCount << " " << __FILE__
+          << ":" << __LINE__ << std::endl;
+    ofile << "GetPinnedUsage: " << GetPinnedUsage << " " << __FILE__ << ":"
+          << __LINE__ << std::endl;
+    ofile << "printableOptions: " << printableOptions << " " << __FILE__ << ":"
+          << __LINE__ << std::endl;
 
+    cache->EraseUnRefEntries();
+    // cache = NewLRUCache(32*1024*1024).get();
 
+    ofile << "After erasing table_cache " << __FILE__ << ":" << __LINE__
+          << std::endl;
 
-    //Self Added start
-    Status CleanTableCache(ColumnFamilyHandle* column_family, std::ostream& ofile) override {
-      auto *cfd = static_cast_with_check<ColumnFamilyHandleImpl>(column_family)->cfd();
-      TableCache* table_cache = cfd->table_cache();
-      // CacheInterface& cache_ = table_cache->GetCache();
-      Cache* cache = table_cache->get_cache().get();
-      //only for LRUCache
-      //using LRUCache = lru_cache::LRUCache;
-      // std::shared_ptr<LRUCache> cache_lru = std::static_pointer_cast<LRUCache>(cache);
-      LRUCache* cache_lru = (LRUCache*) cache;
-      ofile << "LRU Name = " << string(cache_lru->Name()) << " " << __FILE__ << ":" << __LINE__ << std::endl;
+    capacity = cache->GetCapacity();
+    usage = cache->GetUsage();
+    occupancyCount = cache->GetOccupancyCount();
+    GetTableAddressCount = cache->GetTableAddressCount();
+    GetPinnedUsage = cache->GetPinnedUsage();
+    printableOptions = cache->GetPrintableOptions();
 
-      ofile << "Before erasing table_cache " << __FILE__ << ":" << __LINE__ << std::endl;
-      // table_cache->EvictAll();
-      size_t capacity = cache->GetCapacity();
-      size_t usage = cache->GetUsage();
-      size_t occupancyCount = cache->GetOccupancyCount();
-      size_t GetTableAddressCount = cache->GetTableAddressCount();
-      size_t GetPinnedUsage = cache->GetPinnedUsage();
-      std::string printableOptions =  cache->GetPrintableOptions();
+    ofile << "capacity: " << capacity << " " << __FILE__ << ":" << __LINE__
+          << std::endl;
+    ofile << "usage: " << usage << " " << __FILE__ << ":" << __LINE__
+          << std::endl;
+    ofile << "occupancyCount: " << occupancyCount << " " << __FILE__ << ":"
+          << __LINE__ << std::endl;
+    ofile << "GetTableAddressCount: " << GetTableAddressCount << " " << __FILE__
+          << ":" << __LINE__ << std::endl;
+    ofile << "GetPinnedUsage: " << GetPinnedUsage << " " << __FILE__ << ":"
+          << __LINE__ << std::endl;
+    ofile << "printableOptions: " << printableOptions << " " << __FILE__ << ":"
+          << __LINE__ << std::endl;
 
-      ofile << "capacity: " << capacity << " " << __FILE__ << ":" << __LINE__ << std::endl;
-      ofile << "usage: " << usage << " " << __FILE__ << ":" << __LINE__ << std::endl;
-      ofile << "occupancyCount: " << occupancyCount << " " << __FILE__ << ":" << __LINE__ << std::endl;
-      ofile << "GetTableAddressCount: " << GetTableAddressCount << " " << __FILE__ << ":" << __LINE__ << std::endl;
-      ofile << "GetPinnedUsage: " << GetPinnedUsage << " " << __FILE__ << ":" << __LINE__ << std::endl;
-      ofile << "printableOptions: " << printableOptions << " " << __FILE__ << ":" << __LINE__ << std::endl;
+    return Status::OK();
+  }
 
-      cache->EraseUnRefEntries();
-      // cache = NewLRUCache(32*1024*1024).get();
-
-      ofile << "After erasing table_cache " << __FILE__ << ":" << __LINE__ << std::endl;
-
-      capacity = cache->GetCapacity();
-      usage = cache->GetUsage();
-      occupancyCount = cache->GetOccupancyCount();
-      GetTableAddressCount = cache->GetTableAddressCount();
-      GetPinnedUsage = cache->GetPinnedUsage();
-      printableOptions =  cache->GetPrintableOptions();
-
-      ofile << "capacity: " << capacity << " " << __FILE__ << ":" << __LINE__ << std::endl;
-      ofile << "usage: " << usage << " " << __FILE__ << ":" << __LINE__ << std::endl;
-      ofile << "occupancyCount: " << occupancyCount << " " << __FILE__ << ":" << __LINE__ << std::endl;
-      ofile << "GetTableAddressCount: " << GetTableAddressCount << " " << __FILE__ << ":" << __LINE__ << std::endl;
-      ofile << "GetPinnedUsage: " << GetPinnedUsage << " " << __FILE__ << ":" << __LINE__ << std::endl;
-      ofile << "printableOptions: " << printableOptions << " " << __FILE__ << ":" << __LINE__ << std::endl;
-
-
-      return Status::OK();
-    }
-
-    //Self Added end
-
-
-
-
-
-
-
-
-
+  // Self Added end
 
   DBImpl(const DBOptions& options, const std::string& dbname,
          const bool seq_per_batch = false, const bool batch_per_txn = true,
@@ -534,7 +536,7 @@ class DBImpl : public DB {
 
   virtual Status Close() override;
 
-  //Self Added Start
+  // Self Added Start
   virtual Status printAllFileRanges() override;
   virtual Status printRDF() override;
   virtual uint getFlushQueueSize() override;
@@ -544,48 +546,88 @@ class DBImpl : public DB {
   virtual uint getTotalNumberOfSSTFiles() override;
   virtual int getPLRDFNumberOfTotalRanges() override;
   virtual int getSplitPLRDFNumberOfTotalRanges() override;
+  virtual int getPLRDFStringKeyNumberOfTotalRanges() override;
+  virtual int getSplitPLRDFStringKeyNumberOfTotalRanges() override;
   virtual int getTopLevelRDFNumberOfTotalRanges() override;
+  virtual int getTopLevelRDFStringKeyNumberOfTotalRanges() override;
   virtual int getSkylineRDFNumberOfTotalRanges() override;
   virtual int getSuRFLevelFileRDFNumberOfTotalRanges() override;
   virtual int getSuRFLevelFileSplitRDFNumberOfTotalRanges() override;
+  virtual int getRTRocksDBNumberOfTotalMemoryUsage() override;
+  virtual int getRTRocksDBNumberOfTotalMemoryUsageIncludedTimestamp() override;
+  virtual int getPLRDFNumberOfTotalMemoryUsage() override;
+  virtual int getSplitPLRDFNumberOfTotalMemoryUsage() override;
+  virtual int getPLRDFStringKeyNumberOfTotalMemoryUsage() override;
+  virtual int getSplitPLRDFStringKeyNumberOfTotalMemoryUsage() override;
+  virtual int getTopLevelRDFNumberOfTotalMemoryUsage() override;
+  virtual int getTopLevelRDFStringKeyNumberOfTotalMemoryUsage() override;
+  virtual int getSkylineRDFNumberOfTotalMemoryUsage() override;
+  virtual int getSuRFLevelFileRDFNumberOfTotalMemoryUsage() override;
+  virtual int getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() override;
   std::vector<int> getLogOfNumbersOfRangesInOrigin() override;
   std::vector<int> getLogOfNumbersOfRangesInPLRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() override;
+  std::vector<int> getLogOfNumbersOfRangesInPLRDFStringKey() override;
+  std::vector<int> getLogOfNumbersOfRangesInSplitPLRDFStringKey() override;
   std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() override;
+  std::vector<int> getLogOfNumbersOfRangesInTopLevelRDFStringKey() override;
   std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF() override;
   std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF() override;
   std::vector<int> getLogOfMemoryUsageInOrigin() override;
   std::vector<int> getLogOfMemoryUsageInPLRDF() override;
   std::vector<int> getLogOfMemoryUsageInSplitRDF() override;
+  std::vector<int> getLogOfMemoryUsageInPLRDFStringKey() override;
+  std::vector<int> getLogOfMemoryUsageInSplitRDFStringKey() override;
   std::vector<int> getLogOfMemoryUsageInTopLevelRDF() override;
+  std::vector<int> getLogOfMemoryUsageInTopLevelRDFStringKey() override;
   std::vector<int> getLogOfMemoryUsageInSkylineRDF() override;
   std::vector<int> getLogOfMemoryUsageInSuRFLevelFileRDF() override;
   std::vector<int> getLogOfMemoryUsageInSuRFLevelFileSplitRDF() override;
+
+  double getFilterFalsePositiveRateInPLRDFStringKey() override;
+  double getFilterFalsePositiveRateInSplitPLRDFStringKey() override;
+  void clearFilterFalsePositiveRateInPLRDFStringKey() override;
+  void clearFilterFalsePositiveRateInSplitPLRDFStringKey() override;
+  double getFilterFalsePositiveRateInTopLevelRDFStringKey() override;
+  void clearFilterFalsePositiveRateInTopLevelRDFStringKey() override;
+
+  double getFilterFalsePositiveRateInSuRFLevelFileRDF() override;
+  double getFilterFalsePositiveRateInSuRFLevelFileSplitRDF() override;
+  void clearFilterFalsePositiveRateInSuRFLevelFileRDF() override;
+  void clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF() override;
+
   // std::vector<int> getLogOfMemoryUsageInSuRFTopLevelRDF() override;
   std::mutex self_single_flush_mutex_;
 
-  const PLRDF * getPLRDF() override;
-  const PLRDF *getSplitPLRDF() override;
-  const PLRDF *getTopLevelRDF() override;
-  const SkyLineRDF *getSkylineRDF() override;
+  const PLRDF* getPLRDF() override;
+  const PLRDF* getSplitPLRDF() override;
+  const PLRDF_t<std::string>* getPLRDFStringKey() override;
+  const PLRDF_t<std::string>* getSplitPLRDFStringKey() override;
+  const PLRDF* getTopLevelRDF() override;
+  const PLRDF_t<std::string>* getTopLevelRDFStringKey() override;
+  const SkyLineRDF* getSkylineRDF() override;
   // const std::vector<t3ll> *getSkylineRDF() override;
   // const std::vector<int> *getSkylineNumbersOfRangesInRDFLog() override;
   // const surf::SuRF_RDF *getSuRFTopLevelRDF() override;
-  const surf::SuRF_RDF *getSuRFLevelFileRDF() override;
-  const surf::SuRF_RDF *getSuRFLevelFileSplitRDF() override;
+  const surf::SuRF_RDF* getSuRFLevelFileRDF() override;
+  const surf::SuRF_RDF* getSuRFLevelFileSplitRDF() override;
   using DB::setPLRDF;
   // void setPLRDF( std::vector<int> v) override;
-  void setPLRDF( PLRDF *plrdf) override;
-  void setSplitPLRDF( PLRDF *plrdf) override;
-  void setTopLevelRDF( PLRDF *plrdf) override;
-  void setSkylineRDF( SkyLineRDF *skylineRDF) override;
-  // void setSkylineRDF( std::vector<t3ll> *skylineRDF) override;
-  // void setSkylineNumbersOfRangesInRDFLog( std::vector<int> *logOfNumbersOfRangesInPLRDF) override;
-  // void setSuRFTopLevelRDF( surf::SuRF_RDF *suRFTopLevelRDF) override;
-  void setSuRFLevelFileRDF( surf::SuRF_RDF *suRFLevelFileRDF) override;
-  void setSuRFLevelFileSplitRDF( surf::SuRF_RDF *suRFLevelFileRDF) override;
-  //Self Added End
+  // void setPLRDF( PLRDF *plrdf) override;
+  // void setSplitPLRDF( PLRDF *plrdf) override;
+  // void setPLRDFStringKey( PLRDF_t<std::string> *plrdf) override;
+  // void setSplitPLRDFStringKey( PLRDF_t<std::string> *plrdf) override;
+  // void setTopLevelRDF( PLRDF *plrdf) override;
+  // void setTopLevelRDFStringKey( PLRDF_t<std::string> *plrdf) override;
+  // void setSkylineRDF( SkyLineRDF *skylineRDF) override;
+  // // void setSkylineRDF( std::vector<t3ll> *skylineRDF) override;
+  // // void setSkylineNumbersOfRangesInRDFLog( std::vector<int>
+  // *logOfNumbersOfRangesInPLRDF) override;
+  // // void setSuRFTopLevelRDF( surf::SuRF_RDF *suRFTopLevelRDF) override;
+  // void setSuRFLevelFileRDF( surf::SuRF_RDF *suRFLevelFileRDF) override;
+  // void setSuRFLevelFileSplitRDF( surf::SuRF_RDF *suRFLevelFileRDF) override;
+  // Self Added End
 
   virtual Status DisableFileDeletions() override;
 
@@ -606,8 +648,7 @@ class DBImpl : public DB {
   virtual Status GetSortedWalFiles(VectorLogPtr& files) override;
   virtual Status GetCurrentWalFile(
       std::unique_ptr<LogFile>* current_log_file) override;
-  virtual Status GetCreationTimeOfOldestFile(
-      uint64_t* creation_time) override;
+  virtual Status GetCreationTimeOfOldestFile(uint64_t* creation_time) override;
 
   virtual Status GetUpdatesSince(
       SequenceNumber seq_number, std::unique_ptr<TransactionLogIterator>* iter,
@@ -723,7 +764,6 @@ class DBImpl : public DB {
   virtual Status GetPropertiesOfTablesInRange(
       ColumnFamilyHandle* column_family, const Range* range, std::size_t n,
       TablePropertiesCollection* props) override;
-
 
   // ---- End of implementations of the DB interface ----
   SystemClock* GetSystemClock() const;
@@ -1863,8 +1903,8 @@ class DBImpl : public DB {
     const InternalKey* begin = nullptr;  // nullptr means beginning of key range
     const InternalKey* end = nullptr;    // nullptr means end of key range
     InternalKey* manual_end = nullptr;   // how far we are compacting
-    InternalKey tmp_storage;      // Used to keep track of compaction progress
-    InternalKey tmp_storage1;     // Used to keep track of compaction progress
+    InternalKey tmp_storage;   // Used to keep track of compaction progress
+    InternalKey tmp_storage1;  // Used to keep track of compaction progress
 
     // When the user provides a canceled pointer in CompactRangeOptions, the
     // above varaibe is the reference of the user-provided
@@ -2953,7 +2993,5 @@ inline Status DBImpl::FailIfTsMismatchCf(ColumnFamilyHandle* column_family,
   }
   return Status::OK();
 }
-
-
 
 }  // namespace ROCKSDB_NAMESPACE
