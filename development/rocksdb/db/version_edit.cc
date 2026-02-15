@@ -18,10 +18,7 @@
 #include "util/coding.h"
 #include "util/string_util.h"
 
-
-
 namespace ROCKSDB_NAMESPACE {
-
 
 namespace {}  // anonymous namespace
 
@@ -58,6 +55,15 @@ Status FileMetaData::UpdateBoundaries(const Slice& key, const Slice& value,
   largest.DecodeFrom(key);
   fd.smallest_seqno = std::min(fd.smallest_seqno, seqno);
   fd.largest_seqno = std::max(fd.largest_seqno, seqno);
+
+  if (smallest_point_key_ych.empty() ||
+      key.compare(Slice(smallest_point_key_ych)) < 0) {
+    smallest_point_key_ych = key.ToString();
+  }
+  if (largest_point_key_ych.empty() ||
+      key.compare(Slice(largest_point_key_ych)) > 0) {
+    largest_point_key_ych = key.ToString();
+  }
 
   return Status::OK();
 }
@@ -247,6 +253,22 @@ bool VersionEdit::EncodeTo(std::string* dst) const {
       PutVarint64(&varint_tail_size, f.tail_size);
       PutLengthPrefixedSlice(dst, Slice(varint_tail_size));
     }
+    if (!f.smallest_point_key_ych.empty()) {
+      PutVarint32(dst, NewFileCustomTag::kSmallestPointKeyYCH);
+      PutLengthPrefixedSlice(dst, f.smallest_point_key());
+    }
+    if (!f.largest_point_key_ych.empty()) {
+      PutVarint32(dst, NewFileCustomTag::kLargestPointKeyYCH);
+      PutLengthPrefixedSlice(dst, f.largest_point_key());
+    }
+    if (!f.smallest_rangetombstone_key_ych.empty()) {
+      PutVarint32(dst, NewFileCustomTag::kSmallestRangeTombstoneKeyYCH);
+      PutLengthPrefixedSlice(dst, f.smallest_rangetombstone_key());
+    }
+    if (!f.largest_rangetombstone_key_ych.empty()) {
+      PutVarint32(dst, NewFileCustomTag::kLargestRangeTombstoneKeyYCH);
+      PutLengthPrefixedSlice(dst, f.largest_rangetombstone_key());
+    }
 
     TEST_SYNC_POINT_CALLBACK("VersionEdit::EncodeTo:NewFile4:CustomizeFields",
                              dst);
@@ -429,6 +451,18 @@ const char* VersionEdit::DecodeNewFile4From(Slice* input) {
           if (!GetVarint64(&field, &f.tail_size)) {
             return "invalid tail start offset";
           }
+          break;
+        case kSmallestPointKeyYCH:
+          f.smallest_point_key_ych = field.ToString();
+          break;
+        case kLargestPointKeyYCH:
+          f.largest_point_key_ych = field.ToString();
+          break;
+        case kSmallestRangeTombstoneKeyYCH:
+          f.smallest_rangetombstone_key_ych = field.ToString();
+          break;
+        case kLargestRangeTombstoneKeyYCH:
+          f.largest_rangetombstone_key_ych = field.ToString();
           break;
         default:
           if ((custom_tag & kCustomTagNonSafeIgnoreMask) != 0) {

@@ -22,6 +22,9 @@
 #include "port/malloc.h"
 #include "rocksdb/advanced_cache.h"
 #include "rocksdb/advanced_options.h"
+#include "rocksdb/options.h"
+#include "rocksdb/slice.h"
+#include "rocksdb/status.h"
 #include "table/table_reader.h"
 #include "table/unique_id_impl.h"
 #include "util/autovector.h"
@@ -29,6 +32,7 @@
 // #include "self_RD/range_delete_filter/range_delete_filter.h"
 #include <utility>
 
+#include "rocksdb/sys_rdfilter.h"
 
 namespace ROCKSDB_NAMESPACE {
 
@@ -95,6 +99,10 @@ enum NewFileCustomTag : uint32_t {
   kEpochNumber = 13,
   kCompensatedRangeDeletionSize = 14,
   kTailSize = 15,
+  kSmallestPointKeyYCH = 16,
+  kLargestPointKeyYCH = 17,
+  kSmallestRangeTombstoneKeyYCH = 18,
+  kLargestRangeTombstoneKeyYCH = 19,
 
   // If this bit for the custom tag is set, opening DB should fail if
   // we don't know this field.
@@ -176,11 +184,6 @@ struct FileSampledStats {
 };
 
 struct FileMetaData {
-  //Self Added
-  // long long rd_smallest = 0; // Smallest RD key
-  // long long rd_largest = 0; // Largest RD key
-  // static std::vector<PL_RDF> per_level_range_delete_filter; //Self Added, ranges don't split when inserts come//added by ychaung
-
   FileDescriptor fd;
   InternalKey smallest;  // Smallest internal key served by table
   InternalKey largest;   // Largest internal key served by table
@@ -199,7 +202,7 @@ struct FileMetaData {
   uint64_t compensated_file_size = 0;
   // These values can mutate, but they can only be read or written from
   // single-threaded LogAndApply thread
-  uint64_t num_entries = 0;     // the number of entries.
+  uint64_t num_entries = 0;  // the number of entries.
   // The number of deletion entries, including range deletions.
   uint64_t num_deletions = 0;
   uint64_t raw_key_size = 0;    // total uncompressed key size.
@@ -252,6 +255,21 @@ struct FileMetaData {
   // "Tail" refers to all blocks after data blocks till the end of the SST file
   uint64_t tail_size = 0;
 
+  // ych added
+  std::string smallest_point_key_ych = "";
+  std::string largest_point_key_ych = "";
+  std::string smallest_rangetombstone_key_ych = "";
+  std::string largest_rangetombstone_key_ych = "";
+
+  Slice smallest_point_key() const { return Slice(smallest_point_key_ych); }
+  Slice largest_point_key() const { return Slice(largest_point_key_ych); }
+  Slice smallest_rangetombstone_key() const {
+    return Slice(smallest_rangetombstone_key_ych);
+  }
+  Slice largest_rangetombstone_key() const {
+    return Slice(largest_rangetombstone_key_ych);
+  }
+
   FileMetaData() = default;
 
   FileMetaData(uint64_t file, uint32_t file_path_id, uint64_t file_size,
@@ -301,6 +319,17 @@ struct FileMetaData {
     assert(icmp.Compare(smallest, largest) <= 0);
     fd.smallest_seqno = std::min(fd.smallest_seqno, seqno);
     fd.largest_seqno = std::max(fd.largest_seqno, seqno);
+
+    if (smallest_rangetombstone_key_ych.empty() ||
+        icmp.Compare(start, InternalKey(smallest_rangetombstone_key_ych, 0,
+                                        kTypeValue)) < 0) {
+      smallest_rangetombstone_key_ych = start.Encode().ToString();
+    }
+    if (largest_rangetombstone_key_ych.empty() ||
+        icmp.Compare(end, InternalKey(largest_rangetombstone_key_ych, 0,
+                                      kTypeValue)) > 0) {
+      largest_rangetombstone_key_ych = end.Encode().ToString();
+    }
   }
 
   // Try to get oldest ancester time from the class itself or table properties
@@ -640,6 +669,13 @@ class VersionEdit {
     full_history_ts_low_ = std::move(full_history_ts_low);
   }
 
+  void SetRDFMetadata(std::shared_ptr<RDFUpdateMetadata> rdf_metadata) {
+    rdf_metadata_ = std::move(rdf_metadata);
+  }
+  const std::shared_ptr<RDFUpdateMetadata>& GetRDFMetadata() const {
+    return rdf_metadata_;
+  }
+
   // return true on success.
   bool EncodeTo(std::string* dst) const;
   Status DecodeFrom(const Slice& src);
@@ -647,17 +683,12 @@ class VersionEdit {
   std::string DebugString(bool hex_key = false) const;
   std::string DebugJSON(int edit_num, bool hex_key = false) const;
 
-  //Self Added
-  // void storeRange2RDFTest(RangeTombstone tombStone){
-  //   RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
+  // void SetRDFMetadata(std::shared_ptr<RDFUpdateMetadata> rdf_update_metadata)
+  // {
+  //   rdf_update_metadata_ = rdf_update_metadata;
   // }
-
-  // void printRDFTest(){
-  //   std::cout << "@version_edit.h" << std::endl;
-  //   for(auto x: RDF_test){
-  //     std::cout << x.first << " " << x.second << std::endl;
-  //   }
-  //   std::cout << std::endl << std::endl;
+  // std::shared_ptr<RDFUpdateMetadata> GetRDFMetadata() const {
+  //   return rdf_update_metadata_;
   // }
 
  private:
@@ -670,9 +701,6 @@ class VersionEdit {
   friend class VersionSet;
   friend class Version;
   friend class AtomicGroupReadBuffer;
-
-  // std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
-  // std::vector<std::pair<long long, long long>> RDF_test; //Self Added
 
   bool GetLevel(Slice* input, int* level, const char** msg);
 
@@ -723,6 +751,8 @@ class VersionEdit {
   uint32_t remaining_entries_ = 0;
 
   std::string full_history_ts_low_;
+
+  std::shared_ptr<RDFUpdateMetadata> rdf_metadata_;
 };
 
 }  // namespace ROCKSDB_NAMESPACE
