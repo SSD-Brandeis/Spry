@@ -156,9 +156,10 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
 
   //YuCheng Added Start
   args::ValueFlag<std::string> using_rdf_types_cmd(group1, "using_rdf_types", 
-                                                  "using_rdf_types_cmd [def:NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,TOP_LEVEL_RDF,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY]", 
+                                                  "using_rdf_types_cmd [def:NONE_DUMMY,NONE_CACHE_RANGETOMBSTONE_TRACING,NONE,NONE2,PLRDF,SPLIT_PLRDF,PLRDF_STRING_KEY,SPLIT_PLRDF_STRING_KEY,TOP_LEVEL_RDF,SKYLINE_RDF,SuRF_LF_RDF,SuRF_LF_SPLIT_RDF,NONE_DUMMY]", 
                                                   {"using_rdf_types"});
-
+                                                  
+  args::ValueFlag<int> use_string_key_cmd(group1, "use_string_key", "use_string_key [def: 0 (false -> digit key)]", {"use_string_key"});
   args::ValueFlag<double> key_size_to_insert_cmd(group1, "key_size_to_insert", "key_size_to_insert [def: 12]", {"key_size_to_insert"});
 
   args::ValueFlag<double> cor_cmd(group1, "#correlation", "Correlation between sort key and delete key [def: 0]", {"correlation"});
@@ -171,7 +172,12 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   args::ValueFlag<int> load_pq_workload_cmd(group1, "load_pq_workload", "want to load pq workload [def:1]", {"load_pq_workload"});
   args::ValueFlag<int> max_open_files_cmd(group1, "max_open_files", "maximum number of opened SST [def:1]", {"max_open_files"});
   args::ValueFlag<int> skip_reading_RD_blocks_cmd(group1, "skip reading RD blocks", "skip_reading_RD_blocks [def:0 (false)]", {"skip_reading_RD_blocks"});
-  args::ValueFlag<int> number_of_PQ_cmd(group1, "number_of_PQ", "number_of_PQ [def:5000]", {"number_of_PQ"});
+  // args::ValueFlag<int> number_of_PQ_cmd(group1, "number_of_PQ", "number_of_PQ [def:5000]", {"number_of_PQ"});
+  args::ValueFlag<int> number_of_PQ_on_existing_keys_cmd(group1, "number_of_PQ_on_existing_keys", "number_of_PQs_on_existing_keys [def:5000]", {"number_of_PQ_on_existing_keys"});
+  args::ValueFlag<int> number_of_PQ_on_historic_existing_keys_cmd(group1, "number_of_PQ_on_historic_existing_keys", "number_of_PQ_on_historic_existing_keys [def:5000]", {"number_of_PQ_on_historic_existing_keys"});
+  args::ValueFlag<int> number_of_PQ_on_currently_deleted_keys_cmd(group1, "number_of_PQ_on_currently_deleted_keys", "number_of_PQ_on_currently_deleted_keys [def:5000]", {"number_of_PQ_on_currently_deleted_keys"});
+  args::ValueFlag<int> number_of_PQ_on_currently_non_inserted_keys_cmd(group1, "number_of_PQ_on_currently_non_inserted_keys", "number_of_PQ_on_currently_non_inserted_keys [def:5000]", {"number_of_PQ_on_currently_non_inserted_keys"});
+  
   args::ValueFlag<bool> system_check_test_on_all_PQ_cmd(group1, "system_check_test_on_all_PQ", "system_check_test_on_all_PQ [def:0]", {"system_check_test_on_all_PQ"});
 
   args::ValueFlag<bool> log_during_insertion_cmd(group1, "log_during_insertion", "log_during_insertion [def:0 (false)]", {"log_during_insertion"});
@@ -241,7 +247,9 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
 
 
   //YuCheng Added Start
-  std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE_CACHE_RANGETOMBSTONE_TRACING"}, {2, "NONE"}, {3, "NONE2"}, {4, "PLRDF"}, {5, "SPLIT_PLRDF"}, {6, "TOP_LEVEL_RDF"}, {7, "SKYLINE_RDF"},  {8, "SuRF_LF_RDF"},  {9, "SuRF_LF_SPLIT_RDF"}, {10, "NONE_DUMMY"}};
+  std::unordered_map<int, std::string> RDFTypes = {{0, "NONE_DUMMY"}, {1, "NONE_CACHE_RANGETOMBSTONE_TRACING"}, {2, "NONE"}, {3, "NONE2"}, {4, "PLRDF"}, {5, "SPLIT_PLRDF"}, {6, "PLRDF_STRING_KEY"}, {7, "SPLIT_PLRDF_STRING_KEY"},
+                                                   {8, "TOP_LEVEL_RDF"}, {9, "SKYLINE_RDF"},  {10, "SuRF_LF_RDF"},  {11, "SuRF_LF_SPLIT_RDF"}, {12, "NONE_DUMMY"}};
+  std::unordered_set<std::string> RDFStringKeyTypeSet = {"PLRDF_STRING_KEY", "SPLIT_PLRDF_STRING_KEY", "SuRF_LF_RDF", "SuRF_LF_SPLIT_RDF"};
 
   if(using_rdf_types_cmd){
     std::string tmp = args::get(using_rdf_types_cmd);
@@ -257,6 +265,33 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   }
   _env->RDFTypes = RDFTypes;
 
+  int use_string_key = use_string_key_cmd ? args::get(use_string_key_cmd) : false;
+  system_verifier->setFlagUsingStringKey(use_string_key);
+  bool invalid_flag = false;
+  if(use_string_key == true){
+    for(auto &it: RDFTypes){
+      if(it.second.substr(0,4) == "NONE"){continue;}
+      if(RDFStringKeyTypeSet.count(it.second) != 1){
+        std::cout << "@using_string_key == 1, " << it.second << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cerr << "@using_string_key == 1, " << it.second << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        invalid_flag = true;
+      }
+    }
+  }else{
+    for(auto &it: RDFTypes){
+      if(it.second.substr(0,4) == "SuRF"){continue;}
+      if(RDFStringKeyTypeSet.count(it.second) == 1){
+        std::cout << "@using_string_key == 1, " << it.second << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cerr << "@using_string_key == 1, " << it.second << " should not be used. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        invalid_flag = true;
+      }
+    }
+  }
+  if(invalid_flag == true){
+    exit(1);
+  }
+
+
   int key_size_to_insert = key_size_to_insert_cmd ? args::get(key_size_to_insert_cmd) : 12;
   system_verifier->setKeySize(key_size_to_insert);
 
@@ -271,7 +306,11 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   bool load_pq_workload = load_pq_workload_cmd ? (args::get(load_pq_workload_cmd) != 0) : 1;
   int max_open_files = max_open_files_cmd ? args::get(max_open_files_cmd) : 9999;
   bool skip_reading_RD_blocks = skip_reading_RD_blocks_cmd ? (args::get(skip_reading_RD_blocks_cmd) != 0) : false;
-  int number_of_PQ = number_of_PQ_cmd ? args::get(number_of_PQ_cmd) : 5000;
+  // int number_of_PQ = number_of_PQ_cmd ? args::get(number_of_PQ_cmd) : 5000;
+  int number_of_PQs_on_existing_keys = number_of_PQ_on_existing_keys_cmd ? args::get(number_of_PQ_on_existing_keys_cmd) : 5000;
+  int number_of_PQs_on_historic_existing_keys = number_of_PQ_on_historic_existing_keys_cmd ? args::get(number_of_PQ_on_historic_existing_keys_cmd) : 5000;
+  int number_of_PQs_on_currently_deleted_keys = number_of_PQ_on_currently_deleted_keys_cmd ? args::get(number_of_PQ_on_currently_deleted_keys_cmd) : 5000;
+  int number_of_PQs_on_currently_non_inserted_keys = number_of_PQ_on_currently_non_inserted_keys_cmd ? args::get(number_of_PQ_on_currently_non_inserted_keys_cmd) : 5000;
   bool system_check_test_on_all_PQ = system_check_test_on_all_PQ_cmd ? args::get(system_check_test_on_all_PQ_cmd) : false;
   _env->correlation = correlation;
   _env->rd_count = rd_count;
@@ -283,7 +322,11 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   _env->load_pq_workload = load_pq_workload;
   _env->max_open_files = max_open_files;
   _env->skip_reading_RD_blocks = skip_reading_RD_blocks;
-  _env->number_of_PQ = number_of_PQ;
+  // _env->number_of_PQ = number_of_PQ;
+  _env->number_of_PQs_on_existing_keys = number_of_PQs_on_existing_keys;
+  _env->number_of_PQs_on_historic_existing_keys = number_of_PQs_on_historic_existing_keys;
+  _env->number_of_PQs_on_currently_deleted_keys = number_of_PQs_on_currently_deleted_keys;
+  _env->number_of_PQs_on_currently_non_inserted_keys = number_of_PQs_on_currently_non_inserted_keys;
   _env->system_check_test_on_all_PQ = system_check_test_on_all_PQ;
 
   bool log_during_insertion = log_during_insertion_cmd ? (args::get(log_during_insertion_cmd) != 0) : false;
@@ -298,6 +341,13 @@ int parse_arguments2(int argc, char *argv[], EmuEnv* _env, surf::SuRF_Env *_surf
   // std::cout << "surf__include_dense = " << surf__include_dense << "  args::get(surf__include_dense_cmd) = " << args::get(surf__include_dense_cmd) << std::endl;
   uint32_t surf__sparse_dense_ratio = surf__sparse_dense_ratio_cmd ? args::get(surf__sparse_dense_ratio_cmd) : 16;
   bool surf_use_condensed_digit_key = surf_use_condensed_digit_key_cmd ? (args::get(surf_use_condensed_digit_key_cmd) != 0) : true;
+  if(use_string_key == true){
+    if(surf_use_condensed_digit_key == true){
+      std::cout << "@use_string_key==1, surf_use_condensed_digit_key cannot be 1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      std::cerr << "@use_string_key==1, surf_use_condensed_digit_key cannot be 1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      exit(1);
+    }
+  }
   uint32_t length_of_condensed_digit_key = 1.0 * key_size_to_insert * log(10) / log(256) + 1; // () base 10 --> to () base 16
   bool surf__flag_bypass_if_same_key = false; // whether to skip RDF checking if searding key is the same as the next greater key in the SuRF
   bool surf__flag_allow_range_boundary_overlapped = false;

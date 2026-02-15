@@ -1,0 +1,1 @@
+g++ -D DEBUG test_skyline.cpp -o test_skyline

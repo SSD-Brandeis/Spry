@@ -16,4 +16,5 @@ log
 log*
 *.json
 *payload*
+workload/worklaod*.txt*
 

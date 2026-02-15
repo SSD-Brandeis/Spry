@@ -47,11 +47,11 @@ using namespace rocksdb;
 std::string kDBPath = "/tmp/cs561_project1";
 
 void printStats(DB* db, Options& options);
-void print_perf_iostats_context(std::ostream& ofile, int N_repetitions = 1);
+void print_perf_iostats_context(std::ostream& ofile, const std::string &prefix, int N_repetitions = 1);
 void init(DB **db_ptr2, Options& op, WriteOptions& write_op, ReadOptions& read_op, int max_background_jobs);
 long long parsing_value_from_string(std::string str, std::string pattern);
 void reset_perf_iostats_context();
-
+ 
 
 int main(int argc, char *argv[]) {
   
@@ -99,6 +99,7 @@ int main(int argc, char *argv[]) {
 
   
   PLRDF plrdf_prime, split_plrdf_prime;
+  PLRDF_t<std::string> plrdf_stringkey_prime, split_plrdf_stringkey_prime;
   PLRDF top_level_rdf_prime;
   SkyLineRDF skyline_rdf_prime;
 
@@ -123,12 +124,28 @@ int main(int argc, char *argv[]) {
     std::cout << "!!! runQPVerification start " << std::endl;
 
     if(_env->system_check_test_on_all_PQ == true){
-      int numbers_of_PQs = -1;
-      verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, numbers_of_PQs, kDBPath);
+      // int numbers_of_PQs = -1;
+      // verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, numbers_of_PQs, kDBPath);      
+      int number_of_PQs_on_existing_keys = -1;
+      int number_of_PQs_on_historic_existing_keys = -1;
+      int number_of_PQs_on_currently_deleted_keys = -1;
+      int number_of_PQs_on_currently_non_inserted_keys = -1;
+      verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, 
+        number_of_PQs_on_existing_keys, number_of_PQs_on_historic_existing_keys, 
+        number_of_PQs_on_currently_deleted_keys, number_of_PQs_on_currently_non_inserted_keys, 
+        kDBPath);
     }
     {
-      int numbers_of_PQs = _env->number_of_PQ;
-      verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, numbers_of_PQs, kDBPath);
+      // int numbers_of_PQs = _env->number_of_PQ;
+      // verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, numbers_of_PQs, kDBPath);
+      int number_of_PQs_on_existing_keys = _env->number_of_PQs_on_existing_keys;  
+      int number_of_PQs_on_historic_existing_keys = _env->number_of_PQs_on_historic_existing_keys;  
+      int number_of_PQs_on_currently_deleted_keys = _env->number_of_PQs_on_currently_deleted_keys;  
+      int number_of_PQs_on_currently_non_inserted_keys = _env->number_of_PQs_on_currently_non_inserted_keys;  
+      verification_runner::runPQVerification(db_ptr2, options, write_op, read_op, _env, 
+        number_of_PQs_on_existing_keys, number_of_PQs_on_historic_existing_keys, 
+        number_of_PQs_on_currently_deleted_keys, number_of_PQs_on_currently_non_inserted_keys, 
+        kDBPath);
     }
     verification_runner::endPQVerification();
   }
@@ -136,11 +153,12 @@ int main(int argc, char *argv[]) {
   auto stop_all = std::chrono::high_resolution_clock::now();
   auto duration_all = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_all - start_all);
   unsigned long long all_time_ns = duration_all.count();
-  std::cout << "all_time_ns = " << all_time_ns << std::endl;
+  std::cout << "all_time_ns _out = " << all_time_ns << std::endl;
   
-  print_perf_iostats_context(std::cout, 1);
+  std::string prefix = "main after workload insertion complete ";
+  print_perf_iostats_context(std::cout, prefix, 1);
 
-  set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
+  set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
 
   std::cout << "!!! runQPVerification done " << std::endl;
   

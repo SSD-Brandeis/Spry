@@ -66,7 +66,8 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
     char instruction;
     std::string time_stamp;
     std::stringstream ss_time_stamp;
-    long long key, start_key, end_key;
+    // long long key, start_key, end_key;
+    std::string key, start_key, end_key;
     std::string type;
     std::string value;
     std::stringstream ss_key, ss_start_key, ss_end_key;
@@ -104,9 +105,9 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
         std::cout << "Query " << key << std::endl;
         ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
         s = db->Get(read_op, ss_key.str(), &value);
-        separator_pos = value.find("|");
-        time_stamp = value.substr(separator_pos + 1);
-        value = value.substr(0, separator_pos);
+        // separator_pos = value.find("|");
+        // time_stamp = value.substr(separator_pos + 1);
+        // value = value.substr(0, separator_pos);
         counter++;
         break;
 
@@ -206,7 +207,7 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op, ReadOptions&
     // }
 
     // run PQ and log memory footprint during insertion
-    vector<long long> currently_deleted_keys = system_verifier->getCurrentlyDeletedKeys();
+    vector<string> currently_deleted_keys = system_verifier->getCurrentlyDeletedKeys();
 
     if (counter % _env->run_pq_during_insertion_interval == 0 && currently_deleted_keys.size() > 100){  
 logger_during_insertion->writeRecord(db_ptr2);  
@@ -219,8 +220,8 @@ logger_during_insertion->writeRecord(db_ptr2);
       }
     }
   }
-  std::cout << "insertion_time_ns = " << insertion_time_ns << std::endl;
-  std::cout << "rd_time_ns = " << rd_time_ns << std::endl;
+  std::cout << "insertion_time_ns_out = " << insertion_time_ns << std::endl;
+  std::cout << "rd_time_ns_out = " << rd_time_ns << std::endl;
 
 
   std::cout << "!!! Final Flush. (Manually Flush) " << std::endl;
@@ -270,7 +271,7 @@ logger_during_insertion->writeRecord(db_ptr2);
   std::cout << "!!! Number of SST files = " << num_SST_files << std::endl;
 
   {
-    std::vector<long long> testing_key_list({2500, 5000, 5001});
+    std::vector<string> testing_key_list({"2500", "5000", "5001"});
     long long total_read_count_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.count[^:]*: ([0-9]+)")
           + parsing_value_from_string(op.statistics->ToString(), "non.last.level.read.count[^:]*: ([0-9]+)");
     long long total_read_bytes_start = parsing_value_from_string(op.statistics->ToString(), "last.level.read.bytes[^:]*: ([0-9]+)")
@@ -287,9 +288,9 @@ logger_during_insertion->writeRecord(db_ptr2);
       std::stringstream searching_key;
       searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
       s = db->Get(read_op, searching_key.str(), &value);
-      size_t separator_pos = value.find("|");
-      time_stamp = value.substr(separator_pos + 1);
-      value = value.substr(0, separator_pos);
+      // size_t separator_pos = value.find("|");
+      // time_stamp = value.substr(separator_pos + 1);
+      // value = value.substr(0, separator_pos);
       std::cout << x << " " << s.ok() << " " << value << std::endl;
       std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
     
@@ -315,7 +316,8 @@ logger_during_insertion->writeRecord(db_ptr2);
     std::cout << "total_read_count = " << total_read_count_end - total_read_count_start << std::endl;
     std::cout << "total_read_bytes = " << total_read_bytes_end - total_read_bytes_start << std::endl;
 
-    print_perf_iostats_context(std::cout, 1);
+    std::string prefix = "utils_run_worload_test ";
+    print_perf_iostats_context(std::cout, prefix,  1);
   }
 
   std::cout << "!!! several gets done " << std::endl;

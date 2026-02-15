@@ -17,6 +17,7 @@
 #include "rocksdb/iostats_context.h" // !YBS-sep01-XX!
 #include "../env_settings/emu_environment.h"
 
+using namespace ROCKSDB_NAMESPACE;
 
 inline void showProgress(const uint64_t& workload_size,
                          const uint64_t& counter) {
@@ -92,7 +93,11 @@ long long parsing_value_from_string(std::string str, std::string pattern){
     std::regex re(pattern);
     std::smatch match;
     if(std::regex_search(str, match, re)){
+// std::cout << str << endl;
+// std::cout << pattern << endl;
+// std::cout << match[0] << endl;
       std::string result = match[1];
+// std::cout << "result = " << result << " " << __FILE__ << ":" << __LINE__ << endl;
       return std::stoll(result);
     }
     //raise error
@@ -100,29 +105,29 @@ long long parsing_value_from_string(std::string str, std::string pattern){
     std::exit(1);
 }
 
-void setNewBlockCacheForReading(Options& op){
-  std::this_thread::sleep_for(std::chrono::seconds(3));  // Sleep for 10 second
+// void setNewBlockCacheForReading(Options& op){
+//   std::this_thread::sleep_for(std::chrono::seconds(3));  // Sleep for 10 second
 
-  //Reference: options.cc
-  BlockBasedTableOptions table_options;
-  table_options.block_cache = NewLRUCache(0.5*1024*1024);
-
-  op.table_factory.reset(NewBlockBasedTableFactory(table_options));
+//   //Reference: options.cc
+//   BlockBasedTableOptions table_options;
+//   table_options.block_cache = NewLRUCache(0.5*1024*1024); 
+//   // TODO: get block_size from env
+//   op.table_factory.reset(NewBlockBasedTableFactory(table_options));
   
-  std::this_thread::sleep_for(std::chrono::seconds(3));  // Sleep for 10 second
-}
+//   std::this_thread::sleep_for(std::chrono::seconds(3));  // Sleep for 10 second
+// }
 
-void setNoBlockCacheForReading(Options& op){
-  std::this_thread::sleep_for(std::chrono::seconds(3));  // Sleep for 10 second
+// void setNoBlockCacheForReading(Options& op){
+//   std::this_thread::sleep_for(std::chrono::seconds(3));  // Sleep for 10 second
 
-  BlockBasedTableOptions table_options;
-  table_options.no_block_cache = true; //disable block cache completely
-  table_options.block_size = 4 * 1024;
+//   BlockBasedTableOptions table_options;
+//   table_options.no_block_cache = true; //disable block cache completely
+//   table_options.block_size = 4 * 1024; // TODO: get block_size from env
 
-  op.table_factory.reset(NewBlockBasedTableFactory(table_options));
+//   op.table_factory.reset(NewBlockBasedTableFactory(table_options));
 
-  std::this_thread::sleep_for(std::chrono::seconds(3));  // Sleep for 10 second
-}
+//   std::this_thread::sleep_for(std::chrono::seconds(3));  // Sleep for 10 second
+// }
 
 std::string getkDBPath(EmuEnv* _env, string kDBPathBase){
   std::string kDBPath = kDBPathBase + "/" + _env->workload_file_name;

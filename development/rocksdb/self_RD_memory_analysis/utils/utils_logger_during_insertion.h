@@ -26,11 +26,13 @@ private:
     static LoggerDuringInsertion *logger_during_insertion;
 
     bool flag_reopen_db_for_each_RDF_testing = false;
-
+    
 
     vector<int> ranges_log_Origin;
     vector<int> ranges_log_PLRDF;
     vector<int> ranges_log_SplitPLRDF;
+    vector<int> ranges_log_PLRDFStringKey;
+    vector<int> ranges_log_SplitPLRDFStringKey;
     vector<int> ranges_log_TopLevelRDF;
     vector<int> ranges_log_SkylineRDF;
     vector<int> ranges_log_SuRFLevelFileRDF;
@@ -39,6 +41,8 @@ private:
     vector<int> memory_usage_log_Origin;
     vector<int> memory_usage_log_PLRDF;
     vector<int> memory_usage_log_SplitPLRDF;
+    vector<int> memory_usage_log_PLRDFStringKey;
+    vector<int> memory_usage_log_SplitPLRDFStringKey;
     vector<int> memory_usage_log_TopLevelRDF;
     vector<int> memory_usage_log_SkylineRDF;
     vector<int> memory_usage_log_SuRFLevelFileRDF;
@@ -50,13 +54,29 @@ public:
     void start(EmuEnv* _env);
     void recordCurrentMemoryFootprint(DB** db_ptr2);
     void writeRecord(DB** db_ptr2);
-    void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, 
-                            ReadOptions& read_op, EmuEnv* _env, int number_of_PQs = -1,
-                            string kDBPath = "/tmp/cs561_project1");
+    // void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, 
+    //                         ReadOptions& read_op, EmuEnv* _env, int number_of_PQs = -1,
+    //                         string kDBPath = "/tmp/cs561_project1");
+    // void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, 
+    //                         ReadOptions& read_op, EmuEnv* _env,
+    //                         int number_of_PQs_on_existing_keys = -1,
+    //                         int number_of_PQs_on_historic_existing_keys = -1,
+    //                         int number_of_PQs_on_currently_deleted_keys = -1,
+    //                         int number_of_PQs_on_currently_non_inserted_keys = -1,
+    //                         string kDBPath = "/tmp/cs561_project1");
 
+    // void runPQonCurrentlyDeletedKeys(
+    //   uint i_insertion, DB** db_ptr2, Options& op, WriteOptions& write_op, 
+    //   ReadOptions& read_op, EmuEnv* _env, int number_of_PQs, string kDBPath);
+      
     void runPQonCurrentlyDeletedKeys(
       uint i_insertion, DB** db_ptr2, Options& op, WriteOptions& write_op, 
-      ReadOptions& read_op, EmuEnv* _env, int number_of_PQs, string kDBPath);
+      ReadOptions& read_op, EmuEnv* _env,
+      // int number_of_PQs_on_existing_keys,
+      // int number_of_PQs_on_historic_existing_keys,
+      int number_of_PQs_on_currently_deleted_keys,
+      // int number_of_PQs_on_currently_non_inserted_keys,
+      string kDBPath);
       
     void end();
 };
@@ -123,6 +143,22 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }
   // running_log_during_insertion << "recordCurrentMemoryFootprint A2 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
+  tmp = db->getLogOfNumbersOfRangesInPLRDFStringKey();
+  if(tmp.size() > 0){
+    ranges_log_PLRDFStringKey.push_back(tmp.back());
+  }else{
+    ranges_log_PLRDFStringKey.push_back(0);
+  }
+  // running_log_during_insertion << "recordCurrentMemoryFootprint XA1 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+  tmp = db->getLogOfNumbersOfRangesInSplitPLRDFStringKey();
+  if(tmp.size() > 0){
+    ranges_log_SplitPLRDFStringKey.push_back(tmp.back());
+  }else{
+    ranges_log_SplitPLRDFStringKey.push_back(0);
+  }
+  // running_log_during_insertion << "recordCurrentMemoryFootprint XA2 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
   tmp = db->getLogOfNumbersOfRangesInTopLevelRDF();
   if(tmp.size() > 0){
     ranges_log_TopLevelRDF.push_back(tmp.back());
@@ -172,6 +208,22 @@ void LoggerDuringInsertion::recordCurrentMemoryFootprint(DB** db_ptr2){
   }
   // running_log_during_insertion << "recordCurrentMemoryFootprint A8 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
+  tmp = db->getLogOfMemoryUsageInPLRDFStringKey();
+  if(tmp.size() > 0){
+    memory_usage_log_PLRDFStringKey.push_back(tmp.back());
+  }else{
+    memory_usage_log_PLRDFStringKey.push_back(0);
+  }
+  // running_log_during_insertion << "recordCurrentMemoryFootprint A7 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
+  tmp = db->getLogOfMemoryUsageInSplitRDFStringKey();
+  if(tmp.size() > 0){
+    memory_usage_log_SplitPLRDFStringKey.push_back(tmp.back());
+  }else{
+    memory_usage_log_SplitPLRDFStringKey.push_back(0);
+  }
+  // running_log_during_insertion << "recordCurrentMemoryFootprint A8 " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+
   tmp = db->getLogOfMemoryUsageInTopLevelRDF();
   if(tmp.size() > 0){
     memory_usage_log_TopLevelRDF.push_back(tmp.back());
@@ -212,9 +264,11 @@ void LoggerDuringInsertion::writeRecord(DB** db_ptr2){
   Status s;
 
   running_log_during_insertion << "writeRecord Start " << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-
+  
   testing_result_file_during_insertion << ",\"PLRDF Number Of Total Ranges\" : " << db->getPLRDFNumberOfTotalRanges() << std::endl;
   testing_result_file_during_insertion << ",\"Split PLRDF Number Of Total Ranges\" : " << db->getSplitPLRDFNumberOfTotalRanges() << std::endl;
+  testing_result_file_during_insertion << ",\"PLRDF StringKey Number Of Total Ranges\" : " << db->getPLRDFStringKeyNumberOfTotalRanges() << std::endl;
+  testing_result_file_during_insertion << ",\"Split PLRDF StringKey Number Of Total Ranges\" : " << db->getSplitPLRDFStringKeyNumberOfTotalRanges() << std::endl;
   testing_result_file_during_insertion << ",\"TopLevel RDF Number Of Total Ranges\" : " << db->getTopLevelRDFNumberOfTotalRanges() << std::endl;
   testing_result_file_during_insertion << ",\"Skyline RDF Number Of Total Ranges\" : " << db->getSkylineRDFNumberOfTotalRanges() << std::endl;
   testing_result_file_during_insertion << ",\"SuRF Level File RDF Number Of Total Ranges\" : " << db->getSuRFLevelFileRDFNumberOfTotalRanges() << std::endl;
@@ -358,7 +412,11 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
                                                         WriteOptions& write_op, 
                                                         ReadOptions& read_op, 
                                                         EmuEnv* _env,
-                                                        int number_of_PQs,
+                                                        // int number_of_PQs,
+                                                        // int number_of_PQs_on_existing_keys,
+                                                        // int number_of_PQs_on_historic_existing_keys,
+                                                        int number_of_PQs_on_currently_deleted_keys,
+                                                        // int number_of_PQs_on_currently_non_inserted_keys,
                                                         string kDBPath){
                                                           
   DB* db = *db_ptr2;
@@ -374,14 +432,39 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
   long long disk_access_count = 0;
 
   
-  std::string prefix_number_of_PQs = "";
-  if(number_of_PQs != -1){
-    prefix_number_of_PQs = "fixed #PQ = " + std::to_string(number_of_PQs);
+  // std::string prefix_number_of_PQs = "";
+  // if(number_of_PQs != -1){
+  //   prefix_number_of_PQs = "fixed #PQ = " + std::to_string(number_of_PQs);
+  // }
+  
+  // std::string prefix_number_of_PQs_on_existing_keys = "";
+  // if(number_of_PQs_on_existing_keys != -1){
+  //   prefix_number_of_PQs_on_existing_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_existing_keys);
+  // }
+  
+  // std::string prefix_number_of_PQs_on_historic_existing_keys = "";
+  // if(number_of_PQs_on_historic_existing_keys != -1){
+  //   prefix_number_of_PQs_on_historic_existing_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_historic_existing_keys);
+  // }
+  
+  std::string prefix_number_of_PQs_on_currently_deleted_keys = "";
+  if(number_of_PQs_on_currently_deleted_keys != -1){
+    prefix_number_of_PQs_on_currently_deleted_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_currently_deleted_keys);
   }
-  system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, number_of_PQs);
+  
+  // std::string prefix_number_of_PQs_on_currently_non_inserted_keys = "";
+  // if(number_of_PQs_on_currently_non_inserted_keys != -1){
+  //   prefix_number_of_PQs_on_currently_non_inserted_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_currently_non_inserted_keys);
+  // }
+
+  // system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, number_of_PQs);
+  int number_of_PQs_on_existing_keys_tmp = 10, number_of_PQs_on_historic_existing_keys_tmp = 10, number_of_PQs_on_currently_non_inserted_keys_tmp = 10;
+  system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, 
+    number_of_PQs_on_existing_keys_tmp, number_of_PQs_on_historic_existing_keys_tmp,
+    number_of_PQs_on_currently_deleted_keys, number_of_PQs_on_currently_non_inserted_keys_tmp);
 
   string i_insertion_str = "i_insert="+std::to_string(i_insertion)+" ";
-  testing_result_file_during_insertion << system_verifier->getCurrentlyDeletedKeysVec2dString(",", "\"", i_insertion_str+prefix_number_of_PQs) << std::endl;
+  testing_result_file_during_insertion << system_verifier->getCurrentlyDeletedKeysVec2dString(",", "\"", i_insertion_str+prefix_number_of_PQs_on_currently_deleted_keys) << std::endl;
 
   auto start_pq = std::chrono::high_resolution_clock::now();
   auto stop_pq = std::chrono::high_resolution_clock::now();
@@ -418,7 +501,7 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
       testing_logger.set_to_start(op);
 
       std::vector<uint64_t> cache_tombstone_bytes;
-      for(auto x: system_verifier->getHistoricExistingKeysAtNRound(i)){
+      for(auto x: system_verifier->getCurrentlyDeletedKeysAtNRound(i)){
         bool gt_is_exist = system_verifier->isKeyExist(x);
         std::string gt_value = system_verifier->get(x);
 
@@ -443,9 +526,9 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
           uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
           cache_tombstone_bytes.push_back(bytes);
         }
-        size_t separator_pos = value.find("|");
-        time_stamp = value.substr(separator_pos + 1);
-        value = value.substr(0, separator_pos);
+        // size_t separator_pos = value.find("|");
+        // time_stamp = value.substr(separator_pos + 1);
+        // value = value.substr(0, separator_pos);
 
         if(s.ok() != gt_is_exist){
           #ifdef DEBUG_VERIFICATION
@@ -466,7 +549,7 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
         string i_round_str = "i_round="+std::to_string(i)+" ";
-        std::string prefix = " (Historcially Exist Keys " + i_insertion_str + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        std::string prefix = " (Currently Deleted Keys " + i_insertion_str + prefix_number_of_PQs_on_currently_deleted_keys + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
         testing_result_file_during_insertion << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         int len_ctb = cache_tombstone_bytes.size();
         int i_ctb = 0;
@@ -497,17 +580,17 @@ void LoggerDuringInsertion::runPQonCurrentlyDeletedKeys(
     running_log_during_insertion << system_verifier->getAllCount("", "", "", N_repetitions) << std::endl;
     running_log_during_insertion << "block_read_cpu_time = " << 1.0*block_read_cpu_time/N_repetitions/1e3  << "" << std::endl;
 
-    std::string prefix = " (Historcially Exist Keys " + i_insertion_str + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    std::string prefix = " (Currently Deleted Keys " + i_insertion_str + prefix_number_of_PQs_on_currently_deleted_keys + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file_during_insertion << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e6 << std::endl;
     testing_result_file_during_insertion << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
-    if (number_of_PQs == -1){
-      testing_result_file_during_insertion << ",\"" + prefix + " number of PQ\" : " << system_verifier->getHistoricExistingKeys().size() << std::endl;
+    if (number_of_PQs_on_currently_deleted_keys == -1){
+      testing_result_file_during_insertion << ",\"" + prefix + " number of PQ\" : " << system_verifier->getCurrentlyDeletedKeys().size() << std::endl;
     }else{
-      testing_result_file_during_insertion << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+      testing_result_file_during_insertion << ",\"" + prefix + " number of PQ\" : " << prefix_number_of_PQs_on_currently_deleted_keys << std::endl;
     }
     testing_result_file_during_insertion << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
     testing_result_file_during_insertion << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
-
+    
     testing_logger.output_statistics(running_log_during_insertion, testing_result_file_during_insertion, prefix);
   }
   system_verifier->reset_flag_testing_on_currently_deleted_keys();

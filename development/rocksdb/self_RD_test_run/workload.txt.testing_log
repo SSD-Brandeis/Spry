@@ -1,0 +1,2116 @@
+PLRDF Number Of Total Ranges: 0
+Split PLRDF Number Of Total Ranges: 0
+TopLevel RDF Number Of Total Ranges: 0
+Skyline RDF Number Of Total Ranges: 0
+
+N_repetitions = 3
+
+
+
+----------------------Testing On Existing Keys-----------------------
+NONE_DUMMY 
+NONE 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+NONE Average Disk Access count = 0.00
+NONE  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+NONE2 
+ Disk Access count = 0
+4 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+4 -----
+
+ Disk Access count = 0
+5 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+5 -----
+
+ Disk Access count = 0
+6 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+6 -----
+
+NONE2 Average Disk Access count = 0.00
+NONE2  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+PLRDF 
+ Disk Access count = 0
+7 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+7 -----
+
+ Disk Access count = 0
+8 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+8 -----
+
+ Disk Access count = 0
+9 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+9 -----
+
+PLRDF Average Disk Access count = 0.00
+PLRDF  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+SPLIT_PLRDF 
+ Disk Access count = 0
+10 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+10 -----
+
+ Disk Access count = 0
+11 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+11 -----
+
+ Disk Access count = 0
+12 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+12 -----
+
+SPLIT_PLRDF Average Disk Access count = 0.00
+SPLIT_PLRDF  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+TOP_LEVEL_RDF 
+ Disk Access count = 0
+13 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+13 -----
+
+ Disk Access count = 0
+14 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+14 -----
+
+ Disk Access count = 0
+15 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+15 -----
+
+TOP_LEVEL_RDF Average Disk Access count = 0.00
+TOP_LEVEL_RDF  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+SKYLINE_RDF 
+ Disk Access count = 0
+16 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+16 -----
+
+ Disk Access count = 0
+17 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+17 -----
+
+ Disk Access count = 0
+18 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+18 -----
+
+SKYLINE_RDF Average Disk Access count = 0.00
+SKYLINE_RDF  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+NONE_DUMMY 
+
+
+----------------------Testing On historic-existing Keys-----------------------
+NONE_DUMMY 
+NONE 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+NONE Average Disk Access count = 0.00
+NONE  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+NONE2 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+NONE2 Average Disk Access count = 0.00
+NONE2  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+PLRDF 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+PLRDF Average Disk Access count = 0.00
+PLRDF  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+SPLIT_PLRDF 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+SPLIT_PLRDF Average Disk Access count = 0.00
+SPLIT_PLRDF  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+TOP_LEVEL_RDF 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+TOP_LEVEL_RDF Average Disk Access count = 0.00
+TOP_LEVEL_RDF  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+SKYLINE_RDF 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+SKYLINE_RDF Average Disk Access count = 0.00
+SKYLINE_RDF  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+NONE_DUMMY 
+
+
+----------------------Testing On Currently Deleted Keys-----------------------
+NONE_DUMMY 
+NONE 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+NONE Average Disk Access count = 0.00
+NONE  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+NONE2 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+NONE2 Average Disk Access count = 0.00
+NONE2  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+PLRDF 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+PLRDF Average Disk Access count = 0.00
+PLRDF  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+SPLIT_PLRDF 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+SPLIT_PLRDF Average Disk Access count = 0.00
+SPLIT_PLRDF  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+TOP_LEVEL_RDF 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+TOP_LEVEL_RDF Average Disk Access count = 0.00
+TOP_LEVEL_RDF  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+SKYLINE_RDF 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+SKYLINE_RDF Average Disk Access count = 0.00
+SKYLINE_RDF  elapsed time = 0.00 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 0
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 0.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+NONE_DUMMY 
+
+
+----------------------Testing On Currently Non-inserted Keys-----------------------
+number of currently non-inserted keys = 1000
+NONE_DUMMY 
+NONE 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+NONE Average Disk Access count = 0.00
+NONE  elapsed time = 89.68 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 1000
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 76656500.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+NONE2 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+NONE2 Average Disk Access count = 0.00
+NONE2  elapsed time = 97.51 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 1000
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 80628733.33
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+PLRDF 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+PLRDF Average Disk Access count = 0.00
+PLRDF  elapsed time = 109.04 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 1000
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 9735666.67
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 87747466.67
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+SPLIT_PLRDF 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+SPLIT_PLRDF Average Disk Access count = 0.00
+SPLIT_PLRDF  elapsed time = 101.12 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 1000
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 8959500.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 80246133.33
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+TOP_LEVEL_RDF 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+TOP_LEVEL_RDF Average Disk Access count = 0.00
+TOP_LEVEL_RDF  elapsed time = 103.98 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 1000
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 9142466.67
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 81154400.00
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+SKYLINE_RDF 
+ Disk Access count = 0
+1 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+1 -----
+
+ Disk Access count = 0
+2 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+2 -----
+
+ Disk Access count = 0
+3 -----
+read_count_start = 0
+read_count_end = 0
+read_bytes_start = 0
+read_bytes_end = 0
+3 -----
+
+SKYLINE_RDF Average Disk Access count = 0.00
+SKYLINE_RDF  elapsed time = 95.72 (ms) 
+
+filtered by RDF count = 0.00
+number of PQ = 1000
+disk_access_count: 0.00
+read_entry_block_count: 0.00
+
+duration__get_rdf: 0.00
+duration__get_max_seq: 0.00
+duration__retrieve_block: 0.00
+duration__find_table: 0.00
+duration__get_from_row_cache: 0.00
+duration__remaining_get_path: 77573233.33
+
+num_index_read_count: 0.00
+num_filter_read_count: 0.00
+num_range_del_read_count: 0.00
+num_total_block_read_count: 0.00
+block_based_table_open_count: 0.00
+
+filtered_by_RDF_count: 0.00
+
+fetcher__num_compression_dict_block_read_count: 0.00
+fetcher__num_index_read_count: 0.00
+fetcher__num_filter_read_count: 0.00
+fetcher__num_range_del_read_count: 0.00
+fetcher__num_data_read_count: 0.00
+fetcher__num_total_block_read_count: 0.00
+
+
+block_read_cpu_time = 0.00
+Avg_read_count = 0.00
+Avg_read_bytes = 0.00
+
+get_from_memtable_time = 0.00
+get_from_memtable_count = 0.00
+get_post_process_time = 0.00
+bloom_memtable_hit_count = 0.00
+bloom_memtable_miss_count = 0.00
+bloom_sst_hit_count = 0.00
+bloom_sst_miss_count = 0.00
+block_read_count = 0.00
+block_read_byte = 0.00
+block_read_time = 0.00
+block_read_cpu_time = 0.00
+index_block_read_count = 0.00
+filter_block_read_count = 0.00
+compression_dict_block_read_count = 0.00
+get_read_bytes = 0.00
+read_index_block_nanos = 0.00
+read_filter_block_nanos = 0.00
+internal_key_skipped_count = 0.00
+internal_delete_skipped_count = 0.00
+internal_recent_skipped_count = 0.00
+internal_range_del_reseek_count = 0.00
+bytes_read = 0.00
+bytes_written = 0.00
+read_nanos = 0.00
+write_nanos = 0.00
+--------------------------------------------------------------------
+
+NONE_DUMMY 

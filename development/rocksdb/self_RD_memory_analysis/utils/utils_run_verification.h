@@ -5,17 +5,6 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
-// #include <filesystem>
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
-// #if __cplusplus >= 201703L
-//     #include <filesystem>
-//     namespace fs = std::filesystem;
-// #else
-//     #include <experimental/filesystem>
-//     namespace fs = std::experimental::filesystem;
-// #endif
-
 
 #include "../workload/args.hxx"
 #include "../workload/workload_generator.h"
@@ -38,6 +27,7 @@ private:
     static bool flag_reopen_db_for_each_RDF_testing;
 
     static PLRDF plrdf_prime, split_plrdf_prime;
+    static PLRDF_t<std::string> plrdf_stringkey_prime, split_plrdf_stringkey_prime;
     static PLRDF top_level_rdf_prime;
     static SkyLineRDF skyline_rdf_prime;
     // static std::vector<t3ll> skyline_rdf_prime;
@@ -45,9 +35,18 @@ private:
 
 public:
     static void initPQVerification(DB** db_ptr2, ReadOptions& read_op, EmuEnv* _env);
+    // static void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, 
+    //                         ReadOptions& read_op, EmuEnv* _env, int number_of_PQs = -1,
+    //                         string kDBPath = "/tmp/cs561_project1");
     static void runPQVerification(DB** db_ptr2, Options& op, WriteOptions& write_op, 
-                            ReadOptions& read_op, EmuEnv* _env, int number_of_PQs = -1,
+                            ReadOptions& read_op, EmuEnv* _env, 
+                            // int number_of_PQs = -1,
+                            int number_of_PQs_on_existing_keys = -1,
+                            int number_of_PQs_on_historic_existing_keys = -1,
+                            int number_of_PQs_on_currently_deleted_keys = -1,
+                            int number_of_PQs_on_currently_non_inserted_keys = -1,
                             string kDBPath = "/tmp/cs561_project1");
+                            
     static void endPQVerification();
 };
 std::ofstream verification_runner::testing_result_file;
@@ -59,6 +58,7 @@ TestingLogger verification_runner::testing_logger;
 bool verification_runner::flag_reopen_db_for_each_RDF_testing = false;
 
 PLRDF verification_runner::plrdf_prime, verification_runner::split_plrdf_prime;
+PLRDF_t<std::string> verification_runner::plrdf_stringkey_prime, verification_runner::split_plrdf_stringkey_prime;
 PLRDF verification_runner::top_level_rdf_prime;
 SkyLineRDF verification_runner::skyline_rdf_prime;
 // std::vector<t3ll> verification_runner::skyline_rdf_prime;
@@ -92,40 +92,31 @@ void verification_runner::initPQVerification(DB** db_ptr2, ReadOptions& read_op,
   system_verifier->disable_log__deleted_keys__max_sequnce_number();
 
 
-  // auto createDirsForFilePath = [](const std::string& filePath) {
-  //       fs::path dirPath = fs::path(filePath).parent_path();
-        
-  //       if (!dirPath.empty() && !fs::exists(dirPath)) {
-  //           if (fs::create_directories(dirPath)) {
-  //               std::cout << "Directories created: " << dirPath << std::endl;
-  //           } else {
-  //               std::cerr << "Failed to create directories: " << dirPath << std::endl;
-  //           }
-  //       }
-  //   };
 
 
   std::string testing_result_file_name = _env->logging_filename + ".testing_log";
   std::string testing_result_file_name2 = "output_statistics/" + _env->logging_filename + ".json";
 std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  // createDirsForFilePath(testing_result_file_name);
-  // createDirsForFilePath(testing_result_file_name2);
   testing_result_file.open(testing_result_file_name);
   testing_result_file2.open(testing_result_file_name2);
   testing_result_file2 << "{"<< std::endl;
   testing_result_file2 << "\"start\" : \"start\""<< std::endl;
   write_log2(testing_result_file2, _env, _surf_env);
-
+  
   testing_result_file << "PLRDF Number Of Total Ranges: " << db->getPLRDFNumberOfTotalRanges() << std::endl;
   testing_result_file << "Split PLRDF Number Of Total Ranges: " << db->getSplitPLRDFNumberOfTotalRanges() << std::endl;
+  testing_result_file << "PLRDF StringKey Number Of Total Ranges: " << db->getPLRDFStringKeyNumberOfTotalRanges() << std::endl;
+  testing_result_file << "Split PLRDF StringKey Number Of Total Ranges: " << db->getSplitPLRDFStringKeyNumberOfTotalRanges() << std::endl;
   testing_result_file << "TopLevel RDF Number Of Total Ranges: " << db->getTopLevelRDFNumberOfTotalRanges() << std::endl;
   testing_result_file << "Skyline RDF Number Of Total Ranges: " << db->getSkylineRDFNumberOfTotalRanges() << std::endl;
   testing_result_file << "SuRF Level File RDF Number Of Total Ranges: " << db->getSuRFLevelFileRDFNumberOfTotalRanges() << std::endl;
   testing_result_file << "SuRF Level File Split RDF Number Of Total Ranges: " << db->getSuRFLevelFileSplitRDFNumberOfTotalRanges() << std::endl;
   testing_result_file << std::endl;
-
+  
   testing_result_file2 << ",\"PLRDF Number Of Total Ranges\" : " << db->getPLRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"Split PLRDF Number Of Total Ranges\" : " << db->getSplitPLRDFNumberOfTotalRanges() << std::endl;
+  testing_result_file2 << ",\"PLRDF StringKey Number Of Total Ranges\" : " << db->getPLRDFStringKeyNumberOfTotalRanges() << std::endl;
+  testing_result_file2 << ",\"Split PLRDF StringKey Number Of Total Ranges\" : " << db->getSplitPLRDFStringKeyNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"TopLevel RDF Number Of Total Ranges\" : " << db->getTopLevelRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"Skyline RDF Number Of Total Ranges\" : " << db->getSkylineRDFNumberOfTotalRanges() << std::endl;
   testing_result_file2 << ",\"SuRF Level File RDF Number Of Total Ranges\" : " << db->getSuRFLevelFileRDFNumberOfTotalRanges() << std::endl;
@@ -133,30 +124,57 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   testing_result_file2 << std::endl;
 
   
+  testing_result_file << "RocksDB (None) Number Of Total Memory Usage: " << db->getRTRocksDBNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "PLRDF Number Of Total Memory Usage: " << db->getPLRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "Split PLRDF Number Of Total Memory Usage: " << db->getSplitPLRDFNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file << "PLRDF StringKey Number Of Total Memory Usage: " << db->getPLRDFStringKeyNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file << "Split PLRDF StringKey Number Of Total Memory Usage: " << db->getSplitPLRDFStringKeyNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "TopLevel RDF Number Of Total Memory Usage: " << db->getTopLevelRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "Skyline RDF Number Of Total Memory Usage: " << db->getSkylineRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "SuRF Level File RDF Number Of Total Memory Usage: " << db->getSuRFLevelFileRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << "SuRF Level File Split RDF Number Of Total Memory Usage: " << db->getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file << std::endl;
 
+  testing_result_file2 << ",\"RocksDB (None) Number Of Total Memory Usage\" : " << db->getRTRocksDBNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"PLRDF Number Of Total Memory Usage\" : " << db->getPLRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"Split PLRDF Number Of Total Memory Usage\" : " << db->getSplitPLRDFNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file2 << ",\"PLRDF StringKey Number Of Total Memory Usage\" : " << db->getPLRDFStringKeyNumberOfTotalMemoryUsage() << std::endl;
+  testing_result_file2 << ",\"Split PLRDF StringKey Number Of Total Memory Usage\" : " << db->getSplitPLRDFStringKeyNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"TopLevel RDF Number Of Total Memory Usage\" : " << db->getTopLevelRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"Skyline RDF Number Of Total Memory Usage\" : " << db->getSkylineRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"SuRF Level File RDF Number Of Total Memory Usage\" : " << db->getSuRFLevelFileRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << ",\"SuRF Level File Split RDF Number Of Total Memory Usage\" : " << db->getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() << std::endl;
   testing_result_file2 << std::endl;
 
-  
-  
+  if(system_verifier->getStringOfRDFTypeChosed().substr(0,4) == "NONE"){
+    std::cout << "RocksDB (None) Number Of Total Memory Usage _out = " << db->getRTRocksDBNumberOfTotalMemoryUsage() << std::endl;
+  }else if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF"){
+    std::cout << "PLRDF Number Of Total Memory Usage _out = " << db->getPLRDFNumberOfTotalMemoryUsage() << std::endl;
+  }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF"){
+    std::cout << "Split_PLRDF Number Of Total Memory Usage _out = " << db->getSplitPLRDFNumberOfTotalMemoryUsage() << std::endl;
+  }else if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY"){
+    std::cout << "PLRDF_STRING_KEY Number Of Total Memory Usage _out = " << db->getPLRDFStringKeyNumberOfTotalMemoryUsage() << std::endl;
+  }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
+    std::cout << "SPLIT_PLRDF_STRING_KEY Number Of Total Memory Usage _out = " << db->getSplitPLRDFStringKeyNumberOfTotalMemoryUsage() << std::endl;
+  }else if(system_verifier->getStringOfRDFTypeChosed() == "TOP_LEVEL_RDF"){
+    std::cout << "TOP_LEVEL_RDF Number Of Total Memory Usage _out = " << db->getTopLevelRDFNumberOfTotalMemoryUsage() << std::endl;
+  }else if(system_verifier->getStringOfRDFTypeChosed() == "SKYLINE_RDF"){
+    std::cout << "SKYLINE_RDF Number Of Total Memory Usage _out = " << db->getSkylineRDFNumberOfTotalMemoryUsage() << std::endl;
+  }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
+    std::cout << "SuRF_LF_RDF Number Of Total Memory Usage _out = " << db->getSuRFLevelFileRDFNumberOfTotalMemoryUsage() << std::endl;
+  }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
+    std::cout << "SuRF_LF_SPLIT_RDF Number Of Total Memory Usage _out = " << db->getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() << std::endl;
+  }
+
   vector<int> ranges_log_PLRDF = db->getLogOfNumbersOfRangesInPLRDF();
   vector<int> ranges_log_SplitPLRDF = db->getLogOfNumbersOfRangesInSplitPLRDF();
+  vector<int> ranges_log_PLRDFStringKey = db->getLogOfNumbersOfRangesInPLRDFStringKey();
+  vector<int> ranges_log_SplitPLRDFStringKey = db->getLogOfNumbersOfRangesInSplitPLRDFStringKey();
   vector<int> ranges_log_TopLevelRDF = db->getLogOfNumbersOfRangesInTopLevelRDF();
   vector<int> ranges_log_SkylineRDF = db->getLogOfNumbersOfRangesInSkylineRDF();
   vector<int> ranges_log_SuRFLevelFileRDF = db->getLogOfNumbersOfRangesInSuRFLevelFileRDF();
   vector<int> ranges_log_SuRFLevelFileSplitRDF = db->getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF();
+  
   testing_result_file2 << ",\"Log Of Numbers Of Ranges In PLRDF\" : [";
   for(int i = 0; i < ranges_log_PLRDF.size(); i++){
     testing_result_file2 << ranges_log_PLRDF[i];
@@ -169,6 +187,22 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   for(int i = 0; i < ranges_log_SplitPLRDF.size(); i++){
     testing_result_file2 << ranges_log_SplitPLRDF[i];
     if(i != ranges_log_SplitPLRDF.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;
+  testing_result_file2 << ",\"Log Of Numbers Of Ranges In PLRDFStringKey\" : [";
+  for(int i = 0; i < ranges_log_PLRDFStringKey.size(); i++){
+    testing_result_file2 << ranges_log_PLRDFStringKey[i];
+    if(i != ranges_log_PLRDFStringKey.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;
+  testing_result_file2 << ",\"Log Of Numbers Of Ranges In SplitPLRDFStringKey\" : [";
+  for(int i = 0; i < ranges_log_SplitPLRDFStringKey.size(); i++){
+    testing_result_file2 << ranges_log_SplitPLRDFStringKey[i];
+    if(i != ranges_log_SplitPLRDFStringKey.size() - 1){
       testing_result_file2 << ", ";
     }
   }
@@ -208,11 +242,13 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
 
   vector<int> memory_usage_log_PLRDF = db->getLogOfMemoryUsageInPLRDF();
   vector<int> memory_usage_log_SplitPLRDF = db->getLogOfMemoryUsageInSplitRDF();
+  vector<int> memory_usage_log_PLRDFStringKey = db->getLogOfMemoryUsageInPLRDFStringKey();
+  vector<int> memory_usage_log_SplitPLRDFStringKey = db->getLogOfMemoryUsageInSplitRDFStringKey();
   vector<int> memory_usage_log_TopLevelRDF = db->getLogOfMemoryUsageInTopLevelRDF();
   vector<int> memory_usage_log_SkylineRDF = db->getLogOfMemoryUsageInSkylineRDF();
   vector<int> memory_usage_log_SuRFLevelFileRDF = db->getLogOfMemoryUsageInSuRFLevelFileRDF();
   vector<int> memory_usage_log_SuRFLevelFileSplitRDF = db->getLogOfMemoryUsageInSuRFLevelFileSplitRDF();
- testing_result_file2 << ",\"Log Of Memory Usage Of PLRDF\" : [";
+  testing_result_file2 << ",\"Log Of Memory Usage Of PLRDF\" : [";
   for(int i = 0; i < memory_usage_log_PLRDF.size(); i++){
     testing_result_file2 << memory_usage_log_PLRDF[i];
     if(i != memory_usage_log_PLRDF.size() - 1){
@@ -224,6 +260,22 @@ std::cout << "testing_result_file_name2 =  " << testing_result_file_name2 << " "
   for(int i = 0; i < memory_usage_log_SplitPLRDF.size(); i++){
     testing_result_file2 << memory_usage_log_SplitPLRDF[i];
     if(i != memory_usage_log_SplitPLRDF.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;
+  testing_result_file2 << ",\"Log Of Memory Usage Of PLRDFStringKey\" : [";
+  for(int i = 0; i < memory_usage_log_PLRDFStringKey.size(); i++){
+    testing_result_file2 << memory_usage_log_PLRDFStringKey[i];
+    if(i != memory_usage_log_PLRDFStringKey.size() - 1){
+      testing_result_file2 << ", ";
+    }
+  }
+  testing_result_file2 << "]" << std::endl;
+  testing_result_file2 << ",\"Log Of Memory Usage Of SplitPLRDFStringKey\" : [";
+  for(int i = 0; i < memory_usage_log_SplitPLRDFStringKey.size(); i++){
+    testing_result_file2 << memory_usage_log_SplitPLRDFStringKey[i];
+    if(i != memory_usage_log_SplitPLRDFStringKey.size() - 1){
       testing_result_file2 << ", ";
     }
   }
@@ -281,12 +333,33 @@ void verification_runner::runPQVerification(DB** db_ptr2,
                                             WriteOptions& write_op, 
                                             ReadOptions& read_op, 
                                             EmuEnv* _env,
-                                            int number_of_PQs,
+                                            // int number_of_PQs,
+                                            int number_of_PQs_on_existing_keys,
+                                            int number_of_PQs_on_historic_existing_keys,
+                                            int number_of_PQs_on_currently_deleted_keys,
+                                            int number_of_PQs_on_currently_non_inserted_keys,
                                             string kDBPath){
-std::cout << "number_of_PQ = " << number_of_PQs <<  std::endl; 
-  assert(number_of_PQs != 0);
-  assert(number_of_PQs >= -1);
-  
+// std::cout << "number_of_PQ = " << number_of_PQs <<  std::endl;
+std::cout << "number_of_PQs_on_existing_keys = " << number_of_PQs_on_existing_keys <<  std::endl;
+std::cout << "number_of_PQs_on_historic_existing_keys = " << number_of_PQs_on_historic_existing_keys <<  std::endl;
+std::cout << "number_of_PQs_on_currently_deleted_keys = " << number_of_PQs_on_currently_deleted_keys <<  std::endl; 
+std::cout << "number_of_PQs_on_currently_non_inserted_keys = " << number_of_PQs_on_currently_non_inserted_keys <<  std::endl; 
+
+// assert(number_of_PQs != 0);
+// assert(number_of_PQs >= -1);
+
+assert(number_of_PQs_on_existing_keys != 0);
+assert(number_of_PQs_on_existing_keys >= -1);
+
+assert(number_of_PQs_on_historic_existing_keys != 0);
+assert(number_of_PQs_on_historic_existing_keys >= -1);
+
+assert(number_of_PQs_on_currently_deleted_keys != 0);
+assert(number_of_PQs_on_currently_deleted_keys >= -1);
+
+assert(number_of_PQs_on_currently_non_inserted_keys != 0);
+assert(number_of_PQs_on_currently_non_inserted_keys >= -1);
+
 
   DB* db = *db_ptr2;
   Status s;
@@ -301,19 +374,53 @@ std::cout << "number_of_PQ = " << number_of_PQs <<  std::endl;
   long long disk_access_count = 0;
 
   
-  std::string prefix_number_of_PQs = "";
-  if(number_of_PQs != -1){
-    prefix_number_of_PQs = "fixed #PQ = " + std::to_string(number_of_PQs);
+  // std::string prefix_number_of_PQs = "";
+  // if(number_of_PQs_on_existing_keys != -1){
+  //   prefix_number_of_PQs = "fixed #PQ = " + std::to_string(number_of_PQs_on_existing_keys);
+  // }
+  
+  std::string prefix_number_of_PQs_on_existing_keys = "";
+  if(number_of_PQs_on_existing_keys != -1){
+    prefix_number_of_PQs_on_existing_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_existing_keys);
   }
   
-  if(_env->load_pq_workload == false){
-    system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, number_of_PQs);
-  }else{
-    system_verifier->load_workload_with_numbers_of_PQ(N_repetitions, number_of_PQs, _env->workload_file_name);
+  std::string prefix_number_of_PQs_on_historic_existing_keys = "";
+  if(number_of_PQs_on_historic_existing_keys != -1){
+    prefix_number_of_PQs_on_historic_existing_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_historic_existing_keys);
   }
-  testing_result_file2 << system_verifier->getCurrentlyDeletedKeysVec2dString(",", "\"", prefix_number_of_PQs) << std::endl;
-
-
+  
+  std::string prefix_number_of_PQs_on_currently_deleted_keys = "";
+  if(number_of_PQs_on_currently_deleted_keys != -1){
+    prefix_number_of_PQs_on_currently_deleted_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_currently_deleted_keys);
+  }
+  
+  std::string prefix_number_of_PQs_on_currently_non_inserted_keys = "";
+  if(number_of_PQs_on_currently_non_inserted_keys != -1){
+    prefix_number_of_PQs_on_currently_non_inserted_keys = "fixed #PQ = " + std::to_string(number_of_PQs_on_currently_non_inserted_keys);
+  }
+  
+  // prefix_number_of_PQs_on_existing_keys, prefix_number_of_PQs_on_historic_existing_keys, prefix_number_of_PQs_on_currently_deleted_keys, prefix_number_of_PQs_on_currently_non_inserted_keys
+  // std::cout << "number_of_PQs_on_existing_keys = " << number_of_PQs_on_existing_keys <<  std::endl;
+  // std::cout << "number_of_PQs_on_historic_existing_keys = " << number_of_PQs_on_historic_existing_keys <<  std::endl;
+  // std::cout << "number_of_PQs_on_currently_deleted_keys = " << number_of_PQs_on_currently_deleted_keys <<  std::endl; 
+  // std::cout << "number_of_PQs_on_currently_non_inserted_keys = " << number_of_PQs_on_currently_non_inserted_keys <<  std::endl; 
+  
+  // number_of_PQs_on_existing_keys, number_of_PQs_on_historic_existing_keys, number_of_PQs_on_currently_deleted_keys, number_of_PQs_on_currently_non_inserted_keys
+  if(_env->load_pq_workload == false){
+    // system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, number_of_PQs);
+    system_verifier->gen_workload_with_numbers_of_PQ(N_repetitions, 
+      number_of_PQs_on_existing_keys, number_of_PQs_on_historic_existing_keys,
+      number_of_PQs_on_currently_deleted_keys, number_of_PQs_on_currently_non_inserted_keys);
+  }else{
+    // system_verifier->load_workload_with_numbers_of_PQ(N_repetitions, number_of_PQs, _env->workload_file_name);
+    system_verifier->load_workload_with_numbers_of_PQ(N_repetitions, 
+      number_of_PQs_on_existing_keys, number_of_PQs_on_historic_existing_keys, 
+      number_of_PQs_on_currently_deleted_keys, number_of_PQs_on_currently_non_inserted_keys, 
+      _env->workload_file_name);
+  }
+  // testing_result_file2 << system_verifier->getCurrentlyDeletedKeysVec2dString(",", "\"", prefix_number_of_PQs) << std::endl;
+  testing_result_file2 << system_verifier->getCurrentlyDeletedKeysVec2dString(",", "\"", prefix_number_of_PQs_on_currently_deleted_keys) << std::endl;
+  
   auto start_pq = std::chrono::high_resolution_clock::now();
   auto stop_pq = std::chrono::high_resolution_clock::now();
   auto duration_pq = std::chrono::duration_cast<std::chrono::nanoseconds>(stop_pq - start_pq);
@@ -329,10 +436,19 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
     system_verifier->setRDFTypeChosed(t);
     system_verifier->resetAllCount();
     system_verifier->resetAllDuration();
-    
-    if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
-      double filter_false_positive_rate = -1;
-      if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
+
+    if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY" 
+       || system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"
+       || system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" 
+       || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
+      // double filter_false_positive_rate = -1;
+      if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY"){
+        db->clearFilterFalsePositiveRateInPLRDFStringKey();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
+        db->clearFilterFalsePositiveRateInSplitPLRDFStringKey();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
         // filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
         db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
@@ -347,7 +463,9 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
       s = db->SetOptions({{"max_open_files", std::to_string(_env->max_open_files)}}); // is there any compaction happended after this????
     }
 
-    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
+    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs_on_existing_keys << std::endl;
+
     disk_access_count = 0;
     point_query_time = 0;
     start_pq = std::chrono::high_resolution_clock::now();
@@ -365,9 +483,9 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
 
 
       if(flag_reopen_db_for_each_RDF_testing == true){
-        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
+        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
         reopen_DB(db_ptr2, op, write_op, read_op, _env, kDBPath);
-        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
+        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
       }
       std::vector<uint64_t> cache_tombstone_bytes;
       for(auto x: system_verifier->getAllExistingKeysAtNRound(i)){
@@ -395,9 +513,9 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
           uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
           cache_tombstone_bytes.push_back(bytes);
         }
-        size_t separator_pos = value.find("|");
-        time_stamp = value.substr(separator_pos + 1);
-        value = value.substr(0, separator_pos);
+        // size_t separator_pos = value.find("|");
+        // time_stamp = value.substr(separator_pos + 1);
+        // value = value.substr(0, separator_pos);
 
         if(s.ok() != gt_is_exist){
           #ifdef DEBUG_VERIFICATION
@@ -418,7 +536,8 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
         string i_round_str = "i_round="+std::to_string(i)+" ";
-        std::string prefix = " (Existing Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        // std::string prefix = " (Existing Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        std::string prefix = " (Existing Keys " + i + prefix_number_of_PQs_on_existing_keys + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
         testing_result_file << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         testing_result_file2 << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         int len_ctb = cache_tombstone_bytes.size();
@@ -452,42 +571,65 @@ std::cout << "!!! Testing On Existing Keys " << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e6 << " (ms) " << std::endl << std::endl;
     testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
-    if (number_of_PQs == -1){
+    // if (number_of_PQs == -1){
+    //   testing_result_file << "number of PQ = " << system_verifier->getAllExistingKeys().size() << std::endl;
+    // }else{
+    //   testing_result_file << "number of PQ = " << number_of_PQs << std::endl;
+    // }
+    if (number_of_PQs_on_existing_keys == -1){
       testing_result_file << "number of PQ = " << system_verifier->getAllExistingKeys().size() << std::endl;
     }else{
-      testing_result_file << "number of PQ = " << number_of_PQs << std::endl;
+      testing_result_file << "number of PQ = " << number_of_PQs_on_existing_keys << std::endl;
     }
     testing_result_file << system_verifier->getAllCount("", "", "", N_repetitions) << std::endl;
     testing_result_file << "block_read_cpu_time = " << 1.0*block_read_cpu_time/N_repetitions/1e3  << "" << std::endl;
  
+
     // std::string prefix = " (Exist Keys) " + system_verifier->getStringOfRDFTypeChosed() + " ";
-    std::string prefix = " (Exist Keys " + prefix_number_of_PQs + ") "+ system_verifier->getStringOfRDFTypeChosed() + " ";
+    // std::string prefix = " (Exist Keys " + prefix_number_of_PQs + ") "+ system_verifier->getStringOfRDFTypeChosed() + " ";
+    std::string prefix = " (Exist Keys " + prefix_number_of_PQs_on_existing_keys + ") "+ system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file2 << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e6 << std::endl;
     testing_result_file2 << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
-    if (number_of_PQs == -1){
+    // if (number_of_PQs == -1){
+    //   testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getAllExistingKeys().size() << std::endl;
+    // }else{
+    //   testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+    // }
+    if (number_of_PQs_on_existing_keys == -1){
       testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getAllExistingKeys().size() << std::endl;
     }else{
-      testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+      testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs_on_existing_keys << std::endl;
     }
     testing_result_file2 << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
     testing_result_file2 << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
 
-    if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
+    if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY" 
+       || system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"
+       || system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" 
+       || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
       double filter_false_positive_rate = -1;
-      if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
-        filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+      if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInPLRDFStringKey();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInSplitPLRDFStringKey();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
       }
+      std::cout << prefix + " filter false positive rate _out = "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
       testing_result_file << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
       testing_result_file2 << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
     }
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
     // print_perf_iostats_context(std::cout, 1);
   }
-std::cout << prefix_number_of_PQs << " point_query_time_on_existing_keys_ns = " << point_query_time_on_existing_keys_ns << std::endl;
+  // std::cout << prefix_number_of_PQs << " point_query_time_on_existing_keys_ns = " << point_query_time_on_existing_keys_ns << std::endl;
+  std::cout << prefix_number_of_PQs_on_existing_keys << " point_query_time_on_existing_keys_ns_out = " << point_query_time_on_existing_keys_ns << std::endl;
 
 std::cout << "!!! Testing On historic-existing Keys " << std::endl;
 system_verifier->set_flag_testing_on_currently_deleted_keys();
@@ -505,10 +647,19 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
     system_verifier->setRDFTypeChosed(t);
     system_verifier->resetAllCount();
     system_verifier->resetAllDuration();
-    
-    if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
-      double filter_false_positive_rate = -1;
-      if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
+
+    if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY" 
+       || system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"
+       || system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" 
+       || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
+      // double filter_false_positive_rate = -1;
+      if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY"){
+        db->clearFilterFalsePositiveRateInPLRDFStringKey();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
+        db->clearFilterFalsePositiveRateInSplitPLRDFStringKey();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
         // filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
         db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
@@ -523,7 +674,8 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
       s = db->SetOptions({{"max_open_files", std::to_string(_env->max_open_files)}}); // is there any compaction happended after this????
     }
 
-    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
+    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs_on_historic_existing_keys << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
     start_pq = std::chrono::high_resolution_clock::now();
@@ -540,9 +692,9 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
 
 
       if(flag_reopen_db_for_each_RDF_testing == true){
-        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
+        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
         reopen_DB(db_ptr2, op, write_op, read_op, _env, kDBPath);
-        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
+        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
       }
 
       std::vector<uint64_t> cache_tombstone_bytes;
@@ -570,9 +722,9 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
           uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
           cache_tombstone_bytes.push_back(bytes);
         }
-        size_t separator_pos = value.find("|");
-        time_stamp = value.substr(separator_pos + 1);
-        value = value.substr(0, separator_pos);
+        // size_t separator_pos = value.find("|");
+        // time_stamp = value.substr(separator_pos + 1);
+        // value = value.substr(0, separator_pos);
 
         if(s.ok() != gt_is_exist){
           #ifdef DEBUG_VERIFICATION
@@ -593,8 +745,9 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
         string i_round_str = "i_round="+std::to_string(i)+" ";
-        std::string prefix = " (Historcially Exist Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
-        testing_result_file << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
+    // std::string prefix = " (Historcially Exist Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    std::string prefix = " (Historcially Exist Keys " + i + prefix_number_of_PQs_on_historic_existing_keys + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    testing_result_file << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         testing_result_file2 << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         int len_ctb = cache_tombstone_bytes.size();
         int i_ctb = 0;
@@ -627,37 +780,58 @@ system_verifier->set_flag_testing_on_currently_deleted_keys();
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e6 << " (ms) " << std::endl << std::endl;
     testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
-    if (number_of_PQs == -1){
+    // if (number_of_PQs == -1){
+    //   testing_result_file << "number of PQ = " << system_verifier->getHistoricExistingKeys().size() << std::endl;
+    // }else{
+    //   testing_result_file << "number of PQ = " << number_of_PQs << std::endl;
+    // }
+    if (number_of_PQs_on_historic_existing_keys == -1){
       testing_result_file << "number of PQ = " << system_verifier->getHistoricExistingKeys().size() << std::endl;
     }else{
-      testing_result_file << "number of PQ = " << number_of_PQs << std::endl;
+      testing_result_file << "number of PQ = " << number_of_PQs_on_historic_existing_keys << std::endl;
     }
     testing_result_file << system_verifier->getAllCount("", "", "", N_repetitions) << std::endl;
     testing_result_file << "block_read_cpu_time = " << 1.0*block_read_cpu_time/N_repetitions/1e3  << "" << std::endl;
 
     // std::string prefix = " (Historcially Exist Keys) " + system_verifier->getStringOfRDFTypeChosed() + " ";
-    std::string prefix = " (Historcially Exist Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    // std::string prefix = " (Historcially Exist Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    std::string prefix = " (Historcially Exist Keys " + prefix_number_of_PQs_on_historic_existing_keys + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file2 << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e6 << std::endl;
     testing_result_file2 << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
-    if (number_of_PQs == -1){
+    // if (number_of_PQs == -1){
+    //   testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getHistoricExistingKeys().size() << std::endl;
+    // }else{
+    //   testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+    // }
+    if (number_of_PQs_on_historic_existing_keys == -1){
       testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getHistoricExistingKeys().size() << std::endl;
     }else{
-      testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+      testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs_on_historic_existing_keys << std::endl;
     }
     testing_result_file2 << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
     testing_result_file2 << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
 
-    if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
+    if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY" 
+       || system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"
+       || system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" 
+       || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
       double filter_false_positive_rate = -1;
-      if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
-        filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+      if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInPLRDFStringKey();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInSplitPLRDFStringKey();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
       }
-      testing_result_file << ",\"" + prefix + " filter false positive rate\" : " << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
-      testing_result_file2 << ",\"" + prefix + " filter false positive rate\" : " << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
+      std::cout << prefix + " filter false positive rate _out = "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
+      testing_result_file << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
+      testing_result_file2 << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
     }
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
     // print_perf_iostats_context(std::cout, 1);
@@ -681,10 +855,19 @@ system_verifier->startPQTracing();
     system_verifier->setRDFTypeChosed(t);
     system_verifier->resetAllCount();
     system_verifier->resetAllDuration();
-    
-    if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
-      double filter_false_positive_rate = -1;
-      if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
+
+    if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY" 
+       || system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"
+       || system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" 
+       || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
+      // double filter_false_positive_rate = -1;
+      if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY"){
+        db->clearFilterFalsePositiveRateInPLRDFStringKey();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
+        db->clearFilterFalsePositiveRateInSplitPLRDFStringKey();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
         // filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
         db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
@@ -699,7 +882,8 @@ system_verifier->startPQTracing();
       s = db->SetOptions({{"max_open_files", std::to_string(_env->max_open_files)}}); // is there any compaction happended after this????
     }
 
-    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
+    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs_on_currently_deleted_keys << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
     start_pq = std::chrono::high_resolution_clock::now();
@@ -719,10 +903,10 @@ system_verifier->startPQTracing();
 
       if(flag_reopen_db_for_each_RDF_testing == true){
         // retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
-        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
+        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
         reopen_DB(db_ptr2, op, write_op, read_op, _env, kDBPath);
         // set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
-        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
+        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
       }
 
       std::vector<uint64_t> cache_tombstone_bytes;
@@ -750,9 +934,9 @@ system_verifier->startPQTracing();
           uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
           cache_tombstone_bytes.push_back(bytes);
         }
-        size_t separator_pos = value.find("|");
-        time_stamp = value.substr(separator_pos + 1);
-        value = value.substr(0, separator_pos);
+        // size_t separator_pos = value.find("|");
+        // time_stamp = value.substr(separator_pos + 1);
+        // value = value.substr(0, separator_pos);
 
         if(s.ok() != gt_is_exist){
           #ifdef DEBUG_VERIFICATION
@@ -773,7 +957,8 @@ system_verifier->startPQTracing();
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
         string i_round_str = "i_round="+std::to_string(i)+" ";
-        std::string prefix = " (Currently Deleted Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        // std::string prefix = " (Currently Deleted Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        std::string prefix = " (Currently Deleted Keys " + i + prefix_number_of_PQs_on_currently_deleted_keys + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
         testing_result_file << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         testing_result_file2 << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         int len_ctb = cache_tombstone_bytes.size();
@@ -798,7 +983,8 @@ system_verifier->startPQTracing();
       testing_logger.set_to_end(op, testing_result_file);
 
 
-      std::string prefix = " (Currently Deleted Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+      // std::string prefix = " (Currently Deleted Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+      std::string prefix = " (Currently Deleted Keys " + prefix_number_of_PQs_on_currently_deleted_keys + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
       testing_result_file2 << system_verifier->getMapPQTracingInfo(",", "\"", prefix, i) << std::endl;
       testing_result_file2 << system_verifier->getVPQTracingInfo(",", "\"", prefix, i) << std::endl;
       // system_verifier->clearMapPQTracingInfo();
@@ -815,34 +1001,55 @@ system_verifier->startPQTracing();
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e6 << " (ms) " << std::endl << std::endl;
     testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
-    if (number_of_PQs == -1){
+    // if (number_of_PQs == -1){
+    //   testing_result_file << "number of PQ = " << system_verifier->getCurrentlyDeletedKeys().size() << std::endl;
+    // }else{
+    //   testing_result_file << "number of PQ = " << number_of_PQs << std::endl;
+    // }
+    if (number_of_PQs_on_currently_deleted_keys == -1){
       testing_result_file << "number of PQ = " << system_verifier->getCurrentlyDeletedKeys().size() << std::endl;
     }else{
-      testing_result_file << "number of PQ = " << number_of_PQs << std::endl;
+      testing_result_file << "number of PQ = " << number_of_PQs_on_currently_deleted_keys << std::endl;
     }
     testing_result_file << system_verifier->getAllCount("", "", "", N_repetitions) << std::endl;
     testing_result_file << "block_read_cpu_time = " << 1.0*block_read_cpu_time/N_repetitions/1e3  << "" << std::endl;
 
-    std::string prefix = " (Currently Deleted Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    // std::string prefix = " (Currently Deleted Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    std::string prefix = " (Currently Deleted Keys " + prefix_number_of_PQs_on_currently_deleted_keys + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file2 << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e6 << std::endl;
     testing_result_file2 << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
-    if (number_of_PQs == -1){
+    // if (number_of_PQs == -1){
+    //   testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getCurrentlyDeletedKeys().size() << std::endl;
+    // }else{
+    //   testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+    // }
+    if (number_of_PQs_on_currently_deleted_keys == -1){
       testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getCurrentlyDeletedKeys().size() << std::endl;
     }else{
-      testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+      testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs_on_currently_deleted_keys << std::endl;
     }
     testing_result_file2 << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
     testing_result_file2 << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
 
-    if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
+    if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY" 
+       || system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"
+       || system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" 
+       || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
       double filter_false_positive_rate = -1;
-      if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
-        filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+      if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInPLRDFStringKey();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInSplitPLRDFStringKey();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
       }
+      std::cout << prefix + " filter false positive rate _out = "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
       testing_result_file << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
       testing_result_file2 << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
     }
@@ -851,7 +1058,8 @@ system_verifier->startPQTracing();
   }
 system_verifier->reset_flag_testing_on_currently_deleted_keys();
 system_verifier->endPQTracing();
-std::cout << prefix_number_of_PQs << " point_query_time_on_currently_deleted_all_ns = " << point_query_time_on_currently_deleted_all_ns << std::endl;
+// std::cout << prefix_number_of_PQs << " point_query_time_on_currently_deleted_all_ns = " << point_query_time_on_currently_deleted_all_ns << std::endl;
+std::cout << prefix_number_of_PQs_on_currently_deleted_keys << " point_query_time_on_currently_deleted_all_ns_out = " << point_query_time_on_currently_deleted_all_ns << std::endl;
 
 std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 
@@ -870,9 +1078,19 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
     system_verifier->resetAllCount();
     system_verifier->resetAllDuration();
     
-    if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
-      double filter_false_positive_rate = -1;
-      if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
+    
+    if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY" 
+       || system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"
+       || system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" 
+       || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
+      // double filter_false_positive_rate = -1;
+      if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY"){
+        db->clearFilterFalsePositiveRateInPLRDFStringKey();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
+        db->clearFilterFalsePositiveRateInSplitPLRDFStringKey();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
         // filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
         db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
@@ -887,7 +1105,8 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
       s = db->SetOptions({{"max_open_files", std::to_string(_env->max_open_files)}}); // is there any compaction happended after this????
     }
 
-    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
+    // testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs << std::endl;
+    testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << prefix_number_of_PQs_on_currently_non_inserted_keys << std::endl;
     disk_access_count = 0;
     point_query_time = 0;
     start_pq = std::chrono::high_resolution_clock::now();
@@ -904,10 +1123,10 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
 
       if(flag_reopen_db_for_each_RDF_testing == true){
         // retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
-        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
+        retrieve_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
         reopen_DB(db_ptr2, op, write_op, read_op, _env, kDBPath);
         // set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime, skyline__numbers_of_ranges_in_rdf_log);
-        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, top_level_rdf_prime, skyline_rdf_prime);
+        set_all_RDFs(db_ptr2, plrdf_prime, split_plrdf_prime, plrdf_stringkey_prime, split_plrdf_stringkey_prime, top_level_rdf_prime, skyline_rdf_prime);
       }
 
       std::vector<uint64_t> cache_tombstone_bytes;
@@ -935,9 +1154,9 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
           uint64_t bytes = checking::CacheTombstoneTracer::getInstance()->getTotalTombstoneBytes();
           cache_tombstone_bytes.push_back(bytes);
         }
-        size_t separator_pos = value.find("|");
-        time_stamp = value.substr(separator_pos + 1);
-        value = value.substr(0, separator_pos);
+        // size_t separator_pos = value.find("|");
+        // time_stamp = value.substr(separator_pos + 1);
+        // value = value.substr(0, separator_pos);
         if(s.ok() != gt_is_exist){
           #ifdef DEBUG_VERIFICATION
             std::cout << "ERROR (Existence inconsistency): " << x << " (result, gt_result) " << s.ok() << " " << gt_is_exist << std::endl;
@@ -957,7 +1176,8 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
       }
       if(system_verifier->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
         string i_round_str = "i_round="+std::to_string(i)+" ";
-        std::string prefix = " (Currently Non-Inserted Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        // std::string prefix = " (Currently Non-Inserted Keys " + i + prefix_number_of_PQs + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+        std::string prefix = " (Currently Non-Inserted Keys " + i + prefix_number_of_PQs_on_currently_non_inserted_keys + " " + i_round_str + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
         testing_result_file << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         testing_result_file2 << ",\"" + prefix + " cache tombstone bytes\" : " << "[";
         int len_ctb = cache_tombstone_bytes.size();
@@ -992,39 +1212,60 @@ std::cout << "!!! Testing On Currently Non-inserted Keys " << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << "Average Disk Access count = " << 1.0*disk_access_count/N_repetitions << std::endl;
     testing_result_file << system_verifier->getStringOfRDFTypeChosed() << " " << std::fixed << std::setprecision(2) << " elapsed time = " << 1.0*point_query_time/N_repetitions/1e6 << " (ms) " << std::endl << std::endl;
     testing_result_file << "filtered by RDF count = " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl; 
-    if (number_of_PQs == -1){
+    // if (number_of_PQs == -1){
+    //   testing_result_file << "number of PQ = " << system_verifier->getCurrentlyNonInsertedKeys().size() << std::endl;
+    // }else{
+    //   testing_result_file << "number of PQ = " << number_of_PQs << std::endl;
+    // }
+    if (number_of_PQs_on_currently_non_inserted_keys == -1){
       testing_result_file << "number of PQ = " << system_verifier->getCurrentlyNonInsertedKeys().size() << std::endl;
     }else{
-      testing_result_file << "number of PQ = " << number_of_PQs << std::endl;
+      testing_result_file << "number of PQ = " << number_of_PQs_on_currently_non_inserted_keys << std::endl;
     }
     testing_result_file << system_verifier->getAllCount("", "", "", N_repetitions) << std::endl;
     testing_result_file << "block_read_cpu_time = " << 1.0*block_read_cpu_time/N_repetitions/1e3  << "" << std::endl;
 
-    std::string prefix = " (Non-inserted Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    // std::string prefix = " (Non-inserted Keys " + prefix_number_of_PQs + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
+    std::string prefix = " (Non-inserted Keys " + prefix_number_of_PQs_on_currently_non_inserted_keys + ") " + system_verifier->getStringOfRDFTypeChosed() + " ";
     testing_result_file2 << ",\"" + prefix + " elapsed time\" : " << 1.0*point_query_time/N_repetitions/1e6 << std::endl;
     testing_result_file2 << ",\"" + prefix + " filtered by RDF count\" : " << std::fixed << std::setprecision(2) << 1.0*system_verifier->getFilteredByRDFCount()/N_repetitions << std::endl;
-    if (number_of_PQs == -1){
+    // if (number_of_PQs == -1){
+    //   testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getCurrentlyNonInsertedKeys().size() << std::endl;
+    // }else{
+    //   testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+    // }
+    if (number_of_PQs_on_currently_non_inserted_keys == -1){
       testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << system_verifier->getCurrentlyNonInsertedKeys().size() << std::endl;
     }else{
-      testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs << std::endl;
+      testing_result_file2 << ",\"" + prefix + " number of PQ\" : " << number_of_PQs_on_currently_non_inserted_keys << std::endl;
     }
     testing_result_file2 << system_verifier->getAllCount(",", "\"", prefix, N_repetitions) << std::endl;
     testing_result_file2 << ",\"" + prefix + " block_read_cpu_time\" : " << 1.0*block_read_cpu_time/N_repetitions/1e3 << std::endl;
 
-    if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
+    if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY" 
+       || system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"
+       || system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF" 
+       || (system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF")){
       double filter_false_positive_rate = -1;
-      if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
-        filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+      if(system_verifier->getStringOfRDFTypeChosed() == "PLRDF_STRING_KEY"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInPLRDFStringKey();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SPLIT_PLRDF_STRING_KEY"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInSplitPLRDFStringKey();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
+      }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_RDF"){
+        filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileRDF();
+        // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
       }else if(system_verifier->getStringOfRDFTypeChosed() == "SuRF_LF_SPLIT_RDF"){
         filter_false_positive_rate = db->getFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
         // db->clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF();
       }
+      std::cout << prefix + " filter false positive rate _out = "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
       testing_result_file << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
       testing_result_file2 << ",\"" + prefix + " filter false positive rate\" : "  << std::fixed << std::setprecision(4) << filter_false_positive_rate << std::fixed << std::setprecision(2) << std::endl;
     }
     testing_logger.output_statistics(testing_result_file, testing_result_file2, prefix);
-    print_perf_iostats_context(std::cout, 1);
+    print_perf_iostats_context(std::cout, prefix, 1);
   }
 
 }

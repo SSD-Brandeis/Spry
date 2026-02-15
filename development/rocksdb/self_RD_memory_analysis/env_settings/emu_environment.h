@@ -71,7 +71,7 @@ public:
     int level0_file_num_compaction_trigger; // number of files that triggers compaction in level0
     int target_file_size_multiplier; // multiplier for file size if we want to have same number of files per level
     int max_background_jobs; // Maximum number of concurrent background jobs (compactions and flushes).
-    int max_compaction_bytes; // target_file_size_base * 25, limit number of bytes in one compaction to be lower than this threshold. But it’s not guaranteed.
+    int max_compaction_bytes; // target_file_size_base * 25, limit number of bytes in one compaction to be lower than this threshold. But it?s not guaranteed.
     long max_bytes_for_level_base; // capacity for level base(usually level 1)
     int merge_operator;   // TBC
     int soft_pending_compaction_bytes_limit;    // TBC
@@ -277,7 +277,11 @@ public:
   bool gen_workload = false;
   bool load_pq_workload = true;
   bool skip_reading_RD_blocks = false;
-  int number_of_PQ = 5000;
+  // int number_of_PQ = 5000;
+  int number_of_PQs_on_existing_keys = 5000;
+  int number_of_PQs_on_historic_existing_keys = 5000;
+  int number_of_PQs_on_currently_deleted_keys = 5000;
+  int number_of_PQs_on_currently_non_inserted_keys = 5000;
   bool system_check_test_on_all_PQ = false;
   bool log_during_insertion = false;
   bool surf_use_condensed_digit_key = true;
