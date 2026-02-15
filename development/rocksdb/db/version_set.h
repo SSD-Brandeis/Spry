@@ -31,7 +31,7 @@
 #include <utility>
 #include <vector>
 
-//Self Added
+// Self Added
 #include <unordered_map>
 
 #include "cache/cache_helpers.h"
@@ -66,13 +66,13 @@
 #include "util/coro_utils.h"
 #include "util/hash_containers.h"
 
-//Self Added Start
-// #include "self_RD/range_delete_filter/range_delete_filter.h"
-#include "include/rocksdb/system_verifier.h"
-#include "include/rocksdb/sys_rdfilter.h"
-#include "include/rocksdb/SuRF/include/surf.hpp"
+// Self Added Start
 #include "db/column_family.h"
-//Self Added End
+#include "include/rocksdb/SuRF/include/surf.hpp"
+#include "include/rocksdb/sys_rdfilter.h"
+#include "include/rocksdb/system_verifier.h"
+
+// Self Added End
 
 namespace ROCKSDB_NAMESPACE {
 
@@ -133,12 +133,11 @@ enum EpochNumberRequirement {
   kMustPresent,
 };
 
-
-//Self Added
-// using PL_RDF = PerlevelRangeDeleteFilterByVector;
-// Information of the storage associated with each Version, including number of
-// levels of LSM tree, files information at each level, files marked for
-// compaction, blob files, etc.
+// Self Added
+//  using PL_RDF = PerlevelRangeDeleteFilterByVector;
+//  Information of the storage associated with each Version, including number of
+//  levels of LSM tree, files information at each level, files marked for
+//  compaction, blob files, etc.
 class VersionStorageInfo {
  public:
   VersionStorageInfo(const InternalKeyComparator* internal_comparator,
@@ -616,19 +615,6 @@ class VersionStorageInfo {
                                      const Slice& largest_user_key,
                                      int last_level, int last_l0_idx);
 
-  //Self Added
-  // void storeRange2RDFTest(RangeTombstone tombStone){
-  //   RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
-  // }
-
-  // void printRDFTest(){
-  //   std::cout << "VersionStorageInfo @version_set.h" << std::endl;
-  //   for(auto x: RDF_test){
-  //     std::cout << x.first << " " << x.second << std::endl;
-  //   }
-  //   std::cout << std::endl << std::endl;
-  // }
-
  private:
   void ComputeCompensatedSizes();
   void UpdateNumNonEmptyLevels();
@@ -645,12 +631,6 @@ class VersionStorageInfo {
   void GenerateLevel0NonOverlapping();
   void GenerateBottommostFiles();
   void GenerateFileLocationIndex();
-
-  //Self Added
-  // PL_RDF per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
-  // std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
-  // std::vector<std::pair<long long, long long>> RDF_test; //Self Added
-
 
   const InternalKeyComparator* internal_comparator_;
   const Comparator* user_comparator_;
@@ -998,6 +978,12 @@ class Version {
   Status TablesRangeTombstoneSummary(int max_entries_to_print,
                                      std::string* out_str);
 
+  // // yucheng Added Start
+  // Status Version::GetRangeTombstoneOfFileMeta(FileMetaData *file_meta,
+  //                                             std::unique_ptr<FragmentedRangeTombstoneIterator>
+  //                                             *outer_iter) {
+  // // yucheng Added End
+
   // REQUIRES: lock is held
   // On success, "tp" will contains the aggregated table property among
   // the table properties of all sst files in this version.
@@ -1037,59 +1023,74 @@ class Version {
       const ReadOptions& read_options, MergeIteratorBuilder* merge_iter_builder,
       int level, bool allow_unprepared_value);
 
-  //Self Added
-  void printAllFileRanges(){
+  // Self Added
+  void printAllFileRanges() {
     std::cout << std::endl << std::endl;
-    std::cout << std::setfill('-') << std::setw(60) << " START: Print All File Ranges " << std::setfill('-') << std::setw(60) << "" << std::endl;
+    std::cout << std::setfill('-') << std::setw(60)
+              << " START: Print All File Ranges " << std::setfill('-')
+              << std::setw(60) << "" << std::endl;
     int l = storage_info_.num_levels();
-    for(int i = 0; i < l; i++){
+    for (int i = 0; i < l; i++) {
       std::cout << "Level " << i << std::endl;
       auto files = storage_info_.LevelFiles(i);
-      if(files.size() == 0){continue;}
-      for(auto file : files){
-        if(file == NULL){continue;}
+      if (files.size() == 0) {
+        continue;
+      }
+      for (auto file : files) {
+        if (file == NULL) {
+          continue;
+        }
         // std::cout << "File " << file->fd.GetNumber() << std::endl;
         // std::cout << file->smallest.user_key().ToString() << std::endl;
-        // std::cout << " - " << file->largest.user_key().ToString() << std::endl;
-        std::cout << "File " << file->fd.GetNumber() << " : " << file->smallest.user_key().ToString() << " - " << file->largest.user_key().ToString() << std::endl;
+        // std::cout << " - " << file->largest.user_key().ToString() <<
+        // std::endl;
+        std::cout << "File " << file->fd.GetNumber() << " : "
+                  << file->smallest.user_key().ToString() << " - "
+                  << file->largest.user_key().ToString() << std::endl;
       }
     }
-    std::cout <<  std::setfill('-') << std::setw(60) << " END: Print All File Ranges " << std::setfill('-') << std::setw(60) << "" << std::endl;
+    std::cout << std::setfill('-') << std::setw(60)
+              << " END: Print All File Ranges " << std::setfill('-')
+              << std::setw(60) << "" << std::endl;
   }
 
-  void printAllLevelSize(){
+  void printAllLevelSize() {
     std::cout << std::endl << std::endl;
-    std::cout << std::setfill('-') << std::setw(60) << " START: Print All Level Size " << std::setfill('-') << std::setw(60) << "" << std::endl;
+    std::cout << std::setfill('-') << std::setw(60)
+              << " START: Print All Level Size " << std::setfill('-')
+              << std::setw(60) << "" << std::endl;
     int l = storage_info_.num_levels();
-    for(int i = 0; i < l; i++){
+    for (int i = 0; i < l; i++) {
       auto files = storage_info_.LevelFiles(i);
       std::cout << "Level : " << i << " Size : " << files.size() << std::endl;
     }
-    std::cout <<  std::setfill('-') << std::setw(60) << " END: Print All Level Size " << std::setfill('-') << std::setw(60) << "" << std::endl;
+    std::cout << std::setfill('-') << std::setw(60)
+              << " END: Print All Level Size " << std::setfill('-')
+              << std::setw(60) << "" << std::endl;
   }
 
-  std::vector<uint64_t> getLevelFileNumbers(int lvl){
+  std::vector<uint64_t> getLevelFileNumbers(int lvl) {
     std::vector<uint64_t> file_numbers;
-    for(auto &file : storage_info_.LevelFiles(lvl)){
+    for (auto& file : storage_info_.LevelFiles(lvl)) {
       file_numbers.push_back(file->fd.GetNumber());
     }
     return file_numbers;
   }
 
-  uint getLevelSize(int lvl){
-    if(lvl >= storage_info_.num_levels()){return 0;}
+  uint getLevelSize(int lvl) {
+    if (lvl >= storage_info_.num_levels()) {
+      return 0;
+    }
     return storage_info_.LevelFiles(lvl).size();
   }
 
-  uint getTotalNumberOfSSTFiles(){
+  uint getTotalNumberOfSSTFiles() {
     uint total = 0;
-    for(int i = 0; i < storage_info_.num_levels(); i++){
+    for (int i = 0; i < storage_info_.num_levels(); i++) {
       total += storage_info_.LevelFiles(i).size();
     }
     return total;
   }
-
-
 
   uint32_t getNumberOfTablesRangeTombstonesInCache() {
     uint32_t count = 0;
@@ -1098,7 +1099,8 @@ class Version {
     for (int level = 0; level < storage_info_.num_levels_; level++) {
       for (const auto& file_meta : storage_info_.files_[level]) {
         // auto fname =
-        //     TableFileName(cfd_->ioptions()->cf_paths, file_meta->fd.GetNumber(),
+        //     TableFileName(cfd_->ioptions()->cf_paths,
+        //     file_meta->fd.GetNumber(),
         //                   file_meta->fd.GetPathId());
 
         // TableCache* table_cache = cfd_->table_cache();
@@ -1112,12 +1114,14 @@ class Version {
         //   return s;
         // }
 
-        
         const FileDescriptor& fd = file_meta->fd;
         Status s;
         TableReader* t = fd.table_reader;
-        if (t == nullptr) {continue;}
-        FragmentedRangeTombstoneIterator* tombstone_iter = t->NewRangeTombstoneIterator(read_options);
+        if (t == nullptr) {
+          continue;
+        }
+        FragmentedRangeTombstoneIterator* tombstone_iter =
+            t->NewRangeTombstoneIterator(read_options);
 
         if (tombstone_iter) {
           tombstone_iter->SeekToFirst();
@@ -1132,7 +1136,6 @@ class Version {
     return count;
   }
 
-
   uint32_t getSizeOfTablesRangeTombstonesInCache() {
     uint32_t size = 0;
 
@@ -1140,7 +1143,8 @@ class Version {
     for (int level = 0; level < storage_info_.num_levels_; level++) {
       for (const auto& file_meta : storage_info_.files_[level]) {
         // auto fname =
-        //     TableFileName(cfd_->ioptions()->cf_paths, file_meta->fd.GetNumber(),
+        //     TableFileName(cfd_->ioptions()->cf_paths,
+        //     file_meta->fd.GetNumber(),
         //                   file_meta->fd.GetPathId());
 
         // TableCache* table_cache = cfd_->table_cache();
@@ -1154,21 +1158,23 @@ class Version {
         //   return s;
         // }
 
-        
         const FileDescriptor& fd = file_meta->fd;
         Status s;
         TableReader* t = fd.table_reader;
-        if (t == nullptr) {continue;}
-        FragmentedRangeTombstoneIterator* tombstone_iter = t->NewRangeTombstoneIterator(read_options);
+        if (t == nullptr) {
+          continue;
+        }
+        FragmentedRangeTombstoneIterator* tombstone_iter =
+            t->NewRangeTombstoneIterator(read_options);
 
         if (tombstone_iter) {
           tombstone_iter->SeekToFirst();
           // TODO: print timestamp
           while (tombstone_iter->Valid()) {
             std::cout << "start: " << tombstone_iter->start_key().ToString(true)
-              << " end: " << tombstone_iter->end_key().ToString(true)
-              << " seq: " << tombstone_iter->seq() 
-              << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<'\n';
+                      << " end: " << tombstone_iter->end_key().ToString(true)
+                      << " seq: " << tombstone_iter->seq() << " " << __FILE__
+                      << ":" << __LINE__ << " " << __FUNCTION__ << '\n';
             size += tombstone_iter->start_key().ToString(true).size();
             size += tombstone_iter->end_key().ToString(true).size();
             size += sizeof(tombstone_iter->seq());
@@ -1180,574 +1186,684 @@ class Version {
     return size;
   }
 
-  // //Self Added
-  // void storeRange2RDFilter(uint level, RangeTombstone tombstone){
-  //   assert(is_RDF_updated == false);
-  //   is_RDF_updated = true;
-  //   per_level_RDF_updated = per_level_RDF;
-  //   per_level_RDF_updated.addRangeDelete(level, std::stoll(tombstone.start_key_.ToString()), std::stoll(tombstone.end_key_.ToString()) );
-    
-  //   // RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
-  // }
+  uint32_t getSizeOfTablesRangeTombstonesOfAllLSMTree() {
+    uint32_t size = 0;
 
-  // void storeRanges2RDFilter(uint level, std::vector<pll> &range_delete_list_in){
-  //   assert(is_RDF_updated == false);
-  //   is_RDF_updated = true;
-  //   per_level_RDF_updated = per_level_RDF;
-  //   std::sort(range_delete_list_in.begin(), range_delete_list_in.end());
-  //   per_level_RDF_updated.addRangeDelete(level, range_delete_list_in);
-  // }
+    ReadOptions read_options;
+    for (int level = 0; level < storage_info_.num_levels_; level++) {
+      for (auto file_meta : storage_info_.files_[level]) {
+        // auto fname =
+        //     TableFileName(cfd_->ioptions()->cf_paths,
+        //     file_meta->fd.GetNumber(),
+        //                   file_meta->fd.GetPathId());
 
-  // void printRDFilter(){
-  //   std::cout << "RDF" << std::endl;
-  //   per_level_RDF.print();
-  // }
+        // TableCache* table_cache = cfd_->table_cache();
+        // std::unique_ptr<FragmentedRangeTombstoneIterator> tombstone_iter;
 
-  // void printRDFilterUpdated(){
-  //   std::cout << "RDF Updated" << std::endl;
-  //   per_level_RDF_updated.print();
-  // }
+        // Status s = table_cache->GetRangeTombstoneIterator(
+        //     read_options, cfd_->internal_comparator(), *file_meta,
+        //     cfd_->GetLatestMutableCFOptions()->block_protection_bytes_per_key,
+        //     &tombstone_iter);
+        // if (!s.ok()) {
+        //   return s;
+        // }
 
-  void setOriginInfo(OriginInfo origin_info_in){
+        // const FileDescriptor& fd = file_meta->fd;
+
+        auto* cfd = this->cfd_;
+        TableCache* table_cache = cfd->table_cache();
+        std::unique_ptr<FragmentedRangeTombstoneIterator> tombstone_iter;
+        // ReadOptions read_options;
+
+        Status s = table_cache->GetRangeTombstoneIterator(
+            read_options, cfd->internal_comparator(), *file_meta,
+            cfd->GetLatestMutableCFOptions()->block_protection_bytes_per_key,
+            &tombstone_iter);
+
+        // TableReader* t = fd.table_reader;
+        // if (t == nullptr) {continue;}
+        // FragmentedRangeTombstoneIterator* tombstone_iter =
+        // t->NewRangeTombstoneIterator(read_options);
+
+        if (tombstone_iter) {
+          tombstone_iter->SeekToFirst();
+          // TODO: print timestamp
+          while (tombstone_iter->Valid()) {
+            // std::cout << "start: " <<
+            // tombstone_iter->start_key().ToString(true)
+            //   << " end: " << tombstone_iter->end_key().ToString(true)
+            //   << " seq: " << tombstone_iter->seq()
+            //   << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+            //   <<'\n';
+            size += tombstone_iter->start_key().ToString(true).size();
+            size += tombstone_iter->end_key().ToString(true).size();
+            size += sizeof(tombstone_iter->seq());
+            tombstone_iter->Next();
+          }
+        }
+      }
+    }
+    return size;
+  }
+
+  uint32_t getSizeOfTablesRangeTombstonesOfAllLSMTreeIncludedTimestamp() {
+    uint32_t size = 0;
+
+    ReadOptions read_options;
+    for (int level = 0; level < storage_info_.num_levels_; level++) {
+      for (auto file_meta : storage_info_.files_[level]) {
+        // auto fname =
+        //     TableFileName(cfd_->ioptions()->cf_paths,
+        //     file_meta->fd.GetNumber(),
+        //                   file_meta->fd.GetPathId());
+
+        // TableCache* table_cache = cfd_->table_cache();
+        // std::unique_ptr<FragmentedRangeTombstoneIterator> tombstone_iter;
+
+        // Status s = table_cache->GetRangeTombstoneIterator(
+        //     read_options, cfd_->internal_comparator(), *file_meta,
+        //     cfd_->GetLatestMutableCFOptions()->block_protection_bytes_per_key,
+        //     &tombstone_iter);
+        // if (!s.ok()) {
+        //   return s;
+        // }
+
+        // const FileDescriptor& fd = file_meta->fd;
+
+        auto* cfd = this->cfd_;
+        TableCache* table_cache = cfd->table_cache();
+        std::unique_ptr<FragmentedRangeTombstoneIterator> tombstone_iter;
+        // ReadOptions read_options;
+
+        Status s = table_cache->GetRangeTombstoneIterator(
+            read_options, cfd->internal_comparator(), *file_meta,
+            cfd->GetLatestMutableCFOptions()->block_protection_bytes_per_key,
+            &tombstone_iter);
+
+        // TableReader* t = fd.table_reader;
+        // if (t == nullptr) {continue;}
+        // FragmentedRangeTombstoneIterator* tombstone_iter =
+        // t->NewRangeTombstoneIterator(read_options);
+
+        if (tombstone_iter) {
+          tombstone_iter->SeekToFirst();
+          // TODO: print timestamp
+          while (tombstone_iter->Valid()) {
+            // std::cout << "start: " <<
+            // tombstone_iter->start_key().ToString(true)
+            //   << " end: " << tombstone_iter->end_key().ToString(true)
+            //   << " seq: " << tombstone_iter->seq()
+            //   << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+            //   <<'\n';
+            size += tombstone_iter->start_key().ToString(true).size();
+            size += tombstone_iter->end_key().ToString(true).size();
+            size += sizeof(tombstone_iter->seq());
+            size += tombstone_iter->timestamp().ToString(true).size();
+            tombstone_iter->Next();
+          }
+        }
+      }
+    }
+    return size;
+  }
+
+  void setOriginInfo(OriginInfo origin_info_in) {
     origin_info = origin_info_in;
   }
 
-  void setPLRDF(PLRDF plrdf_in){
-    plrdf = plrdf_in;
+  void setPLRDF(PLRDF plrdf_in) { rdf_bundle_->plrdf = plrdf_in; }
+
+  void setSplitPLRDF(PLRDF& split_plrdf_in) {
+    rdf_bundle_->split_plrdf = split_plrdf_in;
   }
 
-  void setSplitPLRDF(PLRDF &split_plrdf_in){
-    split_plrdf = split_plrdf_in;
-  }
-  
-  void setTopLevelRDF(PLRDF &top_level_rdf_in){
-    top_level_rdf = top_level_rdf_in;
+  void setPLRDFStringKey(PLRDF_t<std::string> plrdf_stringkey_in) {
+    rdf_bundle_->plrdf_stringkey = plrdf_stringkey_in;
   }
 
-  // void setSkylineRDF( std::vector<t3ll> &skyline_rdf_in){
-  void setSkylineRDF( SkyLineRDF &skyline_rdf_in){
-    skyline_rdf = skyline_rdf_in;
-  }
-  // void setSkylineNumbersOfRangesInRDFLog(std::vector<int> &skyline__numbers_of_ranges_in_rdf_log_in){
-  //   skyline__numbers_of_ranges_in_rdf_log = skyline__numbers_of_ranges_in_rdf_log_in;
-  // }
-
-  // void setSuRFTopLevelRDF(surf::SuRF_RDF *surf__top_level_rdf_in){
-  //   assert(surf__top_level_rdf_in != NULL);
-  //   surf__top_level_rdf = surf__top_level_rdf_in;
-  // }
-  void setSuRFLevelFileRDF(surf::SuRF_RDF *surf__level_file_rdf_in){
-    assert(surf__level_file_rdf_in != NULL);
-    surf__level_file_rdf = surf__level_file_rdf_in;
-  }
-  void setSuRFLevelFileSplitRDF(surf::SuRF_RDF *surf__level_file_rdf_in){
-    assert(surf__level_file_rdf_in != NULL);
-    surf__level_file_split_rdf = surf__level_file_rdf_in;
+  void setSplitPLRDFStringKey(PLRDF_t<std::string>& split_plrdf_stringkey_in) {
+    rdf_bundle_->split_plrdf_stringkey = split_plrdf_stringkey_in;
   }
 
-
-  bool isAliveAfterRDFilter(uint level, long long key){
-    // std::string rdf_chosed_name = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
-    // if(rdf_chosed_name == "NONE"){return true;}
-    // else if(rdf_chosed_name == "PLRDF"){
-    //   // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
-    //   // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
-    //   return (this->plrdf).isEntryAlive(level, key);
-    // }else if(rdf_chosed_name == "SPLIT_PLRDF"){
-    //   // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
-    //   // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
-    //   return (this->split_plrdf).isEntryAlive(level, key);
-    // }else{
-    //   std::cerr << "RDF Type Chosed (" << rdf_chosed_name << ") is not supported yet" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    //   exit(1);
-    // }
-    return (this->plrdf).isEntryAlive(level, key);
-    // // per_level_RDF.isEntryAlive(level, key);
-    // return true;
-  }
-  
-  bool isAliveAfterSplitRDFilter(uint level, long long key){
-    // std::string rdf_chosed_name = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
-    // if(rdf_chosed_name == "NONE"){return true;}
-    // else if(rdf_chosed_name == "PLRDF"){
-    //   // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
-    //   // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
-    //   return (this->plrdf).isEntryAlive(level, key);
-    // }else if(rdf_chosed_name == "SPLIT_PLRDF"){
-    //   // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
-    //   // return rdfilter::PLRDF::getRDFilter()->isEntryAlive(level, key);
-    //   return (this->split_plrdf).isEntryAlive(level, key);
-    // }else{
-    //   std::cerr << "RDF Type Chosed (" << rdf_chosed_name << ") is not supported yet" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    //   exit(1);
-    // }
-    // std::cout << "isAliveAfterSplitRDFilter level = " << level << " key = " << key << " "
-    //           << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    return (this->split_plrdf).isEntryAlive(level, key);
-    // // per_level_RDF.isEntryAlive(level, key);
-    // return true;
-  }
-  
-  bool isAliveAfterTopLevelRDFilter(long long key){
-    return (this->top_level_rdf).isEntryAlive(1, key);
+  void setTopLevelRDF(PLRDF& top_level_rdf_in) {
+    rdf_bundle_->top_level_rdf = top_level_rdf_in;
   }
 
-  // bool isAliveAfterSkylineRDFilter(long long key, long long seq){
-  //   auto it = std::upper_bound(skyline_rdf.begin(), skyline_rdf.end(), std::make_tuple(key, key, (long long) 0));
-  //   if(it == skyline_rdf.end()){return true;}
-
-  //   if(std::get<0>(*it) <= key && key < std::get<1>(*it)){
-  //     if(std::get<2>(*it) <= seq){
-  //       return true;
-  //     }else{
-  //       return false;
-  //     }
-  //   }
-  //   return true;
-  // }
-//   long long getMaxSeqFromSkylineRDFilter(long long key){
-//     return skyline_rdf.getMaxSeq(key);
-// //     // auto it = std::upper_bound(skyline_rdf.begin(), skyline_rdf.end(), std::make_tuple(key, key, (long long) 0));
-// //     auto it = std::lower_bound(skyline_rdf.begin(), skyline_rdf.end(), key, [](auto &a, long long b){return get<1>(a) <= b;} );
-// //     if(it == skyline_rdf.end()){return 0;}
-// // // std::cout << " min = " << std::get<0>(*it) << " max = " << std::get<1>(*it) << " seq = " << std::get<2>(*it) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-
-// //     if(std::get<0>(*it) <= key && key < std::get<1>(*it)){
-// //       return std::get<2>(*it);
-// //     }
-// //     return 0;
-//   }
-  bool isAliveAfterSkylineRDFilter(long long key, long long seq){
-    return skyline_rdf.isEntryAlive(key, seq);
+  void setTopLevelRDFStringKey(
+      PLRDF_t<std::string>& top_level_rdf_stringkey_in) {
+    rdf_bundle_->top_level_rdf_stringkey = top_level_rdf_stringkey_in;
   }
 
-  // bool isAliveAfterSuRFTopLevelRDFilter(std::string key, bool flag_bypass_if_same_key){
-  //   if(surf__top_level_rdf == NULL){
-  //     return true;
-  //   }
-  //   return (this->surf__top_level_rdf)->isEntryAlive((uint32_t) 1, key, flag_bypass_if_same_key);
-  // }
-  bool isAliveAfterSuRFLevelFileRDFilter(uint level, uint64_t fd, std::string key, bool flag_bypass_if_same_key){
-    if(surf__level_file_rdf == NULL){
+  void setSkylineRDF(SkyLineRDF& skyline_rdf_in) {
+    rdf_bundle_->skyline_rdf = skyline_rdf_in;
+  }
+  // TODO: level_surf_rdf / level_file_surf_rdf shall maintain multiple versions
+  // rollout
+  void setSuRFLevelFileRDF(surf::SuRF_RDF* surf__level_file_rdf_in) {
+    assert(surf__level_file_rdf_in != nullptr);
+    rdf_bundle_->surf_level_file_rdf.reset(surf__level_file_rdf_in);
+  }
+  void setSuRFLevelFileSplitRDF(surf::SuRF_RDF* surf__level_file_rdf_in) {
+    assert(surf__level_file_rdf_in != nullptr);
+    rdf_bundle_->surf_level_file_split_rdf.reset(surf__level_file_rdf_in);
+  }
+
+  bool isAliveAfterRDFilter(uint level, long long key) {
+    return rdf_bundle_->plrdf.isEntryAlive(level, key);
+  }
+
+  bool isAliveAfterSplitRDFilter(uint level, long long key) {
+    return rdf_bundle_->split_plrdf.isEntryAlive(level, key);
+  }
+
+  bool isAliveAfterRDFilterStringKey(uint level, std::string key) {
+    return rdf_bundle_->plrdf_stringkey.isEntryAlive(level, key);
+  }
+
+  bool isAliveAfterSplitRDFilterStringKey(uint level, std::string key) {
+    return rdf_bundle_->split_plrdf_stringkey.isEntryAlive(level, key);
+  }
+
+  bool isAliveAfterTopLevelRDFilter(long long key) {
+    return rdf_bundle_->top_level_rdf.isEntryAlive(1, key);
+  }
+  bool isAliveAfterTopLevelRDFilterStringKey(std::string key) {
+    return rdf_bundle_->top_level_rdf_stringkey.isEntryAlive(1, key);
+  }
+  const std::shared_ptr<VersionRDFBundle>& GetRDFBundle() const {
+    return rdf_bundle_;
+  }
+  void SetRDFBundle(std::shared_ptr<VersionRDFBundle> bundle) {
+    rdf_bundle_ = std::move(bundle);
+  }
+  bool isAliveAfterSkylineRDFilter(long long key, long long seq) {
+    return rdf_bundle_->skyline_rdf.isEntryAlive(key, seq);
+  }
+  bool isAliveAfterSuRFLevelFileRDFilter(uint level, uint64_t fd,
+                                         std::string key,
+                                         bool flag_bypass_if_same_key) {
+    if (rdf_bundle_->surf_level_file_rdf == NULL) {
       return true;
     }
-    return (this->surf__level_file_rdf)->isEntryAliveAtLevelOfFd(level, fd, key, flag_bypass_if_same_key);
+    return rdf_bundle_->surf_level_file_rdf->isEntryAliveAtLevelOfFd(
+        level, fd, key, flag_bypass_if_same_key);
   }
-  bool isAliveAfterSuRFLevelFileSplitRDFilter(uint level, uint64_t fd, std::string key, bool flag_bypass_if_same_key){
-    if(surf__level_file_split_rdf == NULL){
+  bool isAliveAfterSuRFLevelFileSplitRDFilter(uint level, uint64_t fd,
+                                              std::string key,
+                                              bool flag_bypass_if_same_key) {
+    if (rdf_bundle_->surf_level_file_split_rdf == NULL) {
       return true;
     }
-    return (this->surf__level_file_split_rdf)->isEntryAliveAtLevelOfFd(level, fd, key, flag_bypass_if_same_key);
+    return rdf_bundle_->surf_level_file_split_rdf->isEntryAliveAtLevelOfFd(
+        level, fd, key, flag_bypass_if_same_key);
   }
 
-  void printPLRDF(){
-    plrdf.printLevel0();
-    plrdf.print();
+  // start: can only be called after isAliveAfterPLRDFStringKey is called
+  bool isKeyMayDeletedAfterPLRDFStringKey() {
+    return rdf_bundle_->plrdf_stringkey.getFlagKeyMayDeleted();
   }
 
-  void printSplitPLRDF(){
-    split_plrdf.printLevel0();
-    split_plrdf.print();
+  // start: can only be called after isAliveAfterSplitPLRDFStringKey is called
+  bool isKeyMayDeletedAfterSplitPLRDFStringKey() {
+    return rdf_bundle_->split_plrdf_stringkey.getFlagKeyMayDeleted();
   }
 
-
-  void printTopLevelRDF(){
-    top_level_rdf.printLevel0();
-    top_level_rdf.print();
+  bool isKeyMayDeletedAfterTopLevelRDFilterStringKey() {
+    return rdf_bundle_->top_level_rdf_stringkey.getFlagKeyMayDeleted();
   }
 
-  void printSkylineRDF(){
-    skyline_rdf.print();
-    // std::cout << "Skyline RDF" << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    // for(auto it = skyline_rdf.begin(); it != skyline_rdf.end(); it++){
-    //   std::cout << " [" << std::get<0>(*it) << ", " << std::get<1>(*it) << ") --(" << std::get<2>(*it) << ") ";
-    // }
-    // std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // start: can only be called after isAliveAfterSuRFLevelFileRDFilter is called
+  bool isKeyMayDeletedAfterSuRFLevelFileRDFilter() {
+    if (rdf_bundle_->surf_level_file_rdf == NULL) {
+      return false;
+    }
+    return rdf_bundle_->surf_level_file_rdf->getFlagKeyMayDeleted();
+  }
+  // start: can only be called after isAliveAfterSuRFLevelFileSplitRDFilter is
+  // called
+  bool isKeyMayDeletedAfterSuRFLevelFileSplitRDFilter() {
+    if (rdf_bundle_->surf_level_file_split_rdf == NULL) {
+      return false;
+    }
+    return rdf_bundle_->surf_level_file_split_rdf->getFlagKeyMayDeleted();
   }
 
-  // void printSuRFTopLevelRDF(){
-  //   //TODO: pass
-  // }
-  void printSuRFLevelFileRDF(){
-    if(surf__level_file_rdf == NULL){return;}
-    
-    surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
-    bool surf_flag__allow_range_boundary_overlapped = _surf_env->getFlagAllowRangeBoundaryOverlapped();
-    surf__level_file_rdf->print(surf_flag__allow_range_boundary_overlapped);
-  }
-  void printSuRFLevelFileSplitRDF(){
-    if(surf__level_file_split_rdf == NULL){return;}
-    
-    surf::SuRF_Env *_surf_env = surf::SuRF_Env::getInstance();
-    bool surf_flag__allow_range_boundary_overlapped = _surf_env->getFlagAllowRangeBoundaryOverlapped();
-    surf__level_file_split_rdf->print(surf_flag__allow_range_boundary_overlapped);
+  void printPLRDF() {
+    rdf_bundle_->plrdf.printLevel0();
+    rdf_bundle_->plrdf.print();
   }
 
-  int getPLRDFNumberOfTotalRanges(){
-    return plrdf.getNumberOfTotalRanges();
-  }
-  int getSplitPLRDFNumberOfTotalRanges(){
-    return split_plrdf.getNumberOfTotalRanges();
-  }
-  int getTopLevelRDFNumberOfTotalRanges(){
-    return top_level_rdf.getNumberOfTotalRanges();
-  }
-  int getSkylineRDFNumberOfTotalRanges(){
-    // return skyline_rdf.size();
-    return skyline_rdf.getNumberOfTotalRanges();
+  void printSplitPLRDF() {
+    rdf_bundle_->split_plrdf.printLevel0();
+    rdf_bundle_->split_plrdf.print();
   }
 
-  // int getSuRFTopLevelRDFNumberOfTotalRanges(){
-  //   if(surf__top_level_rdf == NULL){
-  //     return 0;
-  //   }
-  //   return surf__top_level_rdf->getNumberOfTotalRanges();
-  // }
-  int getSuRFLevelFileRDFNumberOfTotalRanges(){
-    if(surf__level_file_rdf == NULL){
+  void printPLRDFStringKey() {
+    rdf_bundle_->plrdf_stringkey.printLevel0();
+    rdf_bundle_->plrdf_stringkey.print();
+  }
+
+  void printSplitPLRDFStringKey() {
+    rdf_bundle_->split_plrdf_stringkey.printLevel0();
+    rdf_bundle_->split_plrdf_stringkey.print();
+  }
+
+  void printTopLevelRDF() {
+    rdf_bundle_->top_level_rdf.printLevel0();
+    rdf_bundle_->top_level_rdf.print();
+  }
+
+  void printTopLevelRDFStringKey() {
+    rdf_bundle_->top_level_rdf_stringkey.printLevel0();
+    rdf_bundle_->top_level_rdf_stringkey.print();
+  }
+
+  void printSkylineRDF() { rdf_bundle_->skyline_rdf.print(); }
+  void printSuRFLevelFileRDF() {
+    if (rdf_bundle_->surf_level_file_rdf == NULL) {
+      return;
+    }
+
+    surf::SuRF_Env* _surf_env = surf::SuRF_Env::getInstance();
+    bool surf_flag__allow_range_boundary_overlapped =
+        _surf_env->getFlagAllowRangeBoundaryOverlapped();
+    rdf_bundle_->surf_level_file_rdf->print(
+        surf_flag__allow_range_boundary_overlapped);
+  }
+  void printSuRFLevelFileSplitRDF() {
+    if (rdf_bundle_->surf_level_file_split_rdf == NULL) {
+      return;
+    }
+
+    surf::SuRF_Env* _surf_env = surf::SuRF_Env::getInstance();
+    bool surf_flag__allow_range_boundary_overlapped =
+        _surf_env->getFlagAllowRangeBoundaryOverlapped();
+    rdf_bundle_->surf_level_file_split_rdf->print(
+        surf_flag__allow_range_boundary_overlapped);
+  }
+
+  int getPLRDFNumberOfTotalRanges() {
+    return rdf_bundle_->plrdf.getNumberOfTotalRanges();
+  }
+  int getSplitPLRDFNumberOfTotalRanges() {
+    return rdf_bundle_->split_plrdf.getNumberOfTotalRanges();
+  }
+  int getPLRDFStringKeyNumberOfTotalRanges() {
+    return rdf_bundle_->plrdf_stringkey.getNumberOfTotalRanges();
+  }
+  int getSplitPLRDFStringKeyNumberOfTotalRanges() {
+    return rdf_bundle_->split_plrdf_stringkey.getNumberOfTotalRanges();
+  }
+  int getTopLevelRDFNumberOfTotalRanges() {
+    return rdf_bundle_->top_level_rdf.getNumberOfTotalRanges();
+  }
+  int getTopLevelRDFStringKeyNumberOfTotalRanges() {
+    return rdf_bundle_->top_level_rdf_stringkey.getNumberOfTotalRanges();
+  }
+  int getSkylineRDFNumberOfTotalRanges() {
+    return rdf_bundle_->skyline_rdf.getNumberOfTotalRanges();
+  }
+  int getSuRFLevelFileRDFNumberOfTotalRanges() {
+    if (rdf_bundle_->surf_level_file_rdf == NULL) {
       return 0;
     }
-    return surf__level_file_rdf->getNumberOfTotalRanges();
+    return rdf_bundle_->surf_level_file_rdf->getNumberOfTotalRanges();
   }
-  int getSuRFLevelFileSplitRDFNumberOfTotalRanges(){
-    if(surf__level_file_split_rdf == NULL){
+  int getSuRFLevelFileSplitRDFNumberOfTotalRanges() {
+    if (rdf_bundle_->surf_level_file_split_rdf == NULL) {
       return 0;
     }
-    return surf__level_file_split_rdf->getNumberOfTotalRanges();
+    return rdf_bundle_->surf_level_file_split_rdf->getNumberOfTotalRanges();
   }
-
-  int getPLRDFNumberOfTotalLevels(){
-    return plrdf.getNumberOfTotalLevels();
+  int getPLRDFNumberOfTotalMemoryUsage() {
+    return rdf_bundle_->plrdf.getNumberOfTotalMemoryUsage();
   }
-  int getSplitPLRDFNumberOfTotalLevels(){
-    return split_plrdf.getNumberOfTotalLevels();
+  int getSplitPLRDFNumberOfTotalMemoryUsage() {
+    return rdf_bundle_->split_plrdf.getNumberOfTotalMemoryUsage();
   }
-  int getTopLevelRDFNumberOfTotalLevels(){
-    return top_level_rdf.getNumberOfTotalLevels();
+  int getPLRDFStringKeyNumberOfTotalMemoryUsage() {
+    return rdf_bundle_->plrdf_stringkey.getNumberOfTotalMemoryUsage();
   }
-  int getSkylineRDFNumberOfTotalLevels(){
-    return 1;
+  int getSplitPLRDFStringKeyNumberOfTotalMemoryUsage() {
+    return rdf_bundle_->split_plrdf_stringkey.getNumberOfTotalMemoryUsage();
   }
-
-  // int getSuRFTopLevelRDFNumberOfTotalLevels(){
-  //   if(surf__top_level_rdf == NULL){
-  //     return 0;
-  //   }
-  //   return 1;
-  // }
-  int getSuRFLevelFileRDFNumberOfTotalLevels(){
-    if(surf__level_file_rdf == NULL){
+  int getTopLevelRDFNumberOfTotalMemoryUsage() {
+    return rdf_bundle_->top_level_rdf.getNumberOfTotalMemoryUsage();
+  }
+  int getTopLevelRDFStringKeyNumberOfTotalMemoryUsage() {
+    return rdf_bundle_->top_level_rdf_stringkey.getNumberOfTotalMemoryUsage();
+  }
+  int getSkylineRDFNumberOfTotalMemoryUsage() {
+    return rdf_bundle_->skyline_rdf.getNumberOfTotalMemoryUsage();
+  }
+  int getSuRFLevelFileRDFNumberOfTotalMemoryUsage() {
+    if (rdf_bundle_->surf_level_file_rdf == NULL) {
       return 0;
-    }        
-    return surf__level_file_rdf->getNumberOfTotalLevels();
+    }
+    return rdf_bundle_->surf_level_file_rdf->getNumberOfTotalMemoryUsage();
   }
-  
-  int getSuRFLevelFileSplitRDFNumberOfTotalLevels(){
-    if(surf__level_file_split_rdf == NULL){
+  int getSuRFLevelFileSplitRDFNumberOfTotalMemoryUsage() {
+    if (rdf_bundle_->surf_level_file_split_rdf == NULL) {
       return 0;
-    }        
-    return surf__level_file_split_rdf->getNumberOfTotalLevels();
+    }
+    return rdf_bundle_->surf_level_file_split_rdf
+        ->getNumberOfTotalMemoryUsage();
   }
-  
-  std::vector<int> getLogOfNumbersOfRangesInOrigin(){
-    return origin_info.getNumbersOfRanges();
+  int getPLRDFNumberOfTotalLevels() {
+    return rdf_bundle_->plrdf.getNumberOfTotalLevels();
   }
-  std::vector<int> getLogOfNumbersOfRangesInPLRDF(){
-    return plrdf.getNumbersOfRangesInRDFLog();
+  int getSplitPLRDFNumberOfTotalLevels() {
+    return rdf_bundle_->split_plrdf.getNumberOfTotalLevels();
   }
-  std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF(){
-    return split_plrdf.getNumbersOfRangesInRDFLog();
+  int getPLRDFStringKeyNumberOfTotalLevels() {
+    return rdf_bundle_->plrdf_stringkey.getNumberOfTotalLevels();
   }
-  std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF(){
-    return top_level_rdf.getNumbersOfRangesInRDFLog();
+  int getSplitPLRDFStringKeyNumberOfTotalLevels() {
+    return rdf_bundle_->split_plrdf_stringkey.getNumberOfTotalLevels();
   }
-  std::vector<int> getLogOfNumbersOfRangesInSkylineRDF(){
-    // return skyline__numbers_of_ranges_in_rdf_log;
-    return skyline_rdf.getNumbersOfRangesInRDFLog();
+  int getTopLevelRDFNumberOfTotalLevels() {
+    return rdf_bundle_->top_level_rdf.getNumberOfTotalLevels();
+  }
+  int getTopLevelRDFStringKeyNumberOfTotalLevels() {
+    return rdf_bundle_->top_level_rdf_stringkey.getNumberOfTotalLevels();
+  }
+  int getSkylineRDFNumberOfTotalLevels() { return 1; }
+
+  int getSuRFLevelFileRDFNumberOfTotalLevels() {
+    if (rdf_bundle_->surf_level_file_rdf == NULL) {
+      return 0;
+    }
+    return rdf_bundle_->surf_level_file_rdf->getNumberOfTotalLevels();
   }
 
-  // std::vector<int> getLogOfNumbersOfRangesInSuRFTopLevelRDF(){
-  //   if(surf__top_level_rdf == NULL){
-  //     return std::vector<int>();
-  //   }
-  //   return surf__top_level_rdf->getNumbersOfRangesInRDFLog();
-  // }
-  std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF(){
-    if(surf__level_file_rdf == NULL){
+  int getSuRFLevelFileSplitRDFNumberOfTotalLevels() {
+    if (rdf_bundle_->surf_level_file_split_rdf == NULL) {
+      return 0;
+    }
+    return rdf_bundle_->surf_level_file_split_rdf->getNumberOfTotalLevels();
+  }
+
+  std::vector<int> getLogOfNumbersOfRangesInOrigin() {
+    return rdf_bundle_->origin_info.getNumbersOfRanges();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInPLRDF() {
+    return rdf_bundle_->plrdf.getNumbersOfRangesInRDFLog();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInSplitPLRDF() {
+    return rdf_bundle_->split_plrdf.getNumbersOfRangesInRDFLog();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInPLRDFStringKey() {
+    return rdf_bundle_->plrdf_stringkey.getNumbersOfRangesInRDFLog();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInSplitPLRDFStringKey() {
+    return rdf_bundle_->split_plrdf_stringkey.getNumbersOfRangesInRDFLog();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInTopLevelRDF() {
+    return rdf_bundle_->top_level_rdf.getNumbersOfRangesInRDFLog();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInTopLevelRDFStringKey() {
+    return rdf_bundle_->top_level_rdf_stringkey.getNumbersOfRangesInRDFLog();
+  }
+  std::vector<int> getLogOfNumbersOfRangesInSkylineRDF() {
+    return rdf_bundle_->skyline_rdf.getNumbersOfRangesInRDFLog();
+  }
+
+  std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileRDF() {
+    if (rdf_bundle_->surf_level_file_rdf == NULL) {
       return std::vector<int>();
     }
-    return surf__level_file_rdf->getNumbersOfRangesInRDFLog();
+    return rdf_bundle_->surf_level_file_rdf->getNumbersOfRangesInRDFLog();
   }
-  std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF(){
-    if(surf__level_file_split_rdf == NULL){
+  std::vector<int> getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF() {
+    if (rdf_bundle_->surf_level_file_split_rdf == NULL) {
       return std::vector<int>();
     }
-    return surf__level_file_split_rdf->getNumbersOfRangesInRDFLog();
-  }
-  
-  std::vector<int> getLogOfMemoryUsageInOrigin(){
-    return origin_info.getMemoryUsageOnRanges();
-  }
-  std::vector<int> getLogOfMemoryUsageInPLRDF(){
-    return plrdf.getMemoryUsageInRDFLog();
-    // using pll = std::pair<long long, long long>; //[start, end)
-    // std::vector<int> memory_log;
-    // for(auto num_range: plrdf.getNumbersOfRangesInRDFLog()){
-    //   memory_log.push_back(num_range * sizeof(pll));
-    // }
-    // return memory_log;
-  }
-  std::vector<int> getLogOfMemoryUsageInSplitRDF(){
-    return split_plrdf.getMemoryUsageInRDFLog();
-    // using pll = std::pair<long long, long long>; //[start, end)
-    // std::vector<int> memory_log;
-    // for(auto num_range: split_plrdf.getNumbersOfRangesInRDFLog()){
-    //   memory_log.push_back(num_range * sizeof(pll));
-    // }
-    // return memory_log;
-  }
-  std::vector<int> getLogOfMemoryUsageInTopLevelRDF(){
-    return top_level_rdf.getMemoryUsageInRDFLog();
-    // using pll = std::pair<long long, long long>; //[start, end)
-    // std::vector<int> memory_log;
-    // for(auto num_range: top_level_rdf.getNumbersOfRangesInRDFLog()){
-    //   memory_log.push_back(num_range * sizeof(pll));
-    // }
-    // return memory_log;
-  }
-  std::vector<int> getLogOfMemoryUsageInSkylineRDF(){
-    return skyline_rdf.getMemoryUsageInRDFLog();
-    // skyline__numbers_of_ranges_in_rdf_log
-    // using t3ll = std::tuple<long long, long long, long long>; //([start, end), time)
-  
-    // std::vector<int> memory_log;
-    // for(auto num_range: skyline__numbers_of_ranges_in_rdf_log){
-    //   // memory_log.push_back(num_range * 24);
-    //   memory_log.push_back(num_range * sizeof(t3ll));
-    // }
-    // return memory_log;
+    return rdf_bundle_->surf_level_file_split_rdf->getNumbersOfRangesInRDFLog();
   }
 
-  // std::vector<int> getLogOfMemoryUsageInSuRFTopLevelRDF(){
-  //   if(surf__top_level_rdf == NULL){
-  //     return std::vector<int>();
-  //   }
-  //   return surf__top_level_rdf->getMemoryUsageInRDFLog();
-  // }
-  std::vector<int> getLogOfMemoryUsageInSuRFLevelFileRDF(){
-    if(surf__level_file_rdf == NULL){
+  std::vector<int> getLogOfMemoryUsageInOrigin() {
+    std::vector<int> bytes = rdf_bundle_->origin_info.getMemoryUsageOnRanges();
+    return bytes;
+  }
+  std::vector<int> getLogOfMemoryUsageInPLRDF() {
+    return rdf_bundle_->plrdf.getMemoryUsageInRDFLog();
+  }
+  std::vector<int> getLogOfMemoryUsageInSplitRDF() {
+    return rdf_bundle_->split_plrdf.getMemoryUsageInRDFLog();
+  }
+  std::vector<int> getLogOfMemoryUsageInPLRDFStringKey() {
+    return rdf_bundle_->plrdf_stringkey.getMemoryUsageInRDFLog();
+  }
+  std::vector<int> getLogOfMemoryUsageInSplitRDFStringKey() {
+    return rdf_bundle_->split_plrdf_stringkey.getMemoryUsageInRDFLog();
+  }
+  std::vector<int> getLogOfMemoryUsageInTopLevelRDF() {
+    return rdf_bundle_->top_level_rdf.getMemoryUsageInRDFLog();
+  }
+  std::vector<int> getLogOfMemoryUsageInTopLevelRDFStringKey() {
+    return rdf_bundle_->top_level_rdf_stringkey.getMemoryUsageInRDFLog();
+  }
+  std::vector<int> getLogOfMemoryUsageInSkylineRDF() {
+    return rdf_bundle_->skyline_rdf.getMemoryUsageInRDFLog();
+  }
+
+  std::vector<int> getLogOfMemoryUsageInSuRFLevelFileRDF() {
+    if (rdf_bundle_->surf_level_file_rdf == NULL) {
       return std::vector<int>();
     }
-    return surf__level_file_rdf->getMemoryUsageInRDFLog();
+    return rdf_bundle_->surf_level_file_rdf->getMemoryUsageInRDFLog();
   }
-  std::vector<int> getLogOfMemoryUsageInSuRFLevelFileSplitRDF(){
-    if(surf__level_file_split_rdf == NULL){
+  std::vector<int> getLogOfMemoryUsageInSuRFLevelFileSplitRDF() {
+    if (rdf_bundle_->surf_level_file_split_rdf == NULL) {
       return std::vector<int>();
     }
-    return surf__level_file_split_rdf->getMemoryUsageInRDFLog();
+    return rdf_bundle_->surf_level_file_split_rdf->getMemoryUsageInRDFLog();
   }
 
+  // False positive rate
+  double getFilterFalsePositiveRateInPLRDF() {
+    return rdf_bundle_->plrdf.getFilterFalsePositiveRate();
+  };
+  void clearFilterFalsePositiveRateInPLRDF() {
+    return rdf_bundle_->plrdf.clearFilterFalsePositiveRate();
+  };
 
-  // bool getIsRDFUpdated(){return is_RDF_updated;}
-  
-  // rdfilter::PLRDF getPerLevelRDF(){return per_level_RDF;}
-  // rdfilter::PLRDF getPerLevelRDFUpdated(){return per_level_RDF_updated;}
+  double getFilterFalsePositiveRateInSplitPLRDF() {
+    return rdf_bundle_->split_plrdf.getFilterFalsePositiveRate();
+  };
+  void clearFilterFalsePositiveRateInSplitPLRDF() {
+    return rdf_bundle_->split_plrdf.clearFilterFalsePositiveRate();
+  };
 
-  // void setPerLevelRDF(PL_RDF &per_level_RDF_in){this->per_level_RDF = per_level_RDF_in;}
+  double getFilterFalsePositiveRateInTopLevelRDF() {
+    return rdf_bundle_->top_level_rdf.getFilterFalsePositiveRate();
+  };
+  void clearFilterFalsePositiveRateInTopLevelRDF() {
+    return rdf_bundle_->top_level_rdf.clearFilterFalsePositiveRate();
+  };
 
+  double getFilterFalsePositiveRateInSkylineRDF() {
+    return rdf_bundle_->skyline_rdf.getFilterFalsePositiveRate();
+  };
+  void clearFilterFalsePositiveRateInSkylineRDF() {
+    return rdf_bundle_->skyline_rdf.clearFilterFalsePositiveRate();
+  };
 
-  // void getNumberOfRDFTypes(){
-  //   return RDFTypes.size();
+  double getFilterFalsePositiveRateInPLRDFStringKey() {
+    return rdf_bundle_->plrdf_stringkey.getFilterFalsePositiveRate();
+  }
+  void clearFilterFalsePositiveRateInPLRDFStringKey() {
+    return rdf_bundle_->plrdf_stringkey.clearFilterFalsePositiveRate();
+  }
+  double getFilterFalsePositiveRateInSplitPLRDFStringKey() {
+    return rdf_bundle_->split_plrdf_stringkey.getFilterFalsePositiveRate();
+  }
+  void clearFilterFalsePositiveRateInSplitPLRDFStringKey() {
+    return rdf_bundle_->split_plrdf_stringkey.clearFilterFalsePositiveRate();
+  }
+
+  double getFilterFalsePositiveRateInTopLevelRDFStringKey() {
+    return rdf_bundle_->top_level_rdf_stringkey.getFilterFalsePositiveRate();
+  };
+  void clearFilterFalsePositiveRateInTopLevelRDFStringKey() {
+    return rdf_bundle_->top_level_rdf_stringkey.clearFilterFalsePositiveRate();
+  };
+
+  double getFilterFalsePositiveRateInSuRFLevelFileRDF() {
+    if (rdf_bundle_->surf_level_file_rdf == nullptr) {
+      return -1;
+    }
+    return rdf_bundle_->surf_level_file_rdf->getFilterFalsePositiveRate();
+  };
+  double getFilterFalsePositiveRateInSuRFLevelFileSplitRDF() {
+    if (rdf_bundle_->surf_level_file_split_rdf == nullptr) {
+      return -1;
+    }
+    return rdf_bundle_->surf_level_file_split_rdf->getFilterFalsePositiveRate();
+  };
+  void clearFilterFalsePositiveRateInSuRFLevelFileRDF() {
+    if (rdf_bundle_->surf_level_file_rdf == nullptr) {
+      return;
+    }
+    return rdf_bundle_->surf_level_file_rdf->clearFilterFalsePositiveRate();
+  };
+  void clearFilterFalsePositiveRateInSuRFLevelFileSplitRDF() {
+    if (rdf_bundle_->surf_level_file_split_rdf == nullptr) {
+      return;
+    }
+    return rdf_bundle_->surf_level_file_split_rdf
+        ->clearFilterFalsePositiveRate();
+  };
+
+  // void inc_installSuperversion_count() { installSuperversion_count += 1; }
+
+  // int get_installSuperversion_count() { return installSuperversion_count; }
+
+  // void inc_flush_install_count() {
+  //   flush_install_count += 1;
+  //   flush_install_count_clr += 1;
   // }
 
-  // //{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}
-  // void setRDFTypeChosed(int id){
-  //   RDFType_chosed = id;
+  // int get_flush_install_count() { return flush_install_count; }
+
+  // int get_flush_install_count_clr() { return flush_install_count_clr; }
+
+  // void inc_compaction_install_count() {
+  //   compaction_install_count += 1;
+  //   compaction_install_count_clr += 1;
   // }
 
-  // void getStringOfRDFTypeChosed(){
-  //   return RDFTypes[RDFType_chosed];
+  // int get_compaction_install_count() { return compaction_install_count; }
+
+  // int get_compaction_install_count_clr() {
+  //   return compaction_install_count_clr;
   // }
 
+  // void clear_flush_install_count_clr() { flush_install_count_clr = 0; }
 
-
-
-  // void storeRange2RDFTest(RangeTombstone tombStone){
-  //   RDF_test.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
+  // void clear_compaction_install_count_clr() {
+  //   compaction_install_count_clr = 0;
   // }
 
-  // void storeRange2RDFTest2(RangeTombstone tombStone){
-  //   RDF_test2.push_back(std::make_pair( std::stoll(tombStone.start_key_.ToString()), std::stoll(tombStone.end_key_.ToString()) ));
+  // int get_update_at_installSuperversion_count() {
+  //   return update_at_installSuperversion_count;
   // }
 
-  // void printRDFTest(){
-  //   std::cout << "Version --- RDF_test @version_set.h" << std::endl;
-  //   if(RDF_test.size() == 0){
-  //     std::cout << "Version --- RDF_test is empty" << std::endl;
-  //   }
-
-
-  //   for(auto x: RDF_test){
-  //     std::cout << x.first << " " << x.second << std::endl;
-  //   }
-  //   std::cout << std::endl << std::endl;
+  // void inc_update_at_installSuperversion_count() {
+  //   update_at_installSuperversion_count += 1;
   // }
 
-  // void printRDFTest2(){
-  //   std::cout << "Version --- RDF_test2 @version_set.h" << std::endl;
-  //   for(auto x: RDF_test2){
-  //     std::cout << x.first << " " << x.second << std::endl;
-  //   }
-  //   std::cout << std::endl << std::endl;
-  // }
-
-  // void setRDFTest(std::vector<std::pair<long long, long long>> RDF_test_in){this->RDF_test = RDF_test_in;}
-  // void setRDFTest2(std::vector<std::pair<long long, long long>> RDF_test_in){
-  //   this->RDF_test2 = RDF_test_in; 
-  //   Is_RDFTest2_set = true;
-  // }
-
-  // bool getIsRDFTest2Set(){return this->Is_RDFTest2_set;}
-
-  // std::vector<std::pair<long long, long long>> getRDFTest(){return this->RDF_test;}
-  // std::vector<std::pair<long long, long long>> getRDFTest2(){return this->RDF_test2;}
-
-  /*
-   * shift RDF for given range from current_level to output_level
-   * start_key, end_key are the smallest and largest key of the current_level file
-   * If any key exists between these keys (inclusive) than remove and shit downwards to output_level
-   */
-  // void shiftRDFToOutputLevel(std::vector<std::tuple<int, int, std::vector<pll>>>  *file_meta_data_vectors)
-  // {
-  //   if (file_meta_data_vectors->size() == 0) { return; }
-  //   assert(is_RDF_updated == false);
-  //   is_RDF_updated = true;
-  //   per_level_RDF->shiftRDFToOutputLevel(file_meta_data_vectors);
-  // }
-
-  // void deleteRDFAssociatedWithFilesAtCurrentLevel(std::tuple<int, const std::vector<FileMetaData*>*> *file_meta_data)
-  // {
-  //   assert(is_RDF_updated == false);
-  //   is_RDF_updated = true;
-  //   per_level_RDF->deleteRDFAssociatedWithFilesAtCurrentLevel(file_meta_data);
-  // }
-
-  void inc_installSuperversion_count(){
-    installSuperversion_count += 1;
-  }
-
-  int get_installSuperversion_count(){
-    return installSuperversion_count;
-  }
-
-  void inc_flush_install_count(){
-    flush_install_count += 1;
-    flush_install_count_clr += 1;
-  }
-
-  int get_flush_install_count(){
-    return flush_install_count;
-  }
-
-  int get_flush_install_count_clr(){
-    return flush_install_count_clr;
-  }
-
-  void inc_compaction_install_count(){
-    compaction_install_count += 1;
-    compaction_install_count_clr += 1;
-  }
-
-  int get_compaction_install_count(){
-    return compaction_install_count;
-  }
-
-  int get_compaction_install_count_clr(){
-    return compaction_install_count_clr;
-  }
-
-  void clear_flush_install_count_clr(){
-    flush_install_count_clr = 0;
-  }
-
-  void clear_compaction_install_count_clr(){
-    compaction_install_count_clr = 0;
-  }
-
-  int get_update_at_installSuperversion_count(){
-    return update_at_installSuperversion_count;
-  }
-
-  void inc_update_at_installSuperversion_count(){
-    update_at_installSuperversion_count += 1;
-  }
-
-  void set_flush_to_level0_RD_vector(std::pair<uint64_t, std::vector<pll>> flush_to_level0_RD_vector_in){
+  void set_flush_to_level0_RD_vector(
+      std::pair<uint64_t, std::vector<pll>> flush_to_level0_RD_vector_in) {
     flush_to_level0_RD_vector = flush_to_level0_RD_vector_in;
   }
 
-  std::pair<uint64_t, std::vector<pll>> get_flush_to_level0_RD_vector(){
+  std::pair<uint64_t, std::vector<pll>> get_flush_to_level0_RD_vector() {
     return flush_to_level0_RD_vector;
   }
 
-  void set_compaction_moving_RD_vector(std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  compaction_moving_RD_vector_in){
+  void set_compaction_moving_RD_vector(
+      std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>
+          compaction_moving_RD_vector_in) {
     compaction_moving_RD_vector = compaction_moving_RD_vector_in;
   }
 
-  std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>  get_compaction_moving_RD_vector(){
+  std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>
+  get_compaction_moving_RD_vector() {
     return compaction_moving_RD_vector;
   }
 
-  void set_compaction_direct_delete_RD_vector(std::tuple<int, std::vector<pll>, std::vector<uint64_t>> compaction_direct_delete_RD_vector_in){
+  void set_compaction_direct_delete_RD_vector(
+      std::tuple<int, std::vector<pll>, std::vector<uint64_t>>
+          compaction_direct_delete_RD_vector_in) {
     compaction_direct_delete_RD_vector = compaction_direct_delete_RD_vector_in;
   }
 
-  std::tuple<int, std::vector<pll>, std::vector<uint64_t>> get_compaction_direct_delete_RD_vector(){
+  std::tuple<int, std::vector<pll>, std::vector<uint64_t>>
+  get_compaction_direct_delete_RD_vector() {
     return compaction_direct_delete_RD_vector;
   }
 
+  void set_flush_to_level0_RD_vector_stringkey(
+      std::pair<uint64_t, std::vector<pss>>
+          flush_to_level0_RD_vector_stringkey_in) {
+    flush_to_level0_RD_vector_stringkey =
+        flush_to_level0_RD_vector_stringkey_in;
+  }
 
-  
+  std::pair<uint64_t, std::vector<pss>>
+  get_flush_to_level0_RD_vector_stringkey() {
+    return flush_to_level0_RD_vector_stringkey;
+  }
+
+  void set_compaction_moving_RD_vector_stringkey(
+      std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>
+          compaction_moving_RD_vector_stringkey_in) {
+    compaction_moving_RD_vector_stringkey =
+        compaction_moving_RD_vector_stringkey_in;
+  }
+
+  std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>
+  get_compaction_moving_RD_vector_stringkey() {
+    return compaction_moving_RD_vector_stringkey;
+  }
+
+  void set_compaction_direct_delete_RD_vector_stringkey(
+      std::tuple<int, std::vector<pss>, std::vector<uint64_t>>
+          compaction_direct_delete_RD_vector_stringkey_in) {
+    compaction_direct_delete_RD_vector_stringkey =
+        compaction_direct_delete_RD_vector_stringkey_in;
+  }
+
+  std::tuple<int, std::vector<pss>, std::vector<uint64_t>>
+  get_compaction_direct_delete_RD_vector_stringkey() {
+    return compaction_direct_delete_RD_vector_stringkey;
+  }
+
  private:
-  //Self Added start
-  // rdfilter::PLRDF *per_level_RDF = rdfilter::PLRDF::getRDFilter();
+  // Self Added start
+  std::shared_ptr<VersionRDFBundle> rdf_bundle_;
   OriginInfo origin_info;
-  PLRDF plrdf, split_plrdf;
-  PLRDF top_level_rdf;
-  SkyLineRDF skyline_rdf;
-  // std::vector<t3ll> skyline_rdf;
-  // std::vector<int> skyline__numbers_of_ranges_in_rdf_log;
-  // surf top_level / level_file rdf
-  // surf::SuRF_RDF *surf__top_level_rdf = nullptr;
-  surf::SuRF_RDF *surf__level_file_rdf = nullptr;
-  surf::SuRF_RDF *surf__level_file_split_rdf = nullptr;
-  // surf::SuRF_RDF surf__top_level_rdf;
-  // surf::SuRF_RDF surf__level_file_rdf;
 
-  // std::vector<uint64_t file_num, std::vector<pll> &range_delete_list_in, std::vector<uint64_t> exist_level0_file_nums>
   std::pair<uint64_t, std::vector<pll>> flush_to_level0_RD_vector;
-  std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>> compaction_moving_RD_vector;
-  std::tuple<int, std::vector<pll>, std::vector<uint64_t>> compaction_direct_delete_RD_vector;
+  std::vector<std::tuple<int, int, std::vector<pll>, std::vector<uint64_t>>>
+      compaction_moving_RD_vector;
+  std::tuple<int, std::vector<pll>, std::vector<uint64_t>>
+      compaction_direct_delete_RD_vector;
 
-  // std::mutex flush_to_level0_RD_vector_mutex;
-  // std::mutex compaction_moving_RD_vector_mutex;
-  // std::mutex compaction_direct_delete_RD_vector_mutex;
+  std::pair<uint64_t, std::vector<pss>> flush_to_level0_RD_vector_stringkey;
+  std::vector<std::tuple<int, int, std::vector<pss>, std::vector<uint64_t>>>
+      compaction_moving_RD_vector_stringkey;
+  std::tuple<int, std::vector<pss>, std::vector<uint64_t>>
+      compaction_direct_delete_RD_vector_stringkey;
 
-  // bool is_RDF_updated = false;
-  // // std::unordered_map<int, std::string> RDFTypes({{0, "NONE"}, {1, "PLRDF"}, {2, "SPLIT_PLRDF"}});
-  // std::unordered_map<int, std::string> RDFTypes({{0, "NONE"}, {1, "PLRDF"}});
-  // int RDFType_chosed;
-  // std::vector<PL_RDF> per_level_RDF; //Self Added, ranges don't split when inserts come//added by ychaung
-  // std::vector<std::pair<long long, long long>> RDF_test, RDF_test2; //Self Added
-  // bool Is_RDFTest2_set = false;
-  int installSuperversion_count = 0;
-  int flush_install_count = 0;
-  int compaction_install_count = 0;
-  int flush_install_count_clr = 0;
-  int compaction_install_count_clr = 0;
-  int update_at_installSuperversion_count = 0;
-  //Self Added end
-
+  // int installSuperversion_count = 0;
+  // int flush_install_count = 0;
+  // int compaction_install_count = 0;
+  // int flush_install_count_clr = 0;
+  // int compaction_install_count_clr = 0;
+  // int update_at_installSuperversion_count = 0;
+  // Self Added end
 
   Env* env_;
   SystemClock* clock_;
@@ -2013,7 +2129,6 @@ class VersionSet {
   // printf contents (for debugging)
   Status DumpManifest(Options& options, std::string& manifestFileName,
                       bool verbose, bool hex = false, bool json = false);
-
 
   const std::string& DbSessionId() const { return db_session_id_; }
 

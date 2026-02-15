@@ -39,6 +39,7 @@
 #include "rocksdb/write_batch.h"
 
 #include <algorithm>
+#include <iostream>  // self added
 #include <limits>
 #include <map>
 #include <stack>
@@ -46,7 +47,6 @@
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
-#include <iostream> // self added
 
 #include "db/column_family.h"
 #include "db/db_impl/db_impl.h"
@@ -116,7 +116,8 @@ struct BatchContentClassifier : public WriteBatch::Handler {
   }
 
   Status DeleteRangeCF(uint32_t, const Slice&, const Slice&) override {
-std::cout  << "DeleteRangeCF " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    std::cout << "DeleteRangeCF " << __FILE__ << ":" << __LINE__ << " "
+              << __FUNCTION__ << std::endl;
     content_flags |= ContentFlags::HAS_DELETE_RANGE;
     return Status::OK();
   }
@@ -480,7 +481,8 @@ Status WriteBatch::Iterate(Handler* handler) const {
 Status WriteBatchInternal::Iterate(const WriteBatch* wb,
                                    WriteBatch::Handler* handler, size_t begin,
                                    size_t end) {
-//std::cout  << "B1 " << __FILE__ << " " << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // std::cout  << "B1 " << __FILE__ << " " << __LINE__ << " " << __FUNCTION__
+  // << std::endl;
 
   if (begin > wb->rep_.size() || end > wb->rep_.size() || end < begin) {
     return Status::Corruption("Invalid start/end bounds for Iterate");
@@ -534,7 +536,8 @@ Status WriteBatchInternal::Iterate(const WriteBatch* wb,
     switch (tag) {
       case kTypeColumnFamilyValue:
       case kTypeValue:
-// std::cout  << "B2 key (" << key.ToString() << ") insert " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        // std::cout  << "B2 key (" << key.ToString() << ") insert " << __FILE__
+        // << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 
         assert(wb->content_flags_.load(std::memory_order_relaxed) &
                (ContentFlags::DEFERRED | ContentFlags::HAS_PUT));
@@ -546,7 +549,8 @@ Status WriteBatchInternal::Iterate(const WriteBatch* wb,
         break;
       case kTypeColumnFamilyDeletion:
       case kTypeDeletion:
-std::cout  << "B3 tombstones ?? insert " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "B3 tombstones ?? insert " << __FILE__ << ":" << __LINE__
+                  << " " << __FUNCTION__ << std::endl;
 
         assert(wb->content_flags_.load(std::memory_order_relaxed) &
                (ContentFlags::DEFERRED | ContentFlags::HAS_DELETE));
@@ -558,7 +562,8 @@ std::cout  << "B3 tombstones ?? insert " << __FILE__ << ":" << __LINE__ << " " <
         break;
       case kTypeColumnFamilySingleDeletion:
       case kTypeSingleDeletion:
-std::cout  << "B4 Single tombstone insert " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "B4 Single tombstone insert " << __FILE__ << ":"
+                  << __LINE__ << " " << __FUNCTION__ << std::endl;
 
         assert(wb->content_flags_.load(std::memory_order_relaxed) &
                (ContentFlags::DEFERRED | ContentFlags::HAS_SINGLE_DELETE));
@@ -570,7 +575,8 @@ std::cout  << "B4 Single tombstone insert " << __FILE__ << ":" << __LINE__ << " 
         break;
       case kTypeColumnFamilyRangeDeletion:
       case kTypeRangeDeletion:
-// std::cout  << "B5 range tombstones insert " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        // std::cout  << "B5 range tombstones insert " << __FILE__ << ":" <<
+        // __LINE__ << " " << __FUNCTION__ << std::endl;
         assert(wb->content_flags_.load(std::memory_order_relaxed) &
                (ContentFlags::DEFERRED | ContentFlags::HAS_DELETE_RANGE));
         s = handler->DeleteRangeCF(column_family, key, value);
@@ -581,7 +587,8 @@ std::cout  << "B4 Single tombstone insert " << __FILE__ << ":" << __LINE__ << " 
         break;
       case kTypeColumnFamilyMerge:
       case kTypeMerge:
-std::cout  << "B6 Merge ?? " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "B6 Merge ?? " << __FILE__ << ":" << __LINE__ << " "
+                  << __FUNCTION__ << std::endl;
 
         assert(wb->content_flags_.load(std::memory_order_relaxed) &
                (ContentFlags::DEFERRED | ContentFlags::HAS_MERGE));
@@ -593,7 +600,8 @@ std::cout  << "B6 Merge ?? " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION
         break;
       case kTypeColumnFamilyBlobIndex:
       case kTypeBlobIndex:
-std::cout  << "B7 " << __FILE__ << " " << __LINE__ << ":" << __FUNCTION__ << std::endl;
+        std::cout << "B7 " << __FILE__ << " " << __LINE__ << ":" << __FUNCTION__
+                  << std::endl;
         assert(wb->content_flags_.load(std::memory_order_relaxed) &
                (ContentFlags::DEFERRED | ContentFlags::HAS_BLOB_INDEX));
         s = handler->PutBlobIndexCF(column_family, key, value);
@@ -602,13 +610,15 @@ std::cout  << "B7 " << __FILE__ << " " << __LINE__ << ":" << __FUNCTION__ << std
         }
         break;
       case kTypeLogData:
-std::cout  << "B8 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "B8 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                  << std::endl;
         handler->LogData(blob);
         // A batch might have nothing but LogData. It is still a batch.
         empty_batch = false;
         break;
       case kTypeBeginPrepareXID:
-std::cout  << "B9 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "B9 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                  << std::endl;
         assert(wb->content_flags_.load(std::memory_order_relaxed) &
                (ContentFlags::DEFERRED | ContentFlags::HAS_BEGIN_PREPARE));
         s = handler->MarkBeginPrepare();
@@ -631,7 +641,8 @@ std::cout  << "B9 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std
         }
         break;
       case kTypeBeginPersistedPrepareXID:
-std::cout  << "B10 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "B10 " << __FILE__ << ":" << __LINE__ << " "
+                  << __FUNCTION__ << std::endl;
         assert(wb->content_flags_.load(std::memory_order_relaxed) &
                (ContentFlags::DEFERRED | ContentFlags::HAS_BEGIN_PREPARE));
         s = handler->MarkBeginPrepare();
@@ -647,7 +658,8 @@ std::cout  << "B10 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << st
         }
         break;
       case kTypeBeginUnprepareXID:
-std::cout  << "B11 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "B11 " << __FILE__ << ":" << __LINE__ << " "
+                  << __FUNCTION__ << std::endl;
         assert(wb->content_flags_.load(std::memory_order_relaxed) &
                (ContentFlags::DEFERRED | ContentFlags::HAS_BEGIN_UNPREPARE));
         s = handler->MarkBeginPrepare(true /* unprepared */);
@@ -670,7 +682,8 @@ std::cout  << "B11 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << st
         }
         break;
       case kTypeEndPrepareXID:
-std::cout  << "B12 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "B12 " << __FILE__ << ":" << __LINE__ << " "
+                  << __FUNCTION__ << std::endl;
         assert(wb->content_flags_.load(std::memory_order_relaxed) &
                (ContentFlags::DEFERRED | ContentFlags::HAS_END_PREPARE));
         s = handler->MarkEndPrepare(xid);
@@ -678,7 +691,8 @@ std::cout  << "B12 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << st
         empty_batch = true;
         break;
       case kTypeCommitXID:
-std::cout  << "B13 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "B13 " << __FILE__ << ":" << __LINE__ << " "
+                  << __FUNCTION__ << std::endl;
         assert(wb->content_flags_.load(std::memory_order_relaxed) &
                (ContentFlags::DEFERRED | ContentFlags::HAS_COMMIT));
         s = handler->MarkCommit(xid);
@@ -686,7 +700,8 @@ std::cout  << "B13 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << st
         empty_batch = true;
         break;
       case kTypeCommitXIDAndTimestamp:
-std::cout  << "B14 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "B14 " << __FILE__ << ":" << __LINE__ << " "
+                  << __FUNCTION__ << std::endl;
         assert(wb->content_flags_.load(std::memory_order_relaxed) &
                (ContentFlags::DEFERRED | ContentFlags::HAS_COMMIT));
         // key stores the commit timestamp.
@@ -697,7 +712,8 @@ std::cout  << "B14 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << st
         }
         break;
       case kTypeRollbackXID:
-std::cout  << "B15 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "B15 " << __FILE__ << ":" << __LINE__ << " "
+                  << __FUNCTION__ << std::endl;
         assert(wb->content_flags_.load(std::memory_order_relaxed) &
                (ContentFlags::DEFERRED | ContentFlags::HAS_ROLLBACK));
         s = handler->MarkRollback(xid);
@@ -705,14 +721,16 @@ std::cout  << "B15 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << st
         empty_batch = true;
         break;
       case kTypeNoop:
-std::cout  << "B16 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "B16 " << __FILE__ << ":" << __LINE__ << " "
+                  << __FUNCTION__ << std::endl;
         s = handler->MarkNoop(empty_batch);
         assert(s.ok());
         empty_batch = true;
         break;
       case kTypeWideColumnEntity:
       case kTypeColumnFamilyWideColumnEntity:
-std::cout  << "B17 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "B17 " << __FILE__ << ":" << __LINE__ << " "
+                  << __FUNCTION__ << std::endl;
         assert(wb->content_flags_.load(std::memory_order_relaxed) &
                (ContentFlags::DEFERRED | ContentFlags::HAS_PUT_ENTITY));
         s = handler->PutEntityCF(column_family, key, value);
@@ -1388,7 +1406,8 @@ Status WriteBatch::DeleteRange(ColumnFamilyHandle* column_family,
 Status WriteBatch::DeleteRange(ColumnFamilyHandle* column_family,
                                const Slice& begin_key, const Slice& end_key,
                                const Slice& ts) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+            << std::endl;
   const Status s = CheckColumnFamilyTimestampSize(column_family, ts);
   if (!s.ok()) {
     return s;
@@ -1406,7 +1425,8 @@ std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::
 Status WriteBatchInternal::DeleteRange(WriteBatch* b, uint32_t column_family_id,
                                        const SliceParts& begin_key,
                                        const SliceParts& end_key) {
-std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+            << std::endl;
   LocalSavePoint save(b);
   WriteBatchInternal::SetCount(b, WriteBatchInternal::Count(b) + 1);
   if (column_family_id == 0) {
@@ -2013,10 +2033,11 @@ class MemTableInserter : public WriteBatch::Handler {
   Status PutCFImpl(uint32_t column_family_id, const Slice& key,
                    const Slice& value, ValueType value_type,
                    const ProtectionInfoKVOS64* kv_prot_info) {
-// std::cout  << "PutCFImpl " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-    // optimize for non-recovery mode
+    // std::cout  << "PutCFImpl " << __FILE__ << ":" << __LINE__ << " " <<
+    // __FUNCTION__ << std::endl; optimize for non-recovery mode
     if (UNLIKELY(write_after_commit_ && rebuilding_trx_ != nullptr)) {
-std::cout  << "PutCFImpl A1 non-recovery mode ?? " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      std::cout << "PutCFImpl A1 non-recovery mode ?? " << __FILE__ << ":"
+                << __LINE__ << " " << __FUNCTION__ << std::endl;
       // TODO(ajkr): propagate `ProtectionInfoKVOS64`.
       return WriteBatchInternal::Put(rebuilding_trx_, column_family_id, key,
                                      value);
@@ -2027,7 +2048,8 @@ std::cout  << "PutCFImpl A1 non-recovery mode ?? " << __FILE__ << ":" << __LINE_
     if (UNLIKELY(!SeekToColumnFamily(column_family_id, &ret_status))) {
       if (ret_status.ok() && rebuilding_trx_ != nullptr) {
         assert(!write_after_commit_);
-std::cout  << "PutCFImpl A2 CF is probably flushed ?? " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "PutCFImpl A2 CF is probably flushed ?? " << __FILE__
+                  << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
         // The CF is probably flushed and hence no need for insert but we still
         // need to keep track of the keys for upcoming rollback/commit.
         // TODO(ajkr): propagate `ProtectionInfoKVOS64`.
@@ -2049,7 +2071,8 @@ std::cout  << "PutCFImpl A2 CF is probably flushed ?? " << __FILE__ << ":" << __
     // any kind of transactions including the ones that use seq_per_batch
     assert(!seq_per_batch_ || !moptions->inplace_update_support);
     if (!moptions->inplace_update_support) {
-// std::cout  << "PutCFImpl A3 @No inplace_update support " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // std::cout  << "PutCFImpl A3 @No inplace_update support " << __FILE__ <<
+      // ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       ret_status =
           mem->Add(sequence_, value_type, key, value, kv_prot_info,
                    concurrent_memtable_writes_, get_post_process_info(mem),
@@ -2057,12 +2080,15 @@ std::cout  << "PutCFImpl A2 CF is probably flushed ?? " << __FILE__ << ":" << __
     } else if (moptions->inplace_callback == nullptr ||
                value_type != kTypeValue) {
       assert(!concurrent_memtable_writes_);
-std::cout  << "PutCFImpl A3 @inplace update + No inplace update callback " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      std::cout << "PutCFImpl A3 @inplace update + No inplace update callback "
+                << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                << std::endl;
       ret_status = mem->Update(sequence_, value_type, key, value, kv_prot_info);
     } else {
       assert(!concurrent_memtable_writes_);
-      assert(value_type == kTypeValue); 
-std::cout  << "PutCFImpl A4 @with inplace update callback " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      assert(value_type == kTypeValue);
+      std::cout << "PutCFImpl A4 @with inplace update callback " << __FILE__
+                << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
       ret_status = mem->UpdateCallback(sequence_, key, value, kv_prot_info);
       if (ret_status.IsNotFound()) {
         // key not found in memtable. Do sst get, update, add
@@ -2084,7 +2110,8 @@ std::cout  << "PutCFImpl A4 @with inplace update callback " << __FILE__ << ":" <
           if (cf_handle == nullptr) {
             cf_handle = db_->DefaultColumnFamily();
           }
-std::cout  << "PutCFImpl A5 @see exist or not by Get" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+          std::cout << "PutCFImpl A5 @see exist or not by Get" << __FILE__
+                    << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
           // TODO (yanqin): fix when user-defined timestamp is enabled.
           get_status = db_->Get(ropts, cf_handle, key, &prev_value);
         }
@@ -2099,18 +2126,22 @@ std::cout  << "PutCFImpl A5 @see exist or not by Get" << __FILE__ << ":" << __LI
           char* prev_buffer = const_cast<char*>(prev_value.c_str());
           uint32_t prev_size = static_cast<uint32_t>(prev_value.size());
           if (get_status.ok()) {
-std::cout  << "PutCFImpl A6 @inplace callback" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            std::cout << "PutCFImpl A6 @inplace callback" << __FILE__ << ":"
+                      << __LINE__ << " " << __FUNCTION__ << std::endl;
             update_status = moptions->inplace_callback(prev_buffer, &prev_size,
                                                        value, &merged_value);
           } else {
-std::cout  << "PutCFImpl A7 @not inplace callback" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            std::cout << "PutCFImpl A7 @not inplace callback" << __FILE__ << ":"
+                      << __LINE__ << " " << __FUNCTION__ << std::endl;
             update_status = moptions->inplace_callback(
                 nullptr /* existing_value */, nullptr /* existing_value_size */,
                 value, &merged_value);
           }
           if (update_status == UpdateStatus::UPDATED_INPLACE) {
             assert(get_status.ok());
-std::cout  << "PutCFImpl A8 @UpdateStatus::UPDATED_INPLACE" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            std::cout << "PutCFImpl A8 @UpdateStatus::UPDATED_INPLACE"
+                      << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                      << std::endl;
             if (kv_prot_info != nullptr) {
               ProtectionInfoKVOS64 updated_kv_prot_info(*kv_prot_info);
               updated_kv_prot_info.UpdateV(value,
@@ -2128,7 +2159,10 @@ std::cout  << "PutCFImpl A8 @UpdateStatus::UPDATED_INPLACE" << __FILE__ << ":" <
               RecordTick(moptions->statistics, NUMBER_KEYS_WRITTEN);
             }
           } else if (update_status == UpdateStatus::UPDATED) {
-std::cout  << "PutCFImpl A9 @UpdateStatus::UPDATED not UPDATED_INPLACE" << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+            std::cout
+                << "PutCFImpl A9 @UpdateStatus::UPDATED not UPDATED_INPLACE"
+                << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                << std::endl;
             if (kv_prot_info != nullptr) {
               ProtectionInfoKVOS64 updated_kv_prot_info(*kv_prot_info);
               updated_kv_prot_info.UpdateV(value, merged_value);
@@ -2172,18 +2206,21 @@ std::cout  << "PutCFImpl A9 @UpdateStatus::UPDATED not UPDATED_INPLACE" << __FIL
 
   Status PutCF(uint32_t column_family_id, const Slice& key,
                const Slice& value) override {
-//std::cout  << "PutCF in .cc " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // std::cout  << "PutCF in .cc " << __FILE__ << ":" << __LINE__ << " " <<
+    // __FUNCTION__ << std::endl;
     const auto* kv_prot_info = NextProtectionInfo();
     Status ret_status;
     if (kv_prot_info != nullptr) {
-//std::cout  << "PutCF in .cc has seqno " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-      // Memtable needs seqno, doesn't need CF ID
+      // std::cout  << "PutCF in .cc has seqno " << __FILE__ << ":" << __LINE__
+      // << " " << __FUNCTION__ << std::endl;
+      //  Memtable needs seqno, doesn't need CF ID
       auto mem_kv_prot_info =
           kv_prot_info->StripC(column_family_id).ProtectS(sequence_);
       ret_status = PutCFImpl(column_family_id, key, value, kTypeValue,
                              &mem_kv_prot_info);
     } else {
-//std::cout  << "PutCF in .cc without seqno " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // std::cout  << "PutCF in .cc without seqno " << __FILE__ << ":" <<
+      // __LINE__ << " " << __FUNCTION__ << std::endl;
       ret_status = PutCFImpl(column_family_id, key, value, kTypeValue,
                              nullptr /* kv_prot_info */);
     }
@@ -2364,12 +2401,15 @@ std::cout  << "PutCFImpl A9 @UpdateStatus::UPDATED not UPDATED_INPLACE" << __FIL
 
   Status DeleteRangeCF(uint32_t column_family_id, const Slice& begin_key,
                        const Slice& end_key) override {
-// std::cout  << "DeleteRangeCF A1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-// std::cout  << "DeleteRangeCF A1 " << " (start, end) = " << begin_key.ToString() << "," << end_key.ToString() << std::endl;
+    // std::cout  << "DeleteRangeCF A1 " << __FILE__ << ":" << __LINE__ << " "
+    // << __FUNCTION__ << std::endl; std::cout  << "DeleteRangeCF A1 " << "
+    // (start, end) = " << begin_key.ToString() << "," << end_key.ToString() <<
+    // std::endl;
     const auto* kv_prot_info = NextProtectionInfo();
     // optimize for non-recovery mode
     if (UNLIKELY(write_after_commit_ && rebuilding_trx_ != nullptr)) {
-std::cout  << "DeleteRangeCF A2 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      std::cout << "DeleteRangeCF A2 " << __FILE__ << ":" << __LINE__ << " "
+                << __FUNCTION__ << std::endl;
       // TODO(ajkr): propagate `ProtectionInfoKVOS64`.
       return WriteBatchInternal::DeleteRange(rebuilding_trx_, column_family_id,
                                              begin_key, end_key);
@@ -2378,9 +2418,11 @@ std::cout  << "DeleteRangeCF A2 " << __FILE__ << ":" << __LINE__ << " " << __FUN
 
     Status ret_status;
     if (UNLIKELY(!SeekToColumnFamily(column_family_id, &ret_status))) {
-std::cout  << "DeleteRangeCF A3 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      std::cout << "DeleteRangeCF A3 " << __FILE__ << ":" << __LINE__ << " "
+                << __FUNCTION__ << std::endl;
       if (ret_status.ok() && rebuilding_trx_ != nullptr) {
-std::cout  << "DeleteRangeCF A3 B1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "DeleteRangeCF A3 B1 " << __FILE__ << ":" << __LINE__
+                  << " " << __FUNCTION__ << std::endl;
         assert(!write_after_commit_);
         // The CF is probably flushed and hence no need for insert but we still
         // need to keep track of the keys for upcoming rollback/commit.
@@ -2391,7 +2433,8 @@ std::cout  << "DeleteRangeCF A3 B1 " << __FILE__ << ":" << __LINE__ << " " << __
           MaybeAdvanceSeq(IsDuplicateKeySeq(column_family_id, begin_key));
         }
       } else if (ret_status.ok()) {
-std::cout  << "DeleteRangeCF A3 B2 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "DeleteRangeCF A3 B2 " << __FILE__ << ":" << __LINE__
+                  << " " << __FUNCTION__ << std::endl;
         MaybeAdvanceSeq(false /* batch_boundary */);
       }
       if (UNLIKELY(ret_status.IsTryAgain())) {
@@ -2419,14 +2462,16 @@ std::cout  << "DeleteRangeCF A3 B2 " << __FILE__ << ":" << __LINE__ << " " << __
       int cmp =
           cfd->user_comparator()->CompareWithoutTimestamp(begin_key, end_key);
       if (cmp > 0) {
-std::cout  << "DeleteRangeCF A4 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        std::cout << "DeleteRangeCF A4 " << __FILE__ << ":" << __LINE__ << " "
+                  << __FUNCTION__ << std::endl;
         // TODO(ajkr): refactor `SeekToColumnFamily()` so it returns a `Status`.
         ret_status.PermitUncheckedError();
         // It's an empty range where endpoints appear mistaken. Don't bother
         // applying it to the DB, and return an error to the user.
         return Status::InvalidArgument("end key comes before start key");
       } else if (cmp == 0) {
-std::cout  << "DeleteRangeCF A5 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        // std::cout  << "DeleteRangeCF A5 " << __FILE__ << ":" << __LINE__ << "
+        // " << __FUNCTION__ << std::endl;
         // TODO(ajkr): refactor `SeekToColumnFamily()` so it returns a `Status`.
         ret_status.PermitUncheckedError();
         // It's an empty range. Don't bother applying it to the DB.
@@ -3035,8 +3080,10 @@ class ProtectionInfoUpdater : public WriteBatch::Handler {
 
   Status DeleteRangeCF(uint32_t cf, const Slice& begin_key,
                        const Slice& end_key) override {
-std::cout  << "DeleteRangeCF " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-std::cout  << "DeleteRangeCF " << " (start, end) = " << begin_key.ToString() << "," << end_key.ToString() << std::endl;
+    std::cout << "DeleteRangeCF " << __FILE__ << ":" << __LINE__ << " "
+              << __FUNCTION__ << std::endl;
+    std::cout << "DeleteRangeCF " << " (start, end) = " << begin_key.ToString()
+              << "," << end_key.ToString() << std::endl;
     return UpdateProtInfo(cf, begin_key, end_key, kTypeRangeDeletion);
   }
 
