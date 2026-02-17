@@ -37,7 +37,7 @@ class LabelVector {
     }
   }
 
-  virtual ~LabelVector() {}
+  virtual ~LabelVector() { delete[] labels_; }
 
   virtual LabelVector* clone() const {
     LabelVector* copy = new LabelVector();

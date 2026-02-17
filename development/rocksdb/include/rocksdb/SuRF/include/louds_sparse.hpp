@@ -14,7 +14,6 @@
 #include "suffix.hpp"
 #include "surf_builder.hpp"
 
-
 namespace surf {
 
 class LoudsSparse {
@@ -79,7 +78,15 @@ class LoudsSparse {
  public:
   LoudsSparse() {};
   LoudsSparse(const SuRFBuilder* builder);
-  virtual ~LoudsSparse() {}
+  virtual ~LoudsSparse() {
+    delete[] level_cuts_;
+    delete labels_;
+    delete child_indicator_bits_;
+    delete louds_bits_;
+    delete suffixes_;
+    delete left_parentheses_;
+    delete right_parentheses_;
+  }
 
   virtual LoudsSparse* clone() const {
     LoudsSparse* copy = new LoudsSparse();

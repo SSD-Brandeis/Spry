@@ -25,7 +25,7 @@ class BitvectorRank : public Bitvector {
     initRankLut();
   }
 
-  virtual ~BitvectorRank() {}
+  virtual ~BitvectorRank() { delete[] rank_lut_; }
 
   virtual BitvectorRank* clone() const {
     BitvectorRank* copy = new BitvectorRank();

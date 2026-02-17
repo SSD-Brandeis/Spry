@@ -27,7 +27,7 @@ class BitvectorSelect : public Bitvector {
     initSelectLut();
   }
 
-  virtual ~BitvectorSelect() {}
+  virtual ~BitvectorSelect() { delete[] select_lut_; }
 
   virtual BitvectorSelect* clone() const {
     BitvectorSelect* copy = new BitvectorSelect();

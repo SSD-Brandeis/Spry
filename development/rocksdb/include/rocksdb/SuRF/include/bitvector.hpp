@@ -7,7 +7,6 @@
 
 #include "config.hpp"
 
-
 namespace surf {
 
 class Bitvector {
@@ -26,7 +25,7 @@ class Bitvector {
                           end_level);
   }
 
-  virtual ~Bitvector() {}
+  virtual ~Bitvector() { delete[] bits_; }
 
   virtual Bitvector* clone() const {
     Bitvector* copy = new Bitvector();
