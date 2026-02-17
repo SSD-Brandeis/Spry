@@ -583,7 +583,10 @@ class SuRF {
   }
   // YCHUANG ADDED END
 
-  ~SuRF() {}
+  virtual ~SuRF() {
+    delete louds_dense_;
+    delete louds_sparse_;
+  }
 
   // YCHUANG ADDED START
   void create(const std::vector<std::string>& keys,

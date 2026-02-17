@@ -94,7 +94,15 @@ class LoudsDense {
  public:
   LoudsDense() {};
   LoudsDense(const SuRFBuilder* builder);
-  virtual ~LoudsDense() {}
+  virtual ~LoudsDense() {
+    delete[] level_cuts_;
+    delete label_bitmaps_;
+    delete child_indicator_bitmaps_;
+    delete prefixkey_indicator_bits_;
+    delete suffixes_;
+    delete left_parentheses_;
+    delete right_parentheses_;
+  }
 
   virtual LoudsDense* clone() const {
     LoudsDense* copy = new LoudsDense();
