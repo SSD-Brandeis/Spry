@@ -1193,7 +1193,8 @@ SuRF_RDF::SuRF_RDF(const VP& level_surf_rdf_in,
 SuRF_RDF::~SuRF_RDF() {
   int num_level = getNumberOfTotalLevels();
   if (rdf_mode == PER_LEVEL) {
-    for (int i = 0; i < num_level; i++) {
+    int len = level_surf_rdf.size();
+    for (int i = 0; i < len; i++) {
       if (level_surf_rdf[i].second != NULL) {
         delete level_surf_rdf[i].second;
       }
@@ -1829,14 +1830,14 @@ int SuRF_RDF::getNumberOfTotalLevels() {
   int num = 0;
   if (rdf_mode == PER_LEVEL) {
     int len = level_surf_rdf.size();
-    for (int i = 1; i < len; i++) {
+    for (int i = 0; i < len; i++) {
       if (level_surf_rdf[i].second != NULL) {
         num = i + 1;
       }
     }
   } else if (rdf_mode == PER_FILE) {
     int len = level_file_surf_rdf.size();
-    for (int i = 1; i < len; i++) {
+    for (int i = 0; i < len; i++) {
       if (level_file_surf_rdf[i].size() != 0) {
         num = i + 1;
       }
