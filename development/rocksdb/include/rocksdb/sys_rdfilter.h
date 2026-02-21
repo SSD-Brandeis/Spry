@@ -1578,7 +1578,7 @@ class PLRDF_t {
   int getNumberOfTotalLevels() {
     int num = 0;
     int len = rd_filter.size();
-    for (int i = 1; i < len; i++) {
+    for (int i = 0; i < len; i++) {
       if (rd_filter[i].size() > 0) {
         num = i + 1;
       }
@@ -1930,7 +1930,7 @@ class PLRDF_t {
         candidate = *it2;
         ++it2;
       } else {
-        // Equal keys — advance both
+        // Equal keys ??advance both
         candidate = *it1;
         ++it1;
         ++it2;
@@ -3281,7 +3281,7 @@ class PLRDF {
   int getNumberOfTotalLevels() {
     int num = 0;
     int len = rd_filter.size();
-    for (int i = 1; i < len; i++) {
+    for (int i = 0; i < len; i++) {
       if (rd_filter[i].size() > 0) {
         num = i + 1;
       }
@@ -3567,7 +3567,7 @@ class PLRDF {
         candidate = *it2;
         ++it2;
       } else {
-        // Equal keys — advance both
+        // Equal keys ??advance both
         candidate = *it1;
         ++it1;
         ++it2;
