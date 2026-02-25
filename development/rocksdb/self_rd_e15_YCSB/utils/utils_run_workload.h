@@ -16,6 +16,7 @@
 #include "rocksdb/options.h"
 #include "rocksdb/system_verifier.h"
 #include "utils_logger_during_insertion.h"
+#include "utils_verification_during_run.h"
 
 void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
                  ReadOptions& read_op, EmuEnv* _env, std::string kDBPath) {
@@ -65,6 +66,8 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
       stop_time - start_time);
   unsigned long long insertion_time_ns = 0;
   unsigned long long rd_time_ns = 0;
+  unsigned long long point_query_time_ns = 0;
+  unsigned long long scan_time_ns = 0;
 
   while (!workload_file.eof()) {
     i_instruction++;
@@ -134,7 +137,15 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
         // std::cout << "Query " << key << std::endl;
         // ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
         // s = db->Get(read_op, ss_key.str(), &value);
+        start_time = std::chrono::high_resolution_clock::now();
         s = db->Get(read_op, key, &value);
+        stop_time = std::chrono::high_resolution_clock::now();
+        duration_time = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            stop_time - start_time);
+        point_query_time_ns += duration_time.count();
+
+        verification::verifyPointQuery(key, s, value, system_verifier);
+
         // separator_pos = value.find("|");
         // time_stamp = value.substr(separator_pos + 1);
         // value = value.substr(0, separator_pos);
@@ -167,11 +178,25 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
         //     break;
         //   }
         // }
-        for (it->Seek(start_key); it->Valid(); it->Next()) {
-          if (it->key().ToString() == end_key) {
-            break;
+        {
+          std::vector<std::pair<std::string, std::string>> scan_results;
+          start_time = std::chrono::high_resolution_clock::now();
+          for (it->Seek(start_key); it->Valid(); it->Next()) {
+            if (it->key().ToString() == end_key) {
+              break;
+            }
+            scan_results.push_back(
+                {it->key().ToString(), it->value().ToString()});
           }
+          stop_time = std::chrono::high_resolution_clock::now();
+          duration_time = std::chrono::duration_cast<std::chrono::nanoseconds>(
+              stop_time - start_time);
+          scan_time_ns += duration_time.count();
+
+          verification::verifyScan(start_key, end_key, scan_results,
+                                   system_verifier);
         }
+
         if (!it->status().ok()) {
           std::cerr << it->status().ToString() << std::endl;
         }
@@ -276,25 +301,31 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
     //   }
     // }
 
-    // run PQ and log memory footprint during insertion
-    vector<string> currently_deleted_keys =
-        system_verifier->getCurrentlyDeletedKeys();
+    // // run PQ and log memory footprint during insertion
+    // vector<string> currently_deleted_keys =
+    //     system_verifier->getCurrentlyDeletedKeys();
 
-    if (counter % _env->run_pq_during_insertion_interval == 0 &&
-        currently_deleted_keys.size() > 100) {
-      logger_during_insertion->writeRecord(db_ptr2);
+    // if (counter % _env->run_pq_during_insertion_interval == 0 &&
+    //     currently_deleted_keys.size() > 100) {
+    //   logger_during_insertion->writeRecord(db_ptr2);
 
-      std::this_thread::sleep_for(
-          std::chrono::seconds(30));  // Sleep for 10 second
+    //   std::this_thread::sleep_for(
+    //       std::chrono::seconds(30));  // Sleep for 10 second
 
-      if (_env->log_during_insertion == true) {
-        logger_during_insertion->runPQonCurrentlyDeletedKeys(
-            counter, db_ptr2, op, write_op, read_op, _env, 500, kDBPath);
-      }
-    }
+    //   if (_env->log_during_insertion == true) {
+    //     logger_during_insertion->runPQonCurrentlyDeletedKeys(
+    //         counter, db_ptr2, op, write_op, read_op, _env, 500, kDBPath);
+    //   }
+    // }
   }
-  std::cout << "insertion_time_ns_out = " << insertion_time_ns << std::endl;
-  std::cout << "rd_time_ns_out = " << rd_time_ns << std::endl;
+  std::cout << "insertion_time_ns _out = " << insertion_time_ns << std::endl;
+  std::cout << "rd_time_ns _out = " << rd_time_ns << std::endl;
+  std::cout << "point_query_time_ns _out = " << point_query_time_ns
+            << std::endl;
+  std::cout << "scan_time_ns _out = " << scan_time_ns << std::endl;
+
+  print_RDF_memory_usage_generic(db, system_verifier);
+  print_RDF_false_positive_rate_generic(db, system_verifier);
 
   std::cout << "!!! Final Flush. (Manually Flush) " << std::endl;
 
@@ -309,13 +340,14 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
 
   std::cout << "!!! Insertion Workload Ends." << std::endl;
 
-  std::this_thread::sleep_for(std::chrono::seconds(10));  // Sleep for 10 second
+  // std::this_thread::sleep_for(std::chrono::seconds(10));  // Sleep for 10
+  // second
 
-  std::cout << "!!! After sleep." << std::endl;
+  // std::cout << "!!! After sleep." << std::endl;
 
-  logger_during_insertion->recordCurrentMemoryFootprint(db_ptr2);
-  logger_during_insertion->writeRecord(db_ptr2);
-  logger_during_insertion->end();
+  // logger_during_insertion->recordCurrentMemoryFootprint(db_ptr2);
+  // logger_during_insertion->writeRecord(db_ptr2);
+  // logger_during_insertion->end();
 
   db->printAllFileRanges();
 
@@ -328,7 +360,8 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
   assert(s.ok());
   std::cout << "!!! Disable auto compaction" << std::endl;
 
-  std::this_thread::sleep_for(std::chrono::seconds(10));  // Sleep for 10 second
+  // std::this_thread::sleep_for(std::chrono::seconds(10));  // Sleep for 10
+  // second
 
   while (db->existFlushJob() == true || db->existCompactionJob() == true) {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -341,10 +374,10 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
   printStats(db, op);
 
   uint num_SST_files = db->getTotalNumberOfSSTFiles();
-  std::cout << "!!! Number of SST files = " << num_SST_files << std::endl;
+  std::cout << "num_SST_files _out = " << num_SST_files << std::endl;
 
   {
-    std::vector<string> testing_key_list({"2500", "5000", "5001"});
+    // std::vector<string> testing_key_list({"2500", "5000", "5001"});
     long long total_read_count_start =
         parsing_value_from_string(op.statistics->ToString(),
                                   "last.level.read.count[^:]*: ([0-9]+)") +
@@ -355,58 +388,63 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
                                   "last.level.read.bytes[^:]*: ([0-9]+)") +
         parsing_value_from_string(op.statistics->ToString(),
                                   "non.last.level.read.bytes[^:]*: ([0-9]+)");
-    reset_perf_iostats_context();
+    // reset_perf_iostats_context();
 
-    for (auto& x : testing_key_list) {
-      bool gt_is_exist = system_verifier->isKeyExist(x);
-      std::string gt_value = system_verifier->get(x);
+    // for (auto& x : testing_key_list) {
+    //   bool gt_is_exist = system_verifier->isKeyExist(x);
+    //   std::string gt_value = system_verifier->get(x);
 
-      std::string value;
-      // std::string time_stamp;
-      std::stringstream searching_key;
-      searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
-      s = db->Get(read_op, searching_key.str(), &value);
-      // size_t separator_pos = value.find("|");
-      // time_stamp = value.substr(separator_pos + 1);
-      // value = value.substr(0, separator_pos);
-      std::cout << x << " " << s.ok() << " " << value << std::endl;
-      std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
+    //   std::string value;
+    //   // std::string time_stamp;
+    //   std::stringstream searching_key;
+    //   searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+    //   s = db->Get(read_op, searching_key.str(), &value);
+    //   // size_t separator_pos = value.find("|");
+    //   // time_stamp = value.substr(separator_pos + 1);
+    //   // value = value.substr(0, separator_pos);
+    //   std::cout << x << " " << s.ok() << " " << value << std::endl;
+    //   std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
 
-      if (s.ok() != gt_is_exist) {
-        std::cout << "ERROR (Existence inconsistency): " << x
-                  << " (result, gt_result) " << s.ok() << " " << gt_is_exist
-                  << std::endl;
-      }
-      if (gt_is_exist == false) {
-        continue;
-      }
-      if (value != gt_value) {
-        std::cout << "ERROR (Value inconsistency): " << x
-                  << " (value, gt_value) " << value << " " << gt_value
-                  << std::endl;
-      }
-    }
+    //   if (s.ok() != gt_is_exist) {
+    //     std::cout << "ERROR (Existence inconsistency): " << x
+    //               << " (result, gt_result) " << s.ok() << " " <<
+    //               gt_is_exist
+    //               << std::endl;
+    //   }
+    //   if (gt_is_exist == false) {
+    //     continue;
+    //   }
+    //   if (value != gt_value) {
+    //     std::cout << "ERROR (Value inconsistency): " << x
+    //               << " (value, gt_value) " << value << " " << gt_value
+    //               << std::endl;
+    //   }
+    // }
 
-    long long total_read_count_end =
-        parsing_value_from_string(op.statistics->ToString(),
-                                  "last.level.read.count[^:]*: ([0-9]+)") +
-        parsing_value_from_string(op.statistics->ToString(),
-                                  "non.last.level.read.count[^:]*: ([0-9]+)");
-    long long total_read_bytes_end =
-        parsing_value_from_string(op.statistics->ToString(),
-                                  "last.level.read.bytes[^:]*: ([0-9]+)") +
-        parsing_value_from_string(op.statistics->ToString(),
-                                  "non.last.level.read.bytes[^:]*: ([0-9]+)");
+    // long long total_read_count_end =
+    //     parsing_value_from_string(op.statistics->ToString(),
+    //                               "last.level.read.count[^:]*: ([0-9]+)") +
+    //     parsing_value_from_string(op.statistics->ToString(),
+    //                               "non.last.level.read.count[^:]*:
+    //                               ([0-9]+)");
+    // long long total_read_bytes_end =
+    //     parsing_value_from_string(op.statistics->ToString(),
+    //                               "last.level.read.bytes[^:]*: ([0-9]+)") +
+    //     parsing_value_from_string(op.statistics->ToString(),
+    //                               "non.last.level.read.bytes[^:]*:
+    //                               ([0-9]+)");
 
-    std::cout << "total_read_count_start = " << total_read_count_start
+    std::cout << "total_read_count_start _out = " << total_read_count_start
               << std::endl;
-    std::cout << "total_read_count_end = " << total_read_count_end << std::endl;
-    std::cout << "total_read_bytes_start = " << total_read_bytes_start
+    std::cout << "total_read_count_end _out = " << total_read_count_end
               << std::endl;
-    std::cout << "total_read_bytes_end = " << total_read_bytes_end << std::endl;
-    std::cout << "total_read_count = "
+    std::cout << "total_read_bytes_start _out = " << total_read_bytes_start
+              << std::endl;
+    std::cout << "total_read_bytes_end _out = " << total_read_bytes_end
+              << std::endl;
+    std::cout << "total_read_count _out = "
               << total_read_count_end - total_read_count_start << std::endl;
-    std::cout << "total_read_bytes = "
+    std::cout << "total_read_bytes _out = "
               << total_read_bytes_end - total_read_bytes_start << std::endl;
 
     std::string prefix = "utils_run_worload_test ";

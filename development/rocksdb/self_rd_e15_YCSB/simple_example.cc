@@ -79,8 +79,8 @@ int main(int argc, char* argv[]) {
     auto duration_wg = std::chrono::duration_cast<std::chrono::nanoseconds>(
         stop_wg - start_wg);
     unsigned long long workload_generation_time_ns = duration_wg.count();
-    std::cout << "workload_generation_time_ns = " << workload_generation_time_ns
-              << std::endl;
+    std::cout << "workload_generation_time_ns _out = "
+              << workload_generation_time_ns << std::endl;
   }
 
   std::string kDBPathBase = "/tmp/cs561_project1";
@@ -89,8 +89,7 @@ int main(int argc, char* argv[]) {
 
   configOptions(_env, &options, &table_options, &write_op, &read_op,
                 &f_options);
-  std::cout << "table_op->filter_policy = " << table_options.filter_policy
-            << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+  std::cout << "table_op->filter_policy _out = " << table_options.filter_policy
             << std::endl;
   checking::SystemVerifier::getSystemVerifier()
       ->setFlagUsingRocksdbDefaultValueOrFalseAsPrefetchIndexAndFilterInCacheDuringBlockBasedTableOpen(

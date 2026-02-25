@@ -55,6 +55,7 @@
 #include "monitoring/perf_context_imp.h"
 #include "monitoring/persistent_stats_history.h"
 #include "options/options_helper.h"
+#include "rocksdb/SuRF/include/surf.hpp"
 #include "rocksdb/env.h"
 #include "rocksdb/merge_operator.h"
 #include "rocksdb/write_buffer_manager.h"
@@ -978,6 +979,9 @@ class LevelIterator final : public InternalIterator {
       bool should_sample, HistogramImpl* file_read_hist,
       TableReaderCaller caller, bool skip_filters, int level,
       uint8_t block_protection_bytes_per_key, RangeDelAggregator* range_del_agg,
+      // yucheng added start
+      Version* v = nullptr,
+      // yucheng added end
       const std::vector<AtomicCompactionUnitBoundary>* compaction_boundaries =
           nullptr,
       bool allow_unprepared_value = false,
@@ -998,6 +1002,9 @@ class LevelIterator final : public InternalIterator {
         level_(level),
         range_del_agg_(range_del_agg),
         pinned_iters_mgr_(nullptr),
+        // yucheng added start
+        v_(v),
+        // yucheng added end
         compaction_boundaries_(compaction_boundaries),
         is_next_read_sequential_(false),
         block_protection_bytes_per_key_(block_protection_bytes_per_key),
@@ -1095,6 +1102,11 @@ class LevelIterator final : public InternalIterator {
   void SkipEmptyFileBackward();
   void SetFileIterator(InternalIterator* iter);
   void InitFileIterator(size_t new_file_index);
+  // yucheng added start
+  bool FilterKey();
+  void SkipFilteredKeysForward();
+  void SkipFilteredKeysBackward();
+  // yucheng added end
 
   const Slice& file_smallest_key(size_t file_index) {
     assert(file_index < flevel_->num_files);
@@ -1185,6 +1197,7 @@ class LevelIterator final : public InternalIterator {
   RangeDelAggregator* range_del_agg_;
   IteratorWrapper file_iter_;  // May be nullptr
   PinnedIteratorsManager* pinned_iters_mgr_;
+  Version* v_;
 
   // To be propagated to RangeDelAggregator in order to safely truncate range
   // tombstones.
@@ -1225,6 +1238,62 @@ class LevelIterator final : public InternalIterator {
   // will not move to next file when this flag is set.
   bool prefix_exhausted_ = false;
 };
+
+// yucheng added start
+bool LevelIterator::FilterKey() {
+  if (v_ == nullptr || level_ == 0) {
+    return false;
+  }
+  if (!file_iter_.Valid() || to_return_sentinel_) {
+    return false;
+  }
+
+  std::string rdf_type =
+      checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
+  if (rdf_type == "NONE") {
+    return false;
+  }
+
+  Slice user_key = ExtractUserKey(file_iter_.key());
+
+  if (rdf_type == "PLRDF") {
+    return !v_->isAliveAfterRDFilter(level_, std::stoll(user_key.ToString()));
+  } else if (rdf_type == "SKYLINE_RDF") {
+    return !v_->isAliveAfterSkylineRDFilter(
+        std::stoll(user_key.ToString()), GetInternalKeySeqno(file_iter_.key()));
+  } else if (rdf_type == "PLRDF_STRING_KEY") {
+    return !v_->isAliveAfterRDFilterStringKey(level_, user_key.ToString());
+  } else if (rdf_type == "TOP_LEVEL_RDF") {
+    return !v_->isAliveAfterTopLevelRDFilter(std::stoll(user_key.ToString()));
+  } else if (rdf_type == "TOP_LEVEL_RDF_STRING_KEY") {
+    return !v_->isAliveAfterTopLevelRDFilterStringKey(user_key.ToString());
+  } else if (rdf_type == "SuRF_LF_RDF") {
+    uint64_t fd = flevel_->files[file_index_].file_metadata->fd.GetNumber();
+    bool flag_bypass = surf::SuRF_Env::getInstance()->getFlagBypassIfSameKey();
+    return !v_->isAliveAfterSuRFLevelFileRDFilter(
+        level_, fd, user_key.ToString(), flag_bypass);
+  } else if (rdf_type == "SuRF_LF_SPLIT_RDF") {
+    uint64_t fd = flevel_->files[file_index_].file_metadata->fd.GetNumber();
+    bool flag_bypass = surf::SuRF_Env::getInstance()->getFlagBypassIfSameKey();
+    return !v_->isAliveAfterSuRFLevelFileSplitRDFilter(
+        level_, fd, user_key.ToString(), flag_bypass);
+  }
+
+  return false;
+}
+
+void LevelIterator::SkipFilteredKeysForward() {
+  while (file_iter_.Valid() && FilterKey()) {
+    file_iter_.Next();
+  }
+}
+
+void LevelIterator::SkipFilteredKeysBackward() {
+  while (file_iter_.Valid() && FilterKey()) {
+    file_iter_.Prev();
+  }
+}
+// yucheng added end
 
 void LevelIterator::TrySetDeleteRangeSentinel(const Slice& boundary_key) {
   assert(range_tombstone_iter_);
@@ -1326,6 +1395,9 @@ void LevelIterator::Seek(const Slice& target) {
       TrySetDeleteRangeSentinel(file_largest_key(file_index_));
     }
   }
+  // yucheng added start
+  SkipFilteredKeysForward();
+  // yucheng added end
   SkipEmptyFileForward();
   CheckMayBeOutOfLowerBound();
 }
@@ -1360,6 +1432,9 @@ void LevelIterator::SeekForPrev(const Slice& target) {
       // starting from the file's lower boundary, which is after `target`.
       TrySetDeleteRangeSentinel(file_smallest_key(file_index_));
     }
+    // yucheng added start
+    SkipFilteredKeysBackward();
+    // yucheng added end
     SkipEmptyFileBackward();
   }
   CheckMayBeOutOfLowerBound();
@@ -1377,6 +1452,9 @@ void LevelIterator::SeekToFirst() {
       TrySetDeleteRangeSentinel(file_largest_key(file_index_));
     }
   }
+  // yucheng added start
+  SkipFilteredKeysForward();
+  // yucheng added end
   SkipEmptyFileForward();
   CheckMayBeOutOfLowerBound();
 }
@@ -1391,6 +1469,9 @@ void LevelIterator::SeekToLast() {
       TrySetDeleteRangeSentinel(file_smallest_key(file_index_));
     }
   }
+  // yucheng added start
+  SkipFilteredKeysBackward();
+  // yucheng added end
   SkipEmptyFileBackward();
   CheckMayBeOutOfLowerBound();
 }
@@ -1402,6 +1483,9 @@ void LevelIterator::Next() {
     ClearSentinel();
   } else {
     file_iter_.Next();
+    // yucheng added start
+    SkipFilteredKeysForward();
+    // yucheng added end
     if (range_tombstone_iter_) {
       TrySetDeleteRangeSentinel(file_largest_key(file_index_));
     }
@@ -1420,6 +1504,9 @@ bool LevelIterator::NextAndGetResult(IterateResult* result) {
       TrySetDeleteRangeSentinel(file_largest_key(file_index_));
     }
     is_next_read_sequential_ = true;
+    // yucheng added start
+    SkipFilteredKeysForward();
+    // yucheng added end
     SkipEmptyFileForward();
     is_next_read_sequential_ = false;
     is_valid = Valid();
@@ -1449,6 +1536,9 @@ void LevelIterator::Prev() {
     ClearSentinel();
   } else {
     file_iter_.Prev();
+    // yucheng added start
+    SkipFilteredKeysBackward();
+    // yucheng added end
     if (range_tombstone_iter_) {
       TrySetDeleteRangeSentinel(file_smallest_key(file_index_));
     }
@@ -1483,6 +1573,9 @@ bool LevelIterator::SkipEmptyFileForward() {
     // range tombstone iterator.
     if (file_iter_.iter() != nullptr) {
       file_iter_.SeekToFirst();
+      // yucheng added start
+      SkipFilteredKeysForward();
+      // yucheng added end
       if (range_tombstone_iter_) {
         if (*range_tombstone_iter_) {
           (*range_tombstone_iter_)->SeekToFirst();
@@ -1511,6 +1604,9 @@ void LevelIterator::SkipEmptyFileBackward() {
     // Seek range_tombstone_iter_ to reset its !Valid() default state.
     if (file_iter_.iter() != nullptr) {
       file_iter_.SeekToLast();
+      // yucheng added start
+      SkipFilteredKeysBackward();
+      // yucheng added end
       if (range_tombstone_iter_) {
         if (*range_tombstone_iter_) {
           (*range_tombstone_iter_)->SeekToLast();
@@ -1940,8 +2036,12 @@ InternalIterator* Version::TEST_GetLevelIterator(
       cfd_->internal_stats()->GetFileReadHist(level),
       TableReaderCaller::kUserIterator, IsFilterSkipped(level), level,
       mutable_cf_options_.block_protection_bytes_per_key,
-      nullptr /* range_del_agg */, nullptr /* compaction_boundaries */,
-      allow_unprepared_value, &tombstone_iter_ptr);
+      nullptr /* range_del_agg */,
+      // yucheng added start
+      this /* v */,
+      // yucheng added end
+      nullptr /* compaction_boundaries */, allow_unprepared_value,
+      &tombstone_iter_ptr);
   if (read_options.ignore_range_deletions) {
     merge_iter_builder->AddIterator(level_iter);
   } else {
@@ -2069,6 +2169,9 @@ void Version::AddIteratorsForLevel(const ReadOptions& read_options,
         TableReaderCaller::kUserIterator, IsFilterSkipped(level), level,
         mutable_cf_options_.block_protection_bytes_per_key,
         /*range_del_agg=*/nullptr,
+        // yucheng added start
+        this /* v */,
+        // yucheng added end
         /*compaction_boundaries=*/nullptr, allow_unprepared_value,
         &tombstone_iter_ptr);
     if (read_options.ignore_range_deletions) {
@@ -2130,7 +2233,11 @@ Status Version::OverlapWithLevelIterator(const ReadOptions& read_options,
         cfd_->internal_stats()->GetFileReadHist(level),
         TableReaderCaller::kUserIterator, IsFilterSkipped(level), level,
         mutable_cf_options_.block_protection_bytes_per_key, &range_del_agg,
-        nullptr, false));
+        // yucheng added start
+        this /* v */,
+        // yucheng added end
+        nullptr /* compaction_boundaries */,
+        false /* allow_unprepared_value */));
     status = OverlapWithIterator(ucmp, smallest_user_key, largest_user_key,
                                  iter.get(), overlap);
   }
@@ -7938,7 +8045,11 @@ InternalIterator* VersionSet::MakeInputIterator(
             TableReaderCaller::kCompaction, /*skip_filters=*/false,
             /*level=*/static_cast<int>(c->level(which)),
             c->mutable_cf_options()->block_protection_bytes_per_key,
-            range_del_agg, c->boundaries(which), false, &tombstone_iter_ptr);
+            range_del_agg,
+            // yucheng added start
+            c->input_version(),
+            // yucheng added end
+            c->boundaries(which), false, &tombstone_iter_ptr);
         range_tombstones.emplace_back(nullptr, tombstone_iter_ptr);
 
         // //ychuang Added Start

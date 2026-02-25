@@ -864,7 +864,7 @@ std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(
   SuRF::Iter iter = surf_->moveToFirst();
 
   if (surf_->louds_dense_->getHeight() == 0) {
-    std::cout << "surfToRanges height==0 " << "surf rdf out" << std::endl;
+    std::cout << "0 " << "surf rdf out" << std::endl;
     while (iter.sparse_iter_.isValid()) {
       std::string key = iter.sparse_iter_.getKey();
       bool left_parenthesis = iter.sparse_iter_.getLeftParenthesis();
@@ -1006,6 +1006,15 @@ std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(
           start = keys[i];
           end = keys[i];
         } else {
+          if (surf::SuRF_Env::getInstance()
+                  ->getFlagSurfUseCondensedDigitKey() == true) {
+            std::cout << "x "
+                      << surf::SuRF_Utils::decode_byte_string_to_digit_string(
+                             keys[i])
+                      << " ";
+          } else {
+            std::cout << "x " << keys[i] << " ";
+          }
           //(0,1)
           end = keys[i];
         }
@@ -1037,6 +1046,8 @@ std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(
       ranges.push_back(std::make_pair(start, end));
     }
   }
+  std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+            << std::endl;
 
   return ranges;
   // return SuRFRangesAndSplitPoint{.ranges = ranges, .split_points =

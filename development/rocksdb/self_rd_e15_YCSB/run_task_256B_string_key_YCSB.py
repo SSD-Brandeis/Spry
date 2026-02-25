@@ -266,11 +266,11 @@ sel_list = [0.001]
 #sel_list = [0.0005, 0.001, 0.0015, 0.002]
 workload_filename_list = [
 #    f"workload/workload7111.txt",
-    f"workload/YCSB-A_workload.txt",
-    f"workload/YCSB-B_workload.txt",
-    f"workload/YCSB-C_workload.txt",
-    f"workload/YCSB-D_workload.txt",
-    f"workload/YCSB-E_workload.txt"
+    f"workload/YCSB-A_workload.txt_",
+    f"workload/YCSB-B_workload.txt_",
+    f"workload/YCSB-C_workload.txt_",
+    f"workload/YCSB-D_workload.txt_",
+    f"workload/YCSB-E_workload.txt_"
 ]
 
    
@@ -455,7 +455,7 @@ for i_test in range(5):
     log_dir = f"saved_result_string_key_size_256/log_{workload_filename}"
 
     # Recursively create the directory
-    os.makedirs(log_dir, exist_ok=True)
+    os.makedirs(log_dir, exist_ok=True) 
 
     # for i_rdf, (rdf_type, local_param) in enumerate(rdf_types.items()):
     for i_rdf, rdf_param in enumerate(rdf_types):
