@@ -44,10 +44,9 @@
 #undef WITH_COROUTINES
 // clang-format on
 
-//Self Added Start
+// Self Added Start
 #include "include/rocksdb/system_verifier.h"
-//Self Added End
-
+// Self Added End
 
 namespace ROCKSDB_NAMESPACE {
 
@@ -58,13 +57,11 @@ static Slice GetSliceForFileNumber(const uint64_t* file_number) {
                sizeof(*file_number));
 }
 
-
 void AppendVarint64(IterKey* key, uint64_t v) {
   char buf[10];
   auto ptr = EncodeVarint64(buf, v);
   key->TrimAppend(key->Size(), buf, ptr - buf);
 }
-
 
 }  // anonymous namespace
 
@@ -101,7 +98,8 @@ Status TableCache::GetTableReader(
     const std::shared_ptr<const SliceTransform>& prefix_extractor,
     bool skip_filters, int level, bool prefetch_index_and_filter_in_cache,
     size_t max_file_size_for_l0_meta_pin, Temperature file_temperature) {
-// std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // std::cout  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<
+  // std::endl;
   std::string fname = TableFileName(
       ioptions_.cf_paths, file_meta.fd.GetNumber(), file_meta.fd.GetPathId());
   std::unique_ptr<FSRandomAccessFile> file;
@@ -183,12 +181,16 @@ Status TableCache::FindTable(
     MutexLock load_lock(loader_mutex_.get(key));
     *handle = cache_.Lookup(key);
     if (*handle != nullptr) {
-      
-      if(checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
-        Cache * cache_ych = cache_.get();
-        // std::unordered_map<std::string, void*> map_currently_exist_kv = cache_ych->GetYCHMapKV();
-        std::unordered_set<std::string> set_currently_exist_keys = cache_ych->GetYCHSetKey();
-        checking::CacheTombstoneTracer::getInstance()->updateCurrentlyExistKeys(set_currently_exist_keys);
+      if (checking::SystemVerifier::getSystemVerifier()
+              ->getStringOfRDFTypeChosed() ==
+          "NONE_CACHE_RANGETOMBSTONE_TRACING") {
+        Cache* cache_ych = cache_.get();
+        // std::unordered_map<std::string, void*> map_currently_exist_kv =
+        // cache_ych->GetYCHMapKV();
+        std::unordered_set<std::string> set_currently_exist_keys =
+            cache_ych->GetYCHSetKey();
+        checking::CacheTombstoneTracer::getInstance()->updateCurrentlyExistKeys(
+            set_currently_exist_keys);
       }
 
       return Status::OK();
@@ -202,11 +204,14 @@ Status TableCache::FindTable(
                               level, prefetch_index_and_filter_in_cache,
                               max_file_size_for_l0_meta_pin, file_temperature);
     if (!s.ok()) {
-
-      if(checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
-        Cache * cache_ych = cache_.get();
-        std::unordered_set<std::string> set_currently_exist_keys = cache_ych->GetYCHSetKey();
-        checking::CacheTombstoneTracer::getInstance()->updateCurrentlyExistKeys(set_currently_exist_keys);
+      if (checking::SystemVerifier::getSystemVerifier()
+              ->getStringOfRDFTypeChosed() ==
+          "NONE_CACHE_RANGETOMBSTONE_TRACING") {
+        Cache* cache_ych = cache_.get();
+        std::unordered_set<std::string> set_currently_exist_keys =
+            cache_ych->GetYCHSetKey();
+        checking::CacheTombstoneTracer::getInstance()->updateCurrentlyExistKeys(
+            set_currently_exist_keys);
       }
 
       assert(table_reader == nullptr);
@@ -216,16 +221,21 @@ Status TableCache::FindTable(
     } else {
       s = cache_.Insert(key, table_reader.get(), 1, handle);
 
-      //YCHuang Added Start
-      if(checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
+      // YCHuang Added Start
+      if (checking::SystemVerifier::getSystemVerifier()
+              ->getStringOfRDFTypeChosed() ==
+          "NONE_CACHE_RANGETOMBSTONE_TRACING") {
         void* ptr = reinterpret_cast<void*>(table_reader.get());
-        std::string k2 = checking::CacheTombstoneTracer::voidPointerToString(ptr);
-        std::string k = checking::CacheTombstoneTracer::stringToHexString(key.ToString()) + k2;
+        std::string k2 =
+            checking::CacheTombstoneTracer::voidPointerToString(ptr);
+        std::string k =
+            checking::CacheTombstoneTracer::stringToHexString(key.ToString()) +
+            k2;
         uint64_t bytes = table_reader->get_ych__total_tombstone_payload_bytes();
-        checking::CacheTombstoneTracer::getInstance()->insertMapTombstoneBytes(k, bytes);
+        checking::CacheTombstoneTracer::getInstance()->insertMapTombstoneBytes(
+            k, bytes);
       }
-      //YCHuang Added End
-
+      // YCHuang Added End
 
       if (s.ok()) {
         // Release ownership of table reader.
@@ -233,22 +243,29 @@ Status TableCache::FindTable(
       }
     }
 
-    if(checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
-      Cache * cache_ych = cache_.get();
-      std::unordered_set<std::string> set_currently_exist_keys = cache_ych->GetYCHSetKey();
-      checking::CacheTombstoneTracer::getInstance()->updateCurrentlyExistKeys(set_currently_exist_keys);
+    if (checking::SystemVerifier::getSystemVerifier()
+            ->getStringOfRDFTypeChosed() ==
+        "NONE_CACHE_RANGETOMBSTONE_TRACING") {
+      Cache* cache_ych = cache_.get();
+      std::unordered_set<std::string> set_currently_exist_keys =
+          cache_ych->GetYCHSetKey();
+      checking::CacheTombstoneTracer::getInstance()->updateCurrentlyExistKeys(
+          set_currently_exist_keys);
     }
 
     return s;
   }
 
-  //YCHuang Added Start
-  if(checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING"){
-    Cache * cache_ych = cache_.get();
-    std::unordered_set<std::string> set_currently_exist_keys = cache_ych->GetYCHSetKey();
-    checking::CacheTombstoneTracer::getInstance()->updateCurrentlyExistKeys(set_currently_exist_keys);
+  // YCHuang Added Start
+  if (checking::SystemVerifier::getSystemVerifier()
+          ->getStringOfRDFTypeChosed() == "NONE_CACHE_RANGETOMBSTONE_TRACING") {
+    Cache* cache_ych = cache_.get();
+    std::unordered_set<std::string> set_currently_exist_keys =
+        cache_ych->GetYCHSetKey();
+    checking::CacheTombstoneTracer::getInstance()->updateCurrentlyExistKeys(
+        set_currently_exist_keys);
   }
-  //YCHuang Added End
+  // YCHuang Added End
 
   return Status::OK();
 }
@@ -471,24 +488,23 @@ Status TableCache::Get(
   if (ioptions_.row_cache && !get_context->NeedToReadSequence()) {
     auto user_key = ExtractUserKey(k);
 
-    //Self Added Start: timing
+    // Self Added Start: timing
     checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-    //Self Added End: timing
-    //Self Added Start
+    // Self Added End: timing
+    // Self Added Start
     checking::SystemVerifier::getSystemVerifier()->start_get_from_row_cache();
-    //Self Added End
+    // Self Added End
 
     CreateRowCacheKeyPrefix(options, fd, k, get_context, row_cache_key);
     done = GetFromRowCache(user_key, row_cache_key, row_cache_key.Size(),
                            get_context);
 
-    //Self Added Start
+    // Self Added Start
     checking::SystemVerifier::getSystemVerifier()->stop_get_from_row_cache();
-    //Self Added End
-    //Self Added Start: timing
+    // Self Added End
+    // Self Added Start: timing
     checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    //Self Added End: timing
-
+    // Self Added End: timing
 
     if (!done) {
       row_cache_entry = &row_cache_entry_buffer;
@@ -498,17 +514,15 @@ Status TableCache::Get(
   TableReader* t = fd.table_reader;
   TypedHandle* handle = nullptr;
 
-
   if (!done) {
     assert(s.ok());
     if (t == nullptr) {
-
-      //Self Added Start: timing
+      // Self Added Start: timing
       checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-      //Self Added End: timing
-      //Self Added Start
+      // Self Added End: timing
+      // Self Added Start
       checking::SystemVerifier::getSystemVerifier()->start_find_table();
-      //Self Added End
+      // Self Added End
 
       s = FindTable(options, file_options_, internal_comparator, file_meta,
                     &handle, block_protection_bytes_per_key, prefix_extractor,
@@ -517,12 +531,12 @@ Status TableCache::Get(
                     level, true /* prefetch_index_and_filter_in_cache */,
                     max_file_size_for_l0_meta_pin, file_meta.temperature);
 
-      //Self Added Start
+      // Self Added Start
       checking::SystemVerifier::getSystemVerifier()->stop_find_table();
-      //Self Added End
-      //Self Added Start: timing
+      // Self Added End
+      // Self Added Start: timing
       checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-      //Self Added End: timing
+      // Self Added End: timing
 
       if (s.ok()) {
         t = cache_.Value(handle);
@@ -532,55 +546,70 @@ Status TableCache::Get(
     SequenceNumber* max_covering_tombstone_seq =
         get_context->max_covering_tombstone_seq();
 
-    //Self Added Start: timing
+    // Self Added Start: timing
     checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-    //Self Added End: timing
+    // Self Added End: timing
 
-    //Self Added Start
-    // *** Also Required to implement in block_based_table_reader.cc ***
+    // Self Added Start
+    //  *** Also Required to implement in block_based_table_reader.cc ***
     bool rdf_skip_range_deletions = false;
-    std::string rdf_type = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
-    if(rdf_type == "PLRDF"){ // xxx
-      rdf_skip_range_deletions = true;
+    std::string rdf_type = checking::SystemVerifier::getSystemVerifier()
+                               ->getStringOfRDFTypeChosed();
+    if (rdf_type == "PLRDF") {  // xxx
+      rdf_skip_range_deletions = (level > 0);
 
-    }else if(rdf_type == "SPLIT_PLRDF" || rdf_type == "TOP_LEVEL_RDF"){
-      rdf_skip_range_deletions = true;
+    } else if (rdf_type == "SPLIT_PLRDF" || rdf_type == "TOP_LEVEL_RDF") {
+      rdf_skip_range_deletions = (level > 0);
 
-    }else if(rdf_type == "PLRDF_STRING_KEY"){
-      // temporarily testing, need to be determined in the future, default to storing full string key
-      rdf_skip_range_deletions = true;
-    }else if(rdf_type == "SPLIT_PLRDF_STRING_KEY" || rdf_type == "TOP_LEVEL_RDF_STRING_KEY"){
-      rdf_skip_range_deletions = !PLRDF_Env::getInstance()->getFlagKeyMayDeleted();
-// std::cout << "rdf_skip_range_deletions = " << rdf_skip_range_deletions << " " << __FILE__ << ":" << __LINE__ << std::endl;
+    } else if (rdf_type == "PLRDF_STRING_KEY") {
+      // temporarily testing, need to be determined in the future, default to
+      // storing full string key
+      rdf_skip_range_deletions = (level > 0);
+    } else if (rdf_type == "SPLIT_PLRDF_STRING_KEY" ||
+               rdf_type == "TOP_LEVEL_RDF_STRING_KEY") {
+      rdf_skip_range_deletions =
+          (!PLRDF_Env::getInstance()->getFlagKeyMayDeleted()) && (level > 0);
+      // std::cout << "rdf_skip_range_deletions = " << rdf_skip_range_deletions
+      // << " " << __FILE__ << ":" << __LINE__ << std::endl;
       // TODO: let it be set (now ERROR)
       // rdf_skip_range_deletions = false;
       // rdf_skip_range_deletions = true;
-    }else if(rdf_type == "SKYLINE_RDF"){
+    } else if (rdf_type == "SKYLINE_RDF") {
       rdf_skip_range_deletions = true;
 
-    // }else if(rdf_type == "SuRF_LF_RDF"){
-    }else if(rdf_type == "SuRF_LF_RDF" || rdf_type == "SuRF_LF_SPLIT_RDF"){
-      // surf::SuRF_Env::getInstance()->setFlagBypassIfSameKey is called in utils_gen_workload.h
-      // rdf_skip_range_deletions = !surf::SuRF_Env::getInstance()->getFlagBypassIfSameKey();
-      rdf_skip_range_deletions = !surf::SuRF_Env::getInstance()->getFlagKeyMayDeleted();
-      if(rdf_skip_range_deletions == false){
-        std::cout << "rdf_skip_range_deletions = false" << " " << __FILE__ << " " << __FUNCTION__ << std::endl;
+      // }else if(rdf_type == "SuRF_LF_RDF"){
+    } else if (rdf_type == "SuRF_LF_RDF" || rdf_type == "SuRF_LF_SPLIT_RDF") {
+      // surf::SuRF_Env::getInstance()->setFlagBypassIfSameKey is called in
+      // utils_gen_workload.h rdf_skip_range_deletions =
+      // !surf::SuRF_Env::getInstance()->getFlagBypassIfSameKey();
+      rdf_skip_range_deletions =
+          !surf::SuRF_Env::getInstance()->getFlagKeyMayDeleted();
+      if (rdf_skip_range_deletions == false) {
+        std::cout << "rdf_skip_range_deletions = false" << " " << __FILE__
+                  << " " << __FUNCTION__ << std::endl;
       }
-      // std::cout << "SuRF_LF_SPLIT_RDF rdf_skip_range_deletions = " << rdf_skip_range_deletions << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      // std::cout << "SuRF_LF_SPLIT_RDF rdf_skip_range_deletions = " <<
+      // rdf_skip_range_deletions << " " << __FILE__ << ":" << __LINE__ << " "
+      // << __FUNCTION__ << std::endl;
 
-    }else if(rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" && rdf_type != "NONE2" 
-            && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "TOP_LEVEL_RDF_STRING_KEY"
-            && rdf_type != "PLRDF_STRING_KEY" && rdf_type != "SPLIT_PLRDF_STRING_KEY"
-            && rdf_type != "SKYLINE_RDF" && rdf_type != "SuRF_LF_RDF" && rdf_type != "SuRF_LF_SPLIT_RDF"){
-      std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+    } else if (rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" &&
+               rdf_type != "NONE2" && rdf_type != "PLRDF" &&
+               rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" &&
+               rdf_type != "TOP_LEVEL_RDF_STRING_KEY" &&
+               rdf_type != "PLRDF_STRING_KEY" &&
+               rdf_type != "SPLIT_PLRDF_STRING_KEY" &&
+               rdf_type != "SKYLINE_RDF" && rdf_type != "SuRF_LF_RDF" &&
+               rdf_type != "SuRF_LF_SPLIT_RDF") {
+      std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__
+                << " " << __FUNCTION__ << std::endl
                 << "rdf_type = " << rdf_type << std::endl;
     }
-    //Self Added End
+    // Self Added End
 
-    //Self Added Start
-    if(!rdf_skip_range_deletions){
+    // Self Added Start
+    if (!rdf_skip_range_deletions) {
       checking::SystemVerifier::getSystemVerifier()->start_get_max_seq();
-      //Self Added End
+      // Self Added End
 
       if (s.ok() && max_covering_tombstone_seq != nullptr &&
           !options.ignore_range_deletions) {
@@ -598,52 +627,46 @@ Status TableCache::Get(
           }
         }
       }
-    //Self Added Start
+      // Self Added Start
       checking::SystemVerifier::getSystemVerifier()->stop_get_max_seq();
     }
-    //Self Added End
+    // Self Added End
 
-  //Self Added Start
-  if(*max_covering_tombstone_seq != 0){
-    if(checking::SystemVerifier::getSystemVerifier()->is_enable_log__deleted_keys__max_sequnce_number()){
-      checking::SystemVerifier::getSystemVerifier()->insert_deleted_keys__max_sequnce_number( 
-        // stoll(ExtractUserKey(k).ToString()),
-        ExtractUserKey(k).ToString(),
-        *max_covering_tombstone_seq);
+    // Self Added Start
+    if (*max_covering_tombstone_seq != 0) {
+      if (checking::SystemVerifier::getSystemVerifier()
+              ->is_enable_log__deleted_keys__max_sequnce_number()) {
+        checking::SystemVerifier::getSystemVerifier()
+            ->insert_deleted_keys__max_sequnce_number(
+                // stoll(ExtractUserKey(k).ToString()),
+                ExtractUserKey(k).ToString(), *max_covering_tombstone_seq);
+      }
     }
+    // Self Added End
 
+    // Self Added Start: timing
+    checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+    // Self Added End: timing
 
-
-  }
-  //Self Added End
-
-  
-
-  //Self Added Start: timing
-  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-  //Self Added End: timing
-
-    
     if (s.ok()) {
-      
-  //Self Added Start: timing
-  checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-  //Self Added End: timing
+      // Self Added Start: timing
+      checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
+      // Self Added End: timing
 
-//Self Added Start
-checking::SystemVerifier *system_verifier = checking::SystemVerifier::getSystemVerifier(); 
-system_verifier->increaseDiskAccessCount();
-//Self Added End
+      // Self Added Start
+      checking::SystemVerifier* system_verifier =
+          checking::SystemVerifier::getSystemVerifier();
+      system_verifier->increaseDiskAccessCount();
+      // Self Added End
 
-  //Self Added Start: timing
-  checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-  //Self Added End: timing
+      // Self Added Start: timing
+      checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
+      // Self Added End: timing
 
       get_context->SetReplayLog(row_cache_entry);  // nullptr if no cache.
       s = t->Get(options, k, get_context, prefix_extractor.get(), skip_filters);
       get_context->SetReplayLog(nullptr);
 
-      
     } else if (options.read_tier == kBlockCacheTier && s.IsIncomplete()) {
       // Couldn't find Table in cache but treat as kFound if no_io set
       get_context->MarkKeyMayExist();
