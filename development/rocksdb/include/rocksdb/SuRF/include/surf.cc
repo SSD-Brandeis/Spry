@@ -719,6 +719,17 @@ std::pair<SuRF*, size_t> SuRF::rangesWithPointKeysToSurf(
         break;
       }
 
+      if (j_point_keys > 0) {
+        std::string prev_point_key = point_keys[j_point_keys - 1];
+        if (prev_point_key.size() > surf_key_length_in_bytes) {
+          prev_point_key = prev_point_key.substr(0, surf_key_length_in_bytes);
+        }
+        if (point_key == prev_point_key) {
+          j_point_keys++;
+          continue;
+        }
+      }
+
       if (point_key == key_start) {
 #ifdef DEBUG_SURF_COMPACTION
         if (surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() ==
