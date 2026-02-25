@@ -421,18 +421,16 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
     //   }
     // }
 
-    // long long total_read_count_end =
-    //     parsing_value_from_string(op.statistics->ToString(),
-    //                               "last.level.read.count[^:]*: ([0-9]+)") +
-    //     parsing_value_from_string(op.statistics->ToString(),
-    //                               "non.last.level.read.count[^:]*:
-    //                               ([0-9]+)");
-    // long long total_read_bytes_end =
-    //     parsing_value_from_string(op.statistics->ToString(),
-    //                               "last.level.read.bytes[^:]*: ([0-9]+)") +
-    //     parsing_value_from_string(op.statistics->ToString(),
-    //                               "non.last.level.read.bytes[^:]*:
-    //                               ([0-9]+)");
+    long long total_read_count_end =
+        parsing_value_from_string(op.statistics->ToString(),
+                                  "last.level.read.count[^:]*: ([0-9]+)") +
+        parsing_value_from_string(op.statistics->ToString(),
+                                  "non.last.level.read.count[^:]*: ([0-9]+)");
+    long long total_read_bytes_end =
+        parsing_value_from_string(op.statistics->ToString(),
+                                  "last.level.read.bytes[^:]*: ([0-9]+)") +
+        parsing_value_from_string(op.statistics->ToString(),
+                                  "non.last.level.read.bytes[^:]*: ([0-9]+)");
 
     std::cout << "total_read_count_start _out = " << total_read_count_start
               << std::endl;
