@@ -583,7 +583,8 @@ Status TableCache::Get(
       // utils_gen_workload.h rdf_skip_range_deletions =
       // !surf::SuRF_Env::getInstance()->getFlagBypassIfSameKey();
       rdf_skip_range_deletions =
-          !surf::SuRF_Env::getInstance()->getFlagKeyMayDeleted();
+          (!surf::SuRF_Env::getInstance()->getFlagKeyMayDeleted()) &&
+          (level > 0);
       if (rdf_skip_range_deletions == false) {
         std::cout << "rdf_skip_range_deletions = false" << " " << __FILE__
                   << " " << __FUNCTION__ << std::endl;

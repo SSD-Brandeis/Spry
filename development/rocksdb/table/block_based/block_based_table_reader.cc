@@ -74,11 +74,9 @@
 #include "util/stop_watch.h"
 #include "util/string_util.h"
 
-
-//Self Added Start
+// Self Added Start
 #include "include/rocksdb/system_verifier.h"
-//Self Added End
-
+// Self Added End
 
 namespace ROCKSDB_NAMESPACE {
 namespace {
@@ -102,7 +100,6 @@ CacheAllocationPtr CopyBufferToHeap(MemoryAllocator* allocator, Slice& buf) {
       BlockCacheLookupContext* lookup_context, bool for_compaction,           \
       bool use_cache, bool async_read) const;
 
-
 INSTANTIATE_RETRIEVE_BLOCK(ParsedFullFilterBlock);
 INSTANTIATE_RETRIEVE_BLOCK(UncompressionDict);
 INSTANTIATE_RETRIEVE_BLOCK(Block_kData);
@@ -112,7 +109,7 @@ INSTANTIATE_RETRIEVE_BLOCK(Block_kRangeDeletion);
 INSTANTIATE_RETRIEVE_BLOCK(Block_kMetaIndex);
 
 // yucheng added start
-#define INSTANTIATE_RETRIEVE_BLOCK_WITH_TYPE(T)                                \
+#define INSTANTIATE_RETRIEVE_BLOCK_WITH_TYPE(T)                               \
   template Status BlockBasedTable::RetrieveBlock<T>(                          \
       FilePrefetchBuffer * prefetch_buffer, const ReadOptions& ro,            \
       const BlockHandle& handle, const UncompressionDict& uncompression_dict, \
@@ -180,31 +177,33 @@ Status ReadAndParseBlockFromFile(
   // If prefetch_buffer is not allocated, it will fallback to synchronous
   // reading of block contents.
   if (async_read && prefetch_buffer != nullptr) {
+    // enum class BlockType : uint8_t {
+    //   kData,
+    //   kFilter,  // for second level partitioned filters and full filters
+    //   kFilterPartitionIndex,  // for top-level index of filter partitions
+    //   kProperties,
+    //   kCompressionDictionary,
+    //   kRangeDeletion,
+    //   kHashIndexPrefixes,
+    //   kHashIndexMetadata,
+    //   kMetaIndex,
+    //   kIndex,
+    //   // Note: keep kInvalid the last value when adding new enum values.
+    //   kInvalid
+    // };
 
-    
-// enum class BlockType : uint8_t {
-//   kData,
-//   kFilter,  // for second level partitioned filters and full filters
-//   kFilterPartitionIndex,  // for top-level index of filter partitions
-//   kProperties,
-//   kCompressionDictionary,
-//   kRangeDeletion,
-//   kHashIndexPrefixes,
-//   kHashIndexMetadata,
-//   kMetaIndex,
-//   kIndex,
-//   // Note: keep kInvalid the last value when adding new enum values.
-//   kInvalid
-// };
-
-    //enum value to name
-// std::cout << " ReadAndParseBlockFromFile Async " << " block_type = " << int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // enum value to name
+    // std::cout << " ReadAndParseBlockFromFile Async " << " block_type = " <<
+    // int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " <<
+    // __FUNCTION__ << std::endl;
     s = block_fetcher.ReadAsyncBlockContents();
     if (!s.ok()) {
       return s;
     }
   } else {
-// std::cout << " ReadAndParseBlockFromFile Sync " << " block_type = " << int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // std::cout << " ReadAndParseBlockFromFile Sync " << " block_type = " <<
+    // int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " <<
+    // __FUNCTION__ << std::endl;
     s = block_fetcher.ReadBlockContents();
   }
   if (s.ok()) {
@@ -228,7 +227,8 @@ Status ReadAndParseBlockFromFile(
     BlockCreateContext& create_context, bool maybe_compressed,
     const UncompressionDict& uncompression_dict,
     const PersistentCacheOptions& cache_options,
-    MemoryAllocator* memory_allocator, bool for_compaction, bool async_read, BlockType block_type) {
+    MemoryAllocator* memory_allocator, bool for_compaction, bool async_read,
+    BlockType block_type) {
   assert(result);
 
   BlockContents contents;
@@ -241,25 +241,25 @@ Status ReadAndParseBlockFromFile(
   // If prefetch_buffer is not allocated, it will fallback to synchronous
   // reading of block contents.
   if (async_read && prefetch_buffer != nullptr) {
+    // enum class BlockType : uint8_t {
+    //   kData,
+    //   kFilter,  // for second level partitioned filters and full filters
+    //   kFilterPartitionIndex,  // for top-level index of filter partitions
+    //   kProperties,
+    //   kCompressionDictionary,
+    //   kRangeDeletion,
+    //   kHashIndexPrefixes,
+    //   kHashIndexMetadata,
+    //   kMetaIndex,
+    //   kIndex,
+    //   // Note: keep kInvalid the last value when adding new enum values.
+    //   kInvalid
+    // };
 
-    
-// enum class BlockType : uint8_t {
-//   kData,
-//   kFilter,  // for second level partitioned filters and full filters
-//   kFilterPartitionIndex,  // for top-level index of filter partitions
-//   kProperties,
-//   kCompressionDictionary,
-//   kRangeDeletion,
-//   kHashIndexPrefixes,
-//   kHashIndexMetadata,
-//   kMetaIndex,
-//   kIndex,
-//   // Note: keep kInvalid the last value when adding new enum values.
-//   kInvalid
-// };
-
-    //enum value to name
-// std::cout << " ReadAndParseBlockFromFile Async " << " block_type = " << int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // enum value to name
+    // std::cout << " ReadAndParseBlockFromFile Async " << " block_type = " <<
+    // int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " <<
+    // __FUNCTION__ << std::endl;
     s = block_fetcher.ReadAsyncBlockContents();
     // yucheng Warning: whether to pass in block_type here?
     // s = block_fetcher.ReadAsyncBlockContents(block_type);
@@ -267,7 +267,10 @@ Status ReadAndParseBlockFromFile(
       return s;
     }
   } else {
-// std::cout << " ReadAndParseBlockFromFile Sync " << " block_type = " << int(block_type) << " TBlocklike::kBlockType = " << int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    // std::cout << " ReadAndParseBlockFromFile Sync " << " block_type = " <<
+    // int(block_type) << " TBlocklike::kBlockType = " <<
+    // int(TBlocklike::kBlockType) << __FILE__ << ":" << __LINE__ << " " <<
+    // __FUNCTION__ << std::endl;
     s = block_fetcher.ReadBlockContents(block_type);
   }
   if (s.ok()) {
@@ -697,8 +700,14 @@ Status BlockBasedTable::Open(
 
   // prefetch both index and filters, down to all partitions
   // yucheng Added Start Important: this is only for experimental use
-  // prefetch_index_and_filter_in_cache = checking::SystemVerifier::getSystemVerifier()->getPrefetchIndexAndFilterInCacheDuringBlockBasedTableOpen(); // Rocksdb set it to true by default, but we set it to false here
-  const bool prefetch_all = (prefetch_index_and_filter_in_cache && checking::SystemVerifier::getSystemVerifier()->getFlagUsingRocksdbDefaultValueOrFalseAsPrefetchIndexAndFilterInCacheDuringBlockBasedTableOpen()) || level == 0;
+  // prefetch_index_and_filter_in_cache =
+  // checking::SystemVerifier::getSystemVerifier()->getPrefetchIndexAndFilterInCacheDuringBlockBasedTableOpen();
+  // // Rocksdb set it to true by default, but we set it to false here
+  const bool prefetch_all =
+      (prefetch_index_and_filter_in_cache &&
+       checking::SystemVerifier::getSystemVerifier()
+           ->getFlagUsingRocksdbDefaultValueOrFalseAsPrefetchIndexAndFilterInCacheDuringBlockBasedTableOpen()) ||
+      level == 0;
   // yucheng Added End
   // const bool prefetch_all = prefetch_index_and_filter_in_cache || level == 0;
   // const bool prefetch_all = prefetch_index_and_filter_in_cache || level == 0;
@@ -720,11 +729,10 @@ Status BlockBasedTable::Open(
         true /* track_min_offset */));
   }
 
-
   // yucheng Added Start Important: this is only for experimental use
-  prefetch_buffer.reset(new FilePrefetchBuffer(
-      0 /* readahead_size */, 0 /* max_readahead_size */, false /* enable */,
-      true /* track_min_offset */));
+  prefetch_buffer.reset(
+      new FilePrefetchBuffer(0 /* readahead_size */, 0 /* max_readahead_size */,
+                             false /* enable */, true /* track_min_offset */));
   // yucheng Added End
 
   // Read in the following order:
@@ -884,54 +892,65 @@ Status BlockBasedTable::Open(
       PersistentCacheOptions(rep->table_options.persistent_cache,
                              rep->base_cache_key, rep->ioptions.stats);
 
-
-  //Self Added Start
-  // std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // Self Added Start
+  //  std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ <<
+  //  std::endl;
   checking::SystemVerifier::getSystemVerifier()->setFlagOpenTable();
 
-  //Notation: file opened only @ compaction, not @ get (so far)
-  checking::SystemVerifier::getSystemVerifier()->increaseBlockBasedTableOpenCount();
+  // Notation: file opened only @ compaction, not @ get (so far)
+  checking::SystemVerifier::getSystemVerifier()
+      ->increaseBlockBasedTableOpenCount();
 
   bool rdf_skip_range_deletions = false;
-  std::string rdf_type = checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
+  std::string rdf_type =
+      checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
   // if(rdf_type == "PLRDF"){ //xxx
-  if(checking::SystemVerifier::getSystemVerifier()->isSkipReadingRangeDeleteBlock() &&
-    checking::SystemVerifier::getSystemVerifier()->isRunningPQ()){
-    if(rdf_type == "PLRDF" || rdf_type == "SPLIT_PLRDF" || rdf_type == "TOP_LEVEL_RDF" || rdf_type == "TOP_LEVEL_RDF_STRING_KEY"
-      || rdf_type == "PLRDF_STRING_KEY" || rdf_type == "SPLIT_PLRDF_STRING_KEY"
-      || rdf_type == "SuRF_LF_RDF" || rdf_type == "SuRF_LF_SPLIT_RDF"){
-      rdf_skip_range_deletions = true;
-    }else if(rdf_type == "SKYLINE_RDF"){
+  if (checking::SystemVerifier::getSystemVerifier()
+          ->isSkipReadingRangeDeleteBlock() &&
+      checking::SystemVerifier::getSystemVerifier()->isRunningPQ()) {
+    if (rdf_type == "PLRDF" || rdf_type == "SPLIT_PLRDF" ||
+        rdf_type == "TOP_LEVEL_RDF" || rdf_type == "TOP_LEVEL_RDF_STRING_KEY" ||
+        rdf_type == "PLRDF_STRING_KEY" ||
+        rdf_type == "SPLIT_PLRDF_STRING_KEY" || rdf_type == "SuRF_LF_RDF" ||
+        rdf_type == "SuRF_LF_SPLIT_RDF") {
+      rdf_skip_range_deletions = (level > 0);
+    } else if (rdf_type == "SKYLINE_RDF") {
       rdf_skip_range_deletions = true;
 
-    }else if(rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" && rdf_type != "NONE2" 
-    && rdf_type != "PLRDF" && rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" && rdf_type != "TOP_LEVEL_RDF_STRING_KEY"
-    && rdf_type != "PLRDF_STRING_KEY" && rdf_type != "SPLIT_PLRDF_STRING_KEY"
-    && rdf_type != "SKYLINE_RDF" && rdf_type != "SuRF_LF_RDF" && rdf_type != "SuRF_LF_SPLIT_RDF"){
-      std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
+    } else if (rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" &&
+               rdf_type != "NONE2" && rdf_type != "PLRDF" &&
+               rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" &&
+               rdf_type != "TOP_LEVEL_RDF_STRING_KEY" &&
+               rdf_type != "PLRDF_STRING_KEY" &&
+               rdf_type != "SPLIT_PLRDF_STRING_KEY" &&
+               rdf_type != "SKYLINE_RDF" && rdf_type != "SuRF_LF_RDF" &&
+               rdf_type != "SuRF_LF_SPLIT_RDF") {
+      std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__
+                << " " << __FUNCTION__ << std::endl
                 << "rdf_type = " << rdf_type << std::endl;
     }
   }
-  // std::cout << "rdf_skip_range_deletions = " << rdf_skip_range_deletions << " " << __FILE__ << ":" << __LINE__ << std::endl;
+  // std::cout << "rdf_skip_range_deletions = " << rdf_skip_range_deletions << "
+  // " << __FILE__ << ":" << __LINE__ << std::endl;
 
   // yucheng Added Start Important: this is only for experimental use
-  // if((!rdf_skip_range_deletions) && checking::SystemVerifier::getSystemVerifier()->getFlagUsingRocksdbDefaultValueOrFalseAsPrefetchIndexAndFilterInCacheDuringBlockBasedTableOpen()){
+  // if((!rdf_skip_range_deletions) &&
+  // checking::SystemVerifier::getSystemVerifier()->getFlagUsingRocksdbDefaultValueOrFalseAsPrefetchIndexAndFilterInCacheDuringBlockBasedTableOpen()){
   // yucheng Added End
-// std::cout << "ReadRangeDelBlock pre1 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
-  if(!rdf_skip_range_deletions){
-// std::cout << "ReadRangeDelBlock pre2 " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // std::cout << "ReadRangeDelBlock pre1 " << __FILE__ << ":" << __LINE__ << "
+  // " << __FUNCTION__ << std::endl;
+  if (!rdf_skip_range_deletions) {
+    // std::cout << "ReadRangeDelBlock pre2 " << __FILE__ << ":" << __LINE__ <<
+    // " " << __FUNCTION__ << std::endl;
     s = new_table->ReadRangeDelBlock(ro, prefetch_buffer.get(),
                                      metaindex_iter.get(), internal_comparator,
                                      &lookup_context);
   }
-  //Self Added End
+  // Self Added End
 
-  
   // s = new_table->ReadRangeDelBlock(ro, prefetch_buffer.get(),
   //                                  metaindex_iter.get(), internal_comparator,
   //                                  &lookup_context);
-
-
 
   if (!s.ok()) {
     return s;
@@ -951,20 +970,26 @@ Status BlockBasedTable::Open(
     }
   }
 
-// Self Added Start
-// std::cout << "approximate mem_usage = " << new_table->ApproximateMemoryUsage() << " " << __FILE__ << ":" << __LINE__ << std::endl;
-// // cout << "table_reader_cache_res_mgr: " << table_reader_cache_res_mgr << " " << __FILE__ << ":" << __LINE__ << endl;
-// // std::size_t mem_usage_self = new_table->ApproximateMemoryUsage();
-// cout << "new_table mem_usage: " << mem_usage_self << " " << __FILE__ << ":" << __LINE__ << endl;
-// Self Added End
+  // Self Added Start
+  // std::cout << "approximate mem_usage = " <<
+  // new_table->ApproximateMemoryUsage() << " " << __FILE__ << ":" << __LINE__
+  // << std::endl;
+  // // cout << "table_reader_cache_res_mgr: " << table_reader_cache_res_mgr <<
+  // " " << __FILE__ << ":" << __LINE__ << endl;
+  // // std::size_t mem_usage_self = new_table->ApproximateMemoryUsage();
+  // cout << "new_table mem_usage: " << mem_usage_self << " " << __FILE__ << ":"
+  // << __LINE__ << endl; Self Added End
   if (s.ok() && table_reader_cache_res_mgr) {
-// Self Added Start
-size_t totalReservedCacheSize = table_reader_cache_res_mgr->GetTotalReservedCacheSize();
-size_t totalMemoryUsed = table_reader_cache_res_mgr->GetTotalMemoryUsed();
-cout << "totalReservedCacheSize: " << totalReservedCacheSize << " " << __FILE__ << ":" << __LINE__ << endl;
-cout << "totalMemoryUsed: " << totalMemoryUsed << " " << __FILE__ << ":" << __LINE__ << endl;
-cout << "Ha Passed ?? " << __FILE__ << ":" << __LINE__ << endl;
-// Self Added End
+    // Self Added Start
+    size_t totalReservedCacheSize =
+        table_reader_cache_res_mgr->GetTotalReservedCacheSize();
+    size_t totalMemoryUsed = table_reader_cache_res_mgr->GetTotalMemoryUsed();
+    cout << "totalReservedCacheSize: " << totalReservedCacheSize << " "
+         << __FILE__ << ":" << __LINE__ << endl;
+    cout << "totalMemoryUsed: " << totalMemoryUsed << " " << __FILE__ << ":"
+         << __LINE__ << endl;
+    cout << "Ha Passed ?? " << __FILE__ << ":" << __LINE__ << endl;
+    // Self Added End
     std::size_t mem_usage = new_table->ApproximateMemoryUsage();
     s = table_reader_cache_res_mgr->MakeCacheReservation(
         mem_usage, &(rep->table_reader_cache_res_handle));
@@ -1057,7 +1082,9 @@ Status BlockBasedTable::PrefetchTail(
   IOOptions opts;
   Status s = file->PrepareIOOptions(ro, opts);
   if (s.ok()) {
-// std::cout << "BlockBasedTable::PrefetchTail prefetch_buffer->Prefetch " << " tail prefetch_len = " << prefetch_len << " tail prefetch_off = " << prefetch_off << " " << __FILE__ << ":" << __LINE__ << std::endl;
+    // std::cout << "BlockBasedTable::PrefetchTail prefetch_buffer->Prefetch "
+    // << " tail prefetch_len = " << prefetch_len << " tail prefetch_off = " <<
+    // prefetch_off << " " << __FILE__ << ":" << __LINE__ << std::endl;
     s = (*prefetch_buffer)
             ->Prefetch(opts, file, prefetch_off, prefetch_len,
                        ro.rate_limiter_priority);
@@ -1153,7 +1180,8 @@ Status BlockBasedTable::ReadRangeDelBlock(
     InternalIterator* meta_iter,
     const InternalKeyComparator& internal_comparator,
     BlockCacheLookupContext* lookup_context) {
-// std::cout << "ReadRangeDelBlock " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // std::cout << "ReadRangeDelBlock " << __FILE__ << ":" << __LINE__ << " " <<
+  // __FUNCTION__ << std::endl;
   Status s;
   BlockHandle range_del_handle;
   s = FindOptionalMetaBlock(meta_iter, kRangeDelBlockName, &range_del_handle);
@@ -1182,11 +1210,16 @@ Status BlockBasedTable::ReadRangeDelBlock(
           std::make_shared<FragmentedRangeTombstoneList>(std::move(iter),
                                                          internal_comparator);
       // ych__falg_tombstone_read = true;
-      set_ych__total_tombstone_payload_bytes( rep_->fragmented_range_dels->total_tombstone_payload_bytes());
-      set_ych__num_unfragmented_tombstones(rep_->fragmented_range_dels->num_unfragmented_tombstones());
-      // std::cout << "total_tombstone_payload_bytes = " << total_tombstone_payload_bytes
-      //           << "  num_unfragmented_tombstones = " << num_unfragmented_tombstones
-      //           << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+      set_ych__total_tombstone_payload_bytes(
+          rep_->fragmented_range_dels->total_tombstone_payload_bytes());
+      set_ych__num_unfragmented_tombstones(
+          rep_->fragmented_range_dels->num_unfragmented_tombstones());
+      // std::cout << "total_tombstone_payload_bytes = " <<
+      // total_tombstone_payload_bytes
+      //           << "  num_unfragmented_tombstones = " <<
+      //           num_unfragmented_tombstones
+      //           << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+      //           << std::endl;
     }
   }
   return s;
@@ -1693,7 +1726,8 @@ BlockBasedTable::MaybeReadBlockAndLoadToCache(
     key = key_data.AsSlice();
 
     if (!contents) {
-// std::cout << "GetDataBlockFromCache" << " " << __FILE__ << ":" << __LINE__ << std::endl;
+      // std::cout << "GetDataBlockFromCache" << " " << __FILE__ << ":" <<
+      // __LINE__ << std::endl;
       s = GetDataBlockFromCache(key, block_cache, out_parsed_block,
                                 get_context);
       // Value could still be null at this point, so check the cache handle
@@ -1742,7 +1776,8 @@ BlockBasedTable::MaybeReadBlockAndLoadToCache(
         // If prefetch_buffer is not allocated, it will fallback to synchronous
         // reading of block contents.
         if (async_read && prefetch_buffer != nullptr) {
-          // std::cout << "ReadAsyncBlockContents" << " TBlocklike::kBlockType " << int(TBlocklike::kBlockType) << " "
+          // std::cout << "ReadAsyncBlockContents" << " TBlocklike::kBlockType "
+          // << int(TBlocklike::kBlockType) << " "
           //           << __FILE__ << ":" << __LINE__ << std::endl;
           s = block_fetcher.ReadAsyncBlockContents();
           // yucheng Noticing: do we need to pass block_type here?
@@ -1751,7 +1786,9 @@ BlockBasedTable::MaybeReadBlockAndLoadToCache(
             return s;
           }
         } else {
-          // std::cout << "ReadBlockContents" << " block_type = " << int(block_type) << " TBlocklike::kBlockType " << int(TBlocklike::kBlockType) << " " << __FILE__ << ":"
+          // std::cout << "ReadBlockContents" << " block_type = " <<
+          // int(block_type) << " TBlocklike::kBlockType " <<
+          // int(TBlocklike::kBlockType) << " " << __FILE__ << ":"
           //           << __LINE__ << std::endl;
           s = block_fetcher.ReadBlockContents(block_type);
         }
@@ -1778,15 +1815,15 @@ BlockBasedTable::MaybeReadBlockAndLoadToCache(
       if (s.ok()) {
         // If filling cache is allowed and a cache is configured, try to put the
         // block to the cache.
-        // std::cout << "PutDataBlockToCache" << " " << __FILE__ << ":" << __LINE__ << std::endl;
+        // std::cout << "PutDataBlockToCache" << " " << __FILE__ << ":" <<
+        // __LINE__ << std::endl;
         s = PutDataBlockToCache(
             key, block_cache, out_parsed_block, std::move(*contents),
             contents_comp_type, uncompression_dict,
             GetMemoryAllocator(rep_->table_options), get_context);
       }
 
-
-      // yucheng Added Start      
+      // yucheng Added Start
       // yucheng Added End
     }
   }
@@ -1834,7 +1871,8 @@ BlockBasedTable::MaybeReadBlockAndLoadToCache(
     key = key_data.AsSlice();
 
     if (!contents) {
-// std::cout << "GetDataBlockFromCache" << " " << __FILE__ << ":" << __LINE__ << std::endl;
+      // std::cout << "GetDataBlockFromCache" << " " << __FILE__ << ":" <<
+      // __LINE__ << std::endl;
       s = GetDataBlockFromCache(key, block_cache, out_parsed_block,
                                 get_context);
       // Value could still be null at this point, so check the cache handle
@@ -1883,14 +1921,16 @@ BlockBasedTable::MaybeReadBlockAndLoadToCache(
         // If prefetch_buffer is not allocated, it will fallback to synchronous
         // reading of block contents.
         if (async_read && prefetch_buffer != nullptr) {
-          // std::cout << "ReadAsyncBlockContents" << " TBlocklike::kBlockType " << int(TBlocklike::kBlockType) << " "
+          // std::cout << "ReadAsyncBlockContents" << " TBlocklike::kBlockType "
+          // << int(TBlocklike::kBlockType) << " "
           //           << __FILE__ << ":" << __LINE__ << std::endl;
           s = block_fetcher.ReadAsyncBlockContents();
           if (!s.ok()) {
             return s;
           }
         } else {
-          // std::cout << "ReadBlockContents" << " TBlocklike::kBlockType " << int(TBlocklike::kBlockType) << " " << __FILE__ << ":"
+          // std::cout << "ReadBlockContents" << " TBlocklike::kBlockType " <<
+          // int(TBlocklike::kBlockType) << " " << __FILE__ << ":"
           //           << __LINE__ << std::endl;
           s = block_fetcher.ReadBlockContents();
         }
@@ -1917,15 +1957,15 @@ BlockBasedTable::MaybeReadBlockAndLoadToCache(
       if (s.ok()) {
         // If filling cache is allowed and a cache is configured, try to put the
         // block to the cache.
-        // std::cout << "PutDataBlockToCache" << " " << __FILE__ << ":" << __LINE__ << std::endl;
+        // std::cout << "PutDataBlockToCache" << " " << __FILE__ << ":" <<
+        // __LINE__ << std::endl;
         s = PutDataBlockToCache(
             key, block_cache, out_parsed_block, std::move(*contents),
             contents_comp_type, uncompression_dict,
             GetMemoryAllocator(rep_->table_options), get_context);
       }
 
-
-      // yucheng Added Start      
+      // yucheng Added Start
       // yucheng Added End
     }
   }
@@ -2043,13 +2083,12 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
     CachableEntry<TBlocklike>* out_parsed_block, GetContext* get_context,
     BlockCacheLookupContext* lookup_context, bool for_compaction,
     bool use_cache, bool async_read, BlockType block_type) const {
-
-  //Self Added Start: timing
+  // Self Added Start: timing
   checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-  //Self Added End: timing
-  //Self Added Start 
+  // Self Added End: timing
+  // Self Added Start
   checking::SystemVerifier::getSystemVerifier()->start_retrieve_block();
-  //Self Added End
+  // Self Added End
 
   assert(out_parsed_block);
   assert(out_parsed_block->IsEmpty());
@@ -2064,12 +2103,12 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
         /*contents=*/nullptr, async_read, block_type);
 
     if (!s.ok()) {
-      //Self Added Start 
+      // Self Added Start
       checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
-      //Self Added End        
-      //Self Added Start: timing
+      // Self Added End
+      // Self Added Start: timing
       checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-      //Self Added End: timing
+      // Self Added End: timing
 
       return s;
     }
@@ -2077,13 +2116,13 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
     if (out_parsed_block->GetValue() != nullptr ||
         out_parsed_block->GetCacheHandle() != nullptr) {
       assert(s.ok());
-      
-      //Self Added Start 
+
+      // Self Added Start
       checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
-      //Self Added End        
-      //Self Added Start: timing
+      // Self Added End
+      // Self Added Start: timing
       checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-      //Self Added End: timing
+      // Self Added End: timing
 
       return s;
     }
@@ -2093,12 +2132,12 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
 
   const bool no_io = ro.read_tier == kBlockCacheTier;
   if (no_io) {
-    //Self Added Start 
+    // Self Added Start
     checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
-    //Self Added End        
-    //Self Added Start: timing
+    // Self Added End
+    // Self Added Start: timing
     checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    //Self Added End: timing
+    // Self Added End: timing
 
     return Status::Incomplete("no blocking io");
   }
@@ -2119,39 +2158,42 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
         rep_->file.get(), prefetch_buffer, rep_->footer, ro, handle, &block,
         rep_->ioptions, rep_->create_context, maybe_compressed,
         uncompression_dict, rep_->persistent_cache_options,
-        GetMemoryAllocator(rep_->table_options), for_compaction, async_read, block_type);
+        GetMemoryAllocator(rep_->table_options), for_compaction, async_read,
+        block_type);
 
-    //Self Added Start 
-    checking::SystemVerifier::getSystemVerifier()->increaseNumTotalBlockReadCount();
-    //Self Added End
+    // Self Added Start
+    checking::SystemVerifier::getSystemVerifier()
+        ->increaseNumTotalBlockReadCount();
+    // Self Added End
 
     if (get_context) {
       switch (TBlocklike::kBlockType) {
         case BlockType::kIndex:
           ++(get_context->get_context_stats_.num_index_read);
 
-          //Self Added Start 
-          checking::SystemVerifier::getSystemVerifier()->increaseNumIndexReadCount();
-          //Self Added End
-          
+          // Self Added Start
+          checking::SystemVerifier::getSystemVerifier()
+              ->increaseNumIndexReadCount();
+          // Self Added End
+
           break;
         case BlockType::kFilter:
         case BlockType::kFilterPartitionIndex:
           ++(get_context->get_context_stats_.num_filter_read);
 
-          //Self Added Start 
-          checking::SystemVerifier::getSystemVerifier()->increaseNumFilterReadCount();
-          //Self Added End
+          // Self Added Start
+          checking::SystemVerifier::getSystemVerifier()
+              ->increaseNumFilterReadCount();
+          // Self Added End
 
           break;
 
-        //Self Added Start
+        // Self Added Start
         case BlockType::kRangeDeletion:
-          checking::SystemVerifier::getSystemVerifier()->increaseNumRangeDelReadCount();
+          checking::SystemVerifier::getSystemVerifier()
+              ->increaseNumRangeDelReadCount();
           break;
-        //Self Added End
-        
-        
+          // Self Added End
 
         default:
           break;
@@ -2160,12 +2202,12 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
   }
 
   if (!s.ok()) {
-    //Self Added Start 
+    // Self Added Start
     checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
-    //Self Added End        
-    //Self Added Start: timing
+    // Self Added End
+    // Self Added Start: timing
     checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    //Self Added End: timing
+    // Self Added End: timing
 
     return s;
   }
@@ -2174,12 +2216,12 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
 
   assert(s.ok());
 
-  //Self Added Start 
+  // Self Added Start
   checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
-  //Self Added End        
-  //Self Added Start: timing
+  // Self Added End
+  // Self Added Start: timing
   checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-  //Self Added End: timing
+  // Self Added End: timing
 
   return s;
 }
@@ -2192,13 +2234,12 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
     CachableEntry<TBlocklike>* out_parsed_block, GetContext* get_context,
     BlockCacheLookupContext* lookup_context, bool for_compaction,
     bool use_cache, bool async_read) const {
-
-  //Self Added Start: timing
+  // Self Added Start: timing
   checking::SystemVerifier::getSystemVerifier()->stop_remaining_get_path();
-  //Self Added End: timing
-  //Self Added Start 
+  // Self Added End: timing
+  // Self Added Start
   checking::SystemVerifier::getSystemVerifier()->start_retrieve_block();
-  //Self Added End
+  // Self Added End
 
   assert(out_parsed_block);
   assert(out_parsed_block->IsEmpty());
@@ -2213,12 +2254,12 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
         /*contents=*/nullptr, async_read);
 
     if (!s.ok()) {
-      //Self Added Start 
+      // Self Added Start
       checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
-      //Self Added End        
-      //Self Added Start: timing
+      // Self Added End
+      // Self Added Start: timing
       checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-      //Self Added End: timing
+      // Self Added End: timing
 
       return s;
     }
@@ -2226,13 +2267,13 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
     if (out_parsed_block->GetValue() != nullptr ||
         out_parsed_block->GetCacheHandle() != nullptr) {
       assert(s.ok());
-      
-      //Self Added Start 
+
+      // Self Added Start
       checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
-      //Self Added End        
-      //Self Added Start: timing
+      // Self Added End
+      // Self Added Start: timing
       checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-      //Self Added End: timing
+      // Self Added End: timing
 
       return s;
     }
@@ -2242,12 +2283,12 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
 
   const bool no_io = ro.read_tier == kBlockCacheTier;
   if (no_io) {
-    //Self Added Start 
+    // Self Added Start
     checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
-    //Self Added End        
-    //Self Added Start: timing
+    // Self Added End
+    // Self Added Start: timing
     checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    //Self Added End: timing
+    // Self Added End: timing
 
     return Status::Incomplete("no blocking io");
   }
@@ -2270,37 +2311,39 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
         uncompression_dict, rep_->persistent_cache_options,
         GetMemoryAllocator(rep_->table_options), for_compaction, async_read);
 
-    //Self Added Start 
-    checking::SystemVerifier::getSystemVerifier()->increaseNumTotalBlockReadCount();
-    //Self Added End
+    // Self Added Start
+    checking::SystemVerifier::getSystemVerifier()
+        ->increaseNumTotalBlockReadCount();
+    // Self Added End
 
     if (get_context) {
       switch (TBlocklike::kBlockType) {
         case BlockType::kIndex:
           ++(get_context->get_context_stats_.num_index_read);
 
-          //Self Added Start 
-          checking::SystemVerifier::getSystemVerifier()->increaseNumIndexReadCount();
-          //Self Added End
-          
+          // Self Added Start
+          checking::SystemVerifier::getSystemVerifier()
+              ->increaseNumIndexReadCount();
+          // Self Added End
+
           break;
         case BlockType::kFilter:
         case BlockType::kFilterPartitionIndex:
           ++(get_context->get_context_stats_.num_filter_read);
 
-          //Self Added Start 
-          checking::SystemVerifier::getSystemVerifier()->increaseNumFilterReadCount();
-          //Self Added End
+          // Self Added Start
+          checking::SystemVerifier::getSystemVerifier()
+              ->increaseNumFilterReadCount();
+          // Self Added End
 
           break;
 
-        //Self Added Start
+        // Self Added Start
         case BlockType::kRangeDeletion:
-          checking::SystemVerifier::getSystemVerifier()->increaseNumRangeDelReadCount();
+          checking::SystemVerifier::getSystemVerifier()
+              ->increaseNumRangeDelReadCount();
           break;
-        //Self Added End
-        
-        
+          // Self Added End
 
         default:
           break;
@@ -2309,12 +2352,12 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
   }
 
   if (!s.ok()) {
-    //Self Added Start 
+    // Self Added Start
     checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
-    //Self Added End        
-    //Self Added Start: timing
+    // Self Added End
+    // Self Added Start: timing
     checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-    //Self Added End: timing
+    // Self Added End: timing
 
     return s;
   }
@@ -2323,12 +2366,12 @@ WithBlocklikeCheck<Status, TBlocklike> BlockBasedTable::RetrieveBlock(
 
   assert(s.ok());
 
-  //Self Added Start 
+  // Self Added Start
   checking::SystemVerifier::getSystemVerifier()->stop_retrieve_block();
-  //Self Added End        
-  //Self Added Start: timing
+  // Self Added End
+  // Self Added Start: timing
   checking::SystemVerifier::getSystemVerifier()->start_remaining_get_path();
-  //Self Added End: timing
+  // Self Added End: timing
 
   return s;
 }
@@ -2644,7 +2687,8 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
   const bool no_io = read_options.read_tier == kBlockCacheTier;
 
   // //yucheng Added Start
-  // std::cout << "skip_filters = " << skip_filters << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+  // std::cout << "skip_filters = " << skip_filters << " " << __FILE__ << ":" <<
+  // __LINE__ << " " << __FUNCTION__ << std::endl;
   // //yucheng Added End
 
   FilterBlockReader* const filter =
@@ -2666,10 +2710,12 @@ Status BlockBasedTable::Get(const ReadOptions& read_options, const Slice& key,
   const bool may_match =
       FullFilterKeyMayMatch(filter, key, no_io, prefix_extractor, get_context,
                             &lookup_context, read_options);
-  //                          
+  //
   // //yucheng Added Start
-  // std::cout << "filter : " << (filter == nullptr) << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
-  // std::cout << "BlockBasedTable::Get: FullFilterKeyMayMatch may_match = " << may_match << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl; 
+  // std::cout << "filter : " << (filter == nullptr) << " " << __FILE__ << ":"
+  // << __LINE__ << " " << __FUNCTION__ << std::endl; std::cout <<
+  // "BlockBasedTable::Get: FullFilterKeyMayMatch may_match = " << may_match <<
+  // " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
   // //yucheng Added End
   TEST_SYNC_POINT("BlockBasedTable::Get:AfterFilterMatch");
   if (!may_match) {
