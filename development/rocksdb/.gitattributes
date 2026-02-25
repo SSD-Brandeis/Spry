@@ -1,0 +1,1 @@
+self_rd_e15_YCSB/workload/*.txt_ filter=lfs diff=lfs merge=lfs -text
