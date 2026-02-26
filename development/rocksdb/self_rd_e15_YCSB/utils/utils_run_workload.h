@@ -20,7 +20,6 @@
 
 void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
                  ReadOptions& read_op, EmuEnv* _env, std::string kDBPath) {
-  reset_perf_iostats_context();
   DB* db = *db_ptr2;
 
   string& workload_file_name = _env->workload_file_name;
@@ -72,6 +71,11 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
   unsigned long long point_query_time_on_existing_keys_ns = 0;
   unsigned long long point_query_time_on_deleted_keys_ns = 0;
   unsigned long long point_query_time_on_non_inserted_keys_ns = 0;
+
+  reset_perf_iostats_context();
+  if (op.statistics) {
+    op.statistics->Reset();
+  }
 
   while (!workload_file.eof()) {
     i_instruction++;
@@ -345,6 +349,9 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
   print_RDF_memory_usage_generic(db, system_verifier);
   print_RDF_false_positive_rate_generic(db, system_verifier);
 
+  std::string prefix = "utils_run_worload_test ";
+  print_perf_iostats_context(std::cout, prefix, 1);
+
   std::cout << "!!! Final Flush. (Manually Flush) " << std::endl;
 
   while (db->existFlushJob() == true) {
@@ -371,107 +378,120 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
 
   printStats(db, op);
 
-  s = db->SetOptions(
-      {{"disable_auto_compactions",
-        "true"}});  // is there any compaction happended after this????
-  if (!s.ok()) std::cerr << s.ToString() << std::endl;
-  assert(s.ok());
-  std::cout << "!!! Disable auto compaction" << std::endl;
+  // s = db->SetOptions(
+  //     {{"disable_auto_compactions",
+  //       "true"}});  // is there any compaction happended after this????
+  // if (!s.ok()) std::cerr << s.ToString() << std::endl;
+  // assert(s.ok());
+  // std::cout << "!!! Disable auto compaction" << std::endl;
 
-  // std::this_thread::sleep_for(std::chrono::seconds(10));  // Sleep for 10
-  // second
+  // // std::this_thread::sleep_for(std::chrono::seconds(10));  // Sleep for 10
+  // // second
 
-  while (db->existFlushJob() == true || db->existCompactionJob() == true) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-  }
+  // while (db->existFlushJob() == true || db->existCompactionJob() == true) {
+  //   std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  // }
 
-  db->printAllFileRanges();
+  // db->printAllFileRanges();
 
-  db->printRDF();
+  // db->printRDF();
 
-  printStats(db, op);
+  // printStats(db, op);
 
-  uint num_SST_files = db->getTotalNumberOfSSTFiles();
-  std::cout << "num_SST_files _out = " << num_SST_files << std::endl;
+  // // uint num_SST_files = db->getTotalNumberOfSSTFiles();
+  // // std::cout << "num_SST_files _out = " << num_SST_files << std::endl;
 
-  {
-    // std::vector<string> testing_key_list({"2500", "5000", "5001"});
-    long long total_read_count_start =
-        parsing_value_from_string(op.statistics->ToString(),
-                                  "last.level.read.count[^:]*: ([0-9]+)") +
-        parsing_value_from_string(op.statistics->ToString(),
-                                  "non.last.level.read.count[^:]*: ([0-9]+)");
-    long long total_read_bytes_start =
-        parsing_value_from_string(op.statistics->ToString(),
-                                  "last.level.read.bytes[^:]*: ([0-9]+)") +
-        parsing_value_from_string(op.statistics->ToString(),
-                                  "non.last.level.read.bytes[^:]*: ([0-9]+)");
-    // reset_perf_iostats_context();
+  // // {
+  // //   // std::vector<string> testing_key_list({"2500", "5000", "5001"});
+  // //   long long total_read_count_start =
+  // //       parsing_value_from_string(op.statistics->ToString(),
+  // //                                 "last.level.read.count[^:]*: ([0-9]+)")
+  // +
+  // //       parsing_value_from_string(op.statistics->ToString(),
+  // //                                 "non.last.level.read.count[^:]*:
+  // ([0-9]+)");
+  // //   long long total_read_bytes_start =
+  // //       parsing_value_from_string(op.statistics->ToString(),
+  // //                                 "last.level.read.bytes[^:]*: ([0-9]+)")
+  // +
+  // //       parsing_value_from_string(op.statistics->ToString(),
+  // //                                 "non.last.level.read.bytes[^:]*:
+  // ([0-9]+)");
+  // //   // reset_perf_iostats_context();
 
-    // for (auto& x : testing_key_list) {
-    //   bool gt_is_exist = system_verifier->isKeyExist(x);
-    //   std::string gt_value = system_verifier->get(x);
+  // //   // for (auto& x : testing_key_list) {
+  // //   //   bool gt_is_exist = system_verifier->isKeyExist(x);
+  // //   //   std::string gt_value = system_verifier->get(x);
 
-    //   std::string value;
-    //   // std::string time_stamp;
-    //   std::stringstream searching_key;
-    //   searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
-    //   s = db->Get(read_op, searching_key.str(), &value);
-    //   // size_t separator_pos = value.find("|");
-    //   // time_stamp = value.substr(separator_pos + 1);
-    //   // value = value.substr(0, separator_pos);
-    //   std::cout << x << " " << s.ok() << " " << value << std::endl;
-    //   std::cout << x << " " << gt_is_exist << " " << gt_value << std::endl;
+  // //   //   std::string value;
+  // //   //   // std::string time_stamp;
+  // //   //   std::stringstream searching_key;
+  // //   //   searching_key << std::setfill('0') << std::setw(KEY_SIZE) << x;
+  // //   //   s = db->Get(read_op, searching_key.str(), &value);
+  // //   //   // size_t separator_pos = value.find("|");
+  // //   //   // time_stamp = value.substr(separator_pos + 1);
+  // //   //   // value = value.substr(0, separator_pos);
+  // //   //   std::cout << x << " " << s.ok() << " " << value << std::endl;
+  // //   //   std::cout << x << " " << gt_is_exist << " " << gt_value <<
+  // std::endl;
 
-    //   if (s.ok() != gt_is_exist) {
-    //     std::cout << "ERROR (Existence inconsistency): " << x
-    //               << " (result, gt_result) " << s.ok() << " " <<
-    //               gt_is_exist
-    //               << std::endl;
-    //   }
-    //   if (gt_is_exist == false) {
-    //     continue;
-    //   }
-    //   if (value != gt_value) {
-    //     std::cout << "ERROR (Value inconsistency): " << x
-    //               << " (value, gt_value) " << value << " " << gt_value
-    //               << std::endl;
-    //   }
-    // }
+  // //   //   if (s.ok() != gt_is_exist) {
+  // //   //     std::cout << "ERROR (Existence inconsistency): " << x
+  // //   //               << " (result, gt_result) " << s.ok() << " " <<
+  // //   //               gt_is_exist
+  // //   //               << std::endl;
+  // //   //   }
+  // //   //   if (gt_is_exist == false) {
+  // //   //     continue;
+  // //   //   }
+  // //   //   if (value != gt_value) {
+  // //   //     std::cout << "ERROR (Value inconsistency): " << x
+  // //   //               << " (value, gt_value) " << value << " " << gt_value
+  // //   //               << std::endl;
+  // //   //   }
+  // //   // }
 
-    long long total_read_count_end =
-        parsing_value_from_string(op.statistics->ToString(),
-                                  "last.level.read.count[^:]*: ([0-9]+)") +
-        parsing_value_from_string(op.statistics->ToString(),
-                                  "non.last.level.read.count[^:]*: ([0-9]+)");
-    long long total_read_bytes_end =
-        parsing_value_from_string(op.statistics->ToString(),
-                                  "last.level.read.bytes[^:]*: ([0-9]+)") +
-        parsing_value_from_string(op.statistics->ToString(),
-                                  "non.last.level.read.bytes[^:]*: ([0-9]+)");
+  // //   long long total_read_count_end =
+  // //       parsing_value_from_string(op.statistics->ToString(),
+  // //                                 "last.level.read.count[^:]*: ([0-9]+)")
+  // +
+  // //       parsing_value_from_string(op.statistics->ToString(),
+  // //                                 "non.last.level.read.count[^:]*:
+  // ([0-9]+)");
+  // //   long long total_read_bytes_end =
+  // //       parsing_value_from_string(op.statistics->ToString(),
+  // //                                 "last.level.read.bytes[^:]*: ([0-9]+)")
+  // +
+  // //       parsing_value_from_string(op.statistics->ToString(),
+  // //                                 "non.last.level.read.bytes[^:]*:
+  // ([0-9]+)");
 
-    std::cout << "total_read_count_start _out = " << total_read_count_start
-              << std::endl;
-    std::cout << "total_read_count_end _out = " << total_read_count_end
-              << std::endl;
-    std::cout << "total_read_bytes_start _out = " << total_read_bytes_start
-              << std::endl;
-    std::cout << "total_read_bytes_end _out = " << total_read_bytes_end
-              << std::endl;
-    std::cout << "total_read_count _out = "
-              << total_read_count_end - total_read_count_start << std::endl;
-    std::cout << "total_read_bytes _out = "
-              << total_read_bytes_end - total_read_bytes_start << std::endl;
+  // //   std::cout << "total_read_count_start _out = " <<
+  // total_read_count_start
+  // //             << std::endl;
+  // //   std::cout << "total_read_count_end _out = " << total_read_count_end
+  // //             << std::endl;
+  // //   std::cout << "total_read_bytes_start _out = " <<
+  // total_read_bytes_start
+  // //             << std::endl;
+  // //   std::cout << "total_read_bytes_end _out = " << total_read_bytes_end
+  // //             << std::endl;
+  // //   std::cout << "total_read_count _out = "
+  // //             << total_read_count_end - total_read_count_start <<
+  // std::endl;
+  // //   std::cout << "total_read_bytes _out = "
+  // //             << total_read_bytes_end - total_read_bytes_start <<
+  // std::endl;
 
-    std::string prefix = "utils_run_worload_test ";
-    print_perf_iostats_context(std::cout, prefix, 1);
-  }
+  // //   // std::string prefix = "utils_run_worload_test ";
+  // //   // print_perf_iostats_context(std::cout, prefix, 1);
+  // // }
 
-  std::cout << "!!! several gets done " << std::endl;
+  // // std::cout << "!!! several gets done " << std::endl;
 
-  std::cout << "!!! print stats " << std::endl;
+  // // std::cout << "!!! print stats " << std::endl;
 
-  printStats(db, op);
+  // // printStats(db, op);
 
   io_timing_test(db);
 
