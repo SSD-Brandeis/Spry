@@ -20,6 +20,7 @@
 
 void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
                  ReadOptions& read_op, EmuEnv* _env, std::string kDBPath) {
+  reset_perf_iostats_context();
   DB* db = *db_ptr2;
 
   string& workload_file_name = _env->workload_file_name;
