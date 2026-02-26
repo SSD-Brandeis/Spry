@@ -1102,11 +1102,11 @@ class LevelIterator final : public InternalIterator {
   void SkipEmptyFileBackward();
   void SetFileIterator(InternalIterator* iter);
   void InitFileIterator(size_t new_file_index);
-  // yucheng added start
-  bool FilterKey();
-  void SkipFilteredKeysForward();
-  void SkipFilteredKeysBackward();
-  // yucheng added end
+  // // yucheng added start
+  // bool FilterKey();
+  // void SkipFilteredKeysForward();
+  // void SkipFilteredKeysBackward();
+  // // yucheng added end
 
   const Slice& file_smallest_key(size_t file_index) {
     assert(file_index < flevel_->num_files);
@@ -1239,61 +1239,66 @@ class LevelIterator final : public InternalIterator {
   bool prefix_exhausted_ = false;
 };
 
-// yucheng added start
-bool LevelIterator::FilterKey() {
-  if (v_ == nullptr || level_ == 0) {
-    return false;
-  }
-  if (!file_iter_.Valid() || to_return_sentinel_) {
-    return false;
-  }
+// // yucheng added start
+// bool LevelIterator::FilterKey() {
+//   if (v_ == nullptr || level_ == 0) {
+//     return false;
+//   }
+//   if (!file_iter_.Valid() || to_return_sentinel_) {
+//     return false;
+//   }
 
-  std::string rdf_type =
-      checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
-  if (rdf_type == "NONE") {
-    return false;
-  }
+//   std::string rdf_type =
+//       checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
+//   if (rdf_type == "NONE") {
+//     return false;
+//   }
 
-  Slice user_key = ExtractUserKey(file_iter_.key());
+//   Slice user_key = ExtractUserKey(file_iter_.key());
 
-  if (rdf_type == "PLRDF") {
-    return !v_->isAliveAfterRDFilter(level_, std::stoll(user_key.ToString()));
-  } else if (rdf_type == "SKYLINE_RDF") {
-    return !v_->isAliveAfterSkylineRDFilter(
-        std::stoll(user_key.ToString()), GetInternalKeySeqno(file_iter_.key()));
-  } else if (rdf_type == "PLRDF_STRING_KEY") {
-    return !v_->isAliveAfterRDFilterStringKey(level_, user_key.ToString());
-  } else if (rdf_type == "TOP_LEVEL_RDF") {
-    return !v_->isAliveAfterTopLevelRDFilter(std::stoll(user_key.ToString()));
-  } else if (rdf_type == "TOP_LEVEL_RDF_STRING_KEY") {
-    return !v_->isAliveAfterTopLevelRDFilterStringKey(user_key.ToString());
-  } else if (rdf_type == "SuRF_LF_RDF") {
-    uint64_t fd = flevel_->files[file_index_].file_metadata->fd.GetNumber();
-    bool flag_bypass = surf::SuRF_Env::getInstance()->getFlagBypassIfSameKey();
-    return !v_->isAliveAfterSuRFLevelFileRDFilter(
-        level_, fd, user_key.ToString(), flag_bypass);
-  } else if (rdf_type == "SuRF_LF_SPLIT_RDF") {
-    uint64_t fd = flevel_->files[file_index_].file_metadata->fd.GetNumber();
-    bool flag_bypass = surf::SuRF_Env::getInstance()->getFlagBypassIfSameKey();
-    return !v_->isAliveAfterSuRFLevelFileSplitRDFilter(
-        level_, fd, user_key.ToString(), flag_bypass);
-  }
+//   if (rdf_type == "PLRDF") {
+//     return !v_->isAliveAfterRDFilter(level_,
+//     std::stoll(user_key.ToString()));
+//   } else if (rdf_type == "SKYLINE_RDF") {
+//     return !v_->isAliveAfterSkylineRDFilter(
+//         std::stoll(user_key.ToString()),
+//         GetInternalKeySeqno(file_iter_.key()));
+//   } else if (rdf_type == "PLRDF_STRING_KEY") {
+//     return !v_->isAliveAfterRDFilterStringKey(level_, user_key.ToString());
+//   } else if (rdf_type == "TOP_LEVEL_RDF") {
+//     return
+//     !v_->isAliveAfterTopLevelRDFilter(std::stoll(user_key.ToString()));
+//   } else if (rdf_type == "TOP_LEVEL_RDF_STRING_KEY") {
+//     return !v_->isAliveAfterTopLevelRDFilterStringKey(user_key.ToString());
+//   } else if (rdf_type == "SuRF_LF_RDF") {
+//     uint64_t fd = flevel_->files[file_index_].file_metadata->fd.GetNumber();
+//     bool flag_bypass =
+//     surf::SuRF_Env::getInstance()->getFlagBypassIfSameKey(); return
+//     !v_->isAliveAfterSuRFLevelFileRDFilter(
+//         level_, fd, user_key.ToString(), flag_bypass);
+//   } else if (rdf_type == "SuRF_LF_SPLIT_RDF") {
+//     uint64_t fd = flevel_->files[file_index_].file_metadata->fd.GetNumber();
+//     bool flag_bypass =
+//     surf::SuRF_Env::getInstance()->getFlagBypassIfSameKey(); return
+//     !v_->isAliveAfterSuRFLevelFileSplitRDFilter(
+//         level_, fd, user_key.ToString(), flag_bypass);
+//   }
 
-  return false;
-}
+//   return false;
+// }
 
-void LevelIterator::SkipFilteredKeysForward() {
-  while (file_iter_.Valid() && FilterKey()) {
-    file_iter_.Next();
-  }
-}
+// void LevelIterator::SkipFilteredKeysForward() {
+//   while (file_iter_.Valid() && FilterKey()) {
+//     file_iter_.Next();
+//   }
+// }
 
-void LevelIterator::SkipFilteredKeysBackward() {
-  while (file_iter_.Valid() && FilterKey()) {
-    file_iter_.Prev();
-  }
-}
-// yucheng added end
+// void LevelIterator::SkipFilteredKeysBackward() {
+//   while (file_iter_.Valid() && FilterKey()) {
+//     file_iter_.Prev();
+//   }
+// }
+// // yucheng added end
 
 void LevelIterator::TrySetDeleteRangeSentinel(const Slice& boundary_key) {
   assert(range_tombstone_iter_);
@@ -1395,9 +1400,9 @@ void LevelIterator::Seek(const Slice& target) {
       TrySetDeleteRangeSentinel(file_largest_key(file_index_));
     }
   }
-  // yucheng added start
-  SkipFilteredKeysForward();
-  // yucheng added end
+  // // yucheng added start
+  // SkipFilteredKeysForward();
+  // // yucheng added end
   SkipEmptyFileForward();
   CheckMayBeOutOfLowerBound();
 }
@@ -1432,9 +1437,9 @@ void LevelIterator::SeekForPrev(const Slice& target) {
       // starting from the file's lower boundary, which is after `target`.
       TrySetDeleteRangeSentinel(file_smallest_key(file_index_));
     }
-    // yucheng added start
-    SkipFilteredKeysBackward();
-    // yucheng added end
+    // // yucheng added start
+    // SkipFilteredKeysBackward();
+    // // yucheng added end
     SkipEmptyFileBackward();
   }
   CheckMayBeOutOfLowerBound();
@@ -1452,9 +1457,9 @@ void LevelIterator::SeekToFirst() {
       TrySetDeleteRangeSentinel(file_largest_key(file_index_));
     }
   }
-  // yucheng added start
-  SkipFilteredKeysForward();
-  // yucheng added end
+  // // yucheng added start
+  // SkipFilteredKeysForward();
+  // // yucheng added end
   SkipEmptyFileForward();
   CheckMayBeOutOfLowerBound();
 }
@@ -1469,9 +1474,9 @@ void LevelIterator::SeekToLast() {
       TrySetDeleteRangeSentinel(file_smallest_key(file_index_));
     }
   }
-  // yucheng added start
-  SkipFilteredKeysBackward();
-  // yucheng added end
+  // // yucheng added start
+  // SkipFilteredKeysBackward();
+  // // yucheng added end
   SkipEmptyFileBackward();
   CheckMayBeOutOfLowerBound();
 }
@@ -1483,9 +1488,9 @@ void LevelIterator::Next() {
     ClearSentinel();
   } else {
     file_iter_.Next();
-    // yucheng added start
-    SkipFilteredKeysForward();
-    // yucheng added end
+    // // yucheng added start
+    // SkipFilteredKeysForward();
+    // // yucheng added end
     if (range_tombstone_iter_) {
       TrySetDeleteRangeSentinel(file_largest_key(file_index_));
     }
@@ -1504,9 +1509,9 @@ bool LevelIterator::NextAndGetResult(IterateResult* result) {
       TrySetDeleteRangeSentinel(file_largest_key(file_index_));
     }
     is_next_read_sequential_ = true;
-    // yucheng added start
-    SkipFilteredKeysForward();
-    // yucheng added end
+    // // yucheng added start
+    // SkipFilteredKeysForward();
+    // // yucheng added end
     SkipEmptyFileForward();
     is_next_read_sequential_ = false;
     is_valid = Valid();
@@ -1536,9 +1541,9 @@ void LevelIterator::Prev() {
     ClearSentinel();
   } else {
     file_iter_.Prev();
-    // yucheng added start
-    SkipFilteredKeysBackward();
-    // yucheng added end
+    // // yucheng added start
+    // SkipFilteredKeysBackward();
+    // // yucheng added end
     if (range_tombstone_iter_) {
       TrySetDeleteRangeSentinel(file_smallest_key(file_index_));
     }
@@ -1573,9 +1578,9 @@ bool LevelIterator::SkipEmptyFileForward() {
     // range tombstone iterator.
     if (file_iter_.iter() != nullptr) {
       file_iter_.SeekToFirst();
-      // yucheng added start
-      SkipFilteredKeysForward();
-      // yucheng added end
+      // // yucheng added start
+      // SkipFilteredKeysForward();
+      // // yucheng added end
       if (range_tombstone_iter_) {
         if (*range_tombstone_iter_) {
           (*range_tombstone_iter_)->SeekToFirst();
@@ -1604,9 +1609,9 @@ void LevelIterator::SkipEmptyFileBackward() {
     // Seek range_tombstone_iter_ to reset its !Valid() default state.
     if (file_iter_.iter() != nullptr) {
       file_iter_.SeekToLast();
-      // yucheng added start
-      SkipFilteredKeysBackward();
-      // yucheng added end
+      // // yucheng added start
+      // SkipFilteredKeysBackward();
+      // // yucheng added end
       if (range_tombstone_iter_) {
         if (*range_tombstone_iter_) {
           (*range_tombstone_iter_)->SeekToLast();

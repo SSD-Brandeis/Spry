@@ -901,52 +901,62 @@ Status BlockBasedTable::Open(
   checking::SystemVerifier::getSystemVerifier()
       ->increaseBlockBasedTableOpenCount();
 
-  bool rdf_skip_range_deletions = false;
-  std::string rdf_type =
-      checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
-  // if(rdf_type == "PLRDF"){ //xxx
-  if (checking::SystemVerifier::getSystemVerifier()
-          ->isSkipReadingRangeDeleteBlock() &&
-      checking::SystemVerifier::getSystemVerifier()->isRunningPQ()) {
-    if (rdf_type == "PLRDF" || rdf_type == "SPLIT_PLRDF" ||
-        rdf_type == "TOP_LEVEL_RDF" || rdf_type == "TOP_LEVEL_RDF_STRING_KEY" ||
-        rdf_type == "PLRDF_STRING_KEY" ||
-        rdf_type == "SPLIT_PLRDF_STRING_KEY" || rdf_type == "SuRF_LF_RDF" ||
-        rdf_type == "SuRF_LF_SPLIT_RDF") {
-      rdf_skip_range_deletions = (level > 0);
-    } else if (rdf_type == "SKYLINE_RDF") {
-      rdf_skip_range_deletions = true;
+  // 2026-2-27 for mixed workload (point query not in the end of the insertion
+  // but interleaved within the insertion) bool rdf_skip_range_deletions =
+  // false; std::string rdf_type =
+  //     checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
+  // // if(rdf_type == "PLRDF"){ //xxx
+  // if (checking::SystemVerifier::getSystemVerifier()
+  //         ->isSkipReadingRangeDeleteBlock() &&
+  //     checking::SystemVerifier::getSystemVerifier()->isRunningPQ()) {
+  //   if (rdf_type == "PLRDF" || rdf_type == "SPLIT_PLRDF" ||
+  //       rdf_type == "TOP_LEVEL_RDF" || rdf_type == "TOP_LEVEL_RDF_STRING_KEY"
+  //       || rdf_type == "PLRDF_STRING_KEY" || rdf_type ==
+  //       "SPLIT_PLRDF_STRING_KEY" || rdf_type == "SuRF_LF_RDF" || rdf_type ==
+  //       "SuRF_LF_SPLIT_RDF") {
+  //     rdf_skip_range_deletions = (level > 0);
+  //   } else if (rdf_type == "SKYLINE_RDF") {
+  //     rdf_skip_range_deletions = true;
 
-    } else if (rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" &&
-               rdf_type != "NONE2" && rdf_type != "PLRDF" &&
-               rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" &&
-               rdf_type != "TOP_LEVEL_RDF_STRING_KEY" &&
-               rdf_type != "PLRDF_STRING_KEY" &&
-               rdf_type != "SPLIT_PLRDF_STRING_KEY" &&
-               rdf_type != "SKYLINE_RDF" && rdf_type != "SuRF_LF_RDF" &&
-               rdf_type != "SuRF_LF_SPLIT_RDF") {
-      std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__
-                << " " << __FUNCTION__ << std::endl
-                << "rdf_type = " << rdf_type << std::endl;
-    }
-  }
-  // std::cout << "rdf_skip_range_deletions = " << rdf_skip_range_deletions << "
-  // " << __FILE__ << ":" << __LINE__ << std::endl;
+  //   } else if (rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" &&
+  //              rdf_type != "NONE2" && rdf_type != "PLRDF" &&
+  //              rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" &&
+  //              rdf_type != "TOP_LEVEL_RDF_STRING_KEY" &&
+  //              rdf_type != "PLRDF_STRING_KEY" &&
+  //              rdf_type != "SPLIT_PLRDF_STRING_KEY" &&
+  //              rdf_type != "SKYLINE_RDF" && rdf_type != "SuRF_LF_RDF" &&
+  //              rdf_type != "SuRF_LF_SPLIT_RDF") {
+  //     std::cerr << "Error: condition unchecked. " << __FILE__ << ":" <<
+  //     __LINE__
+  //               << " " << __FUNCTION__ << std::endl
+  //               << "rdf_type = " << rdf_type << std::endl;
+  //   }
+  // }
+  // // std::cout << "rdf_skip_range_deletions = " << rdf_skip_range_deletions
+  // << "
+  // // " << __FILE__ << ":" << __LINE__ << std::endl;
 
-  // yucheng Added Start Important: this is only for experimental use
-  // if((!rdf_skip_range_deletions) &&
+  // // yucheng Added Start Important: this is only for experimental use
+  // // if((!rdf_skip_range_deletions) &&
+  // //
   // checking::SystemVerifier::getSystemVerifier()->getFlagUsingRocksdbDefaultValueOrFalseAsPrefetchIndexAndFilterInCacheDuringBlockBasedTableOpen()){
-  // yucheng Added End
-  // std::cout << "ReadRangeDelBlock pre1 " << __FILE__ << ":" << __LINE__ << "
-  // " << __FUNCTION__ << std::endl;
-  if (!rdf_skip_range_deletions) {
-    // std::cout << "ReadRangeDelBlock pre2 " << __FILE__ << ":" << __LINE__ <<
-    // " " << __FUNCTION__ << std::endl;
-    s = new_table->ReadRangeDelBlock(ro, prefetch_buffer.get(),
-                                     metaindex_iter.get(), internal_comparator,
-                                     &lookup_context);
-  }
-  // Self Added End
+  // // yucheng Added End
+  // // std::cout << "ReadRangeDelBlock pre1 " << __FILE__ << ":" << __LINE__ <<
+  // "
+  // // " << __FUNCTION__ << std::endl;
+  // if (!rdf_skip_range_deletions) {
+  //   // std::cout << "ReadRangeDelBlock pre2 " << __FILE__ << ":" << __LINE__
+  //   <<
+  //   // " " << __FUNCTION__ << std::endl;
+  //   s = new_table->ReadRangeDelBlock(ro, prefetch_buffer.get(),
+  //                                    metaindex_iter.get(),
+  //                                    internal_comparator, &lookup_context);
+  // }
+  // // Self Added End
+
+  s = new_table->ReadRangeDelBlock(ro, prefetch_buffer.get(),
+                                   metaindex_iter.get(), internal_comparator,
+                                   &lookup_context);
 
   // s = new_table->ReadRangeDelBlock(ro, prefetch_buffer.get(),
   //                                  metaindex_iter.get(), internal_comparator,

@@ -607,30 +607,56 @@ Status TableCache::Get(
     }
     // Self Added End
 
-    // Self Added Start
-    if (!rdf_skip_range_deletions) {
-      checking::SystemVerifier::getSystemVerifier()->start_get_max_seq();
-      // Self Added End
+    // 2026-2-27 for mixed workload (point query not in the end of the insertion
+    // but interleaved within the insertion)
+    // // Self Added Start
+    // if (!rdf_skip_range_deletions) {
+    //   checking::SystemVerifier::getSystemVerifier()->start_get_max_seq();
+    //   // Self Added End
 
-      if (s.ok() && max_covering_tombstone_seq != nullptr &&
-          !options.ignore_range_deletions) {
-        std::unique_ptr<FragmentedRangeTombstoneIterator> range_del_iter(
-            t->NewRangeTombstoneIterator(options));
-        if (range_del_iter != nullptr) {
-          SequenceNumber seq =
-              range_del_iter->MaxCoveringTombstoneSeqnum(ExtractUserKey(k));
-          if (seq > *max_covering_tombstone_seq) {
-            *max_covering_tombstone_seq = seq;
-            if (get_context->NeedTimestamp()) {
-              get_context->SetTimestampFromRangeTombstone(
-                  range_del_iter->timestamp());
-            }
+    //   if (s.ok() && max_covering_tombstone_seq != nullptr &&
+    //       !options.ignore_range_deletions) {
+    //     std::unique_ptr<FragmentedRangeTombstoneIterator> range_del_iter(
+    //         t->NewRangeTombstoneIterator(options));
+    //     if (range_del_iter != nullptr) {
+    //       SequenceNumber seq =
+    //           range_del_iter->MaxCoveringTombstoneSeqnum(ExtractUserKey(k));
+    //       if (seq > *max_covering_tombstone_seq) {
+    //         *max_covering_tombstone_seq = seq;
+    //         if (get_context->NeedTimestamp()) {
+    //           get_context->SetTimestampFromRangeTombstone(
+    //               range_del_iter->timestamp());
+    //         }
+    //       }
+    //     }
+    //   }
+    //   // Self Added Start
+    //   checking::SystemVerifier::getSystemVerifier()->stop_get_max_seq();
+    // }
+    // // Self Added End
+
+    // Self Added Start
+    checking::SystemVerifier::getSystemVerifier()->start_get_max_seq();
+    // Self Added End
+
+    if (s.ok() && max_covering_tombstone_seq != nullptr &&
+        !options.ignore_range_deletions) {
+      std::unique_ptr<FragmentedRangeTombstoneIterator> range_del_iter(
+          t->NewRangeTombstoneIterator(options));
+      if (range_del_iter != nullptr) {
+        SequenceNumber seq =
+            range_del_iter->MaxCoveringTombstoneSeqnum(ExtractUserKey(k));
+        if (seq > *max_covering_tombstone_seq) {
+          *max_covering_tombstone_seq = seq;
+          if (get_context->NeedTimestamp()) {
+            get_context->SetTimestampFromRangeTombstone(
+                range_del_iter->timestamp());
           }
         }
       }
-      // Self Added Start
-      checking::SystemVerifier::getSystemVerifier()->stop_get_max_seq();
     }
+    // Self Added Start
+    checking::SystemVerifier::getSystemVerifier()->stop_get_max_seq();
     // Self Added End
 
     // Self Added Start
