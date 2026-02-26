@@ -447,7 +447,7 @@ for line in full_log_entries.strip().split("\n"):
     if len(parts) == 2:
         log_id, metric = parts[0].split(":", 1)
         # print(2, log_id, metric)
-        value = float(parts[1]) if "." in parts[1] else int(parts[1])
+        value = float(parts[1]) if "." in parts[1] else int(parts[1], 0)
 
         for string in strings_to_remove:
             metric = metric.replace(string, "")
@@ -461,7 +461,7 @@ for line in full_log_entries.strip().split("\n"):
         log_id, metric_1 = parts[0].split(":", 1)
         metric = metric_1 + " = " + parts[1]
         # print(3, log_id, metric)
-        value = float(parts[2]) if "." in parts[2] else int(parts[2])
+        value = float(parts[2]) if "." in parts[2] else int(parts[2], 0)
         
         for string in strings_to_remove:
             metric = metric.replace(string, "")
@@ -521,12 +521,11 @@ number_of_pq_on_currently_deleted_keys = 100000
 
 selected_columns = \
 ['File Name',
- 'insertion_time_ns_out',
- 'rd_time_ns_out',
- ' (Exist Keys fixed #PQ = 5000)   filter false positive rate _out',
- 'fixed #PQ = 5000 point_query_time_on_existing_keys_ns_out',
- f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys})   filter false positive rate _out',
- f'fixed #PQ = {number_of_pq_on_currently_deleted_keys} point_query_time_on_currently_deleted_all_ns_out',
+ 'insertion_time_ns _out',
+ 'rd_time_ns _out',
+ ' filter false positive rate _out',
+ 'point_query_time_on_existing_keys_ns _out',
+ 'point_query_time_on_deleted_keys_ns _out',
  'all_time_ns _out',
  ' Number Of Total Memory Usage _out',
 #  ' Number Of Total Memory Usage Origin Included Timestamp _out',
@@ -535,17 +534,17 @@ selected_columns = \
 #  ' (Currently Deleted Keys fixed #PQ = 100000)  block_read_time _out',
 #  ' (Currently Deleted Keys fixed #PQ = 100000)  index_block_read_count  _out',
 #  ' (Currently Deleted Keys fixed #PQ = 100000)  filter_block_read_count  _out',
-  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_filter_read_count _out',
-  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_index_read_count _out',
-  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_range_del_read_count _out',
-  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_data_read_count _out',
-  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_meta_index_read_count _out',
-  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_properties_read_count _out',
-  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_compression_dict_block_read_count _out',
-  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_filter_partition_index_read_count _out',
-  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_hash_index_meta_read_count _out',
-  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_hash_index_prefixes_read_count _out',
-  f' (Currently Deleted Keys fixed #PQ = {number_of_pq_on_currently_deleted_keys}) fetcher__num_total_block_read_count _out',
+  'fetcher__num_filter_read_count _out',
+  'fetcher__num_index_read_count _out',
+  'fetcher__num_range_del_read_count _out',
+  'fetcher__num_data_read_count _out',
+  'fetcher__num_meta_index_read_count _out',
+  'fetcher__num_properties_read_count _out',
+  'fetcher__num_compression_dict_block_read_count _out',
+  'fetcher__num_filter_partition_index_read_count _out',
+  'fetcher__num_hash_index_meta_read_count _out',
+  'fetcher__num_hash_index_prefixes_read_count _out',
+  'fetcher__num_total_block_read_count _out',
 ]
 
 # In[ ]:

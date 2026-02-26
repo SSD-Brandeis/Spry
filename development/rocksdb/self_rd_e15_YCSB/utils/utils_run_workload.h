@@ -76,6 +76,8 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
   if (op.statistics) {
     op.statistics->Reset();
   }
+  system_verifier->resetAllCount();
+  system_verifier->resetAllDuration();
 
   while (!workload_file.eof()) {
     i_instruction++;
@@ -258,8 +260,7 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
         } else {
           std::cerr << "ERROR: Case match NOT found !!" << std::endl;
           std::cerr << "instruction = " << instruction << std::endl;
-        std:
-          cerr << "type = " << type << std::endl;
+          std::cerr << "type = " << type << std::endl;
           std::cerr << "start_key = " << start_key << std::endl;
           std::cerr << "end_key = " << end_key << std::endl;
           break;
@@ -492,6 +493,8 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
   // // std::cout << "!!! print stats " << std::endl;
 
   // // printStats(db, op);
+
+  system_verifier->getAllCount("", "", " ", 1);
 
   io_timing_test(db);
 
