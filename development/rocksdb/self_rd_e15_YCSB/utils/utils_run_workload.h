@@ -68,6 +68,9 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
   unsigned long long rd_time_ns = 0;
   unsigned long long point_query_time_ns = 0;
   unsigned long long scan_time_ns = 0;
+  unsigned long long point_query_time_on_existing_keys_ns = 0;
+  unsigned long long point_query_time_on_deleted_keys_ns = 0;
+  unsigned long long point_query_time_on_non_inserted_keys_ns = 0;
 
   while (!workload_file.eof()) {
     i_instruction++;
@@ -143,6 +146,14 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
         duration_time = std::chrono::duration_cast<std::chrono::nanoseconds>(
             stop_time - start_time);
         point_query_time_ns += duration_time.count();
+
+        if (system_verifier->isKeyExist(key)) {
+          point_query_time_on_existing_keys_ns += duration_time.count();
+        } else if (system_verifier->historicExistingKeys.count(key) > 0) {
+          point_query_time_on_deleted_keys_ns += duration_time.count();
+        } else {
+          point_query_time_on_non_inserted_keys_ns += duration_time.count();
+        }
 
         verification::verifyPointQuery(key, s, value, system_verifier);
 
@@ -323,6 +334,12 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
   std::cout << "point_query_time_ns _out = " << point_query_time_ns
             << std::endl;
   std::cout << "scan_time_ns _out = " << scan_time_ns << std::endl;
+  std::cout << "point_query_time_on_existing_keys_ns _out = "
+            << point_query_time_on_existing_keys_ns << std::endl;
+  std::cout << "point_query_time_on_deleted_keys_ns _out = "
+            << point_query_time_on_deleted_keys_ns << std::endl;
+  std::cout << "point_query_time_on_non_inserted_keys_ns _out = "
+            << point_query_time_on_non_inserted_keys_ns << std::endl;
 
   print_RDF_memory_usage_generic(db, system_verifier);
   print_RDF_false_positive_rate_generic(db, system_verifier);

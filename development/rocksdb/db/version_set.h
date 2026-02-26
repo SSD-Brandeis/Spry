@@ -68,9 +68,9 @@
 
 // Self Added Start
 #include "db/column_family.h"
-#include "rocksdb/SuRF/include/surf.hpp"
-#include "rocksdb/sys_rdfilter.h"
-#include "rocksdb/system_verifier.h"
+#include "include/rocksdb/SuRF/include/surf.hpp"
+#include "include/rocksdb/sys_rdfilter.h"
+#include "include/rocksdb/system_verifier.h"
 
 // Self Added End
 
