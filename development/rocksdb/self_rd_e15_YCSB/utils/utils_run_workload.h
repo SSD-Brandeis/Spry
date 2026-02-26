@@ -108,9 +108,9 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
           key = ss_key.str();
         }
 
-        if (_env->load_pq_workload == false) {
-          system_verifier->insert(key, value);
-        }
+        // if (_env->load_pq_workload == false) {
+        system_verifier->insert(key, value);
+        // }
 
         // ss_key << std::setfill('0') << std::setw(KEY_SIZE) << key;
         // ss_time_stamp << std::setfill('0') << std::setw(TIME_STAMP_SIZE) <<
@@ -232,9 +232,9 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
           while (db->existFlushJob() == true) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
           }
-          if (_env->load_pq_workload == false) {
-            system_verifier->rangeDelete(start_key, end_key);
-          }
+          // if (_env->load_pq_workload == false) {
+          system_verifier->rangeDelete(start_key, end_key);
+          // }
           while (db->existFlushJob() == true) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
           }
@@ -278,9 +278,9 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
         while (db->existFlushJob() == true) {
           std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
-        if (_env->load_pq_workload == false) {
-          system_verifier->rangeDelete(start_key, end_key);
-        }
+        // if (_env->load_pq_workload == false) {
+        system_verifier->rangeDelete(start_key, end_key);
+        // }
         while (db->existFlushJob() == true) {
           std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
