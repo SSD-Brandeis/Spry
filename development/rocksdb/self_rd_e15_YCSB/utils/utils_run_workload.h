@@ -200,7 +200,7 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
           std::vector<std::pair<std::string, std::string>> scan_results;
           start_time = std::chrono::high_resolution_clock::now();
           for (it->Seek(start_key); it->Valid(); it->Next()) {
-            if (it->key().ToString() == end_key) {
+            if (it->key().ToString() >= end_key) {
               break;
             }
             scan_results.push_back(
