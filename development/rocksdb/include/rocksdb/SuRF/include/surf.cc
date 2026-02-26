@@ -864,7 +864,7 @@ std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(
   SuRF::Iter iter = surf_->moveToFirst();
 
   if (surf_->louds_dense_->getHeight() == 0) {
-    std::cout << "surfToRanges height==0 " << "surf rdf out" << std::endl;
+    std::cout << "0 " << "surf rdf out" << std::endl;
     while (iter.sparse_iter_.isValid()) {
       std::string key = iter.sparse_iter_.getKey();
       bool left_parenthesis = iter.sparse_iter_.getLeftParenthesis();
@@ -1006,6 +1006,15 @@ std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(
           start = keys[i];
           end = keys[i];
         } else {
+          if (surf::SuRF_Env::getInstance()
+                  ->getFlagSurfUseCondensedDigitKey() == true) {
+            std::cout << "x "
+                      << surf::SuRF_Utils::decode_byte_string_to_digit_string(
+                             keys[i])
+                      << " ";
+          } else {
+            std::cout << "x " << keys[i] << " ";
+          }
           //(0,1)
           end = keys[i];
         }
@@ -1037,6 +1046,8 @@ std::vector<std::pair<std::string, std::string>> SuRF::surfToRanges(
       ranges.push_back(std::make_pair(start, end));
     }
   }
+  std::cout << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+            << std::endl;
 
   return ranges;
   // return SuRFRangesAndSplitPoint{.ranges = ranges, .split_points =
@@ -1608,49 +1619,45 @@ void SuRF_RDF::shiftRDFToOutputLevel(
   size_t len_rd = rd_merged.size();
   assert(len_rd > 0ULL);
   if (len_rd > 0) {
-    size_t i_rd = 0;
     assert(dst_fd_list.size() == file_boundary_list.size());
     size_t len_dst = dst_fd_list.size();
+    size_t start_i_rd = 0;
     for (size_t i_dst = 0; i_dst < len_dst; i_dst++) {
-      if (i_rd >= len_rd) {
-        break;
-      }
-
       uint64_t dst_fd = dst_fd_list[i_dst];
       pss file_boundary = file_boundary_list[i_dst];
       // 2024-10
       if (file_boundary.first == file_boundary.second) {
         continue;
       }
-      //
 
       std::vector<pss> ranges_to_insert;
+      size_t i_rd = start_i_rd;
       if (surf_flag__allow_range_boundary_overlapped == true) {
         while (i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.first) {
           i_rd++;
         }
       } else {
-        // while(i_rd < len_rd && rd_merged[i_rd].second <
-        // file_boundary.first){
         while (i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.first) {
           i_rd++;
         }
       }
-      // TODO: check this part
-      while (i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.second) {
+      start_i_rd = i_rd;  // Optimization: next file cannot start before this
+                          // i_rd if boundaries are sorted
+
+      while (i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second) {
         pss range_in = std::make_pair(
             std::max(rd_merged[i_rd].first, file_boundary.first),
             std::min(rd_merged[i_rd].second, file_boundary.second));
         ranges_to_insert.push_back(range_in);
         i_rd++;
       }
-      if (i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second) {
-        pss range_in = std::make_pair(
-            std::max(rd_merged[i_rd].first, file_boundary.first),
-            std::min(rd_merged[i_rd].second, file_boundary.second));
-        ranges_to_insert.push_back(range_in);
-        // don't i_rd ++;
-      }
+      // if (i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second) {
+      //   pss range_in = std::make_pair(
+      //       std::max(rd_merged[i_rd].first, file_boundary.first),
+      //       std::min(rd_merged[i_rd].second, file_boundary.second));
+      //   ranges_to_insert.push_back(range_in);
+      //   // don't i_rd ++;
+      // }
 
       if (ranges_to_insert.size() > 0) {
         this->insertRangesAtLevelOfFd(
