@@ -186,6 +186,7 @@ class SystemVerifier {
   int CurrentlyNonInsertedKeysNum = 1000;
 
   bool flag_skip_reading_range_delete_block = false;
+  bool flag_force_loading_range_tombstones_from_SSTable = false;
 
   int disk_access_count = 0;
   int read_entry_block_count = 0;
