@@ -1531,6 +1531,14 @@ void SuRF_RDF::deleteLastLevelIfEqualsBottomLevel(uint bottom_level) {
   } else if (rdf_mode == PER_FILE) {
     while (level_file_surf_rdf.size() > 0 &&
            level_file_surf_rdf.size() - 1 >= bottom_level) {
+      std::cout << "remove last level " << bottom_level << " "
+                << level_file_surf_rdf.size() - 1 << " " << __FILE__ << ":"
+                << __LINE__ << " " << __FUNCTION__ << std::endl;
+      for (auto& fd : level_file_surf_rdf.back()) {
+        std::cout << "fd = " << fd.first << " " << __FILE__ << ":" << __LINE__
+                  << " " << __FUNCTION__ << std::endl;
+      }
+
       level_file_surf_rdf.pop_back();
     }
   } else {
@@ -1624,6 +1632,22 @@ void SuRF_RDF::shiftRDFToOutputLevel(
     size_t start_i_rd = 0;
     for (size_t i_dst = 0; i_dst < len_dst; i_dst++) {
       uint64_t dst_fd = dst_fd_list[i_dst];
+
+      if (dst_fd == 163302) {
+        std::cout << "dst_level = " << dst_level << " " << "dst_fd = " << dst_fd
+                  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                  << std::endl;
+        for (auto& fd2 : dst_fd_list) {
+          std::cout << "fd2 = " << fd2 << " " << __FILE__ << ":" << __LINE__
+                    << " " << __FUNCTION__ << std::endl;
+        }
+        for (auto& fb2 : file_boundary_list) {
+          std::cout << "fb2 = " << fb2.first << " " << fb2.second << " "
+                    << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                    << std::endl;
+        }
+      }
+
       pss file_boundary = file_boundary_list[i_dst];
       // 2024-10
       if (file_boundary.first == file_boundary.second) {
@@ -1650,6 +1674,12 @@ void SuRF_RDF::shiftRDFToOutputLevel(
             std::min(rd_merged[i_rd].second, file_boundary.second));
         ranges_to_insert.push_back(range_in);
         i_rd++;
+
+        if (dst_fd == 163302) {
+          std::cout << "ranges_to_insert = " << range_in.first << " "
+                    << range_in.second << " " << __FILE__ << ":" << __LINE__
+                    << " " << __FUNCTION__ << std::endl;
+        }
       }
       // if (i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second) {
       //   pss range_in = std::make_pair(
@@ -1694,14 +1724,27 @@ void SuRF_RDF::shiftRDFWithPointKeysToOutputLevel(
   size_t len_rd = rd_merged.size();
   assert(len_rd > 0ULL);
   if (len_rd > 0) {
-    size_t i_rd = 0;
     assert(dst_fd_list.size() == file_boundary_list.size());
     size_t len_dst = dst_fd_list.size();
+    size_t start_i_rd = 0;
     for (size_t i_dst = 0; i_dst < len_dst; i_dst++) {
-      if (i_rd >= len_rd) {
-        break;
-      }
       uint64_t dst_fd = dst_fd_list[i_dst];
+
+      if (dst_fd == 163302) {
+        std::cout << "dst_level = " << dst_level << " " << "dst_fd = " << dst_fd
+                  << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                  << std::endl;
+        for (auto& fd2 : dst_fd_list) {
+          std::cout << "fd2 = " << fd2 << " " << __FILE__ << ":" << __LINE__
+                    << " " << __FUNCTION__ << std::endl;
+        }
+        for (auto& fb2 : file_boundary_list) {
+          std::cout << "fb2 = " << fb2.first << " " << fb2.second << " "
+                    << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                    << std::endl;
+        }
+      }
+
       pss file_boundary = file_boundary_list[i_dst];
       // 2024-10
       if (file_boundary.first == file_boundary.second) {
@@ -1710,6 +1753,7 @@ void SuRF_RDF::shiftRDFWithPointKeysToOutputLevel(
       //
       // separate
       std::vector<pss> ranges_to_insert;
+      size_t i_rd = start_i_rd;
       if (surf_flag__allow_range_boundary_overlapped == true) {
         while (i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.first) {
           i_rd++;
@@ -1721,20 +1765,29 @@ void SuRF_RDF::shiftRDFWithPointKeysToOutputLevel(
           i_rd++;
         }
       }
+      start_i_rd = i_rd;  // Optimization: next file cannot start before this
+                          // i_rd if boundaries are sorted
+
       while (i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.second) {
         pss range_in = std::make_pair(
             std::max(rd_merged[i_rd].first, file_boundary.first),
             std::min(rd_merged[i_rd].second, file_boundary.second));
         ranges_to_insert.push_back(range_in);
         i_rd++;
-      }
-      if (i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second) {
-        pss range_in = std::make_pair(
-            std::max(rd_merged[i_rd].first, file_boundary.first),
-            std::min(rd_merged[i_rd].second, file_boundary.second));
 
-        ranges_to_insert.push_back(range_in);
+        if (dst_fd == 163302) {
+          std::cout << "ranges_to_insert = " << range_in.first << " "
+                    << range_in.second << " " << __FILE__ << ":" << __LINE__
+                    << " " << __FUNCTION__ << std::endl;
+        }
       }
+      // if (i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second) {
+      //   pss range_in = std::make_pair(
+      //       std::max(rd_merged[i_rd].first, file_boundary.first),
+      //       std::min(rd_merged[i_rd].second, file_boundary.second));
+
+      //   ranges_to_insert.push_back(range_in);
+      // }
 
       if (ranges_to_insert.size() > 0) {
 #ifdef DEBUG_SURF_COMPACTION
