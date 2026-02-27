@@ -50,40 +50,61 @@ namespace checking {
  * preferable to use a "Shifted" (fixed-point integer) approach to keep
  * everything in raw integer cycles until the final report to avoid any FPU
  * overhead or early precision loss.
+ * if double is not precise enough, use fixed-point integer approach
  */
+// class KahanTimer {
+//  private:
+//   double sum_ns = 0.0;
+//   double correction_ns = 0.0;
+//   std::chrono::high_resolution_clock::time_point start_time;
+
+//  public:
+//   void reset() {
+//     sum_ns = 0.0;
+//     correction_ns = 0.0;
+//   }
+
+//   void start() { start_time = std::chrono::high_resolution_clock::now(); }
+
+// #pragma GCC push_options
+// #pragma GCC optimize("-fno-associative-math")
+//   void stop() {
+//     auto stop_time = std::chrono::high_resolution_clock::now();
+//     double value = std::chrono::duration_cast<std::chrono::nanoseconds>(
+//                        stop_time - start_time)
+//                        .count();
+
+//     // Kahan summation logic
+//     double y = value - correction_ns;
+//     double temp = sum_ns + y;
+//     correction_ns = (temp - sum_ns) - y;
+//     sum_ns = temp;
+//   }
+// #pragma GCC pop_options
+
+//   unsigned long long get_total_ns() const {
+//     return static_cast<unsigned long long>(sum_ns);
+//   }
+// };
+
 class KahanTimer {
  private:
-  double sum_ns = 0.0;
-  double correction_ns = 0.0;
+  unsigned long long sum_ns = 0;
   std::chrono::high_resolution_clock::time_point start_time;
 
  public:
-  void reset() {
-    sum_ns = 0.0;
-    correction_ns = 0.0;
-  }
+  void reset() { sum_ns = 0; }
 
   void start() { start_time = std::chrono::high_resolution_clock::now(); }
 
-#pragma GCC push_options
-#pragma GCC optimize("-fno-associative-math")
   void stop() {
     auto stop_time = std::chrono::high_resolution_clock::now();
-    double value = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                       stop_time - start_time)
-                       .count();
-
-    // Kahan summation logic
-    double y = value - correction_ns;
-    double temp = sum_ns + y;
-    correction_ns = (temp - sum_ns) - y;
-    sum_ns = temp;
+    sum_ns += std::chrono::duration_cast<std::chrono::nanoseconds>(stop_time -
+                                                                   start_time)
+                  .count();
   }
-#pragma GCC pop_options
 
-  unsigned long long get_total_ns() const {
-    return static_cast<unsigned long long>(sum_ns);
-  }
+  unsigned long long get_total_ns() const { return sum_ns; }
 };
 
 struct RandomKeysTestingResult {
