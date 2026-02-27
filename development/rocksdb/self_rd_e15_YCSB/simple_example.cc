@@ -62,6 +62,9 @@ int main(int argc, char* argv[]) {
 
   checking::SystemVerifier::getSystemVerifier()->setSkipReadingRangeDeleteBlock(
       _env->skip_reading_RD_blocks);
+  checking::SystemVerifier::getSystemVerifier()
+      ->setForceLoadingRangeTombstonesFromSSTable(
+          _env->force_loading_range_tombstones_from_SSTable);
   Options options;
   WriteOptions write_op;
   ReadOptions read_op;

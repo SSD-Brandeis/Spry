@@ -42,6 +42,49 @@ class SystemVerifier;
 using namespace std;
 
 namespace checking {
+/**
+ * @brief Accumulates time durations using Kahan Summation algorithm to minimize
+ * rounding errors.
+ *
+ * @note Consideration: If measuring CPU cycles directly via rdtsc, it might be
+ * preferable to use a "Shifted" (fixed-point integer) approach to keep
+ * everything in raw integer cycles until the final report to avoid any FPU
+ * overhead or early precision loss.
+ */
+class KahanTimer {
+ private:
+  double sum_ns = 0.0;
+  double correction_ns = 0.0;
+  std::chrono::high_resolution_clock::time_point start_time;
+
+ public:
+  void reset() {
+    sum_ns = 0.0;
+    correction_ns = 0.0;
+  }
+
+  void start() { start_time = std::chrono::high_resolution_clock::now(); }
+
+#pragma GCC push_options
+#pragma GCC optimize("-fno-associative-math")
+  void stop() {
+    auto stop_time = std::chrono::high_resolution_clock::now();
+    double value = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                       stop_time - start_time)
+                       .count();
+
+    // Kahan summation logic
+    double y = value - correction_ns;
+    double temp = sum_ns + y;
+    correction_ns = (temp - sum_ns) - y;
+    sum_ns = temp;
+  }
+#pragma GCC pop_options
+
+  unsigned long long get_total_ns() const {
+    return static_cast<unsigned long long>(sum_ns);
+  }
+};
 
 struct RandomKeysTestingResult {
  public:
@@ -103,8 +146,8 @@ class CacheTombstoneTracer {
   void insertMapTombstoneBytes(std::string k, uint64_t bytes) {
     std::unique_lock<std::shared_mutex> lock(rw_mutex);
     if (ych__map_tombstone_bytes.count(k) != 0) {
-      std::cerr << "Error. Key already in ych__map_tombstone_bytes" << " "
-                << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+      std::cerr << "Error. Key already in ych__map_tombstone_bytes"
+                << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
                 << std::endl;
     }
     ych__map_tombstone_bytes[k] = bytes;
@@ -179,6 +222,14 @@ class SystemVerifier {
   bool flag_skip_trivial_move = false;
 
   bool flag_using_string_key = false;
+
+  // Timers using Kahan Summation
+  KahanTimer timer_get_rdf;
+  KahanTimer timer_get_max_seq;
+  KahanTimer timer_retrieve_block;
+  KahanTimer timer_find_table;
+  KahanTimer timer_get_from_row_cache;
+  KahanTimer timer_remaining_get_path;
 
   // false: --> using RocksDB default value (True)
   // true: --> using True value (False)
@@ -259,8 +310,7 @@ class SystemVerifier {
      * Stops the PQ tracing by setting the tracing flag to false.
      * This function should be called to end a tracing session.
      */
-
-  /*******  a1ab71ee-10dd-4c28-9ed1-e5a325c7eeb9  *******/ }
+  }
 
   void endPQTracing() { flag_pq_tracing_on = false; }
   void clearMapPQTracingInfo() { map_pq_tracing_info.clear(); }
@@ -291,14 +341,17 @@ class SystemVerifier {
 
     result << sep << bracket << prefix
            << " map_pq_tracing_info key2fd_level round" << to_string(i_round)
-           << bracket << ": " << "{" << "\n";
+           << bracket << ": "
+           << "{"
+           << "\n";
 
     string sep2 = "";
     for (auto& [k, v] : map_pq_tracing_info) {
       // if(typeid(k) != typeid(std::string)){
       //   result << sep2 << "\"" << to_string(k) << "\"" <<  ": [";
       // }else{
-      result << sep2 << "\"" << k << "\"" << ": [";
+      result << sep2 << "\"" << k << "\""
+             << ": [";
       // }
       sep2 = ", ";
       string sep3 = "";
@@ -310,9 +363,11 @@ class SystemVerifier {
                << flag_open_file << "] ";
         sep3 = ", ";
       }
-      result << "] " << "\n";
+      result << "] "
+             << "\n";
     }
-    result << "}" << "\n";
+    result << "}"
+           << "\n";
 
     return result.str();
   }
@@ -322,7 +377,9 @@ class SystemVerifier {
 
     result << sep << bracket << prefix
            << " v_pq_tracing_info key2fd_level round" << to_string(i_round)
-           << bracket << ": " << "[" << "\n";
+           << bracket << ": "
+           << "["
+           << "\n";
 
     string sep2 = "";
     for (auto& fd_level : v_pq_tracing_info) {
@@ -334,7 +391,8 @@ class SystemVerifier {
       sep2 = ", ";
     }
 
-    result << "]" << "\n";
+    result << "]"
+           << "\n";
 
     return result.str();
   }
@@ -348,6 +406,12 @@ class SystemVerifier {
   }
   bool isSkipReadingRangeDeleteBlock() {
     return flag_skip_reading_range_delete_block;
+  }
+  void setForceLoadingRangeTombstonesFromSSTable(bool flag) {
+    flag_force_loading_range_tombstones_from_SSTable = flag;
+  }
+  bool getForceLoadingRangeTombstonesFromSSTable() {
+    return flag_force_loading_range_tombstones_from_SSTable;
   }
 
   bool flag_is_running_PQ = false;
@@ -660,12 +724,18 @@ class SystemVerifier {
   }
 
   void resetAllDuration() {
-    reset_total_duration__get_rdf();
-    reset_total_duration__get_max_seq();
-    reset_total_duration__retrieve_block();
-    reset_total_duration__find_table();
-    reset_total_duration__get_from_row_cache();
-    reset_total_duration__remaining_get_path();
+    // t_total_duration__get_rdf();
+    // reset_total_duration__get_max_seq();
+    // reset_total_duration__retrieve_block();
+    // reset_total_duration__find_table();
+    // reset_total_duration__get_from_row_cache();
+    // reset_total_duration__remaining_get_path();
+    timer_get_rdf.reset();
+    timer_get_max_seq.reset();
+    timer_retrieve_block.reset();
+    timer_find_table.reset();
+    timer_get_from_row_cache.reset();
+    timer_remaining_get_path.reset();
   }
 
   // None: meaning default RocksDB implementation
@@ -901,107 +971,51 @@ class SystemVerifier {
           stop__remaining_get_path - start__remaining_get_path);
   unsigned long long total_duation__remaining_get_path = 0;
 
-  void reset_total_duration__get_rdf() { total_duation__get_rdf = 0; }
+  void reset_total_duration__get_rdf() { timer_get_rdf.reset(); }
   unsigned long long get_total_duration__get_rdf() {
-    return total_duation__get_rdf;
+    return timer_get_rdf.get_total_ns();
   }
-  void start_get_rdf() {
-    start__get_rdf = std::chrono::high_resolution_clock::now();
-  }
-  void stop_get_rdf() {
-    stop__get_rdf = std::chrono::high_resolution_clock::now();
-    duration__get_rdf_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
-        stop__get_rdf - start__get_rdf);
-    total_duation__get_rdf += duration__get_rdf_ns.count();
-  }
+  void start_get_rdf() { timer_get_rdf.start(); }
+  void stop_get_rdf() { timer_get_rdf.stop(); }
 
-  void reset_total_duration__get_max_seq() { total_duation__get_max_seq = 0; }
+  void reset_total_duration__get_max_seq() { timer_get_max_seq.reset(); }
   unsigned long long get_total_duration__get_max_seq() {
-    return total_duation__get_max_seq;
+    return timer_get_max_seq.get_total_ns();
   }
-  void start_get_max_seq() {
-    start__get_max_seq = std::chrono::high_resolution_clock::now();
-  }
-  void stop_get_max_seq() {
-    stop__get_max_seq = std::chrono::high_resolution_clock::now();
-    duration__get_max_seq_ns =
-        std::chrono::duration_cast<std::chrono::nanoseconds>(
-            stop__get_max_seq - start__get_max_seq);
-    total_duation__get_max_seq += duration__get_max_seq_ns.count();
-  }
+  void start_get_max_seq() { timer_get_max_seq.start(); }
+  void stop_get_max_seq() { timer_get_max_seq.stop(); }
 
-  void reset_total_duration__retrieve_block() {
-    total_duation__retrieve_block = 0;
-  }
+  void reset_total_duration__retrieve_block() { timer_retrieve_block.reset(); }
   unsigned long long get_total_duration__retrieve_block() {
-    return total_duation__retrieve_block;
+    return timer_retrieve_block.get_total_ns();
   }
-  void start_retrieve_block() {
-    start__retrieve_block = std::chrono::high_resolution_clock::now();
-  }
-  void stop_retrieve_block() {
-    stop__retrieve_block = std::chrono::high_resolution_clock::now();
-    duration__retrieve_block_ns =
-        std::chrono::duration_cast<std::chrono::nanoseconds>(
-            stop__retrieve_block - start__retrieve_block);
-    total_duation__retrieve_block += duration__retrieve_block_ns.count();
-  }
+  void start_retrieve_block() { timer_retrieve_block.start(); }
+  void stop_retrieve_block() { timer_retrieve_block.stop(); }
 
-  void reset_total_duration__find_table() { total_duation__find_table = 0; }
+  void reset_total_duration__find_table() { timer_find_table.reset(); }
   unsigned long long get_total_duration__find_table() {
-    return total_duation__find_table;
+    return timer_find_table.get_total_ns();
   }
-  void start_find_table() {
-    start__find_table = std::chrono::high_resolution_clock::now();
-  }
-  void stop_find_table() {
-    stop__find_table = std::chrono::high_resolution_clock::now();
-    duration__find_table_ns =
-        std::chrono::duration_cast<std::chrono::nanoseconds>(stop__find_table -
-                                                             start__find_table);
-    total_duation__find_table += duration__find_table_ns.count();
-  }
+  void start_find_table() { timer_find_table.start(); }
+  void stop_find_table() { timer_find_table.stop(); }
 
   void reset_total_duration__get_from_row_cache() {
-    total_duation__get_from_row_cache = 0;
+    timer_get_from_row_cache.reset();
   }
   unsigned long long get_total_duration__get_from_row_cache() {
-    return total_duation__get_from_row_cache;
+    return timer_get_from_row_cache.get_total_ns();
   }
-  void start_get_from_row_cache() {
-    start__get_from_row_cache = std::chrono::high_resolution_clock::now();
-  }
-  void stop_get_from_row_cache() {
-    stop__get_from_row_cache = std::chrono::high_resolution_clock::now();
-    duration__get_from_row_cache_ns =
-        std::chrono::duration_cast<std::chrono::nanoseconds>(
-            stop__get_from_row_cache - start__get_from_row_cache);
-    total_duation__get_from_row_cache +=
-        duration__get_from_row_cache_ns.count();
-  }
+  void start_get_from_row_cache() { timer_get_from_row_cache.start(); }
+  void stop_get_from_row_cache() { timer_get_from_row_cache.stop(); }
 
   void reset_total_duration__remaining_get_path() {
-    total_duation__remaining_get_path = 0;
+    timer_remaining_get_path.reset();
   }
   unsigned long long get_total_duration__remaining_get_path() {
-    return total_duation__remaining_get_path;
+    return timer_remaining_get_path.get_total_ns();
   }
-  void start_remaining_get_path() {
-    start__remaining_get_path = std::chrono::high_resolution_clock::now();
-  }
-  void stop_remaining_get_path() {
-    stop__remaining_get_path = std::chrono::high_resolution_clock::now();
-    duration__remaining_get_path_ns =
-        std::chrono::duration_cast<std::chrono::nanoseconds>(
-            stop__remaining_get_path - start__remaining_get_path);
-    total_duation__remaining_get_path +=
-        duration__remaining_get_path_ns.count();
-  }
-
-  // map<string, string> groundTruth_str;
-  // set<string> historicExistingKeys_str;
-  // vector<string> currentlyNonInsertedKeys_str;
-  // using p2s = pair<string>;
+  void start_remaining_get_path() { timer_remaining_get_path.start(); }
+  void stop_remaining_get_path() { timer_remaining_get_path.stop(); }
   // vector<string> RDs_str;
   // int deleted_key_count = 0;
 
@@ -1815,7 +1829,9 @@ class SystemVerifier {
     result << sep << bracket << prefix << " logNumCurrentlyDeletedDistinctKeys"
            << bracket << ": " << len_currently_deleted_keys << "\n";
     result << sep << bracket << prefix << " logCurrentlyDeletedKeysVec2d"
-           << bracket << ": " << "[" << "\n";
+           << bracket << ": "
+           << "["
+           << "\n";
 
     string sep2 = "";
     for (int i = 0; i < len; i++) {
@@ -1827,10 +1843,12 @@ class SystemVerifier {
         result << sep3 << key;
         sep3 = ", ";
       }
-      result << "]" << "\n";
+      result << "]"
+             << "\n";
       sep2 = ", ";
     }
-    result << "]" << "\n";
+    result << "]"
+           << "\n";
 
     return result.str();
   }

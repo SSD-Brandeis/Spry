@@ -553,57 +553,65 @@ Status TableCache::Get(
     // Self Added Start
     //  *** Also Required to implement in block_based_table_reader.cc ***
     bool rdf_skip_range_deletions = false;
-    std::string rdf_type = checking::SystemVerifier::getSystemVerifier()
-                               ->getStringOfRDFTypeChosed();
-    if (rdf_type == "PLRDF") {  // xxx
-      rdf_skip_range_deletions = (level > 0);
+    if (checking::SystemVerifier::getSystemVerifier()
+            ->getForceLoadingRangeTombstonesFromSSTable() == true) {
+      // 2026-2-27 for mixed workload (point query not in the end of the
+      // insertion but interleaved within the insertion)
+      rdf_skip_range_deletions = false;
+    } else {
+      std::string rdf_type = checking::SystemVerifier::getSystemVerifier()
+                                 ->getStringOfRDFTypeChosed();
+      if (rdf_type == "PLRDF") {  // xxx
+        rdf_skip_range_deletions = (level > 0);
 
-    } else if (rdf_type == "SPLIT_PLRDF" || rdf_type == "TOP_LEVEL_RDF") {
-      rdf_skip_range_deletions = (level > 0);
+      } else if (rdf_type == "SPLIT_PLRDF" || rdf_type == "TOP_LEVEL_RDF") {
+        rdf_skip_range_deletions = (level > 0);
 
-    } else if (rdf_type == "PLRDF_STRING_KEY") {
-      // temporarily testing, need to be determined in the future, default to
-      // storing full string key
-      rdf_skip_range_deletions = (level > 0);
-    } else if (rdf_type == "SPLIT_PLRDF_STRING_KEY" ||
-               rdf_type == "TOP_LEVEL_RDF_STRING_KEY") {
-      rdf_skip_range_deletions =
-          (!PLRDF_Env::getInstance()->getFlagKeyMayDeleted()) && (level > 0);
-      // std::cout << "rdf_skip_range_deletions = " << rdf_skip_range_deletions
-      // << " " << __FILE__ << ":" << __LINE__ << std::endl;
-      // TODO: let it be set (now ERROR)
-      // rdf_skip_range_deletions = false;
-      // rdf_skip_range_deletions = true;
-    } else if (rdf_type == "SKYLINE_RDF") {
-      rdf_skip_range_deletions = true;
+      } else if (rdf_type == "PLRDF_STRING_KEY") {
+        // temporarily testing, need to be determined in the future, default to
+        // storing full string key
+        rdf_skip_range_deletions = (level > 0);
+      } else if (rdf_type == "SPLIT_PLRDF_STRING_KEY" ||
+                 rdf_type == "TOP_LEVEL_RDF_STRING_KEY") {
+        rdf_skip_range_deletions =
+            (!PLRDF_Env::getInstance()->getFlagKeyMayDeleted()) && (level > 0);
+        // std::cout << "rdf_skip_range_deletions = " <<
+        // rdf_skip_range_deletions
+        // << " " << __FILE__ << ":" << __LINE__ << std::endl;
+        // TODO: let it be set (now ERROR)
+        // rdf_skip_range_deletions = false;
+        // rdf_skip_range_deletions = true;
+      } else if (rdf_type == "SKYLINE_RDF") {
+        rdf_skip_range_deletions = true;
 
-      // }else if(rdf_type == "SuRF_LF_RDF"){
-    } else if (rdf_type == "SuRF_LF_RDF" || rdf_type == "SuRF_LF_SPLIT_RDF") {
-      // surf::SuRF_Env::getInstance()->setFlagBypassIfSameKey is called in
-      // utils_gen_workload.h rdf_skip_range_deletions =
-      // !surf::SuRF_Env::getInstance()->getFlagBypassIfSameKey();
-      rdf_skip_range_deletions =
-          (!surf::SuRF_Env::getInstance()->getFlagKeyMayDeleted()) &&
-          (level > 0);
-      if (rdf_skip_range_deletions == false) {
-        std::cout << "rdf_skip_range_deletions = false" << " " << __FILE__
-                  << " " << __FUNCTION__ << std::endl;
+        // }else if(rdf_type == "SuRF_LF_RDF"){
+      } else if (rdf_type == "SuRF_LF_RDF" || rdf_type == "SuRF_LF_SPLIT_RDF") {
+        // surf::SuRF_Env::getInstance()->setFlagBypassIfSameKey is called in
+        // utils_gen_workload.h rdf_skip_range_deletions =
+        // !surf::SuRF_Env::getInstance()->getFlagBypassIfSameKey();
+        rdf_skip_range_deletions =
+            (!surf::SuRF_Env::getInstance()->getFlagKeyMayDeleted()) &&
+            (level > 0);
+        if (rdf_skip_range_deletions == false) {
+          std::cout << "rdf_skip_range_deletions = false" << " " << __FILE__
+                    << " " << __FUNCTION__ << std::endl;
+        }
+        // std::cout << "SuRF_LF_SPLIT_RDF rdf_skip_range_deletions = " <<
+        // rdf_skip_range_deletions << " " << __FILE__ << ":" << __LINE__ << " "
+        // << __FUNCTION__ << std::endl;
+
+      } else if (rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" &&
+                 rdf_type != "NONE2" && rdf_type != "PLRDF" &&
+                 rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" &&
+                 rdf_type != "TOP_LEVEL_RDF_STRING_KEY" &&
+                 rdf_type != "PLRDF_STRING_KEY" &&
+                 rdf_type != "SPLIT_PLRDF_STRING_KEY" &&
+                 rdf_type != "SKYLINE_RDF" && rdf_type != "SuRF_LF_RDF" &&
+                 rdf_type != "SuRF_LF_SPLIT_RDF") {
+        std::cerr << "Error: condition unchecked. " << __FILE__ << ":"
+                  << __LINE__ << " " << __FUNCTION__ << std::endl
+                  << "rdf_type = " << rdf_type << std::endl;
       }
-      // std::cout << "SuRF_LF_SPLIT_RDF rdf_skip_range_deletions = " <<
-      // rdf_skip_range_deletions << " " << __FILE__ << ":" << __LINE__ << " "
-      // << __FUNCTION__ << std::endl;
-
-    } else if (rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" &&
-               rdf_type != "NONE2" && rdf_type != "PLRDF" &&
-               rdf_type != "SPLIT_PLRDF" && rdf_type != "TOP_LEVEL_RDF" &&
-               rdf_type != "TOP_LEVEL_RDF_STRING_KEY" &&
-               rdf_type != "PLRDF_STRING_KEY" &&
-               rdf_type != "SPLIT_PLRDF_STRING_KEY" &&
-               rdf_type != "SKYLINE_RDF" && rdf_type != "SuRF_LF_RDF" &&
-               rdf_type != "SuRF_LF_SPLIT_RDF") {
-      std::cerr << "Error: condition unchecked. " << __FILE__ << ":" << __LINE__
-                << " " << __FUNCTION__ << std::endl
-                << "rdf_type = " << rdf_type << std::endl;
     }
     // Self Added End
 
@@ -631,6 +639,26 @@ Status TableCache::Get(
       // Self Added Start
       checking::SystemVerifier::getSystemVerifier()->stop_get_max_seq();
     }
+    // Self Added End
+
+    if (s.ok() && max_covering_tombstone_seq != nullptr &&
+        !options.ignore_range_deletions) {
+      std::unique_ptr<FragmentedRangeTombstoneIterator> range_del_iter(
+          t->NewRangeTombstoneIterator(options));
+      if (range_del_iter != nullptr) {
+        SequenceNumber seq =
+            range_del_iter->MaxCoveringTombstoneSeqnum(ExtractUserKey(k));
+        if (seq > *max_covering_tombstone_seq) {
+          *max_covering_tombstone_seq = seq;
+          if (get_context->NeedTimestamp()) {
+            get_context->SetTimestampFromRangeTombstone(
+                range_del_iter->timestamp());
+          }
+        }
+      }
+    }
+    // Self Added Start
+    checking::SystemVerifier::getSystemVerifier()->stop_get_max_seq();
     // Self Added End
 
     // Self Added Start

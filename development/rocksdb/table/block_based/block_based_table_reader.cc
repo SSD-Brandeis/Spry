@@ -901,6 +901,8 @@ Status BlockBasedTable::Open(
   checking::SystemVerifier::getSystemVerifier()
       ->increaseBlockBasedTableOpenCount();
 
+  // 2026-2-27 for mixed workload (point query not in the end of the insertion
+  // but interleaved within the insertion)
   bool rdf_skip_range_deletions = false;
   std::string rdf_type =
       checking::SystemVerifier::getSystemVerifier()->getStringOfRDFTypeChosed();
@@ -931,16 +933,19 @@ Status BlockBasedTable::Open(
     }
   }
   // std::cout << "rdf_skip_range_deletions = " << rdf_skip_range_deletions << "
-  // " << __FILE__ << ":" << __LINE__ << std::endl;
+  // "
+  //           << __FILE__ << ":" << __LINE__ << std::endl;
 
   // yucheng Added Start Important: this is only for experimental use
   // if((!rdf_skip_range_deletions) &&
   // checking::SystemVerifier::getSystemVerifier()->getFlagUsingRocksdbDefaultValueOrFalseAsPrefetchIndexAndFilterInCacheDuringBlockBasedTableOpen()){
   // yucheng Added End
-  // std::cout << "ReadRangeDelBlock pre1 " << __FILE__ << ":" << __LINE__ << "
+  // std::cout << "ReadRangeDelBlock pre1 " << __FILE__ << ":" << __LINE__ <<",
+  // "
   // " << __FUNCTION__ << std::endl;
   if (!rdf_skip_range_deletions) {
-    // std::cout << "ReadRangeDelBlock pre2 " << __FILE__ << ":" << __LINE__ <<
+    // std::cout << "ReadRangeDelBlock pre2 " << __FILE__ << ":" << __LINE__
+    // <<
     // " " << __FUNCTION__ << std::endl;
     s = new_table->ReadRangeDelBlock(ro, prefetch_buffer.get(),
                                      metaindex_iter.get(), internal_comparator,
