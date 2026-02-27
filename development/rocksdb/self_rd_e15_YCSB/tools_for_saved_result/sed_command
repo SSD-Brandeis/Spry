@@ -2,7 +2,7 @@
 #sed -i 's/)\ .*\ fetcher/)\ fetcher/g' saved*/log*
 
 
-for dir in log*/; do
+for dir in YCSB-*/; do
     dir="${dir%/}"   # remove trailing slash if you want
     echo "Processing $dir..."
     cd "$dir"
