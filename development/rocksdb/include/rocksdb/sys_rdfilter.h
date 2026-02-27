@@ -1578,7 +1578,7 @@ class PLRDF_t {
   int getNumberOfTotalLevels() {
     int num = 0;
     int len = rd_filter.size();
-    for (int i = 1; i < len; i++) {
+    for (int i = 0; i < len; i++) {
       if (rd_filter[i].size() > 0) {
         num = i + 1;
       }
@@ -1930,7 +1930,7 @@ class PLRDF_t {
         candidate = *it2;
         ++it2;
       } else {
-        // Equal keys — advance both
+        // Equal keys ??advance both
         candidate = *it1;
         ++it1;
         ++it2;
@@ -3281,7 +3281,7 @@ class PLRDF {
   int getNumberOfTotalLevels() {
     int num = 0;
     int len = rd_filter.size();
-    for (int i = 1; i < len; i++) {
+    for (int i = 0; i < len; i++) {
       if (rd_filter[i].size() > 0) {
         num = i + 1;
       }
@@ -3567,7 +3567,7 @@ class PLRDF {
         candidate = *it2;
         ++it2;
       } else {
-        // Equal keys — advance both
+        // Equal keys ??advance both
         candidate = *it1;
         ++it1;
         ++it2;
@@ -4060,27 +4060,27 @@ RDFUpdateMetadata::getOutputLevelRangeTombstonesFilteredByFileRanges(
     std::vector<pss>& file_boundary_list) const {
   if (rd_merged.size() == 0) return {};
 
-  size_t i_rd = 0;
+  size_t start_i_rd = 0;
   size_t len_rd = rd_merged.size();
-
   std::vector<pss> ranges_to_insert;
   for (size_t i_dst = 0; i_dst < file_boundary_list.size(); i_dst++) {
-    if (i_rd >= len_rd) break;
-
     pss file_boundary = file_boundary_list[i_dst];
     if (file_boundary.first == file_boundary.second) continue;
 
+    size_t i_rd = start_i_rd;
     while (i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.first) {
       i_rd++;
     }
+    start_i_rd = i_rd;
+
     while (i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second) {
       pss range_in = std::make_pair(
           std::max(rd_merged[i_rd].first, file_boundary.first),
           std::min(rd_merged[i_rd].second, file_boundary.second));
       ranges_to_insert.push_back(range_in);
-      if (rd_merged[i_rd].second >= file_boundary.second) {
-        break;
-      }
+      // if (rd_merged[i_rd].second >= file_boundary.second) {
+      //   break;
+      // }
       i_rd++;
     }
   }
