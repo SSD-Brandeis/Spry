@@ -349,6 +349,12 @@ class SystemVerifier {
   bool isSkipReadingRangeDeleteBlock() {
     return flag_skip_reading_range_delete_block;
   }
+  void setForceLoadingRangeTombstonesFromSSTable(bool flag) {
+    flag_force_loading_range_tombstones_from_SSTable = flag;
+  }
+  bool getForceLoadingRangeTombstonesFromSSTable() {
+    return flag_force_loading_range_tombstones_from_SSTable;
+  }
 
   bool flag_is_running_PQ = false;
   bool isRunningPQ() { return flag_is_running_PQ; }

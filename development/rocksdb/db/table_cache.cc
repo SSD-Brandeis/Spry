@@ -554,7 +554,9 @@ Status TableCache::Get(
     //  *** Also Required to implement in block_based_table_reader.cc ***
     bool rdf_skip_range_deletions = false;
     if (checking::SystemVerifier::getSystemVerifier()
-            ->get_force_loading_range_tombstones_from_SSTable() == true) {
+            ->getForceLoadingRangeTombstonesFromSSTable() == true) {
+      // 2026-2-27 for mixed workload (point query not in the end of the
+      // insertion but interleaved within the insertion)
       rdf_skip_range_deletions = false;
     } else {
       std::string rdf_type = checking::SystemVerifier::getSystemVerifier()

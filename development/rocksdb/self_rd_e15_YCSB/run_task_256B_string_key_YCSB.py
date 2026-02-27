@@ -16,7 +16,9 @@ params = {
     #"--max_open_files": [999],
     # "--max_open_files": [20],
     "--max_open_files": [1],
-    "--skip_reading_RD_blocks": [1], # control on block_based_table_reader, but not on table_cache, cannot set to 1 (skip range) if RDF will answer keyMayBeDeleted, basically just set it to 0 if each time just running on 1 RDF_TYPE
+    # "--skip_reading_RD_blocks": [1], # control on block_based_table_reader, but not on table_cache, cannot set to 1 (skip range) if RDF will answer keyMayBeDeleted, basically just set it to 0 if each time just running on 1 RDF_TYPE
+    "--skip_reading_RD_blocks": [0], # control on block_based_table_reader, but not on table_cache, cannot set to 1 (skip range) if RDF will answer keyMayBeDeleted, basically just set it to 0 if each time just running on 1 RDF_TYPE
+    "--force_loading_range_tombstones_from_SSTable": [1],
     #"--number_of_PQ": [5000*100],
     # "--number_of_PQ": [5000], # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
     "--system_check_test_on_all_PQ": [0], # for debugging, 0: off, 1: on, equal to "--number_of_PQ": [-1]
@@ -288,7 +290,8 @@ params3["--surf__key_len_in_bytes"] = [257]
 # params3[ "--skip_reading_RD_blocks"] = [0]
 params3["--flag_skip_compaction_trivial_move"] = [1]
 # params3[ "--surf__key_len_in_bytes"] = [5]
-params3["--skip_reading_RD_blocks"] = [1]
+params3["--skip_reading_RD_blocks"] = [0]
+params3["--force_loading_range_tombstones_from_SSTable"] = [1]
 # params3[ "--show_surf_compaction_info"] = [1]
 params3["--max_open_files"] = [1]
 # params3["--number_of_PQ"] = [5000] # -1: for testing on all PQ, >=0 : sample #PQ from all PQ
@@ -336,48 +339,20 @@ if False:
 rdf_types = [
     # {"--using_rdf_types": ["NONE"], },
     {"--using_rdf_types": ["NONE_CACHE_RANGETOMBSTONE_TRACING"], },
-    # {"--using_rdf_types": ["PLRDF"], },
-    # {"--using_rdf_types": ["SPLIT_PLRDF"], },
-    # {"--using_rdf_types": ["PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0]},
-    {"--using_rdf_types": ["PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[1]},
-    {"--using_rdf_types": ["SPLIT_PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[1]},
+    {"--using_rdf_types": ["PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0], "--force_loading_range_tombstones_from_SSTable": [1]},
+    {"--using_rdf_types": ["SPLIT_PLRDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0], "--force_loading_range_tombstones_from_SSTable": [1]},
     # {"--using_rdf_types": ["TOP_LEVEL_RDF"], },
-    {"--using_rdf_types": ["TOP_LEVEL_RDF_STRING_KEY"],  "--skip_reading_RD_blocks":[1]},
+    {"--using_rdf_types": ["TOP_LEVEL_RDF_STRING_KEY"],  "--skip_reading_RD_blocks":[0], "--force_loading_range_tombstones_from_SSTable": [1]},
     # {"--using_rdf_types": ["SKYLINE_RDF"], },
     {"--using_rdf_types": ["SuRF_LF_RDF"]},
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]},
     # {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [257], "--skip_reading_RD_blocks":[1]},
     # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [257], "--skip_reading_RD_blocks":[1]},
-    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
-    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]},
-    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #9
-    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [1], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #10
-    
-    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0]}, #11
-    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0]}, #12
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0], "--force_loading_range_tombstones_from_SSTable": [1]},
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0], "--force_loading_range_tombstones_from_SSTable": [1]},
 
-    
-    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [7], "--skip_reading_RD_blocks":[0]}, #13
-    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [7], "--skip_reading_RD_blocks":[0]}, #14
-    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #13
-    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [5], "--skip_reading_RD_blocks":[0]}, #14
-    # {"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #15
-    # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #16
-
-    # check total_time & insertion time
-    #{"--using_rdf_types": ["SuRF_LF_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #17
-    #{"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--use_surf_base": [1], "--surf_base_store_key_to_k_diff": [2], "--skip_reading_RD_blocks":[0], "--surf_use_condensed_digit_key":[1]}, #18
-    #{"--using_rdf_types": ["NONE_CACHE_RANGETOMBSTONE_TRACING"], }, #19
-    #{"--using_rdf_types": ["PLRDF"], }, #20
-    #{"--using_rdf_types": ["SPLIT_PLRDF"], }, #21
-    #{"--using_rdf_types": ["TOP_LEVEL_RDF"], }, #22
-    #{"--using_rdf_types": ["SKYLINE_RDF"], }, #23
-
-    
-    #{"--using_rdf_types": ["SuRF_LF_RDF"]}, #24
-    #{"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]}, #25
-    #{"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]}, #26
-    #{"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0]}, #27
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0], "--force_loading_range_tombstones_from_SSTable": [1]}, #11
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0], "--force_loading_range_tombstones_from_SSTable": [1]}, #12
 ]
 # rdf_types = {
 #     "NONE": {},
