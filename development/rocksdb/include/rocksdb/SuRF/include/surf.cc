@@ -1651,13 +1651,13 @@ void SuRF_RDF::shiftRDFToOutputLevel(
         ranges_to_insert.push_back(range_in);
         i_rd++;
       }
-      // if (i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second) {
-      //   pss range_in = std::make_pair(
-      //       std::max(rd_merged[i_rd].first, file_boundary.first),
-      //       std::min(rd_merged[i_rd].second, file_boundary.second));
-      //   ranges_to_insert.push_back(range_in);
-      //   // don't i_rd ++;
-      // }
+      if (i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second) {
+        pss range_in = std::make_pair(
+            std::max(rd_merged[i_rd].first, file_boundary.first),
+            std::min(rd_merged[i_rd].second, file_boundary.second));
+        ranges_to_insert.push_back(range_in);
+        // don't i_rd ++;
+      }
 
       if (ranges_to_insert.size() > 0) {
         this->insertRangesAtLevelOfFd(
@@ -1730,13 +1730,13 @@ void SuRF_RDF::shiftRDFWithPointKeysToOutputLevel(
         ranges_to_insert.push_back(range_in);
         i_rd++;
       }
-      // if (i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second) {
-      //   pss range_in = std::make_pair(
-      //       std::max(rd_merged[i_rd].first, file_boundary.first),
-      //       std::min(rd_merged[i_rd].second, file_boundary.second));
+      if (i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second) {
+        pss range_in = std::make_pair(
+            std::max(rd_merged[i_rd].first, file_boundary.first),
+            std::min(rd_merged[i_rd].second, file_boundary.second));
 
-      //   ranges_to_insert.push_back(range_in);
-      // }
+        ranges_to_insert.push_back(range_in);
+      }
 
       if (ranges_to_insert.size() > 0) {
 #ifdef DEBUG_SURF_COMPACTION
