@@ -1651,13 +1651,13 @@ void SuRF_RDF::shiftRDFToOutputLevel(
         ranges_to_insert.push_back(range_in);
         i_rd++;
       }
-      // if (i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second) {
-      //   pss range_in = std::make_pair(
-      //       std::max(rd_merged[i_rd].first, file_boundary.first),
-      //       std::min(rd_merged[i_rd].second, file_boundary.second));
-      //   ranges_to_insert.push_back(range_in);
-      //   // don't i_rd ++;
-      // }
+      if (i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second) {
+        pss range_in = std::make_pair(
+            std::max(rd_merged[i_rd].first, file_boundary.first),
+            std::min(rd_merged[i_rd].second, file_boundary.second));
+        ranges_to_insert.push_back(range_in);
+        // don't i_rd ++;
+      }
 
       if (ranges_to_insert.size() > 0) {
         this->insertRangesAtLevelOfFd(
@@ -1697,10 +1697,8 @@ void SuRF_RDF::shiftRDFWithPointKeysToOutputLevel(
     size_t i_rd = 0;
     assert(dst_fd_list.size() == file_boundary_list.size());
     size_t len_dst = dst_fd_list.size();
+    size_t start_i_rd = 0;
     for (size_t i_dst = 0; i_dst < len_dst; i_dst++) {
-      if (i_rd >= len_rd) {
-        break;
-      }
       uint64_t dst_fd = dst_fd_list[i_dst];
       pss file_boundary = file_boundary_list[i_dst];
       // 2024-10
@@ -1710,6 +1708,7 @@ void SuRF_RDF::shiftRDFWithPointKeysToOutputLevel(
       //
       // separate
       std::vector<pss> ranges_to_insert;
+      size_t i_rd = start_i_rd;
       if (surf_flag__allow_range_boundary_overlapped == true) {
         while (i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.first) {
           i_rd++;
@@ -1721,6 +1720,9 @@ void SuRF_RDF::shiftRDFWithPointKeysToOutputLevel(
           i_rd++;
         }
       }
+      start_i_rd = i_rd;  // Optimization: next file cannot start before this
+                          // i_rd if boundaries are sorted
+
       while (i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.second) {
         pss range_in = std::make_pair(
             std::max(rd_merged[i_rd].first, file_boundary.first),

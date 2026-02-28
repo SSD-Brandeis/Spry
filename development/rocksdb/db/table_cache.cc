@@ -592,10 +592,11 @@ Status TableCache::Get(
         rdf_skip_range_deletions =
             (!surf::SuRF_Env::getInstance()->getFlagKeyMayDeleted()) &&
             (level > 0);
-        if (rdf_skip_range_deletions == false) {
-          std::cout << "rdf_skip_range_deletions = false" << " " << __FILE__
-                    << " " << __FUNCTION__ << std::endl;
-        }
+        // if (rdf_skip_range_deletions == false) {
+        //   std::cout << "rdf_skip_range_deletions = false" << " " << __FILE__
+        //             << " " << __FUNCTION__ << std::endl;
+        // }
+
         // std::cout << "SuRF_LF_SPLIT_RDF rdf_skip_range_deletions = " <<
         // rdf_skip_range_deletions << " " << __FILE__ << ":" << __LINE__ << " "
         // << __FUNCTION__ << std::endl;
