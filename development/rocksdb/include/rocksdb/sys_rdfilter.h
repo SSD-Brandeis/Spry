@@ -3953,6 +3953,8 @@ struct VersionRDFBundle {
   // This method modifies the bundle in-place.
   // When applying to a new Version, ensure this bundle is a clone/copy first.
   void ApplyDelta(const RDFUpdateMetadata& delta);
+  void logCurrentTotalNumbersOfRangesInEachRDF();
+  void logCurrentTotalMemoryUsageInEachRDF();
 
  private:
   // Helper methods for job-type-specific RDF updates
