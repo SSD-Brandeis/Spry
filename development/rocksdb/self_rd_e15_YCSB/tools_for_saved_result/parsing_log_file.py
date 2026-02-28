@@ -524,6 +524,7 @@ selected_columns = \
  'insertion_time_ns _out',
  'rd_time_ns _out',
  ' filter false positive rate _out',
+ 'scan_time_ns _out',
  'point_query_time_on_existing_keys_ns _out',
  'point_query_time_on_deleted_keys_ns _out',
  'point_query_time_on_non_inserted_keys_ns _out',
