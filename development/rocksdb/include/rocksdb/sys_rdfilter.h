@@ -5036,7 +5036,7 @@ inline void VersionRDFBundle::ApplyDirectRemovalDelta(
   }
 }
 
-void VersionRDFBundle::logCurrentTotalNumbersOfRangesInEachRDF() {
+inline void VersionRDFBundle::logCurrentTotalNumbersOfRangesInEachRDF() {
   // uint32_t origin_count =
   // current_->getNumberOfTablesRangeTombstonesInCache();
 
@@ -5058,7 +5058,7 @@ void VersionRDFBundle::logCurrentTotalNumbersOfRangesInEachRDF() {
   }
 }
 
-void VersionRDFBundle::logCurrentTotalMemoryUsageInEachRDF() {
+inline void VersionRDFBundle::logCurrentTotalMemoryUsageInEachRDF() {
   // uint32_t origin_bytes = current_->getSizeOfTablesRangeTombstonesInCache();
 
   // origin_info.logCurrentTotalMemoryUsage(origin_bytes);
