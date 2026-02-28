@@ -1632,13 +1632,19 @@ void SuRF_RDF::shiftRDFToOutputLevel(
 
       std::vector<pss> ranges_to_insert;
       size_t i_rd = start_i_rd;
-      while (i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.first) {
-        i_rd++;
+      if (surf_flag__allow_range_boundary_overlapped == true) {
+        while (i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.first) {
+          i_rd++;
+        }
+      } else {
+        while (i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.first) {
+          i_rd++;
+        }
       }
       start_i_rd = i_rd;  // Optimization: next file cannot start before this
                           // i_rd if boundaries are sorted
 
-      while (i_rd < len_rd && rd_merged[i_rd].second <= file_boundary.second) {
+      while (i_rd < len_rd && rd_merged[i_rd].first < file_boundary.second) {
         pss range_in = std::make_pair(
             std::max(rd_merged[i_rd].first, file_boundary.first),
             std::min(rd_merged[i_rd].second, file_boundary.second));
@@ -1688,6 +1694,7 @@ void SuRF_RDF::shiftRDFWithPointKeysToOutputLevel(
   size_t len_rd = rd_merged.size();
   assert(len_rd > 0ULL);
   if (len_rd > 0) {
+    size_t i_rd = 0;
     assert(dst_fd_list.size() == file_boundary_list.size());
     size_t len_dst = dst_fd_list.size();
     size_t start_i_rd = 0;
