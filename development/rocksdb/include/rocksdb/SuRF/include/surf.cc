@@ -1388,6 +1388,12 @@ void SuRF_RDF::removeSuRFAtLevelOfFd(uint32_t src_level, uint64_t fd) {
   if (src_level >= level_file_surf_rdf.size()) {
     return;
   }
+
+  if (fd == 163302) {
+    std::cout << "Remove SuRF. fd = " << fd << " src_level = " << src_level
+              << " " << __FILE__ << ":" << __LINE__ << " " << __func__
+              << std::endl;
+  }
   if (level_file_surf_rdf[src_level].count(fd) == 0) {
     // std::cout << "@SuRF remove file. fd = " << fd << " src_level = " <<
     // src_level << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__

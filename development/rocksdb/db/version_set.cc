@@ -2497,6 +2497,17 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
                 << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
+      if (user_key.ToString.substr(0, 2) == "Vg") {
+        std::cout << " fp_hit_file_level = " << fp.GetHitFileLevel()
+                  << " fd = " << (f->fd).GetNumber() << " f->smallest_key = "
+                  << ExtractUserKey(f->smallest_key).ToString()
+                  << " f->largest_key = "
+                  << ExtractUserKey(f->largest_key).ToString() << " "
+                  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                  << std::endl;
+        std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
+                  << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      }
     }
 
     checking::SystemVerifier::getSystemVerifier()
@@ -2547,12 +2558,28 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
                 << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
+      if (user_key.ToString.substr(0, 2) == "Vg") {
+        std::cout << " fp_hit_file_level = " << fp.GetHitFileLevel()
+                  << " fd = " << (f->fd).GetNumber() << " f->smallest_key = "
+                  << ExtractUserKey(f->smallest_key).ToString()
+                  << " f->largest_key = "
+                  << ExtractUserKey(f->largest_key).ToString() << " "
+                  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                  << std::endl;
+        std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
+                  << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      }
     }
 #ifdef DEBUG_PLRDF_GET_PATH
     std::cout << "1 split__is_alive_after_hit_file_level = "
               << split__is_alive_after_hit_file_level << " " << __FILE__ << ":"
               << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
+    if (user_key.ToString.substr(0, 2) == "Vg") {
+      std::cout << "1 split__is_alive_after_hit_file_level = "
+                << split__is_alive_after_hit_file_level << " " << __FILE__
+                << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+    }
   }
   // PLRDF Stringkey
   else if (rdf_type == "PLRDF_STRING_KEY") {
@@ -2584,6 +2611,17 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
                 << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
+      if (user_key.ToString.substr(0, 2) == "Vg") {
+        std::cout << " fp_hit_file_level = " << fp.GetHitFileLevel()
+                  << " fd = " << (f->fd).GetNumber() << " f->smallest_key = "
+                  << ExtractUserKey(f->smallest_key).ToString()
+                  << " f->largest_key = "
+                  << ExtractUserKey(f->largest_key).ToString() << " "
+                  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                  << std::endl;
+        std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
+                  << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      }
     }
 
     checking::SystemVerifier::getSystemVerifier()
@@ -2643,6 +2681,17 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
                 << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
+      if (user_key.ToString.substr(0, 2) == "Vg") {
+        std::cout << " fp_hit_file_level = " << fp.GetHitFileLevel()
+                  << " fd = " << (f->fd).GetNumber() << " f->smallest_key = "
+                  << ExtractUserKey(f->smallest_key).ToString()
+                  << " f->largest_key = "
+                  << ExtractUserKey(f->largest_key).ToString() << " "
+                  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                  << std::endl;
+        std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
+                  << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      }
     }
 #ifdef DEBUG_PLRDF_GET_PATH
     std::cout << "1 split_plrdf_stringkey__is_alive_after_hit_file_level = "
@@ -2650,6 +2699,12 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
               << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
               << std::endl;
 #endif
+    if (user_key.ToString.substr(0, 2) == "Vg") {
+      std::cout << "1 split_plrdf_stringkey__is_alive_after_hit_file_level = "
+                << split_plrdf_stringkey__is_alive_after_hit_file_level << " "
+                << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                << std::endl;
+    }
   }
   // TOP Level RDF
   else if (rdf_type == "TOP_LEVEL_RDF") {
@@ -2712,6 +2767,17 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
                 << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
+      if (user_key.ToString.substr(0, 2) == "Vg") {
+        std::cout << " fp_hit_file_level = " << fp.GetHitFileLevel()
+                  << " fd = " << (f->fd).GetNumber() << " f->smallest_key = "
+                  << ExtractUserKey(f->smallest_key).ToString()
+                  << " f->largest_key = "
+                  << ExtractUserKey(f->largest_key).ToString() << " "
+                  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                  << std::endl;
+        std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
+                  << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      }
 
       string user_key2 = user_key.ToString();
       if (surf::SuRF_Env::getInstance()->getFlagSurfUseCondensedDigitKey() ==
@@ -2811,6 +2877,23 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
                 << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
                 << std::endl;
 #endif
+      if (user_key.ToString.substr(0, 2) == "Vg") {
+        std::cout << " fp_hit_file_level = " << fp.GetHitFileLevel()
+                  << " fd = " << (f->fd).GetNumber() << " f->smallest_key = "
+                  << ExtractUserKey(f->smallest_key).ToString()
+                  << " f->largest_key = "
+                  << ExtractUserKey(f->largest_key).ToString() << " "
+                  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                  << std::endl;
+        std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
+                  << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      }
+      if (user_key.ToString.substr(0, 2) == "Vg") {
+        std::cout << "0 surf_level_file_split__is_alive_after_hit_file_level = "
+                  << surf_level_file_split__is_alive_after_hit_file_level << " "
+                  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                  << std::endl;
+      }
     }
 
   } else if (rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" &&
@@ -3108,12 +3191,30 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
           std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
                     << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
+          if (user_key.ToString.substr(0, 2) == "Vg") {
+            std::cout << " fp_hit_file_level = " << fp.GetHitFileLevel()
+                      << " fd = " << (f->fd).GetNumber()
+                      << " f->smallest_key = "
+                      << ExtractUserKey(f->smallest_key).ToString()
+                      << " f->largest_key = "
+                      << ExtractUserKey(f->largest_key).ToString() << " "
+                      << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                      << std::endl;
+            std::cout << " user_key = " << user_key.ToString() << " "
+                      << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                      << std::endl;
+          }
         }
 #ifdef DEBUG_PLRDF_GET_PATH
         std::cout << "is_alive_after_hit_file_level = "
                   << is_alive_after_hit_file_level << " " << __FILE__ << ":"
                   << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
+        if (user_key.ToString.substr(0, 2) == "Vg") {
+          std::cout << "is_alive_after_hit_file_level = "
+                    << is_alive_after_hit_file_level << " " << __FILE__ << ":"
+                    << __LINE__ << " " << __FUNCTION__ << std::endl;
+        }
 
         if (is_alive_after_hit_file_level == false) {
           *status = Status::NotFound();
@@ -3163,12 +3264,30 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
           std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
                     << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
+          if (user_key.ToString.substr(0, 2) == "Vg") {
+            std::cout << " fp_hit_file_level = " << fp.GetHitFileLevel()
+                      << " fd = " << (f->fd).GetNumber()
+                      << " f->smallest_key = "
+                      << ExtractUserKey(f->smallest_key).ToString()
+                      << " f->largest_key = "
+                      << ExtractUserKey(f->largest_key).ToString() << " "
+                      << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                      << std::endl;
+            std::cout << " user_key = " << user_key.ToString() << " "
+                      << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                      << std::endl;
+          }
         }
 #ifdef DEBUG_PLRDF_GET_PATH
         std::cout << "is_alive_after_hit_file_level = "
                   << is_alive_after_hit_file_level << " " << __FILE__ << ":"
                   << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
+        if (user_key.ToString.substr(0, 2) == "Vg") {
+          std::cout << "is_alive_after_hit_file_level = "
+                    << is_alive_after_hit_file_level << " " << __FILE__ << ":"
+                    << __LINE__ << " " << __FUNCTION__ << std::endl;
+        }
 
         if (plrdf_stringkey__is_alive_after_hit_file_level == false) {
           *status = Status::NotFound();
@@ -3237,6 +3356,19 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
           std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
                     << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
+          if (user_key.ToString.substr(0, 2) == "Vg") {
+            std::cout << " fp_hit_file_level = " << fp.GetHitFileLevel()
+                      << " fd = " << (f->fd).GetNumber()
+                      << " f->smallest_key = "
+                      << ExtractUserKey(f->smallest_key).ToString()
+                      << " f->largest_key = "
+                      << ExtractUserKey(f->largest_key).ToString() << " "
+                      << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                      << std::endl;
+            std::cout << " user_key = " << user_key.ToString() << " "
+                      << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                      << std::endl;
+          }
 
           string user_key2 = user_key.ToString();
           if (surf::SuRF_Env::getInstance()
@@ -3292,6 +3424,17 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
       std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
                 << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
+      if (user_key.ToString.substr(0, 2) == "Vg") {
+        std::cout << " fp_hit_file_level = " << fp.GetHitFileLevel()
+                  << " fd = " << (f->fd).GetNumber() << " f->smallest_key = "
+                  << ExtractUserKey(f->smallest_key).ToString()
+                  << " f->largest_key = "
+                  << ExtractUserKey(f->largest_key).ToString() << " "
+                  << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                  << std::endl;
+        std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
+                  << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+      }
       if (rdf_type == "SuRF_LF_SPLIT_RDF") {
         surf::SuRF_Env* _surf_env = surf::SuRF_Env::getInstance();
         bool flag_bypass_if_same_key = _surf_env->getFlagBypassIfSameKey();
@@ -3357,6 +3500,26 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
               << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
               << std::endl;
 #endif
+          if (user_key.ToString.substr(0, 2) == "Vg") {
+            std::cout << " fp_hit_file_level = " << fp.GetHitFileLevel()
+                      << " fd = " << (f->fd).GetNumber()
+                      << " f->smallest_key = "
+                      << ExtractUserKey(f->smallest_key).ToString()
+                      << " f->largest_key = "
+                      << ExtractUserKey(f->largest_key).ToString() << " "
+                      << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                      << std::endl;
+            std::cout << " user_key = " << user_key.ToString() << " "
+                      << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                      << std::endl;
+          }
+          if (user_key.ToString.substr(0, 2) == "Vg") {
+            std::cout
+                << "1 surf_level_file_split__is_alive_after_hit_file_level = "
+                << surf_level_file_split__is_alive_after_hit_file_level << " "
+                << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                << std::endl;
+          }
         }
       }
       // SPLIT PLRDF
@@ -3401,12 +3564,30 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
           std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
                     << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
+          if (user_key.ToString.substr(0, 2) == "Vg") {
+            std::cout << " fp_hit_file_level = " << fp.GetHitFileLevel()
+                      << " fd = " << (f->fd).GetNumber()
+                      << " f->smallest_key = "
+                      << ExtractUserKey(f->smallest_key).ToString()
+                      << " f->largest_key = "
+                      << ExtractUserKey(f->largest_key).ToString() << " "
+                      << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                      << std::endl;
+            std::cout << " user_key = " << user_key.ToString() << " "
+                      << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                      << std::endl;
+          }
         }
 #ifdef DEBUG_PLRDF_GET_PATH
         std::cout << "split__is_alive_after_hit_file_level = "
                   << split__is_alive_after_hit_file_level << " " << __FILE__
                   << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
+        if (user_key.ToString.substr(0, 2) == "Vg") {
+          std::cout << "split__is_alive_after_hit_file_level = "
+                    << split__is_alive_after_hit_file_level << " " << __FILE__
+                    << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
+        }
       }
       // SPLIT PLRDF STRING KEY
       else if (rdf_type == "SPLIT_PLRDF_STRING_KEY") {
@@ -3454,6 +3635,19 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
           std::cout << " user_key = " << user_key.ToString() << " " << __FILE__
                     << ":" << __LINE__ << " " << __FUNCTION__ << std::endl;
 #endif
+          if (user_key.ToString.substr(0, 2) == "Vg") {
+            std::cout << " fp_hit_file_level = " << fp.GetHitFileLevel()
+                      << " fd = " << (f->fd).GetNumber()
+                      << " f->smallest_key = "
+                      << ExtractUserKey(f->smallest_key).ToString()
+                      << " f->largest_key = "
+                      << ExtractUserKey(f->largest_key).ToString() << " "
+                      << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                      << std::endl;
+            std::cout << " user_key = " << user_key.ToString() << " "
+                      << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                      << std::endl;
+          }
         }
 #ifdef DEBUG_PLRDF_GET_PATH
         std::cout << "split_plrdf_stringkey__is_alive_after_hit_file_level = "
@@ -3461,6 +3655,12 @@ void Version::Get(const ReadOptions& read_options, const LookupKey& k,
                   << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
                   << std::endl;
 #endif
+        if (user_key.ToString.substr(0, 2) == "Vg") {
+          std::cout << "split_plrdf_stringkey__is_alive_after_hit_file_level = "
+                    << split_plrdf_stringkey__is_alive_after_hit_file_level
+                    << " " << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__
+                    << std::endl;
+        }
       } else if (rdf_type != "NONE" && rdf_type.substr(0, 5) != "NONE_" &&
                  rdf_type != "NONE2" && rdf_type != "PLRDF" &&
                  rdf_type != "SPLIT_PLRDF" && rdf_type != "PLRDF_STRING_KEY" &&
