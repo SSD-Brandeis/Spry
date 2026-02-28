@@ -1694,7 +1694,6 @@ void SuRF_RDF::shiftRDFWithPointKeysToOutputLevel(
   size_t len_rd = rd_merged.size();
   assert(len_rd > 0ULL);
   if (len_rd > 0) {
-    size_t i_rd = 0;
     assert(dst_fd_list.size() == file_boundary_list.size());
     size_t len_dst = dst_fd_list.size();
     size_t start_i_rd = 0;
