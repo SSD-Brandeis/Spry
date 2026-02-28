@@ -1346,8 +1346,8 @@ void ColumnFamilyData::InstallSuperVersion(
       // this->logCurrentTotalNumbersOfRangesInEachRDF(origin_count);
       // this->logCurrentTotalMemoryUsageInEachRDF(origin_bytes);
 
-      this->logCurrentTotalNumbersOfRangesInEachRDF();
-      this->logCurrentTotalMemoryUsageInEachRDF();
+      // this->logCurrentTotalNumbersOfRangesInEachRDF();
+      // this->logCurrentTotalMemoryUsageInEachRDF();
     }
   }
 
@@ -1848,6 +1848,7 @@ void ColumnFamilyData::printPLRDF() {
             << std::flush;
   const_cast<PLRDF&>(current_->GetRDFBundle()->plrdf).printLevel0();
   current_->GetRDFBundle()->plrdf.print();
+  std::cout << "\n\n" << std::endl << std::flush;
 }
 void ColumnFamilyData::printSplitPLRDF() {
   std::cout << "cfd --- split_PLRDF " << __FILE__ << ":" << __LINE__ << " "
@@ -1855,6 +1856,7 @@ void ColumnFamilyData::printSplitPLRDF() {
             << std::flush;
   const_cast<PLRDF&>(current_->GetRDFBundle()->split_plrdf).printLevel0();
   current_->GetRDFBundle()->split_plrdf.print();
+  std::cout << "\n\n" << std::endl << std::flush;
 }
 void ColumnFamilyData::printPLRDFStringKey() {
   std::cout << "cfd --- PLRDF " << __FILE__ << ":" << __LINE__ << " "
@@ -1863,6 +1865,7 @@ void ColumnFamilyData::printPLRDFStringKey() {
   const_cast<PLRDF_t<std::string>&>(current_->GetRDFBundle()->plrdf_stringkey)
       .printLevel0();
   current_->GetRDFBundle()->plrdf_stringkey.print();
+  std::cout << "\n\n" << std::endl << std::flush;
 }
 void ColumnFamilyData::printSplitPLRDFStringKey() {
   std::cout << "cfd --- split_PLRDF " << __FILE__ << ":" << __LINE__ << " "
@@ -1872,6 +1875,7 @@ void ColumnFamilyData::printSplitPLRDFStringKey() {
       current_->GetRDFBundle()->split_plrdf_stringkey)
       .printLevel0();
   current_->GetRDFBundle()->split_plrdf_stringkey.print();
+  std::cout << "\n\n" << std::endl << std::flush;
 }
 void ColumnFamilyData::printTopLevelRDF() {
   std::cout << "cfd --- top_level_RDF " << __FILE__ << ":" << __LINE__ << " "
@@ -1879,6 +1883,7 @@ void ColumnFamilyData::printTopLevelRDF() {
             << std::flush;
   const_cast<PLRDF&>(current_->GetRDFBundle()->top_level_rdf).printLevel0();
   current_->GetRDFBundle()->top_level_rdf.print();
+  std::cout << "\n\n" << std::endl << std::flush;
 }
 void ColumnFamilyData::printTopLevelRDFStringKey() {
   std::cout << "cfd --- top_level_RDF_stringkey " << __FILE__ << ":" << __LINE__
@@ -1888,14 +1893,14 @@ void ColumnFamilyData::printTopLevelRDFStringKey() {
       current_->GetRDFBundle()->top_level_rdf_stringkey)
       .printLevel0();
   current_->GetRDFBundle()->top_level_rdf_stringkey.print();
+  std::cout << "\n\n" << std::endl << std::flush;
 }
 void ColumnFamilyData::printSkylineRDF() {
   std::cout << "cfd --- skyline_RDF " << __FILE__ << ":" << __LINE__ << " "
             << __FUNCTION__ << std::endl
             << std::flush;
   current_->GetRDFBundle()->skyline_rdf.print();
-  std::cout << __FILE__ << ":" << __LINE__ << " " << __FUNCTION__ << std::endl
-            << std::flush;
+  std::cout << "\n\n" << std::endl << std::flush;
 }
 void ColumnFamilyData::printSuRFLevelFileRDF() {
   if (current_->GetRDFBundle()->surf_level_file_rdf == nullptr) {
@@ -1906,6 +1911,7 @@ void ColumnFamilyData::printSuRFLevelFileRDF() {
       _surf_env->getFlagAllowRangeBoundaryOverlapped();
   current_->GetRDFBundle()->surf_level_file_rdf->print(
       surf_flag__allow_range_boundary_overlapped);
+  std::cout << "\n\n" << std::endl << std::flush;
 }
 void ColumnFamilyData::printSuRFLevelFileSplitRDF() {
   if (current_->GetRDFBundle()->surf_level_file_split_rdf == nullptr) {
@@ -1916,6 +1922,7 @@ void ColumnFamilyData::printSuRFLevelFileSplitRDF() {
       _surf_env->getFlagAllowRangeBoundaryOverlapped();
   current_->GetRDFBundle()->surf_level_file_split_rdf->print(
       surf_flag__allow_range_boundary_overlapped);
+  std::cout << "\n\n" << std::endl << std::flush;
 }
 
 std::vector<int> ColumnFamilyData::getLogOfNumbersOfRangesInPLRDF() {
@@ -1953,55 +1960,56 @@ ColumnFamilyData::getLogOfNumbersOfRangesInSuRFLevelFileSplitRDF() {
       ->surf_level_file_split_rdf->getNumbersOfRangesInRDFLog();
 }
 
-void ColumnFamilyData::logCurrentTotalNumbersOfRangesInEachRDF() {
-  if (current_ == nullptr || current_->GetRDFBundle() == nullptr) {
-    return;
-  }
-  uint32_t origin_count = current_->getNumberOfTablesRangeTombstonesInCache();
-  auto rdf_bundle = current_->GetRDFBundle();
+// void ColumnFamilyData::logCurrentTotalNumbersOfRangesInEachRDF() {
+//   if (current_ == nullptr || current_->GetRDFBundle() == nullptr) {
+//     return;
+//   }
+//   uint32_t origin_count =
+//   current_->getNumberOfTablesRangeTombstonesInCache(); auto rdf_bundle =
+//   current_->GetRDFBundle();
 
-  rdf_bundle->origin_info.logCurrentTotalNumbersOfRanges(origin_count);
+//   rdf_bundle->origin_info.logCurrentTotalNumbersOfRanges(origin_count);
 
-  rdf_bundle->plrdf.logCurrentTotalNumbersOfRanges();
-  rdf_bundle->split_plrdf.logCurrentTotalNumbersOfRanges();
-  rdf_bundle->plrdf_stringkey.logCurrentTotalNumbersOfRanges();
-  rdf_bundle->split_plrdf_stringkey.logCurrentTotalNumbersOfRanges();
-  rdf_bundle->top_level_rdf.logCurrentTotalNumbersOfRanges();
-  rdf_bundle->top_level_rdf_stringkey.logCurrentTotalNumbersOfRanges();
-  rdf_bundle->skyline_rdf.logCurrentTotalNumbersOfRanges();
+//   rdf_bundle->plrdf.logCurrentTotalNumbersOfRanges();
+//   rdf_bundle->split_plrdf.logCurrentTotalNumbersOfRanges();
+//   rdf_bundle->plrdf_stringkey.logCurrentTotalNumbersOfRanges();
+//   rdf_bundle->split_plrdf_stringkey.logCurrentTotalNumbersOfRanges();
+//   rdf_bundle->top_level_rdf.logCurrentTotalNumbersOfRanges();
+//   rdf_bundle->top_level_rdf_stringkey.logCurrentTotalNumbersOfRanges();
+//   rdf_bundle->skyline_rdf.logCurrentTotalNumbersOfRanges();
 
-  if (rdf_bundle->surf_level_file_rdf) {
-    rdf_bundle->surf_level_file_rdf->logCurrentTotalNumbersOfRanges();
-  }
-  if (rdf_bundle->surf_level_file_split_rdf) {
-    rdf_bundle->surf_level_file_split_rdf->logCurrentTotalNumbersOfRanges();
-  }
-}
+//   if (rdf_bundle->surf_level_file_rdf) {
+//     rdf_bundle->surf_level_file_rdf->logCurrentTotalNumbersOfRanges();
+//   }
+//   if (rdf_bundle->surf_level_file_split_rdf) {
+//     rdf_bundle->surf_level_file_split_rdf->logCurrentTotalNumbersOfRanges();
+//   }
+// }
 
-void ColumnFamilyData::logCurrentTotalMemoryUsageInEachRDF() {
-  if (current_ == nullptr || current_->GetRDFBundle() == nullptr) {
-    return;
-  }
-  uint32_t origin_bytes = current_->getSizeOfTablesRangeTombstonesInCache();
-  auto rdf_bundle = current_->GetRDFBundle();
+// void ColumnFamilyData::logCurrentTotalMemoryUsageInEachRDF() {
+//   if (current_ == nullptr || current_->GetRDFBundle() == nullptr) {
+//     return;
+//   }
+//   uint32_t origin_bytes = current_->getSizeOfTablesRangeTombstonesInCache();
+//   auto rdf_bundle = current_->GetRDFBundle();
 
-  rdf_bundle->origin_info.logCurrentTotalMemoryUsage(origin_bytes);
+//   rdf_bundle->origin_info.logCurrentTotalMemoryUsage(origin_bytes);
 
-  rdf_bundle->plrdf.logCurrentTotalMemoryUsage();
-  rdf_bundle->split_plrdf.logCurrentTotalMemoryUsage();
-  rdf_bundle->plrdf_stringkey.logCurrentTotalMemoryUsage();
-  rdf_bundle->split_plrdf_stringkey.logCurrentTotalMemoryUsage();
-  rdf_bundle->top_level_rdf.logCurrentTotalMemoryUsage();
-  rdf_bundle->top_level_rdf_stringkey.logCurrentTotalMemoryUsage();
-  rdf_bundle->skyline_rdf.logCurrentTotalMemoryUsage();
+//   rdf_bundle->plrdf.logCurrentTotalMemoryUsage();
+//   rdf_bundle->split_plrdf.logCurrentTotalMemoryUsage();
+//   rdf_bundle->plrdf_stringkey.logCurrentTotalMemoryUsage();
+//   rdf_bundle->split_plrdf_stringkey.logCurrentTotalMemoryUsage();
+//   rdf_bundle->top_level_rdf.logCurrentTotalMemoryUsage();
+//   rdf_bundle->top_level_rdf_stringkey.logCurrentTotalMemoryUsage();
+//   rdf_bundle->skyline_rdf.logCurrentTotalMemoryUsage();
 
-  if (rdf_bundle->surf_level_file_rdf) {
-    rdf_bundle->surf_level_file_rdf->logCurrentTotalMemoryUsage();
-  }
-  if (rdf_bundle->surf_level_file_split_rdf) {
-    rdf_bundle->surf_level_file_split_rdf->logCurrentTotalMemoryUsage();
-  }
-}
+//   if (rdf_bundle->surf_level_file_rdf) {
+//     rdf_bundle->surf_level_file_rdf->logCurrentTotalMemoryUsage();
+//   }
+//   if (rdf_bundle->surf_level_file_split_rdf) {
+//     rdf_bundle->surf_level_file_split_rdf->logCurrentTotalMemoryUsage();
+//   }
+// }
 // YCH ADDED END
 
 }  // namespace ROCKSDB_NAMESPACE

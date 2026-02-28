@@ -4112,6 +4112,9 @@ inline void VersionRDFBundle::ApplyDelta(const RDFUpdateMetadata& delta) {
       ApplyCompactionDelta(delta);
       break;
   }
+
+  logCurrentTotalNumbersOfRangesInEachRDF();
+  logCurrentTotalMemoryUsageInEachRDF();
 }
 
 inline void VersionRDFBundle::ApplyFlushDelta(const RDFUpdateMetadata& delta) {
@@ -5030,4 +5033,48 @@ inline void VersionRDFBundle::ApplyDirectRemovalDelta(
     }
   }
 }
+
+void VersionRDFBundle::logCurrentTotalNumbersOfRangesInEachRDF() {
+  // uint32_t origin_count =
+  // current_->getNumberOfTablesRangeTombstonesInCache();
+
+  // origin_info.logCurrentTotalNumbersOfRanges(origin_count);
+
+  plrdf.logCurrentTotalNumbersOfRanges();
+  split_plrdf.logCurrentTotalNumbersOfRanges();
+  plrdf_stringkey.logCurrentTotalNumbersOfRanges();
+  split_plrdf_stringkey.logCurrentTotalNumbersOfRanges();
+  top_level_rdf.logCurrentTotalNumbersOfRanges();
+  top_level_rdf_stringkey.logCurrentTotalNumbersOfRanges();
+  skyline_rdf.logCurrentTotalNumbersOfRanges();
+
+  if (surf_level_file_rdf) {
+    surf_level_file_rdf->logCurrentTotalNumbersOfRanges();
+  }
+  if (surf_level_file_split_rdf) {
+    surf_level_file_split_rdf->logCurrentTotalNumbersOfRanges();
+  }
+}
+
+void VersionRDFBundle::logCurrentTotalMemoryUsageInEachRDF() {
+  // uint32_t origin_bytes = current_->getSizeOfTablesRangeTombstonesInCache();
+
+  // origin_info.logCurrentTotalMemoryUsage(origin_bytes);
+
+  plrdf.logCurrentTotalMemoryUsage();
+  split_plrdf.logCurrentTotalMemoryUsage();
+  plrdf_stringkey.logCurrentTotalMemoryUsage();
+  split_plrdf_stringkey.logCurrentTotalMemoryUsage();
+  top_level_rdf.logCurrentTotalMemoryUsage();
+  top_level_rdf_stringkey.logCurrentTotalMemoryUsage();
+  skyline_rdf.logCurrentTotalMemoryUsage();
+
+  if (surf_level_file_rdf) {
+    surf_level_file_rdf->logCurrentTotalMemoryUsage();
+  }
+  if (surf_level_file_split_rdf) {
+    surf_level_file_split_rdf->logCurrentTotalMemoryUsage();
+  }
+}
+
 #endif  // SYS_RDFILTER_H

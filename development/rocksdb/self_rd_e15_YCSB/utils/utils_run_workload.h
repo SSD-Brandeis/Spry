@@ -393,6 +393,8 @@ void runWorkload(DB** db_ptr2, Options& op, WriteOptions& write_op,
 
   printStats(db, op);
 
+  db->printRDF();
+
   // s = db->SetOptions(
   //     {{"disable_auto_compactions",
   //       "true"}});  // is there any compaction happended after this????
