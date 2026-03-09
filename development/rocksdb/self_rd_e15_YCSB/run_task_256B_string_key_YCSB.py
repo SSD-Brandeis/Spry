@@ -348,11 +348,11 @@ rdf_types = [
     {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"]},
     # {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [257], "--skip_reading_RD_blocks":[1]},
     # {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [257], "--skip_reading_RD_blocks":[1]},
-    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0], "--force_loading_range_tombstones_from_SSTable": [1]},
-    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--skip_reading_RD_blocks":[0], "--force_loading_range_tombstones_from_SSTable": [1]},
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [3],  "--use_surf_base": [1], "--skip_reading_RD_blocks":[0], "--force_loading_range_tombstones_from_SSTable": [1]},
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [3], "--use_surf_base": [1], "--skip_reading_RD_blocks":[0], "--force_loading_range_tombstones_from_SSTable": [1]},
 
-    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0], "--force_loading_range_tombstones_from_SSTable": [1]}, #11
-    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [4], "--skip_reading_RD_blocks":[0], "--force_loading_range_tombstones_from_SSTable": [1]}, #12
+    {"--using_rdf_types": ["SuRF_LF_RDF"], "--surf__key_len_in_bytes": [4], "--use_surf_base": [1], "--skip_reading_RD_blocks":[0], "--force_loading_range_tombstones_from_SSTable": [1]}, #11
+    {"--using_rdf_types": ["SuRF_LF_SPLIT_RDF"], "--surf__key_len_in_bytes": [4], "--use_surf_base": [1], "--skip_reading_RD_blocks":[0], "--force_loading_range_tombstones_from_SSTable": [1]}, #12
 ]
 # rdf_types = {
 #     "NONE": {},
