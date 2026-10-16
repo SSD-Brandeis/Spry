@@ -1,7 +1,4 @@
-/*
- *  Created on: May 14, 2019
- *  Author: Subhadeep, Papon
- */
+
  
 #ifndef AWESOME_H_
 #define AWESOME_H_

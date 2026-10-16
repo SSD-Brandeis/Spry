@@ -1,7 +1,3 @@
-/*
- *  Created on: May 13, 2019
- *  Author: Subhadeep, Papon
- */
 
 
 #include "emu_runner.h"

@@ -1,7 +1,3 @@
-/*
- *  Created on: May 13, 2019
- *  Author: Subhadeep
- */
 
 #ifndef EMU_ENVIRONMENT_H_
 #define EMU_ENVIRONMENT_H_

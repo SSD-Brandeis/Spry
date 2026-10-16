@@ -1,7 +1,3 @@
-/*
- *  Created on: Jan 28, 2019
- *  Author: Papon
- */
 
 
 #ifndef QUERY_H_

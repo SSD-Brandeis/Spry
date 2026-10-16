@@ -1,7 +1,4 @@
-/*
- *  Created on: May 14, 2019
- *  Author: Subhadeep, Papon
- */
+
 
 #ifndef WORKLOAD_H_
 #define WORKLOAD_H_

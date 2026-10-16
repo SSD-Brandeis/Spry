@@ -1,8 +1,3 @@
-/*
- *  Created on: May 14, 2019
- *  Author: Subhadeep, Papon
- */
-
 
 #ifndef Memory_Buffer_H_
 #define Memory_Buffer_H_

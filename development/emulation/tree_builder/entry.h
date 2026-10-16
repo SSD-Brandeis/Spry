@@ -1,8 +1,3 @@
-/*
- *  Created on: May 14, 2019
- *  Author: Subhadeep, Papon
- */
-
 
 #ifndef LSM___ENTRY_H_
 #define LSM___ENTRY_H_

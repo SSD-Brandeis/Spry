@@ -1,7 +1,3 @@
-/*
- *  Created on: April 23, 2023
- *  Author: yucheng
- */
 
 
 #ifndef SYSTEM_VERIFIER_H_

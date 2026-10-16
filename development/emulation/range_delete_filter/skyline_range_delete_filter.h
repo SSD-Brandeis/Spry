@@ -1,7 +1,3 @@
-/*
- *  Created on: May 14, 2019
- *  Author: Subhadeep, Papon
- */
 
 #ifndef SKYLINE_RANGE_DELETE_FILTER_H_
 #define SKYLINE_RANGE_DELETE_FILTER_H_

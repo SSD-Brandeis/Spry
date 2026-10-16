@@ -1,7 +1,4 @@
-/*
- *  Created on: May 14, 2019
- *  Author: Subhadeep, Papon
- */
+
 
 #ifndef SST_FILE_H_
 #define SST_FILE_H_

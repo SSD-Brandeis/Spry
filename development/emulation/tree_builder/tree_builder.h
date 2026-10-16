@@ -1,7 +1,4 @@
-/*
- *  Created on: May 14, 2019
- *  Author: Subhadeep, Papon
- */
+
 
 #ifndef TREE_BUILDER_H_
 #define TREE_BUILDER_H_

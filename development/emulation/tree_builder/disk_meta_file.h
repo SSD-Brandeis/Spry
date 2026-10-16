@@ -1,7 +1,3 @@
-/*
- *  Created on: May 14, 2019
- *  Author: Subhadeep, Papon
- */
 
 #ifndef LSM___DISK_META_FILE_H_
 #define LSM___DISK_META_FILE_H_
